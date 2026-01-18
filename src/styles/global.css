@@ -558,6 +558,10 @@ button:focus-visible {
 	padding-bottom: 5.25rem;
 }
 
+html[dir='rtl'] .page {
+	text-align: right;
+}
+
 @media (min-width: 900px) {
 	.page {
 		padding-bottom: 2.5rem;
