@@ -1,0 +1,37 @@
+---
+const { faqs = [], heading = 'FAQs', id = 'faqs' } = Astro.props;
+
+// SEO note: FAQPage JSON-LD must match the visible questions/answers.
+const faqStructuredData =
+	faqs.length > 0
+		? {
+				'@context': 'https://schema.org',
+				'@type': 'FAQPage',
+				mainEntity: faqs.map((item) => ({
+					'@type': 'Question',
+					name: item.q,
+					acceptedAnswer: {
+						'@type': 'Answer',
+						text: item.a,
+					},
+				})),
+			}
+		: null;
+---
+
+{faqs.length > 0 ? (
+	<section class="faq" aria-labelledby={id}>
+		<h2 id={id}>{heading}</h2>
+		<div class="faq__list">
+			{faqs.map((item) => (
+				<details class="faq__item">
+					<summary class="faq__question">{item.q}</summary>
+					<div class="faq__answer">
+						<p>{item.a}</p>
+					</div>
+				</details>
+			))}
+			</div>
+			<script type="application/ld+json" set:html={JSON.stringify(faqStructuredData)} />
+		</section>
+	) : null}

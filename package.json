@@ -9,6 +9,11 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/mdx": "^4.3.13",
+    "@astrojs/sitemap": "^3.6.1",
     "astro": "^5.16.9"
+  },
+  "devDependencies": {
+    "glob": "^13.0.0"
   }
 }

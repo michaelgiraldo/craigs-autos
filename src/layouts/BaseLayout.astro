@@ -1,0 +1,338 @@
+---
+import LanguageSwitcher from '../components/LanguageSwitcher.astro';
+import '../styles/global.css';
+import {
+	BRAND_NAME,
+	BUSINESS_COPY,
+	NAV_LABELS,
+	LOCALES,
+	LOCALE_ORDER,
+	PAGE_PATHS,
+	SITE,
+	UI_COPY,
+	getTranslations,
+} from '../lib/site-data.js';
+
+// Astro MDX layouts may pass frontmatter under `Astro.props.frontmatter` (vs directly on props).
+const frontmatter = Astro.props?.frontmatter ?? Astro.props ?? {};
+
+const {
+	title,
+	description,
+	canonicalPath: canonicalPathProp,
+	locale = 'en',
+	lang = LOCALES.en.lang,
+	translations,
+	pageKey,
+} = frontmatter;
+const site = Astro.site ?? new URL(SITE.url);
+const pageTranslations = translations ?? getTranslations(pageKey ?? 'home');
+const canonicalPath = canonicalPathProp ?? pageTranslations[locale] ?? LOCALES.en.base;
+const canonicalUrl = new URL(canonicalPath, site).toString();
+
+const ui = UI_COPY[locale] ?? UI_COPY.en;
+
+const mapsQuery = encodeURIComponent(
+	`${SITE.address.street}, ${SITE.address.city}, ${SITE.address.region} ${SITE.address.postalCode}`,
+);
+const mapsHref = `https://www.google.com/maps/dir/?api=1&destination=${mapsQuery}`;
+const appleMapsHref = SITE.appleMapsUrl;
+const smsHref = `sms:${SITE.phone}`;
+
+const resolvedTranslations = {};
+for (const key of LOCALE_ORDER) {
+	resolvedTranslations[key] = pageTranslations?.[key] ?? LOCALES[key].base;
+}
+
+const hreflangLinks = LOCALE_ORDER.map((key) => ({
+	hreflang: LOCALES[key].hreflang,
+	href: new URL(resolvedTranslations[key], site).toString(),
+}));
+
+const languageLinks = LOCALE_ORDER.map((key) => ({
+	label: LOCALES[key].label,
+	href: resolvedTranslations[key],
+}));
+
+const currentLanguageLabel = LOCALES[locale]?.label ?? LOCALES.en.label;
+
+const navLabels = NAV_LABELS[locale] ?? NAV_LABELS.en;
+const navItems = [
+	{ key: 'autoUpholstery', href: PAGE_PATHS.autoUpholstery[locale], label: navLabels.autoUpholstery },
+	{ key: 'carSeats', href: PAGE_PATHS.carSeats[locale], label: navLabels.carSeats },
+	{ key: 'headliners', href: PAGE_PATHS.headliners[locale], label: navLabels.headliners },
+	{
+		key: 'convertibleTops',
+		href: PAGE_PATHS.convertibleTops[locale],
+		label: navLabels.convertibleTops,
+	},
+	{ key: 'classicCars', href: PAGE_PATHS.classicCars[locale], label: navLabels.classicCars },
+	{ key: 'gallery', href: PAGE_PATHS.gallery[locale], label: navLabels.gallery },
+	{ key: 'reviews', href: PAGE_PATHS.reviews[locale], label: navLabels.reviews },
+	{ key: 'contact', href: PAGE_PATHS.contact[locale], label: navLabels.contact },
+];
+
+const navItemsByKey = Object.fromEntries(navItems.map((item) => [item.key, item]));
+const mobilePrimaryNav = ['autoUpholstery', 'carSeats', 'headliners', 'convertibleTops'].map(
+	(key) => navItemsByKey[key],
+);
+const mobileSecondaryNav = ['classicCars', 'gallery', 'reviews', 'contact'].map(
+	(key) => navItemsByKey[key],
+);
+
+const business = BUSINESS_COPY[locale] ?? BUSINESS_COPY.en;
+const businessId = new URL('#business', site).toString();
+const structuredData = {
+	'@context': 'https://schema.org',
+	'@type': ['LocalBusiness', 'AutoRepair'],
+	'@id': businessId,
+	name: business.name,
+	legalName: BRAND_NAME,
+	description: business.description,
+	url: canonicalUrl,
+	telephone: SITE.phone,
+	hasMap: appleMapsHref ? [mapsHref, appleMapsHref] : mapsHref,
+	sameAs: SITE.sameAs,
+	// We intentionally omit AggregateRating/ReviewSnippet markup here:
+	// for LocalBusiness, self-serving reviews are typically ineligible for star rich results.
+	geo: {
+		'@type': 'GeoCoordinates',
+		latitude: SITE.geo.latitude,
+		longitude: SITE.geo.longitude,
+	},
+	address: {
+		'@type': 'PostalAddress',
+		streetAddress: SITE.address.street,
+		addressLocality: SITE.address.city,
+		addressRegion: SITE.address.region,
+		postalCode: SITE.address.postalCode,
+		addressCountry: SITE.address.country,
+	},
+	openingHoursSpecification: SITE.hours.map((range) => ({
+		'@type': 'OpeningHoursSpecification',
+		dayOfWeek: range.days,
+		opens: range.opens,
+		closes: range.closes,
+	})),
+	areaServed: 'San Jose, CA',
+	serviceOffered: business.services.map((service) => ({
+		'@type': 'Service',
+		name: service,
+		areaServed: 'San Jose, CA',
+	})),
+};
+
+const breadcrumbItems = [
+	{
+		'@type': 'ListItem',
+		position: 1,
+		name: navLabels.home,
+		item: new URL(PAGE_PATHS.home[locale], site).toString(),
+	},
+];
+
+if (pageKey && pageKey !== 'home') {
+	breadcrumbItems.push({
+		'@type': 'ListItem',
+		position: 2,
+		name: navLabels?.[pageKey] ?? title,
+		item: canonicalUrl,
+	});
+}
+
+const breadcrumbStructuredData = {
+	'@context': 'https://schema.org',
+	'@type': 'BreadcrumbList',
+	itemListElement: breadcrumbItems,
+};
+
+// SEO notes:
+// - Canonical URLs help prevent duplicate-content signals across language variants.
+// - Hreflang declares the full language set (plus x-default) to search engines.
+// - JSON-LD reinforces local business details and breadcrumb paths.
+---
+
+<!doctype html>
+<html lang={lang}>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{title}</title>
+		<meta name="description" content={description} />
+		<link rel="canonical" href={canonicalUrl} />
+		{hreflangLinks.map((link) => (
+			<link rel="alternate" hreflang={link.hreflang} href={link.href} />
+		))}
+		<link
+			rel="alternate"
+			hreflang="x-default"
+			href={new URL(LOCALES.en.base, site).toString()}
+		/>
+		<script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+		<script type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
+	</head>
+	<body>
+		<a class="skip-link" href="#main-content">Skip to content</a>
+		<header class="site-header">
+			<div class="container site-header__mobile">
+				<div class="site-header__mobile-top">
+					<a class="brand" href={LOCALES[locale]?.base ?? LOCALES.en.base}>
+						{BRAND_NAME}
+					</a>
+					<LanguageSwitcher
+						links={languageLinks}
+						currentLabel={currentLanguageLabel}
+						ariaLabel={ui.languageLabel ?? 'Language'}
+					/>
+				</div>
+			</div>
+			<div class="container site-header__inner">
+				<div class="brand-block">
+					<a class="brand" href={LOCALES[locale]?.base ?? LOCALES.en.base}>
+						{BRAND_NAME}
+						</a>
+						<a class="brand__sub" href={mapsHref}>
+							{SITE.address.street}, {SITE.address.city}, {SITE.address.region} {SITE.address.postalCode}
+						</a>
+					</div>
+				<div class="site-header__right">
+					<div class="header-contact">
+						<div class="header-contact__row">
+							<a class="header-phone" href={`tel:${SITE.phone}`}>
+								{SITE.displayPhone}
+							</a>
+							<a class="header-text" href={smsHref}>
+								<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+									<path
+										d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+									/>
+								</svg>
+								{ui.textCta ?? 'Text'}
+							</a>
+						</div>
+					</div>
+					<LanguageSwitcher
+						links={languageLinks}
+						currentLabel={currentLanguageLabel}
+						ariaLabel={ui.languageLabel ?? 'Language'}
+					/>
+				</div>
+			</div>
+			<nav class="site-nav" aria-label="Primary">
+				<div class="container">
+					<ul class="site-nav__list site-nav__list--mobile site-nav__list--mobile-primary">
+						{mobilePrimaryNav.map((item) => (
+							<li>
+								<a
+									class="site-nav__link"
+									href={item.href}
+									aria-current={item.href === canonicalPath ? 'page' : undefined}
+								>
+									{item.label}
+								</a>
+							</li>
+						))}
+					</ul>
+					<ul class="site-nav__list site-nav__list--mobile site-nav__list--mobile-secondary">
+						{mobileSecondaryNav.map((item) => (
+							<li>
+								<a
+									class="site-nav__link"
+									href={item.href}
+									aria-current={item.href === canonicalPath ? 'page' : undefined}
+								>
+									{item.label}
+								</a>
+							</li>
+						))}
+					</ul>
+					<ul class="site-nav__list site-nav__list--desktop">
+						{navItems.map((item) => (
+							<li>
+								<a
+									class="site-nav__link"
+									href={item.href}
+									aria-current={item.href === canonicalPath ? 'page' : undefined}
+								>
+									{item.label}
+								</a>
+							</li>
+						))}
+					</ul>
+				</div>
+			</nav>
+		</header>
+		<main id="main-content" class="page">
+			<slot />
+		</main>
+		<footer class="site-footer">
+			<div class="container site-footer__grid">
+				<div>
+					<p class="site-footer__brand">{BRAND_NAME}</p>
+					<p>
+						{SITE.address.street}, {SITE.address.city}, {SITE.address.region} {SITE.address.postalCode}
+					</p>
+					<p>
+						<strong>{ui.hoursLabel}:</strong> {ui.hoursSummary}
+					</p>
+					<ul class="site-footer__links">
+						<li>
+							<a href={`tel:${SITE.phone}`}>{SITE.displayPhone}</a>
+						</li>
+						<li>
+							<a href={smsHref}>{ui.textCta ?? 'Text'}</a>
+						</li>
+						<li>
+							<a href={mapsHref}>{ui.directionsCta}</a>
+						</li>
+						<li>
+							<a href={appleMapsHref}>{ui.appleMapsLabel}</a>
+						</li>
+						<li>
+							<a href={SITE.sameAs[0]}>{ui.yelpLabel}</a>
+						</li>
+						<li>
+							<a href={SITE.sameAs[1]}>{ui.googleLabel}</a>
+						</li>
+					</ul>
+				</div>
+				<div>
+					<ul class="site-footer__links">
+						{navItems.map((item) => (
+							<li>
+								<a href={item.href}>{item.label}</a>
+							</li>
+						))}
+					</ul>
+				</div>
+			</div>
+		</footer>
+		<div class="sticky-cta" role="region" aria-label={ui.quickActionsLabel}>
+			<div class="sticky-cta__inner">
+				<a class="sticky-cta__call" href={`tel:${SITE.phone}`}>
+					<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+						<path
+							d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
+						/>
+					</svg>
+					<span>{ui.callCta}</span>
+					<span class="sticky-cta__number">{SITE.displayPhone}</span>
+				</a>
+				<a class="sticky-cta__text" href={smsHref}>
+					<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+						<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+					</svg>
+					{ui.textCta ?? 'Text'}
+				</a>
+				<a class="sticky-cta__dir" href={mapsHref}>
+					<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+						<path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z" />
+						<circle cx="12" cy="10" r="3" />
+					</svg>
+					{ui.directionsCta}
+				</a>
+			</div>
+		</div>
+	</body>
+</html>

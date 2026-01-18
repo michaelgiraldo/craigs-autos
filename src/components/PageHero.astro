@@ -1,0 +1,53 @@
+---
+import TrustBar from './TrustBar.astro';
+import { BRAND_NAME, SITE, UI_COPY } from '../lib/site-data.js';
+
+const { title, lead, locale = 'en', kicker, showTrust = true } = Astro.props;
+const ui = UI_COPY[locale] ?? UI_COPY.en;
+
+const mapsQuery = encodeURIComponent(
+	`${SITE.address.street}, ${SITE.address.city}, ${SITE.address.region} ${SITE.address.postalCode}`,
+);
+const mapsHref = `https://www.google.com/maps/dir/?api=1&destination=${mapsQuery}`;
+const smsHref = `sms:${SITE.phone}`;
+
+const resolvedKicker = kicker ?? BRAND_NAME;
+---
+
+<section class="hero full-bleed">
+	<div class="container hero__inner">
+		<p class="hero__kicker">{resolvedKicker}</p>
+		<h1>{title}</h1>
+		{lead ? <p class="hero__lead">{lead}</p> : null}
+		<div class="hero__cta">
+			<a class="btn btn--primary" href={`tel:${SITE.phone}`}>
+				<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+					<path
+						d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
+					/>
+				</svg>
+				{ui.callCta} {SITE.displayPhone}
+			</a>
+			<a class="btn" href={smsHref}>
+				<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+					<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+				</svg>
+				{ui.textCta ?? 'Text'}
+			</a>
+			<a class="btn" href={mapsHref}>
+				<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+					<path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z" />
+					<circle cx="12" cy="10" r="3" />
+				</svg>
+				{ui.directionsCta}
+			</a>
+		</div>
+		<div class="hero__meta">
+			<span>
+				{SITE.address.street}, {SITE.address.city}, {SITE.address.region} {SITE.address.postalCode}
+			</span>
+		</div>
+		{showTrust ? <TrustBar locale={locale} /> : null}
+		<slot />
+	</div>
+</section>

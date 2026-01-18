@@ -1,0 +1,13 @@
+---
+import { UI_COPY } from '../lib/site-data.js';
+
+const { locale = 'en' } = Astro.props;
+const ui = UI_COPY[locale] ?? UI_COPY.en;
+---
+
+<div class="chip-row" aria-label="Trust signals">
+	{ui.trust.map((item) => (
+		<span class="chip">{item}</span>
+	))}
+</div>
+

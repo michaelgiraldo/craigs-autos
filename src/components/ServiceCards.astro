@@ -1,0 +1,67 @@
+---
+import { NAV_LABELS, PAGE_PATHS } from '../lib/site-data.js';
+
+const { locale = 'en', currentKey } = Astro.props;
+const labels = NAV_LABELS[locale] ?? NAV_LABELS.en;
+
+const descriptions = {
+	en: {
+		autoUpholstery: 'Full interiors or targeted repairs with careful matching.',
+		carSeats: 'Tears, seams, bolsters, and foam rebuilds.',
+		headliners: 'Sagging headliner replacement that stays tight.',
+		convertibleTops: 'Leaks, wear, and repair vs replacement guidance.',
+		classicCars: 'Consistent, detail-focused classic interiors.',
+		contact: 'Estimates, photo checklist, and next steps.',
+	},
+	es: {
+		autoUpholstery: 'Interiores completos o reparaciones puntuales con buen match.',
+		carSeats: 'Roturas, costuras, refuerzos y espuma.',
+		headliners: 'Techos interiores tensos y sin flacidez.',
+		convertibleTops: 'Goteras, desgaste y guía de reparación vs reemplazo.',
+		classicCars: 'Interiores clásicos consistentes y con detalle.',
+		contact: 'Cotizaciones, checklist de fotos y siguientes pasos.',
+	},
+	vi: {
+		autoUpholstery: 'Nội thất trọn bộ hoặc sửa điểm, chú trọng độ khớp.',
+		carSeats: 'Rách, đường may, gờ đỡ và làm lại mút.',
+		headliners: 'Trần xe căng phẳng, không bị võng.',
+		convertibleTops: 'Rò rỉ, hao mòn, tư vấn sửa hay thay.',
+		classicCars: 'Nội thất xe cổ đồng bộ, chú ý chi tiết.',
+		contact: 'Báo giá, checklist ảnh và bước tiếp theo.',
+	},
+	zh: {
+		autoUpholstery: '整套内饰或局部修复，注重匹配与贴合。',
+		carSeats: '撕裂、缝线、侧翼与泡棉重建。',
+		headliners: '更换下垂顶棚，贴合平整。',
+		convertibleTops: '漏水、磨损与修复/更换建议。',
+		classicCars: '经典车内饰，整体一致、细节到位。',
+		contact: '报价、照片清单与下一步。',
+	},
+};
+
+const items = [
+	{ key: 'autoUpholstery', href: PAGE_PATHS.autoUpholstery[locale], label: labels.autoUpholstery },
+	{ key: 'carSeats', href: PAGE_PATHS.carSeats[locale], label: labels.carSeats },
+	{ key: 'headliners', href: PAGE_PATHS.headliners[locale], label: labels.headliners },
+	{ key: 'convertibleTops', href: PAGE_PATHS.convertibleTops[locale], label: labels.convertibleTops },
+	{ key: 'classicCars', href: PAGE_PATHS.classicCars[locale], label: labels.classicCars },
+	{ key: 'contact', href: PAGE_PATHS.contact[locale], label: labels.contact },
+];
+
+const localeDescriptions = descriptions[locale] ?? null;
+---
+
+<section class="service-cards full-bleed" aria-label="Services">
+	<div class="container">
+		<div class="service-cards__grid">
+			{items.map((item) => (
+				<a class="card" href={item.href} aria-current={item.key === currentKey ? 'page' : undefined}>
+					<p class="card__title">{item.label}</p>
+					{localeDescriptions?.[item.key] ? (
+						<p class="card__desc">{localeDescriptions[item.key]}</p>
+					) : null}
+				</a>
+			))}
+		</div>
+	</div>
+</section>
