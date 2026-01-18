@@ -4,10 +4,16 @@ frontend:
     preBuild:
       commands:
         - |
-          if command -v yum >/dev/null 2>&1; then
-            yum install -y libatomic
+          if command -v sudo >/dev/null 2>&1; then
+            SUDO=sudo
           else
-            apt-get update && apt-get install -y libatomic1
+            SUDO=""
+          fi
+
+          if command -v yum >/dev/null 2>&1; then
+            $SUDO yum install -y libatomic
+          else
+            $SUDO apt-get update && $SUDO apt-get install -y libatomic1
           fi
         - npm ci
     build:
