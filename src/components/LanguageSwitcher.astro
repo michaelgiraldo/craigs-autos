@@ -2,17 +2,8 @@
 const { links, currentLabel = 'EN', ariaLabel = 'Language' } = Astro.props;
 ---
 
-<nav class="lang-switcher" aria-label={ariaLabel}>
-	<ul class="lang-switcher__list" aria-label={ariaLabel}>
-		{links.map((link) => (
-			<li>
-				<a class="lang-switcher__link" href={link.href}>
-					{link.label}
-				</a>
-			</li>
-		))}
-	</ul>
-	<details class="lang-switcher__details">
+<nav class="lang-switcher" aria-label={ariaLabel} data-lang-switcher>
+	<details class="lang-switcher__details" data-lang-switcher-details>
 		<summary class="lang-switcher__summary">
 			<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
 				<circle cx="12" cy="12" r="10" />
@@ -24,14 +15,37 @@ const { links, currentLabel = 'EN', ariaLabel = 'Language' } = Astro.props;
 				<path d="m6 9 6 6 6-6" />
 			</svg>
 		</summary>
-		<ul class="lang-switcher__menu" aria-label={ariaLabel}>
-			{links.map((link) => (
-				<li>
-					<a class="lang-switcher__menu-link" href={link.href}>
-						{link.label}
-					</a>
-				</li>
-			))}
-		</ul>
+		<div class="lang-switcher__panel" role="dialog" aria-label={ariaLabel}>
+			<div class="lang-switcher__panel-header">
+				<span class="lang-switcher__panel-title">{ariaLabel}</span>
+				<button
+					class="lang-switcher__close"
+					type="button"
+					aria-label="Close"
+					data-lang-switcher-close
+				>
+					<span aria-hidden="true">×</span>
+				</button>
+			</div>
+			<div class="lang-switcher__search">
+				<input
+					class="lang-switcher__search-input"
+					type="search"
+					inputmode="search"
+					placeholder={ariaLabel}
+					aria-label={ariaLabel}
+					data-lang-switcher-search
+				/>
+			</div>
+			<ul class="lang-switcher__menu" aria-label={ariaLabel} data-lang-switcher-list>
+				{links.map((link) => (
+					<li data-lang-switcher-item data-search={link.searchLabel ?? link.menuLabel ?? link.label}>
+						<a class="lang-switcher__menu-link" href={link.href}>
+							{link.menuLabel ?? link.label}
+						</a>
+					</li>
+				))}
+			</ul>
+		</div>
 	</details>
 </nav>

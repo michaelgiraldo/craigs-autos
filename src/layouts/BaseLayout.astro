@@ -51,12 +51,29 @@ const hreflangLinks = LOCALE_ORDER.map((key) => ({
 	href: new URL(resolvedTranslations[key], site).toString(),
 }));
 
-const languageLinks = LOCALE_ORDER.map((key) => ({
-	label: LOCALES[key].label,
-	href: resolvedTranslations[key],
-}));
+const buildLanguageLink = (key) => {
+	const localeMeta = LOCALES[key];
+	if (!localeMeta) {
+		return null;
+	}
+	const nativeLabel = localeMeta.nativeLabel ?? localeMeta.label;
+	const englishLabel = localeMeta.englishLabel ?? nativeLabel;
+	const menuLabel =
+		nativeLabel === englishLabel ? nativeLabel : `${nativeLabel} (${englishLabel})`;
+	const searchLabel = `${nativeLabel} ${englishLabel} ${localeMeta.label} ${key}`.toLowerCase();
+	return {
+		key,
+		label: localeMeta.label,
+		menuLabel,
+		searchLabel,
+		href: resolvedTranslations[key],
+	};
+};
+
+const languageLinks = LOCALE_ORDER.map(buildLanguageLink).filter(Boolean);
 
 const currentLanguageLabel = LOCALES[locale]?.label ?? LOCALES.en.label;
+const textDirection = locale === 'ar' ? 'rtl' : 'ltr';
 
 const navLabels = NAV_LABELS[locale] ?? NAV_LABELS.en;
 const navItems = [
@@ -155,7 +172,7 @@ const breadcrumbStructuredData = {
 ---
 
 <!doctype html>
-<html lang={lang}>
+<html lang={lang} dir={textDirection}>
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width" />
@@ -191,14 +208,16 @@ const breadcrumbStructuredData = {
 						{BRAND_NAME}
 						</a>
 						<a class="brand__sub" href={mapsHref}>
-							{SITE.address.street}, {SITE.address.city}, {SITE.address.region} {SITE.address.postalCode}
+							<span dir="ltr">
+								{SITE.address.street}, {SITE.address.city}, {SITE.address.region} {SITE.address.postalCode}
+							</span>
 						</a>
 					</div>
 				<div class="site-header__right">
 					<div class="header-contact">
 						<div class="header-contact__row">
 							<a class="header-phone" href={`tel:${SITE.phone}`}>
-								{SITE.displayPhone}
+								<span dir="ltr">{SITE.displayPhone}</span>
 							</a>
 							<a class="header-text" href={smsHref}>
 								<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -269,14 +288,26 @@ const breadcrumbStructuredData = {
 				<div>
 					<p class="site-footer__brand">{BRAND_NAME}</p>
 					<p>
-						{SITE.address.street}, {SITE.address.city}, {SITE.address.region} {SITE.address.postalCode}
+						<span dir="ltr">
+							{SITE.address.street}, {SITE.address.city}, {SITE.address.region} {SITE.address.postalCode}
+						</span>
 					</p>
 					<p>
-						<strong>{ui.hoursLabel}:</strong> {ui.hoursSummary}
+						<strong>{ui.hoursLabel}:</strong>{' '}
+						{locale === 'ar' ? (
+							<>
+								الاثنين–الجمعة <span dir="ltr">8:00–17:00</span> · السبت{' '}
+								<span dir="ltr">8:00–14:00</span> · الأحد مغلق
+							</>
+						) : (
+							ui.hoursSummary
+						)}
 					</p>
 					<ul class="site-footer__links">
 						<li>
-							<a href={`tel:${SITE.phone}`}>{SITE.displayPhone}</a>
+							<a href={`tel:${SITE.phone}`}>
+								<span dir="ltr">{SITE.displayPhone}</span>
+							</a>
 						</li>
 						<li>
 							<a href={smsHref}>{ui.textCta ?? 'Text'}</a>
@@ -315,7 +346,9 @@ const breadcrumbStructuredData = {
 						/>
 					</svg>
 					<span>{ui.callCta}</span>
-					<span class="sticky-cta__number">{SITE.displayPhone}</span>
+					<span class="sticky-cta__number" dir="ltr">
+						{SITE.displayPhone}
+					</span>
 				</a>
 				<a class="sticky-cta__text" href={smsHref}>
 					<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -332,5 +365,62 @@ const breadcrumbStructuredData = {
 				</a>
 			</div>
 		</div>
+		<script type="module" is:inline>
+			const switchers = document.querySelectorAll('[data-lang-switcher]');
+
+			switchers.forEach((switcher) => {
+				switcher.classList.add('lang-switcher--js');
+				const details = switcher.querySelector('[data-lang-switcher-details]');
+				const input = switcher.querySelector('[data-lang-switcher-search]');
+				const items = Array.from(switcher.querySelectorAll('[data-lang-switcher-item]'));
+				const closeButton = switcher.querySelector('[data-lang-switcher-close]');
+
+				if (!details) {
+					return;
+				}
+
+				const applyFilter = () => {
+					if (!input) {
+						return;
+					}
+					const query = input.value.trim().toLowerCase();
+					items.forEach((item) => {
+						const search = (item.dataset.search || '').toLowerCase();
+						item.hidden = query.length > 0 && !search.includes(query);
+					});
+				};
+
+				const closePanel = () => {
+					details.open = false;
+					document.body.classList.remove('lang-switcher-open');
+				};
+
+				details.addEventListener('toggle', () => {
+					if (details.open) {
+						document.body.classList.add('lang-switcher-open');
+						if (input) {
+							input.value = '';
+							applyFilter();
+							input.focus();
+						}
+					} else {
+						document.body.classList.remove('lang-switcher-open');
+					}
+				});
+
+				input?.addEventListener('input', applyFilter);
+				closeButton?.addEventListener('click', closePanel);
+				details.addEventListener('keydown', (event) => {
+					if (event.key === 'Escape') {
+						closePanel();
+					}
+				});
+				items.forEach((item) => {
+					item.querySelector('a')?.addEventListener('click', () => {
+						closePanel();
+					});
+				});
+			});
+		</script>
 	</body>
 </html>
