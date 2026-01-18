@@ -1,0 +1,12 @@
+---
+import { LOCALES, PAGE_PATHS } from '../lib/site-data.js';
+
+const { pageKey, locale = 'en', href, ...rest } = Astro.props;
+const resolvedLocale = LOCALES[locale] ? locale : 'en';
+const resolvedHref =
+	href ?? PAGE_PATHS[pageKey]?.[resolvedLocale] ?? LOCALES[resolvedLocale]?.base ?? LOCALES.en.base;
+---
+
+<a href={resolvedHref} {...rest}>
+	<slot />
+</a>
