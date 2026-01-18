@@ -15,7 +15,9 @@ frontend:
     paths:
       - node_modules/**/*
 redirects:
+  - source: /index.html
+    target: /en/
+    status: 301
   - source: /
     target: /en/
     status: 301
-    condition: null
