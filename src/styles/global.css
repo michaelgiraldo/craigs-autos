@@ -1017,7 +1017,17 @@ button:focus-visible {
 	color: #fff;
 }
 
-@media (max-width: 420px) {
+@media (max-width: 520px) {
+	.sticky-cta__inner {
+		grid-template-columns: 1fr 1fr;
+	}
+
+	.sticky-cta__call {
+		grid-column: 1 / -1;
+	}
+}
+
+@media (max-width: 360px) {
 	.sticky-cta__number {
 		display: none;
 	}
