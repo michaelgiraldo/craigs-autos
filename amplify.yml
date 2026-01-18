@@ -3,6 +3,12 @@ frontend:
   phases:
     preBuild:
       commands:
+        - |
+          if command -v yum >/dev/null 2>&1; then
+            yum install -y libatomic
+          else
+            apt-get update && apt-get install -y libatomic1
+          fi
         - npm ci
     build:
       commands:
