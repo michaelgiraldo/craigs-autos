@@ -44,6 +44,8 @@ for (const key of LOCALE_ORDER) {
 	resolvedTranslations[key] = pageTranslations?.[key] ?? LOCALES[key].base;
 }
 
+const xDefaultHref = new URL(resolvedTranslations.en ?? LOCALES.en.base, site).toString();
+
 const hreflangLinks = LOCALE_ORDER.map((key) => ({
 	hreflang: LOCALES[key].hreflang,
 	href: new URL(resolvedTranslations[key], site).toString(),
@@ -164,11 +166,7 @@ const breadcrumbStructuredData = {
 		{hreflangLinks.map((link) => (
 			<link rel="alternate" hreflang={link.hreflang} href={link.href} />
 		))}
-		<link
-			rel="alternate"
-			hreflang="x-default"
-			href={new URL(LOCALES.en.base, site).toString()}
-		/>
+		<link rel="alternate" hreflang="x-default" href={xDefaultHref} />
 		<script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
 		<script type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
 	</head>
