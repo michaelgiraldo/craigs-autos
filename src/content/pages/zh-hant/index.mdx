@@ -4,6 +4,8 @@ description: "聖荷西家族經營汽車內飾：座椅、車頂內襯、敞篷
 pageKey: "home"
 ---
 
+import LocalizedLink from "../../../components/LocalizedLink.astro";
+
 import PageHero from "../../../components/PageHero.astro";
 import ServiceCards from "../../../components/ServiceCards.astro";
 import FaqSection from "../../../components/FaqSection.astro";
@@ -36,6 +38,13 @@ export const faqs = [
 <ServiceCards locale="zh-hant" currentKey="home" />
 
 內飾問題每天都看得到：駕駛座破損、頂棚下垂、日曬造成龜裂。聯絡 Craig's Auto Upholstery（聖荷西），我們會清楚說明哪裡能修、哪裡該重新包覆，以及需要哪些資訊才能準確報價。
+
+<aside class="callout" aria-label="內飾指南">
+  <p class="callout__title">不確定該怎麼做？</p>
+  <p>
+    從 <LocalizedLink locale="zh-hant" pageKey="upholsteryGuide">內飾指南</LocalizedLink> 開始：幫你判斷修復 vs 重新包覆、材質怎麼選、報價怎麼看，以及該問哪些問題。
+  </p>
+</aside>
 
 ---
 

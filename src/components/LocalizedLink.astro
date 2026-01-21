@@ -1,10 +1,15 @@
 ---
 import { LOCALES, PAGE_PATHS } from '../lib/site-data.js';
 
-const { pageKey, locale = 'en', href, ...rest } = Astro.props;
+const { pageKey, locale = 'en', href, hash, ...rest } = Astro.props;
 const resolvedLocale = LOCALES[locale] ? locale : 'en';
-const resolvedHref =
+let resolvedHref =
 	href ?? PAGE_PATHS[pageKey]?.[resolvedLocale] ?? LOCALES[resolvedLocale]?.base ?? LOCALES.en.base;
+
+if (typeof hash === 'string' && hash.length > 0) {
+	const normalizedHash = hash.startsWith('#') ? hash : `#${hash}`;
+	resolvedHref = `${resolvedHref.split('#')[0]}${normalizedHash}`;
+}
 ---
 
 <a href={resolvedHref} {...rest}>

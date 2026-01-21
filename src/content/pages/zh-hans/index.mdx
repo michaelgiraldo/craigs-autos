@@ -4,6 +4,8 @@ description: "圣何塞家族经营的汽车内饰店，60+年经验。座椅、
 pageKey: "home"
 ---
 
+import LocalizedLink from "../../../components/LocalizedLink.astro";
+
 import PageHero from "../../../components/PageHero.astro";
 import ServiceCards from "../../../components/ServiceCards.astro";
 import FaqSection from "../../../components/FaqSection.astro";
@@ -38,6 +40,13 @@ export const faqs = [
 内饰问题是每天都能看到的：驾驶座撕裂、顶棚下垂、日晒导致的开裂。致电或短信
 联系 Craig's Auto Upholstery，我们会给出清晰建议——哪些可以修得很干净，哪些更
 适合重新包覆，以及需要哪些信息才能准确报价。
+
+<aside class="callout" aria-label="内饰指南">
+  <p class="callout__title">不确定该怎么做？</p>
+  <p>
+    从 <LocalizedLink locale="zh-hans" pageKey="upholsteryGuide">内饰指南</LocalizedLink> 开始：帮你判断修复 vs 重新包覆、材料怎么选、报价怎么看，以及该问哪些问题。
+  </p>
+</aside>
 
 ---
 

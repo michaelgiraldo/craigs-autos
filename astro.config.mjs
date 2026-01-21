@@ -7,6 +7,24 @@ import sitemap from '@astrojs/sitemap';
 export default defineConfig({
 	site: 'https://craigs.autos',
 	trailingSlash: 'always',
+	vite: {
+		build: {
+			rollupOptions: {
+				onwarn(warning, warn) {
+					if (
+						warning.code === 'MISSING_EXPORT' &&
+						typeof warning.message === 'string' &&
+						warning.message.includes('"fontData" is not exported by') &&
+						warning.message.includes('virtual:astro:assets/fonts/internal') &&
+						warning.message.includes('node_modules/astro/dist/assets/fonts/runtime.js')
+					) {
+						return;
+					}
+					warn(warning);
+				},
+			},
+		},
+	},
 	integrations: [
 		mdx(),
 		sitemap({

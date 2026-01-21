@@ -4,6 +4,7 @@ description: "Oficina familiar de estofamento em San Jose, CA: bancos, forro do 
 pageKey: "home"
 ---
 
+import LocalizedLink from "../../../components/LocalizedLink.astro";
 import PageHero from "../../../components/PageHero.astro";
 import ServiceCards from "../../../components/ServiceCards.astro";
 import FaqSection from "../../../components/FaqSection.astro";
@@ -36,6 +37,13 @@ export const faqs = [
 <ServiceCards locale="pt-br" currentKey="home" />
 
 Problemas no interior aparecem todo dia: rasgo no banco do motorista, forro caindo, vinil rachado pelo sol. Fale com a Craig's Auto Upholstery em San Jose e a gente explica com clareza o que dá para reparar, o que vale reestofar e o que precisamos ver para orçar direito.
+
+<aside class="callout" aria-label="Guia de estofamento">
+  <p class="callout__title">Não sabe o que precisa?</p>
+  <p>
+    Comece pelo nosso <LocalizedLink locale="pt-br" pageKey="upholsteryGuide">Guia de estofamento</LocalizedLink>: um guia para decidir (reparo vs troca, materiais, preço e o que perguntar).
+  </p>
+</aside>
 
 ---
 
@@ -81,23 +89,22 @@ Se o material está frágil ou vários painéis estão comprometidos, é a solu�
 
 Quando bancos/forro/acabamentos já estão cansados, fazer por etapas mantém o visual consistente.
 
+Precisa de ajuda para definir o escopo? Veja <LocalizedLink locale="pt-br" pageKey="upholsteryGuide" hash="#ref-scope">Guia de estofamento: escolha o nível certo de serviço</LocalizedLink>.
+
 **Ligue:** [(408) 379-3820](tel:+14083793820) · **Mensagem de texto (SMS):** [(408) 379-3820](sms:+14083793820)
 
 ---
 
-## Materiais: couro, vinil ou tecido
+## Materiais (realidade rápida)
 
-### Couro
+Escolha menos por “o melhor” e mais por como o carro vive (calor, crianças/pets, limpeza).
+Veja <LocalizedLink locale="pt-br" pageKey="upholsteryGuide" hash="#ref-materials">Guia de estofamento: materiais para a vida real</LocalizedLink>.
 
-Visual premium, mas cor e grão precisam bater.
+- **Couro:** melhor sensação; pede cuidado no calor; grão e brilho importam.
+- **Vinil:** fácil de limpar; qualidade importa; pode ficar mais quente ao sol.
+- **Tecido:** confortável; combinação é por trama/tom; manchas aparecem rápido.
 
-### Vinil
-
-Durável e prático; textura faz diferença.
-
-### Tecido
-
-Trama e tom definem a combinação.
+Se você não sabe qual material tem hoje, a gente identifica na avaliação.
 
 ---
 
@@ -108,6 +115,8 @@ Trama e tom definem a combinação.
 - **Condição da espuma**
 - **Detalhe e complexidade**
 - **Estado atual**
+
+Veja <LocalizedLink locale="pt-br" pageKey="upholsteryGuide" hash="#ref-pricing">Guia de estofamento: preço e orçamentos</LocalizedLink>.
 
 ---
 
@@ -123,6 +132,8 @@ Depende do veículo e do escopo. Após a avaliação, informamos um prazo realis
 - Descrição do problema
 - 2–4 fotos em boa luz
 - Se a combinação é crítica, foto da área “boa”
+
+Checklist completo: <LocalizedLink locale="pt-br" pageKey="contact">Contato e orçamentos</LocalizedLink>.
 
 ---
 

@@ -679,6 +679,15 @@ html[dir='rtl'] .page {
 	letter-spacing: -0.01em;
 }
 
+a.chip {
+	text-decoration: none;
+}
+
+a.chip:hover {
+	border-color: rgba(180, 83, 9, 0.35);
+	color: var(--color-ink);
+}
+
 .service-cards {
 	padding: 1.25rem 0 0.25rem;
 }
@@ -778,6 +787,188 @@ html[dir='rtl'] .page {
 	margin: 2rem 0;
 }
 
+.toc {
+	margin: 1.25rem 0 0;
+	padding: 1rem 1rem 1.05rem;
+	border-radius: var(--radius-lg);
+	border: 1px solid rgba(17, 24, 39, 0.12);
+	background: var(--color-surface);
+	box-shadow: var(--shadow-sm);
+}
+
+.details-card .toc {
+	margin: 0.85rem 0 0;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	box-shadow: none;
+}
+
+.toc :where(ul, ol) {
+	margin: 0;
+	padding-left: 1.25rem;
+}
+
+.toc :where(li) {
+	margin: 0.35rem 0 0;
+	break-inside: avoid;
+}
+
+.toc :where(ul ul, ul ol, ol ul, ol ol) {
+	margin-top: 0.35rem;
+}
+
+@media (min-width: 860px) {
+	.toc > :where(ul, ol) {
+		columns: 2;
+		column-gap: 2rem;
+	}
+}
+
+.issue-cards {
+	margin: 1.1rem 0 0;
+	display: grid;
+	gap: 0.65rem;
+}
+
+.issue-card {
+	border-radius: var(--radius-lg);
+	border: 1px solid rgba(17, 24, 39, 0.12);
+	background: rgba(255, 255, 255, 0.82);
+	box-shadow: var(--shadow-sm);
+	overflow: clip;
+}
+
+.issue-card__summary {
+	cursor: pointer;
+	padding: 0.95rem 1rem;
+	font-weight: 900;
+	color: var(--color-ink);
+	letter-spacing: -0.02em;
+}
+
+.issue-card__summary:hover {
+	background: rgba(180, 83, 9, 0.06);
+}
+
+.issue-card__summary-title {
+	display: block;
+}
+
+.issue-card__summary-text {
+	display: block;
+	margin-top: 0.2rem;
+	font-weight: 600;
+	font-size: 0.95rem;
+	color: var(--color-muted);
+	letter-spacing: 0;
+}
+
+.issue-card__body {
+	padding: 0 1rem 1rem;
+}
+
+.issue-card__title {
+	margin: 0.65rem 0 0;
+	font-weight: 900;
+	letter-spacing: -0.02em;
+	color: var(--color-ink);
+}
+
+.issue-card__links {
+	margin: 0.85rem 0 0;
+	color: var(--color-muted);
+	font-weight: 600;
+}
+
+.issue-card__body :where(p) {
+	margin: 0.65rem 0 0;
+}
+
+.issue-card__body :where(ul, ol) {
+	margin: 0.65rem 0 0;
+	padding-left: 1.25rem;
+}
+
+.issue-card__body :where(li) {
+	margin: 0.35rem 0 0;
+}
+
+.issue-card__body :where(h3) {
+	margin: 1.15rem 0 0.35rem;
+	font-size: 1.08rem;
+	color: var(--color-ink);
+	letter-spacing: -0.02em;
+}
+
+.issue-card[open] .issue-card__summary {
+	background: rgba(180, 83, 9, 0.09);
+}
+
+.decision-card {
+	margin: 1.1rem 0 0;
+	padding: 1rem 1rem 1.05rem;
+	border-radius: var(--radius-lg);
+	border: 1px solid rgba(17, 24, 39, 0.12);
+	background: var(--color-surface);
+	box-shadow: var(--shadow-sm);
+}
+
+.decision-card__title {
+	margin: 0;
+	font-weight: 900;
+	letter-spacing: -0.02em;
+	color: var(--color-ink);
+}
+
+.decision-card :where(ul) {
+	margin: 0.6rem 0 0;
+	padding-left: 1.2rem;
+}
+
+.decision-card :where(li) {
+	margin: 0.35rem 0 0;
+}
+
+.details-card {
+	margin: 0.85rem 0 0;
+	padding: 0.8rem 1rem;
+	border-radius: var(--radius-lg);
+	border: 1px dashed rgba(17, 24, 39, 0.18);
+	background: rgba(255, 255, 255, 0.7);
+}
+
+.details-card summary {
+	cursor: pointer;
+	font-weight: 700;
+	color: var(--color-ink);
+}
+
+.details-card__summary-text {
+	display: block;
+	margin-top: 0.2rem;
+	font-weight: 400;
+	font-size: 0.95rem;
+	color: var(--color-muted);
+}
+
+.details-card[open] summary {
+	margin-bottom: 0.55rem;
+}
+
+.details-card p {
+	margin: 0.55rem 0 0;
+}
+
+.details-card :where(ul) {
+	margin: 0.55rem 0 0;
+	padding-left: 1.2rem;
+}
+
+.details-card :where(li) {
+	margin: 0.35rem 0 0;
+}
+
 .callout {
 	margin: 1.25rem 0 0;
 	padding: 1rem 1rem 1.05rem;
@@ -785,6 +976,10 @@ html[dir='rtl'] .page {
 	border: 1px solid rgba(180, 83, 9, 0.22);
 	background: rgba(180, 83, 9, 0.08);
 	box-shadow: var(--shadow-sm);
+}
+
+.callout + .callout {
+	margin-top: 0.75rem;
 }
 
 .callout__title {

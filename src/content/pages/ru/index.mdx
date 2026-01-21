@@ -4,6 +4,7 @@ description: "Семейная мастерская в Сан-Хосе: сиде
 pageKey: "home"
 ---
 
+import LocalizedLink from "../../../components/LocalizedLink.astro";
 import PageHero from "../../../components/PageHero.astro";
 import ServiceCards from "../../../components/ServiceCards.astro";
 import FaqSection from "../../../components/FaqSection.astro";
@@ -36,6 +37,13 @@ export const faqs = [
 <ServiceCards locale="ru" currentKey="home" />
 
 Проблемы салона видны каждый день: разрыв на водительском сиденье, провисшая потолочная обивка, трещины от солнца. Позвоните или напишите в Craig's Auto Upholstery — расскажем, что можно отремонтировать, где нужна перетяжка, и что нужно для точной оценки.
+
+<aside class="callout" aria-label="Руководство по обивке">
+  <p class="callout__title">Не уверены, что именно нужно?</p>
+  <p>
+    Начните с <LocalizedLink locale="ru" pageKey="upholsteryGuide">Руководства по обивке</LocalizedLink>: симптомы → причина → что держится дольше → что спросить перед оплатой.
+  </p>
+</aside>
 
 ---
 

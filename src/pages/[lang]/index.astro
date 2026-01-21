@@ -28,6 +28,7 @@ const pageKey = entry.data.pageKey;
 const translations = PAGE_PATHS[pageKey] ?? PAGE_PATHS.home;
 const canonicalPath = translations?.[locale] ?? `/${locale}/`;
 const lang = LOCALES[locale]?.lang ?? LOCALES.en.lang;
+const noindex = entry.data.noindex ?? false;
 
 const { Content } = await render(entry);
 ---
@@ -40,6 +41,7 @@ const { Content } = await render(entry);
 	pageKey={pageKey}
 	canonicalPath={canonicalPath}
 	translations={translations}
+	noindex={noindex}
 >
 	<Content />
 </BaseLayout>

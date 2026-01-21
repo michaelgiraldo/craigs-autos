@@ -1,0 +1,418 @@
+---
+title: "内装ガイド | 自動車内装の判断ガイド"
+description: "内装ガイド：自動車内装の購入ガイド。素材・作業範囲・価格・工程をまとめて解説。"
+pageKey: "upholsteryGuide"
+---
+import LocalizedLink from "../../../components/LocalizedLink.astro";
+
+import PageHero from "../../../components/PageHero.astro";
+import ServiceCards from "../../../components/ServiceCards.astro";
+import FaqSection from "../../../components/FaqSection.astro";
+
+export const faqs = [
+  {
+    q: "ヘッドライナーが垂れるのは布の問題ですか？",
+    a: "多くの場合、布そのものではありません。先に劣化するのは下地のフォームと接着で、布を貼り直すだけでは下地が健全な場合にしか長持ちしません。",
+  },
+  {
+    q: "張り替えをせずにシートのフォームだけ直せますか？",
+    a: "はい。カバーがまだ健全なら、フォームの再生で座り心地を戻しつつ、見た目の素材はそのままにできることがあります。",
+  },
+  {
+    q: "見積もりに役立つ写真は何ですか？",
+    a: "年式/メーカー/モデルに加え、全体写真・損傷のアップ・（たるみ/高さがわかる）横からの写真があると判断が早いです。",
+  },
+  {
+    q: "作業期間はどのくらいですか？",
+    a: "材料が揃えばヘッドライナーは短期で仕上がることが多いです。シートの再生や多パネル作業は、分解・成形・仮合わせがあるため時間がかかりやすいです。",
+  },
+  {
+    q: "合皮は本革より必ず安いですか？",
+    a: "必ずしもそうではありません。素材のグレードや作業の難易度が価格を左右します。合皮は手入れが楽なことが多いですが、価格は範囲と素材品質で決まります。",
+  },
+];
+
+<PageHero
+  locale="ja"
+  title="内装ガイド"
+  lead="自動車内装の購入ガイド：素材・作業範囲・価格・工程"
+/>
+
+<ServiceCards locale="ja" />
+
+まずは「見えている症状」から選んでください。なぜ起きるのか、長持ちしやすい直し方、見積もり前に聞くべきことをまとめています。
+
+---
+
+<h2 id="issues">症状から探す</h2>
+
+<div class="issue-cards">
+  <details id="issue-headliner" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">ヘッドライナーのたるみ／膨らみ</span>
+      <span class="issue-card__summary-text">下地フォームが劣化すると、スプレーグルーだけでは暑さで戻ります。</span>
+    </summary>
+    <div class="issue-card__body">
+      <p class="issue-card__title">要点</p>
+      <ul>
+        <li><strong>症状:</strong> 天井の布がたるむ、膨らむ、垂れ下がる。</li>
+        <li><strong>原因のことが多い:</strong> 下地フォームが粉状に崩れ、接着が維持できない。</li>
+        <li><strong>長持ちしやすい直し方:</strong> 広範囲なら張り替え（ボード脱着・フォーム除去・高温対応接着）。下地が健全なら局所修理も可。</li>
+        <li><strong>聞くべきこと:</strong> ボードを外して古いフォームを剥がし、高温対応の接着剤で張り替えますか？</li>
+        <li><strong>送る写真:</strong> 天井全体、たるみのアップ、シミ/端のアップ。</li>
+      </ul>
+
+      <details class="details-card">
+        <summary>
+          <span>なぜ起きるのか</span>
+          <span class="details-card__summary-text">フォームが崩れると、接着剤が掴める下地がなくなります。</span>
+        </summary>
+        <p>多くのヘッドライナーは、硬いボードに薄いフォームを介して布を貼った構造です。熱でフォームが劣化して粉状になると、接着剤が「しっかり掴める」層がなくなります。</p>
+        <p>スプレーグルーやピン留めは一時的に見た目を戻せても、フォームが崩れていれば再発しやすいです。たるみが広い／膨らみが出ている場合は、ボードを外してフォーム残りを除去し、下地を整えて高温対応で張り替えるのが基本です。端のたるみは広がりがちで、シミやボードの反りがあると交換寄りになります。</p>
+      </details>
+
+      <p class="issue-card__links">
+        詳しく: <LocalizedLink locale="ja" pageKey="headliners">ヘッドライナー</LocalizedLink> · 見積もり:
+        <LocalizedLink locale="ja" pageKey="contact">お問い合わせ</LocalizedLink>
+      </p>
+    </div>
+  </details>
+
+  <details id="issue-seat-foam" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">シートが沈む／低く感じる</span>
+      <span class="issue-card__summary-text">カバーは無事でも、フォームやサポートがへたっていることがあります。</span>
+    </summary>
+    <div class="issue-card__body">
+      <p class="issue-card__title">要点</p>
+      <ul>
+        <li><strong>症状:</strong> 見た目は大丈夫なのに、低い・平ら・左右が違う感じがする。</li>
+        <li><strong>原因のことが多い:</strong> カバーの下でフォーム/サポートが沈む。</li>
+        <li><strong>長持ちしやすい直し方:</strong> フォーム/サポートの再生・交換。カバーが健全なら再利用も可能。</li>
+        <li><strong>聞くべきこと:</strong> フォームとサポートも直しますか？それともカバー交換だけですか？</li>
+        <li><strong>送る写真:</strong> 高さがわかる横写真、へこみ・しわ・左右差が見える写真。</li>
+      </ul>
+
+      <details class="details-card">
+        <summary>
+          <span>なぜ起きるのか</span>
+          <span class="details-card__summary-text">沈むのは表面ではなく、中のフォーム/サポートのことが多いです。</span>
+        </summary>
+        <p>座り心地は、フォームの形と密度、そしてサポート層（スプリング、ウェビング、成形フレームなど）で決まります。長年使うとフォームが圧縮されて戻りが弱くなり、特に運転席側が偏って沈みやすいです。</p>
+        <p>カバーを新しくしても構造は戻りません。フォーム再生だけで快適さが戻るケースもありますが、沈みが長く続いて形が変わっていると、カバー側の修理や交換が必要になることもあります。</p>
+      </details>
+
+      <p class="issue-card__links">
+        詳しく: <LocalizedLink locale="ja" pageKey="carSeats">車のシート</LocalizedLink> · 見積もり:
+        <LocalizedLink locale="ja" pageKey="contact">お問い合わせ</LocalizedLink>
+      </p>
+    </div>
+  </details>
+
+  <details id="issue-seat-bolster" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">シート端が先にひび割れる</span>
+      <span class="issue-card__summary-text">乗り降りの摩擦が集中する「サイド（ボルスター）」から傷みます。</span>
+    </summary>
+    <div class="issue-card__body">
+      <p class="issue-card__title">要点</p>
+      <ul>
+        <li><strong>症状:</strong> シート端（サイド）がひび割れ、裂け、擦り切れ。</li>
+        <li><strong>原因のことが多い:</strong> 乗り降りの高い摩擦 + サイド部フォームの変形。</li>
+        <li><strong>長持ちしやすい直し方:</strong> 傷んだパネル交換。端が柔らかいならサイドフォームも再生。</li>
+        <li><strong>聞くべきこと:</strong> パネル交換と縫製の補強は含まれますか？フォームの端も直しますか？</li>
+        <li><strong>送る写真:</strong> ひび割れのアップ + 端の形がわかる横写真。</li>
+      </ul>
+
+      <details class="details-card">
+        <summary>
+          <span>なぜ起きるのか</span>
+          <span class="details-card__summary-text">摩擦と圧縮が繰り返される場所なので、最初に傷みます。</span>
+        </summary>
+        <p>シート端は、乗り降りのたびに滑り摩擦と圧縮がかかります。そのため一番曲がる部分から先にひびが入ります。</p>
+        <p>フォームが柔らかくなっていると表面だけ直しても張りが保てず再発しやすいです。フォーム再生 + パネル交換が、結果的に長持ちしやすい組み合わせです。</p>
+      </details>
+
+      <p class="issue-card__links">
+        詳しく: <LocalizedLink locale="ja" pageKey="carSeats">車のシート</LocalizedLink> · 見積もり:
+        <LocalizedLink locale="ja" pageKey="contact">お問い合わせ</LocalizedLink>
+      </p>
+    </div>
+  </details>
+
+  <details id="issue-door-panel" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">ドアパネルの浮き／反り</span>
+      <span class="issue-card__summary-text">熱で接着が弱り、下地が歪むと貼り直しても戻りやすいです。</span>
+    </summary>
+    <div class="issue-card__body">
+      <p class="issue-card__title">要点</p>
+      <ul>
+        <li><strong>症状:</strong> 端が浮く、肘掛け周りが膨らむ、パネルが波打つ。</li>
+        <li><strong>原因のことが多い:</strong> 熱で接着が弱る／下地ボードが反る／湿気。</li>
+        <li><strong>長持ちしやすい直し方:</strong> 下地が健全なら再スキン。反りがあれば下地の再生・交換。</li>
+        <li><strong>聞くべきこと:</strong> 下地は再利用できますか？反りがある場合は下地交換と耐熱接着をしますか？</li>
+        <li><strong>送る写真:</strong> 全体写真 + 浮き/反りのアップ。</li>
+      </ul>
+
+      <details class="details-card">
+        <summary>
+          <span>なぜ起きるのか</span>
+          <span class="details-card__summary-text">接着と下地が弱ると、形状が接着に勝ってしまいます。</span>
+        </summary>
+        <p>ドアパネルは「表皮・接着・下地ボード」の層構造です。窓周りは熱を受けやすく、接着が弱ります。湿気で下地が反ることもあります。</p>
+        <p>下地が歪むと、貼り直しは形状に逆らうため再発しやすいです。下地を戻す/交換した上で、適切な張りと接着で再スキンするのが長持ちしやすい直し方です。</p>
+      </details>
+
+      <p class="issue-card__links">
+        詳しく: <LocalizedLink locale="ja" pageKey="autoUpholstery">自動車内装</LocalizedLink> · 見積もり:
+        <LocalizedLink locale="ja" pageKey="contact">お問い合わせ</LocalizedLink>
+      </p>
+    </div>
+  </details>
+</div>
+
+<h2 id="reference">判断する前に知っておきたいこと</h2>
+
+下のトピックから選べます：素材、作業範囲、料金、流れ。
+
+<div class="issue-cards">
+  <details id="ref-materials" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">実生活に合う素材選び</span>
+      <span class="issue-card__summary-text">座り心地、掃除のしやすさ、暑さ、手入れの手間で決める。</span>
+    </summary>
+    <div class="issue-card__body">
+      <p>「名前」ではなく「挙動」で選びます。まずは優先度をはっきりさせてください。</p>
+      <ul>
+        <li><strong>快適さと高級感:</strong> 本革寄り。</li>
+        <li><strong>掃除のしやすさと耐久:</strong> 合皮（ビニール）寄り。</li>
+        <li><strong>温度のストレスが少ない:</strong> 布寄り。</li>
+        <li><strong>屋外駐車・高温環境:</strong> UV対応素材と高温対応接着を優先。</li>
+        <li><strong>手入れが苦手:</strong> 合皮（ビニール）か高耐久ファブリックを検討。</li>
+      </ul>
+
+      <div class="decision-card">
+        <p class="decision-card__title">本革</p>
+        <ul>
+          <li><strong>向いている:</strong> 座り心地、高級感、季節の快適さ。</li>
+          <li><strong>避けたい場合:</strong> 手入れが負担、毎日直射日光の屋外駐車。</li>
+          <li><strong>ケア:</strong> 定期的な清掃 + 保湿（乾燥・ひび割れ防止）。</li>
+          <li><strong>よくある後悔:</strong> 日差しで乾燥し、摩耗部が割れやすくなるのに手入れをしなかった。</li>
+        </ul>
+      </div>
+
+      <div class="decision-card">
+        <p class="decision-card__title">合皮（ビニール）</p>
+        <ul>
+          <li><strong>向いている:</strong> 日常使い、子ども/ペット、拭き取りが多い環境。</li>
+          <li><strong>避けたい場合:</strong> 夏の熱さが気になる、最大限の通気性がほしい。</li>
+          <li><strong>ケア:</strong> 自動車用グレードを選ぶ。強い溶剤は避ける。</li>
+          <li><strong>よくある後悔:</strong> 直射日光の駐車で夏は熱く感じる。</li>
+        </ul>
+      </div>
+
+      <div class="decision-card">
+        <p class="decision-card__title">布（ファブリック）</p>
+        <ul>
+          <li><strong>向いている:</strong> 温度のストレスが少なく、日常の快適さ重視。</li>
+          <li><strong>避けたい場合:</strong> こぼれが多いのにすぐ拭けない。</li>
+          <li><strong>ケア:</strong> 使用量が多いなら高耐久ファブリック。汚れは早めに対処。</li>
+          <li><strong>よくある後悔:</strong> こぼれの放置でシミ・臭いが残る。</li>
+        </ul>
+      </div>
+
+      <aside class="callout" aria-label="熱のルール">
+        <p class="callout__title">熱のルール</p>
+        <p>屋外駐車が多い車は「熱とUV」が最大のストレスです。UV対応素材と高温対応接着を優先し、可能なら日陰やサンシェードを使ってください。</p>
+      </aside>
+
+      <p><strong>補足:</strong> 素材のミックスも一般的です。摩耗が激しい縁は合皮、座面中央は布など、使い方に合わせた組み合わせができます。</p>
+    </div>
+  </details>
+
+  <details id="ref-scope" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">適切な作業範囲を選ぶ</span>
+      <span class="issue-card__summary-text">「本当に直したい問題」に合う最小の手段を選ぶ。</span>
+    </summary>
+    <div class="issue-card__body">
+      <p>本当に直したい問題（見た目なのか、座り心地なのか）に合う、最小の手段を選びます。</p>
+
+      <h3>修理／張り替え／交換の違い</h3>
+      <ul>
+        <li><strong>部分修理:</strong> 縫い目や小さな破れを直す。周辺素材とフォームが健全なときに最適。</li>
+        <li><strong>パネル交換:</strong> 傷んだパネルだけ交換（シート端で多い）。マッチは経年と質感に左右される。</li>
+        <li><strong>張り替え:</strong> カバー交換 + 構造の再生。複数箇所が傷んでいる／フォーム再生で形が変わるときに有効。</li>
+        <li><strong>カバー/キット:</strong> 見た目の改善が中心。座り心地や構造問題は直らないことが多い。</li>
+      </ul>
+
+      <h3>フォーム優先で考える</h3>
+      <ul>
+        <li>座り心地はカバーではなく、フォーム/サポートで決まります。</li>
+        <li>カバーが健全なら、フォーム再生だけで解決することもあります。</li>
+        <li>フォーム再生で形が戻ると、カバーが合わず修理/交換が必要になる場合があります。</li>
+      </ul>
+
+      <h3>1脚だけ直す？揃えて直す？</h3>
+      <ul>
+        <li>日常車や予算優先なら、運転席だけの修理でも問題ありません。</li>
+        <li>統一感重視なら段階的に計画を。新しい素材は古い素材と見え方が変わります。</li>
+      </ul>
+    </div>
+  </details>
+
+  <details id="ref-pricing" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">料金と見積もり</span>
+      <span class="issue-card__summary-text">価格より先に「何が含まれるか」を比べる。</span>
+    </summary>
+    <div class="issue-card__body">
+      <p>料金は素材より「手間」と「現状」に左右されます。金額だけでなく、含まれる内容を比較してください。</p>
+
+      <details class="details-card">
+        <summary>
+          <span>何が高くなるのか</span>
+          <span class="details-card__summary-text">素材より、分解・複雑さ・状態がコストを左右します。</span>
+        </summary>
+        <ul>
+          <li>分解と復元（トリム脱着、アクセス）。</li>
+          <li>パネル形状と縫製の複雑さ。</li>
+          <li>フォーム/サポート再生、構造修理。</li>
+          <li>マッチングの難易度と高グレード素材。</li>
+          <li>過去のDIY補修による隠れた問題。</li>
+        </ul>
+      </details>
+
+      <details class="details-card">
+        <summary>
+          <span>見積もりを比べるコツ</span>
+          <span class="details-card__summary-text">「方法」と「含む範囲」を同じ条件で比較します。</span>
+        </summary>
+        <ul>
+          <li>各店に「何をするか」を1文で書いてもらう。</li>
+          <li>範囲が同じか確認（フォーム再生あり vs カバーだけ）。</li>
+          <li>ヘッドライナーはボード脱着とフォーム除去の有無を確認。</li>
+          <li>シートはフォーム/サポートの作業有無を確認。</li>
+        </ul>
+      </details>
+
+      <details class="details-card">
+        <summary>
+          <span>安い仕事が失敗するパターン</span>
+          <span class="details-card__summary-text">省かれがちなのは、下地・構造・フィットの基本です。</span>
+        </summary>
+        <ul>
+          <li>下地清掃/下処理不足で接着が剥がれる。</li>
+          <li>負荷がかかる場所の補強不足で縫い目が裂ける。</li>
+          <li>張りと仮合わせ不足で波打ち・しわが出る。</li>
+          <li>フォームを触らず、座り心地が改善しない。</li>
+          <li>原因を残したまま表面だけ直して同じ割れが再発する。</li>
+        </ul>
+        <p>安い＝悪いではありませんが、長持ちには下処理・構造・フィット・方法が必要です。</p>
+      </details>
+    </div>
+  </details>
+
+  <details id="ref-process" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">流れと期待値</span>
+      <span class="issue-card__summary-text">何を送るか、期間の目安、受け取り時のチェック。</span>
+    </summary>
+    <div class="issue-card__body">
+      <details class="details-card">
+        <summary>
+          <span>返事が来やすい見積もり依頼</span>
+          <span class="details-card__summary-text">年式/型式 + 写真3枚 + 症状1文で十分。</span>
+        </summary>
+        <p>短く・具体的に・写真付きで。専門用語は不要です。</p>
+        <p>送るもの:</p>
+        <ul>
+          <li>年式 / メーカー / モデル</li>
+          <li>全体写真（シート全体/天井全体/ドアパネル全体）</li>
+          <li>損傷のアップ（傷みのパターン）</li>
+          <li>横からの写真（沈み/高さ/反りがわかる）</li>
+          <li>症状を1文で</li>
+        </ul>
+        <p>例:</p>
+        <ul>
+          <li>「天井の布が広い範囲でたるんでいます。」</li>
+          <li>「運転席が平らで、以前より低く座っている感じです。」</li>
+          <li>「シート外側の端が割れていて、そこだけ柔らかいです。」</li>
+          <li>「ドアパネル上部が浮いていて、反って見えます。」</li>
+        </ul>
+      </details>
+
+      <details class="details-card">
+        <summary>
+          <span>予約と期間</span>
+          <span class="details-card__summary-text">作業範囲と材料の手配で決まります。</span>
+        </summary>
+        <p>期間は作業範囲と素材の手配で変わります。</p>
+        <ul>
+          <li>ヘッドライナーは材料が揃えば短期になりやすい。</li>
+          <li>フォーム再生は分解・成形・仮合わせで時間がかかりやすい。</li>
+          <li>内装全体は段階的な計画が必要になることが多い。</li>
+        </ul>
+        <p>表面だけの作業は早め、再生系は構造を直す分だけ時間がかかります。</p>
+      </details>
+
+      <details class="details-card">
+        <summary>
+          <span>受け取り時に見るポイント</span>
+          <span class="details-card__summary-text">フィット・縫製・触感が「整っている」か。</span>
+        </summary>
+        <ul>
+          <li>縫い目が左右で揃っている</li>
+          <li>パネルがピンと張れている（不自然なしわ/膨らみがない）</li>
+          <li>端の処理がきれい（接着のはみ出しやギザギザがない）</li>
+          <li>トリムがきちんと戻っている（隙間・緩み・新しい異音がない）</li>
+          <li>座り心地が戻っている（見た目だけでなく）</li>
+        </ul>
+        <p>気になる点はその場で伝える方が直しやすいです。</p>
+      </details>
+
+      <details class="details-card">
+        <summary>
+          <span>アフターケアと長持ち</span>
+          <span class="details-card__summary-text">基本のケアで劣化スピードを下げられます。</span>
+        </summary>
+        <ul>
+          <li>フォーム再生後は、最初少し硬く感じることがあります。</li>
+          <li>多少の「馴染み」は正常ですが、大きな変化は正常ではありません。</li>
+          <li>定期清掃で油分や汚れの蓄積を防ぎます。</li>
+          <li>高温に長時間さらすと接着やフォームが早く劣化します（日陰が有効）。</li>
+        </ul>
+        <p>長持ちは「方法」と「環境」で決まります。構造が健全で、用途に合う素材なら持ちが良いです。</p>
+      </details>
+    </div>
+  </details>
+</div>
+
+---
+
+<FaqSection heading="内装ガイド FAQ" faqs={faqs} />
+
+<script
+  is:inline
+  set:html={`
+(() => {
+  const openDetailsFromHash = () => {
+    const hash = window.location.hash;
+    if (!hash) return;
+
+    const target = document.querySelector(hash);
+    if (!target) return;
+
+    const details =
+      target.tagName === 'DETAILS' ? target : target.closest('details');
+    if (!details || details.tagName !== 'DETAILS') return;
+
+    details.open = true;
+  };
+
+  window.addEventListener('DOMContentLoaded', openDetailsFromHash);
+  window.addEventListener('hashchange', openDetailsFromHash);
+})();
+`}
+/>

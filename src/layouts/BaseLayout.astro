@@ -24,11 +24,20 @@ const {
 	lang = LOCALES.en.lang,
 	translations,
 	pageKey,
+	noindex = false,
 } = frontmatter;
 const site = Astro.site ?? new URL(SITE.url);
 const pageTranslations = translations ?? getTranslations(pageKey ?? 'home');
 const canonicalPath = canonicalPathProp ?? pageTranslations[locale] ?? LOCALES.en.base;
 const canonicalUrl = new URL(canonicalPath, site).toString();
+const isProduction = import.meta.env.PROD;
+const gtmId = 'GTM-WQJLM7R6';
+const gtmPageContext = {
+	event: 'page_context',
+	locale,
+	pageKey: pageKey ?? null,
+	canonical: canonicalUrl,
+};
 
 const ui = UI_COPY[locale] ?? UI_COPY.en;
 
@@ -86,6 +95,7 @@ const navItems = [
 		label: navLabels.convertibleTops,
 	},
 	{ key: 'classicCars', href: PAGE_PATHS.classicCars[locale], label: navLabels.classicCars },
+	{ key: 'upholsteryGuide', href: PAGE_PATHS.upholsteryGuide[locale], label: navLabels.upholsteryGuide },
 	{ key: 'gallery', href: PAGE_PATHS.gallery[locale], label: navLabels.gallery },
 	{ key: 'reviews', href: PAGE_PATHS.reviews[locale], label: navLabels.reviews },
 	{ key: 'contact', href: PAGE_PATHS.contact[locale], label: navLabels.contact },
@@ -95,7 +105,7 @@ const navItemsByKey = Object.fromEntries(navItems.map((item) => [item.key, item]
 const mobilePrimaryNav = ['autoUpholstery', 'carSeats', 'headliners', 'convertibleTops'].map(
 	(key) => navItemsByKey[key],
 );
-const mobileSecondaryNav = ['classicCars', 'gallery', 'reviews', 'contact'].map(
+const mobileSecondaryNav = ['classicCars', 'upholsteryGuide', 'gallery', 'reviews', 'contact'].map(
 	(key) => navItemsByKey[key],
 );
 
@@ -176,9 +186,31 @@ const breadcrumbStructuredData = {
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width" />
+		{isProduction ? (
+			<>
+				<script
+					is:inline
+					set:html={`
+window.dataLayer = window.dataLayer || [];
+window.dataLayer.push(${JSON.stringify(gtmPageContext)});
+`}
+				/>
+				<script
+					is:inline
+					set:html={`
+(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','${gtmId}');
+`}
+				/>
+			</>
+		) : null}
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
 		<meta name="description" content={description} />
+		{noindex ? <meta name="robots" content="noindex, follow" /> : null}
 		<link rel="canonical" href={canonicalUrl} />
 		{hreflangLinks.map((link) => (
 			<link rel="alternate" hreflang={link.hreflang} href={link.href} />
@@ -188,6 +220,17 @@ const breadcrumbStructuredData = {
 		<script type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
 	</head>
 	<body>
+		{isProduction ? (
+			<noscript>
+				<iframe
+					src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
+					height="0"
+					width="0"
+					style="display:none;visibility:hidden"
+					title="Google Tag Manager"
+				/>
+			</noscript>
+		) : null}
 		<a class="skip-link" href="#main-content">Skip to content</a>
 		<header class="site-header">
 			<div class="container site-header__mobile">

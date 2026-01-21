@@ -1,0 +1,418 @@
+---
+title: "內飾指南 | 汽車內飾決策框架"
+description: "內飾指南：汽車內飾選購指南，涵蓋材料、範圍、價格與流程。"
+pageKey: "upholsteryGuide"
+---
+import LocalizedLink from "../../../components/LocalizedLink.astro";
+
+import PageHero from "../../../components/PageHero.astro";
+import ServiceCards from "../../../components/ServiceCards.astro";
+import FaqSection from "../../../components/FaqSection.astro";
+
+export const faqs = [
+  {
+    q: "頂棚下垂是布料的問題嗎？",
+    a: "通常不是。最先失效的是泡棉背襯和膠水，所以「把布再黏回去」只有在背襯仍牢固時才可能持久。",
+  },
+  {
+    q: "不換面料，只重做座椅泡棉可以嗎？",
+    a: "可以。如果座椅外皮狀況還好，重建泡棉通常就能明顯恢復坐感，而不必更換可見面料。",
+  },
+  {
+    q: "哪些照片最能幫助準確報價？",
+    a: "年份/品牌/車型 + 一張全景 + 一張損傷近照 + 一張側面角度照（看下垂或座椅高度）。",
+  },
+  {
+    q: "內飾施工通常要多久？",
+    a: "頂棚在材料到位後往往能較快交付。座椅泡棉重建和多面板工作通常更耗時，因為需要拆裝、塑形和試裝。",
+  },
+  {
+    q: "人造革一定比真皮便宜嗎？",
+    a: "不一定。材料等級和工時複雜度比「名字」更決定價格。人造革通常更省心，但價格取決於工作範圍與材料品質。",
+  },
+];
+
+<PageHero
+  locale="zh-hant"
+  title="內飾指南"
+  lead="汽車內飾選購指南：材料、範圍、價格、流程"
+/>
+
+<ServiceCards locale="zh-hant" />
+
+從你看到的問題開始。每一節會說明為什麼會發生、什麼做法更耐久，以及付錢前該問什麼。
+
+---
+
+<h2 id="issues">找到你的問題</h2>
+
+<div class="issue-cards">
+  <details id="issue-headliner" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">頂棚下垂或起泡</span>
+      <span class="issue-card__summary-text">泡棉背襯失效，單靠噴膠在高溫下很難持久。</span>
+    </summary>
+    <div class="issue-card__body">
+      <p class="issue-card__title">快速判斷</p>
+      <ul>
+        <li><strong>症狀：</strong> 頂棚布料大面積下垂、鼓包或垂下來。</li>
+        <li><strong>常見原因：</strong> 泡棉背襯粉化；高溫導致膠水失去黏性。</li>
+        <li><strong>耐久做法：</strong> 下垂範圍大通常需要拆下整塊頂棚重包；只有背襯仍牢固時，局部修補才可能持久。</li>
+        <li><strong>要問：</strong> 是否會拆頂棚板、把舊泡棉清理乾淨，並使用耐高溫膠？</li>
+        <li><strong>建議照片：</strong> 頂棚全景、下垂近照、污漬/邊緣脫膠近照。</li>
+      </ul>
+
+      <details class="details-card">
+        <summary>
+          <span>為什麼會這樣</span>
+          <span class="details-card__summary-text">泡棉背襯粉化後，膠水就抓不住。</span>
+        </summary>
+        <p>多數頂棚是布料覆在薄泡棉上，再貼到硬質頂棚板。高溫會把泡棉分解成粉末，膠就沒有穩定的附著層可黏。</p>
+        <p>噴膠或用圖釘短期可能撐住，但泡棉一旦粉化就會再次下垂。若下垂成片或起泡明顯，耐久做法是拆下頂棚板、徹底刮除泡棉殘留、清潔基層，再用耐高溫膠與新頂棚材料重新包覆。邊緣下垂往往會擴散；若有污漬或頂棚板變形，通常更傾向於更換/重新包覆。</p>
+      </details>
+
+      <p class="issue-card__links">
+        深入了解：<LocalizedLink locale="zh-hant" pageKey="headliners">車頂內襯</LocalizedLink> · 需要報價？
+        <LocalizedLink locale="zh-hant" pageKey="contact">聯絡</LocalizedLink>
+      </p>
+    </div>
+  </details>
+
+  <details id="issue-seat-foam" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">座椅坐感變扁或變低</span>
+      <span class="issue-card__summary-text">通常是泡棉/支撐塌陷，外皮看著還行。</span>
+    </summary>
+    <div class="issue-card__body">
+      <p class="issue-card__title">快速判斷</p>
+      <ul>
+        <li><strong>症狀：</strong> 座椅外觀還好，但坐起來低、扁、塌或左右不平。</li>
+        <li><strong>常見原因：</strong> 外皮下面的泡棉或支撐層塌陷。</li>
+        <li><strong>耐久做法：</strong> 重建或更換泡棉/支撐；外皮仍健康時通常可繼續復用。</li>
+        <li><strong>要問：</strong> 會重做泡棉和支撐嗎，還是只換外皮？</li>
+        <li><strong>建議照片：</strong> 側面輪廓（看高度）、凹陷/褶皺/不對稱的照片。</li>
+      </ul>
+
+      <details class="details-card">
+        <summary>
+          <span>為什麼會這樣</span>
+          <span class="details-card__summary-text">泡棉/支撐塌陷會讓坐姿變低。</span>
+        </summary>
+        <p>舒適感來自泡棉的形狀與密度，以及支撐層（彈簧、織帶或成型骨架）。久了泡棉會被壓扁、回彈變差，並且常在駕駛座更不均勻地塌陷。</p>
+        <p>換外皮不會把結構「撐回來」。很多情況下，重建泡棉就能明顯改善坐感；但如果座椅形狀因長期塌陷而改變，外皮也可能需要修補或更換，才能再次貼合。</p>
+      </details>
+
+      <p class="issue-card__links">
+        深入了解：<LocalizedLink locale="zh-hant" pageKey="carSeats">汽車座椅</LocalizedLink> · 需要報價？
+        <LocalizedLink locale="zh-hant" pageKey="contact">聯絡</LocalizedLink>
+      </p>
+    </div>
+  </details>
+
+  <details id="issue-seat-bolster" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">座椅邊緣最先龜裂</span>
+      <span class="issue-card__summary-text">座椅邊（側翼/座椅邊）是上下車最常摩擦的位置。</span>
+    </summary>
+    <div class="issue-card__body">
+      <p class="issue-card__title">快速判斷</p>
+      <ul>
+        <li><strong>症狀：</strong> 座椅外側邊緣龜裂、開線或磨破。</li>
+        <li><strong>常見原因：</strong> 上下車反覆摩擦 + 泡棉變形/塌陷。</li>
+        <li><strong>耐久做法：</strong> 更換破損面板；若邊緣變軟或變形，需同步重建側翼泡棉。</li>
+        <li><strong>要問：</strong> 會更換面板並加固高受力縫線嗎？側翼泡棉會重建嗎？</li>
+        <li><strong>建議照片：</strong> 龜裂近照 + 側面輪廓（看邊緣形狀）。</li>
+      </ul>
+
+      <details class="details-card">
+        <summary>
+          <span>為什麼會這樣</span>
+          <span class="details-card__summary-text">每天上下車，最先磨損的就是側翼。</span>
+        </summary>
+        <p>座椅側翼承受上/下車的摩擦、擠壓和扭轉，所以裂痕常從這裡開始。材料若乾裂或品質較低，在反覆折彎處更容易先破。</p>
+        <p>如果泡棉已經塌陷，單做表面修補往往撐不久：面板一直在拉扯、受力不均，裂痕會回來。更耐久的做法通常是側翼泡棉重建 + 面板更換 + 縫線加固。</p>
+      </details>
+
+      <p class="issue-card__links">
+        深入了解：<LocalizedLink locale="zh-hant" pageKey="carSeats">汽車座椅</LocalizedLink> · 需要報價？
+        <LocalizedLink locale="zh-hant" pageKey="contact">聯絡</LocalizedLink>
+      </p>
+    </div>
+  </details>
+
+  <details id="issue-door-panel" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">車門內飾板翹起或變形</span>
+      <span class="issue-card__summary-text">高溫會讓膠水失效，也可能把底板「烤」變形。</span>
+    </summary>
+    <div class="issue-card__body">
+      <p class="issue-card__title">快速判斷</p>
+      <ul>
+        <li><strong>症狀：</strong> 上緣翹起、起泡、扶手附近鼓起，或整片波浪/變形。</li>
+        <li><strong>常見原因：</strong> 膠水在高溫下失效；底板吸濕/變形；或曾經重黏留下殘膠。</li>
+        <li><strong>耐久做法：</strong> 底板仍牢固可重新包覆；若底板已變形，多半要修復或更換底板再重新包覆。</li>
+        <li><strong>要問：</strong> 底板還能用嗎？會處理底板並使用耐熱膠嗎？</li>
+        <li><strong>建議照片：</strong> 門板全景 + 翹起/起泡的近照。</li>
+      </ul>
+
+      <details class="details-card">
+        <summary>
+          <span>為什麼會這樣</span>
+          <span class="details-card__summary-text">門板更依賴黏著與底板形狀。</span>
+        </summary>
+        <p>門板通常是「表皮 + 膠水 + 底板」的層狀結構。靠近車窗的高溫會讓膠水疲乏、讓表皮翹起；若底板本身已變形，拉回去也會一直和形狀對抗。</p>
+        <p>更耐久的做法是修復或更換底板，再用合適的張力與耐熱膠重新包覆。若有進水或曾經自己重黏，殘留物也會讓下一次黏著變難，通常需要清潔與重建。</p>
+      </details>
+
+      <p class="issue-card__links">
+        深入了解：<LocalizedLink locale="zh-hant" pageKey="autoUpholstery">汽車內飾</LocalizedLink> · 需要報價？
+        <LocalizedLink locale="zh-hant" pageKey="contact">聯絡</LocalizedLink>
+      </p>
+    </div>
+  </details>
+</div>
+
+<h2 id="reference">決定前先了解這些</h2>
+
+下面這些內容分別解釋：材料怎麼選、要做多大範圍、如何看報價、以及流程/交付要點。
+
+<div class="issue-cards">
+  <details id="ref-materials" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">適合真實使用情境的材料</span>
+      <span class="issue-card__summary-text">按舒適、清潔、耐熱與維護成本來選。</span>
+    </summary>
+    <div class="issue-card__body">
+      <p>別按「聽起來高級」選，按材料的行為選。先想清楚你最在意什麼：</p>
+      <ul>
+        <li><strong>舒適和高級質感：</strong> 更偏真皮。</li>
+        <li><strong>好整理和耐用：</strong> 更偏人造革（仿皮）。</li>
+        <li><strong>溫度更中性：</strong> 更偏織物。</li>
+        <li><strong>長期戶外停放 + 高溫：</strong> 優先抗 UV 材料和耐高溫膠。</li>
+        <li><strong>不想常保養：</strong> 選人造革或耐用型織物。</li>
+      </ul>
+
+      <div class="decision-card">
+        <p class="decision-card__title">真皮</p>
+        <ul>
+          <li><strong>適合：</strong> 舒適、質感和溫度更平衡。</li>
+          <li><strong>不適合：</strong> 不想保養或經常曝曬。</li>
+          <li><strong>保養：</strong> 定期清潔 + 護理，防止乾裂。</li>
+          <li><strong>常見後悔：</strong> 長期曝曬不護理，高磨損位置會先開裂。</li>
+        </ul>
+      </div>
+
+      <div class="decision-card">
+        <p class="decision-card__title">人造革（仿皮）</p>
+        <ul>
+          <li><strong>適合：</strong> 日常車、孩子/寵物、容易擦洗。</li>
+          <li><strong>不適合：</strong> 你對炎熱觸感很敏感或想要最透氣。</li>
+          <li><strong>注意：</strong> 選汽車級材料；避免強溶劑。</li>
+          <li><strong>常見後悔：</strong> 車在烈日下停放後，夏天坐起來更燙/更黏。</li>
+        </ul>
+      </div>
+
+      <div class="decision-card">
+        <p class="decision-card__title">織物</p>
+        <ul>
+          <li><strong>適合：</strong> 溫度中性、日常舒適。</li>
+          <li><strong>不適合：</strong> 經常灑漏但不及時清理。</li>
+          <li><strong>建議：</strong> 高使用情境選耐磨/防污面料；灑漏要及時處理。</li>
+          <li><strong>常見後悔：</strong> 處理不及時導致污漬和異味。</li>
+        </ul>
+      </div>
+
+      <aside class="callout" aria-label="高溫規則">
+        <p class="callout__title">高溫規則</p>
+        <p>如果車輛長期停戶外，熱和紫外線就是主要壓力源。優先抗 UV 材料和耐高溫膠；能遮陽就遮陽。</p>
+      </aside>
+
+      <p><strong>好消息：</strong> 混搭很常見。例如高磨損邊用更耐用的人造革 + 中央用織物提升舒適，在現實中往往更好用。</p>
+    </div>
+  </details>
+
+  <details id="ref-scope" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">選擇合適的工作範圍</span>
+      <span class="issue-card__summary-text">選能真正解決問題的最小方案。</span>
+    </summary>
+    <div class="issue-card__body">
+      <p>選能真正解決問題的最小方案。</p>
+
+      <h3>局部修復 vs 重新包覆 vs 直接更換</h3>
+      <ul>
+        <li><strong>局部修復：</strong> 修一條縫或小破口；前提是周邊材料和泡棉仍牢固。</li>
+        <li><strong>更換單個面板：</strong> 常用於側翼/邊緣；能否完美匹配取決於老化程度和紋理。</li>
+        <li><strong>重新包覆：</strong> 更換外皮並重建結構；適合多面板同時失效或泡棉重建改變形狀。</li>
+        <li><strong>座椅套/套件：</strong> 更多是外觀改善，通常解決不了坐感或結構問題。</li>
+      </ul>
+
+      <h3>先想泡棉（Foam-first）</h3>
+      <ul>
+        <li>舒適來自泡棉/支撐，不是外皮。</li>
+        <li>外皮還健康時，重建泡棉可能就是全部工作。</li>
+        <li>泡棉一旦改變形狀，外皮可能需要修補或更換才能貼合。</li>
+      </ul>
+
+      <h3>只做一張座椅 vs 做成一套</h3>
+      <ul>
+        <li>日常車或預算優先項目，只修一張座椅完全合理。</li>
+        <li>想要統一觀感，可分階段規劃；新材料與舊材料在顏色/光澤上會「讀起來不一樣」。</li>
+      </ul>
+    </div>
+  </details>
+
+  <details id="ref-pricing" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">價格與報價</span>
+      <span class="issue-card__summary-text">比較包含內容，而不是只看價格。</span>
+    </summary>
+    <div class="issue-card__body">
+      <p>價格更多取決於工時和現狀，而不是材料單價。比較時看「包含什麼」，別只看數字。</p>
+
+      <details class="details-card">
+        <summary>
+          <span>內飾為什麼會貴</span>
+          <span class="details-card__summary-text">工時、複雜度和現狀比材料更決定價格。</span>
+        </summary>
+        <ul>
+          <li>拆裝時間（飾板拆卸、施工空間）。</li>
+          <li>面板複雜度與縫線工序。</li>
+          <li>泡棉/支撐重建與結構修復。</li>
+          <li>精準匹配與更高等級材料。</li>
+          <li>舊修補留下的隱性問題。</li>
+        </ul>
+      </details>
+
+      <details class="details-card">
+        <summary>
+          <span>不靠猜來對比報價</span>
+          <span class="details-card__summary-text">對比「做什麼」和「怎麼做」。</span>
+        </summary>
+        <ul>
+          <li>讓每家店用一句話說明「會做哪些步驟」。</li>
+          <li>確認包含內容一致（重做泡棉 vs 只換外皮）。</li>
+          <li>頂棚要確認：拆頂棚板 + 清理舊泡棉。</li>
+          <li>座椅要確認：泡棉/支撐工作 vs 只換外皮。</li>
+        </ul>
+      </details>
+
+      <details class="details-card">
+        <summary>
+          <span>便宜的活通常怎麼翻車</span>
+          <span class="details-card__summary-text">省掉的往往是清潔、結構和貼合。</span>
+        </summary>
+        <ul>
+          <li>膠水脫落：表面沒清理、沒預處理。</li>
+          <li>縫線開裂：高應力區域沒加固或裁片貼合不對。</li>
+          <li>起皺起波：拉伸/定位/試裝太趕。</li>
+          <li>坐感沒變：泡棉沒處理。</li>
+          <li>同樣的位置又裂：底層泡棉塌陷與受力問題沒解決。</li>
+        </ul>
+        <p>便宜不一定差，但耐久需要：清潔預處理、結構修復、貼合與工藝。</p>
+      </details>
+    </div>
+  </details>
+
+  <details id="ref-process" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">流程與交付預期</span>
+      <span class="issue-card__summary-text">發什麼、時間怎麼排、取車要看什麼。</span>
+    </summary>
+    <div class="issue-card__body">
+      <details class="details-card">
+        <summary>
+          <span>怎麼發訊息最容易得到準確報價</span>
+          <span class="details-card__summary-text">年份/品牌/車型 + 3 張照片 + 1 句描述。</span>
+        </summary>
+        <p>資訊越短越具體越好。你不需要懂術語。</p>
+        <p>請提供：</p>
+        <ul>
+          <li>年份 / 品牌 / 車型</li>
+          <li>一張全景（整張座椅 / 整塊頂棚 / 整張門板）</li>
+          <li>一張近照（損傷形態）</li>
+          <li>一張側面角度照（座椅高度 / 下垂 / 變形）</li>
+          <li>一句話描述症狀</li>
+        </ul>
+        <p>示例：</p>
+        <ul>
+          <li>「頂棚布料大面積下垂。」</li>
+          <li>「駕駛位坐起來變扁，我坐得比以前低。」</li>
+          <li>「座椅外側邊緣開裂，按上去泡棉發軟。」</li>
+          <li>「車門內飾板上沿翹起，而且整塊有點變形。」</li>
+        </ul>
+      </details>
+
+      <details class="details-card">
+        <summary>
+          <span>預約與工期</span>
+          <span class="details-card__summary-text">工作量和材料決定排期。</span>
+        </summary>
+        <p>工期主要取決於工作範圍與材料到貨情況。</p>
+        <ul>
+          <li>頂棚在材料到位後往往能較快交付。</li>
+          <li>泡棉重建需要拆裝、塑形和試裝，所以更耗時。</li>
+          <li>全車內飾通常需要分階段規劃。</li>
+        </ul>
+        <p>「只換表皮」通常更快；結構重建更慢，因為它在恢復結構而不僅是換皮。</p>
+      </details>
+
+      <details class="details-card">
+        <summary>
+          <span>取車時怎麼判斷做工好不好</span>
+          <span class="details-card__summary-text">貼合、縫線和坐感要乾淨一致。</span>
+        </summary>
+        <ul>
+          <li>縫線對齊且左右對稱</li>
+          <li>面板平整，不應有明顯的褶皺或鼓包</li>
+          <li>邊緣收口乾淨，沒有溢膠或毛邊</li>
+          <li>飾板復位到位（無縫隙、無鬆動、無新異響）</li>
+          <li>坐感一致（支撐恢復，而不只是「看起來新」）</li>
+        </ul>
+        <p>如果當場就覺得不對，立即溝通最容易處理；用一陣子再回頭通常更麻煩。</p>
+      </details>
+
+      <details class="details-card">
+        <summary>
+          <span>保養與壽命</span>
+          <span class="details-card__summary-text">基礎護理能延緩常見失效。</span>
+        </summary>
+        <ul>
+          <li>新內飾可能一開始更硬，尤其是重建過泡棉時。</li>
+          <li>部分材料會輕微「回落」，但大幅變化不正常。</li>
+          <li>定期清潔能減少油脂與灰塵加速乾裂與磨損。</li>
+          <li>長期高溫會加速膠水與泡棉老化；遮陽很有用。</li>
+        </ul>
+        <p>壽命取決於工藝與環境：結構做實 + 材料選對，通常更耐久。</p>
+      </details>
+    </div>
+  </details>
+</div>
+
+---
+
+<FaqSection heading="內飾指南常見問題" faqs={faqs} />
+
+<script
+  is:inline
+  set:html={`
+(() => {
+  const openDetailsFromHash = () => {
+    const hash = window.location.hash;
+    if (!hash) return;
+
+    const target = document.querySelector(hash);
+    if (!target) return;
+
+    const details =
+      target.tagName === 'DETAILS' ? target : target.closest('details');
+    if (!details || details.tagName !== 'DETAILS') return;
+
+    details.open = true;
+  };
+
+  window.addEventListener('DOMContentLoaded', openDetailsFromHash);
+  window.addEventListener('hashchange', openDetailsFromHash);
+})();
+`}
+/>

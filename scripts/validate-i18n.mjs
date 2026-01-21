@@ -4,6 +4,7 @@ import { glob } from 'glob';
 import { LOCALES, LOCALE_ORDER, PAGE_PATHS } from '../src/lib/site-data.js';
 
 const errors = [];
+const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 const localeKeys = Object.keys(LOCALES);
 const orderedSet = new Set(LOCALE_ORDER);
@@ -44,6 +45,27 @@ for (const file of files) {
 	const locale = path.basename(path.dirname(file));
 	const slug = path.basename(file, '.mdx');
 	const content = fs.readFileSync(file, 'utf-8');
+
+	if (locale !== 'en') {
+		const missingLocalePattern = /<LocalizedLink\b(?![^>]*\blocale=)[^>]*\bpageKey=/g;
+		if (missingLocalePattern.test(content)) {
+			errors.push(
+				`LocalizedLink missing locale in ${file}. Add locale="${locale}" to <LocalizedLink> when using pageKey.`,
+			);
+		}
+
+		const localePath = escapeRegExp(`/${locale}/`);
+		const rawPathAsTextPattern = new RegExp(
+			`<LocalizedLink[^>]*>\\s*${localePath}[^<]*<\\/LocalizedLink>`,
+			'g',
+		);
+		if (rawPathAsTextPattern.test(content)) {
+			errors.push(
+				`LocalizedLink uses raw path as link text in ${file}. Replace "/${locale}/..." with readable link text.`,
+			);
+		}
+	}
+
 	const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---/);
 	if (!frontmatterMatch) {
 		errors.push(`Missing frontmatter in ${file}`);

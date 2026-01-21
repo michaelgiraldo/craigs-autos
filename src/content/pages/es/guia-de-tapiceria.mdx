@@ -1,0 +1,418 @@
+---
+title: "Guía de tapicería | Marco de decisión (interior automotriz)"
+description: "Guía de tapicería: guía del comprador de tapicería automotriz sobre materiales, alcance, precios y proceso."
+pageKey: "upholsteryGuide"
+---
+import LocalizedLink from "../../../components/LocalizedLink.astro";
+
+import PageHero from "../../../components/PageHero.astro";
+import ServiceCards from "../../../components/ServiceCards.astro";
+import FaqSection from "../../../components/FaqSection.astro";
+
+export const faqs = [
+  {
+    q: "¿Un techo interior caído es un problema de la tela?",
+    a: "Casi siempre no. Lo que falla primero es la espuma y el adhesivo, por eso volver a pegar la tela solo dura si la base sigue firme.",
+  },
+  {
+    q: "¿Se puede reconstruir la espuma del asiento sin retapizar?",
+    a: "Sí. Si la funda todavía está en buen estado, reconstruir la espuma puede devolver comodidad sin cambiar el material visible.",
+  },
+  {
+    q: "¿Qué fotos ayudan para cotizar tapicería?",
+    a: "Año/marca/modelo más una foto amplia, un primer plano del daño y una foto lateral que muestre caída o altura del asiento.",
+  },
+  {
+    q: "¿Cuánto suele tardar un trabajo de tapicería?",
+    a: "Los techos interiores pueden ser de entrega rápida cuando el material está listo. Reconstrucciones de asientos y trabajos con muchos paneles suelen tardar más por el ajuste y las pruebas.",
+  },
+  {
+    q: "¿El vinil siempre es más barato que el cuero?",
+    a: "No siempre. La calidad del material y la complejidad de mano de obra importan más que la etiqueta. El vinil suele requerir menos mantenimiento, pero el precio depende del trabajo y del grado del material.",
+  },
+];
+
+<PageHero
+  locale="es"
+  title="Guía de tapicería"
+  lead="Guía del comprador de tapicería automotriz: materiales, alcance, precios y proceso"
+/>
+
+<ServiceCards locale="es" />
+
+Empieza por el problema que ves. Cada sección explica por qué ocurre, qué suele durar y qué preguntar antes de pagar.
+
+---
+
+<h2 id="issues">Encuentra tu problema</h2>
+
+<div class="issue-cards">
+  <details id="issue-headliner" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">Techo interior caído o con burbujas</span>
+      <span class="issue-card__summary-text">Falla la base de espuma, por eso los arreglos solo con pegamento no aguantan el calor.</span>
+    </summary>
+    <div class="issue-card__body">
+      <p class="issue-card__title">Resumen rápido</p>
+      <ul>
+        <li><strong>Síntomas:</strong> tela caída, con burbujas o colgando en el techo interior.</li>
+        <li><strong>Causa probable:</strong> se degrada la base de espuma; el adhesivo pierde agarre con el calor.</li>
+        <li><strong>Solución que dura:</strong> reemplazo completo si se cae en gran parte; reparación localizada solo si la base sigue firme.</li>
+        <li><strong>Qué preguntar:</strong> ¿Van a bajar la base, retirar la espuma vieja y usar adhesivo de alta temperatura?</li>
+        <li><strong>Fotos para enviar:</strong> foto amplia del techo, primer plano de la caída, primer plano de manchas/bordes.</li>
+      </ul>
+
+      <details class="details-card">
+        <summary>
+          <span>Por qué pasa</span>
+          <span class="details-card__summary-text">La espuma se desmorona, así que el adhesivo ya no se sostiene.</span>
+        </summary>
+        <p>La mayoría de techos interiores son una tela laminada a una espuma delgada sobre una base rígida. El calor convierte esa espuma en polvo, y el adhesivo ya no tiene una capa estable donde agarrarse.</p>
+        <p>El spray adhesivo o las tachuelas pueden aguantar un tiempo, pero fallan cuando la espuma ya se desmorona. Si la caída es amplia o con burbujas, la solución durable es bajar la base, retirar los restos de espuma, limpiar la superficie y retapizar con adhesivo de alta temperatura. La caída en bordes suele expandirse; las manchas o una base deformada empujan el trabajo hacia reemplazo.</p>
+      </details>
+
+      <p class="issue-card__links">
+        Más detalle: <LocalizedLink locale="es" pageKey="headliners">Techos interiores</LocalizedLink> · ¿Listo para cotizar?
+        <LocalizedLink locale="es" pageKey="contact">Contacto</LocalizedLink>
+      </p>
+    </div>
+  </details>
+
+  <details id="issue-seat-foam" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">El asiento se siente plano o bajo</span>
+      <span class="issue-card__summary-text">Normalmente colapsa la espuma/soporte bajo una funda que aún “se ve bien”.</span>
+    </summary>
+    <div class="issue-card__body">
+      <p class="issue-card__title">Resumen rápido</p>
+      <ul>
+        <li><strong>Síntomas:</strong> el asiento se ve bien pero se siente bajo, plano o desigual.</li>
+        <li><strong>Causa probable:</strong> colapso de espuma/soporte debajo de la funda.</li>
+        <li><strong>Solución que dura:</strong> reconstruir o reemplazar espuma/soporte; reutilizar la funda si aún está sana.</li>
+        <li><strong>Qué preguntar:</strong> ¿Van a reconstruir espuma y soporte, o solo van a cambiar la funda?</li>
+        <li><strong>Fotos para enviar:</strong> foto lateral que muestre altura, hundimientos o arrugas.</li>
+      </ul>
+
+      <details class="details-card">
+        <summary>
+          <span>Por qué pasa</span>
+          <span class="details-card__summary-text">Cuando colapsa la espuma/soporte, te sientes más abajo.</span>
+        </summary>
+        <p>La comodidad depende de la forma y densidad de la espuma más la capa de soporte (resortes, correas o estructuras moldeadas). Con el tiempo la espuma se comprime, pierde rebote y se colapsa de forma desigual, sobre todo en el asiento del conductor.</p>
+        <p>Una funda nueva no devuelve estructura. A veces reconstruir espuma arregla la comodidad sin cambiar la funda, pero si la forma del asiento cambió con los años, la funda puede necesitar reparación o reemplazo para volver a asentar bien.</p>
+      </details>
+
+      <p class="issue-card__links">
+        Más detalle: <LocalizedLink locale="es" pageKey="carSeats">Asientos</LocalizedLink> · ¿Listo para cotizar?
+        <LocalizedLink locale="es" pageKey="contact">Contacto</LocalizedLink>
+      </p>
+    </div>
+  </details>
+
+  <details id="issue-seat-bolster" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">Primero se cuartea el borde del asiento</span>
+      <span class="issue-card__summary-text">El borde (bolster) sufre fricción cada vez que entras y sales.</span>
+    </summary>
+    <div class="issue-card__body">
+      <p class="issue-card__title">Resumen rápido</p>
+      <ul>
+        <li><strong>Síntomas:</strong> borde del asiento (bolster) cuarteado, abierto o gastado.</li>
+        <li><strong>Causa probable:</strong> alta fricción al entrar/salir más deformación de espuma.</li>
+        <li><strong>Solución que dura:</strong> reemplazar el panel dañado; reconstruir espuma del bolster si el borde se siente blando.</li>
+        <li><strong>Qué preguntar:</strong> ¿Van a reemplazar el panel y reforzar costuras? ¿Van a reconstruir el borde de espuma?</li>
+        <li><strong>Fotos para enviar:</strong> primer plano de la grieta + foto lateral del perfil del borde.</li>
+      </ul>
+
+      <details class="details-card">
+        <summary>
+          <span>Por qué pasa</span>
+          <span class="details-card__summary-text">La fricción de entrar/salir destruye el borde primero.</span>
+        </summary>
+        <p>El borde del asiento sufre fricción y compresión cada vez que entras y sales. Se desgasta primero y se cuartea donde más flexiona el material.</p>
+        <p>Si la espuma está blanda, los arreglos solo de superficie no duran: el panel queda bajo tensión y vuelve a fallar. Reconstruir la espuma y reemplazar el panel es lo durable.</p>
+      </details>
+
+      <p class="issue-card__links">
+        Más detalle: <LocalizedLink locale="es" pageKey="carSeats">Asientos</LocalizedLink> · ¿Listo para cotizar?
+        <LocalizedLink locale="es" pageKey="contact">Contacto</LocalizedLink>
+      </p>
+    </div>
+  </details>
+
+  <details id="issue-door-panel" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">Panel de puerta despegado o deformado</span>
+      <span class="issue-card__summary-text">El calor debilita el adhesivo y puede deformar la base.</span>
+    </summary>
+    <div class="issue-card__body">
+      <p class="issue-card__title">Resumen rápido</p>
+      <ul>
+        <li><strong>Síntomas:</strong> borde despegado, burbujas cerca del apoyabrazos o un panel ondulado.</li>
+        <li><strong>Causa probable:</strong> adhesivo “cocido” por el calor; base deformada/ablandada; humedad.</li>
+        <li><strong>Solución que dura:</strong> volver a forrar si la base está sólida; reconstruir/reemplazar la base si está deformada.</li>
+        <li><strong>Qué preguntar:</strong> ¿La base se puede reutilizar? ¿Van a reemplazar la base y usar adhesivo apto para calor?</li>
+        <li><strong>Fotos para enviar:</strong> foto amplia + primer plano del despegue o la deformación.</li>
+      </ul>
+
+      <details class="details-card">
+        <summary>
+          <span>Por qué pasa</span>
+          <span class="details-card__summary-text">Calor y humedad debilitan adhesivos y deforman la base.</span>
+        </summary>
+        <p>Los paneles de puerta son un sistema por capas: una piel, adhesivo y una base. El calor cerca del vidrio ablanda adhesivos, y la humedad puede deformar la base.</p>
+        <p>Cuando la base se deforma, volver a pegar pelea contra la forma. Lo durable es restaurar o reemplazar la base y volver a forrar con tensión y adhesivo correctos.</p>
+      </details>
+
+      <p class="issue-card__links">
+        Más detalle: <LocalizedLink locale="es" pageKey="autoUpholstery">Tapicería automotriz</LocalizedLink> · ¿Listo para cotizar?
+        <LocalizedLink locale="es" pageKey="contact">Contacto</LocalizedLink>
+      </p>
+    </div>
+  </details>
+</div>
+
+<h2 id="reference">Lo que debes saber antes de decidir</h2>
+
+Elige un tema: materiales, cuánto trabajo necesitas, precios y qué esperar.
+
+<div class="issue-cards">
+  <details id="ref-materials" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">Materiales para la vida real</span>
+      <span class="issue-card__summary-text">Elige por comodidad, limpieza, calor y tolerancia al mantenimiento.</span>
+    </summary>
+    <div class="issue-card__body">
+      <p>Elige por comportamiento, no por etiqueta. Empieza por lo que más te importa:</p>
+      <ul>
+        <li><strong>Comodidad y sensación premium:</strong> inclínate por cuero.</li>
+        <li><strong>Limpieza fácil y durabilidad:</strong> inclínate por vinil.</li>
+        <li><strong>Sensación térmica neutra:</strong> inclínate por tela.</li>
+        <li><strong>Estacionamiento al aire libre y calor:</strong> prioriza materiales con resistencia UV y adhesivo de alta temperatura.</li>
+        <li><strong>Poca tolerancia al mantenimiento:</strong> vinil o tela de alto rendimiento.</li>
+      </ul>
+
+      <div class="decision-card">
+        <p class="decision-card__title">Cuero</p>
+        <ul>
+          <li><strong>Lo mejor para:</strong> comodidad, sensación premium y temperatura más equilibrada.</li>
+          <li><strong>Evítalo si:</strong> odias el mantenimiento o el auto pasa al sol todos los días.</li>
+          <li><strong>Cuidado:</strong> limpieza regular + acondicionador para evitar resequedad y grietas.</li>
+          <li><strong>Arrepentimiento común:</strong> se cuartea en zonas de alto uso si se hornea al sol y nunca se acondiciona.</li>
+        </ul>
+      </div>
+
+      <div class="decision-card">
+        <p class="decision-card__title">Vinil</p>
+        <ul>
+          <li><strong>Lo mejor para:</strong> uso diario, niños/mascotas y limpieza rápida.</li>
+          <li><strong>Evítalo si:</strong> eres sensible al calor o quieres máxima transpirabilidad.</li>
+          <li><strong>Cuidado:</strong> elige vinil de grado automotriz; evita solventes fuertes.</li>
+          <li><strong>Arrepentimiento común:</strong> se siente caliente/pegajoso en verano si el auto se queda al sol.</li>
+        </ul>
+      </div>
+
+      <div class="decision-card">
+        <p class="decision-card__title">Tela</p>
+        <ul>
+          <li><strong>Lo mejor para:</strong> sensación térmica neutra y comodidad diaria.</li>
+          <li><strong>Evítala si:</strong> esperas derrames frecuentes sin limpieza rápida.</li>
+          <li><strong>Cuidado:</strong> tela de alto rendimiento para uso intenso; limpia derrames rápido.</li>
+          <li><strong>Arrepentimiento común:</strong> manchas y olores si los derrames no se atienden a tiempo.</li>
+        </ul>
+      </div>
+
+      <aside class="callout" aria-label="Regla del calor">
+        <p class="callout__title">Regla del calor</p>
+        <p>Si el auto vive al aire libre, el calor y los rayos UV son los principales agresores. Prioriza materiales con resistencia UV y adhesivo de alta temperatura, y usa sombra o parasoles cuando se pueda.</p>
+      </aside>
+
+      <p><strong>Buena noticia:</strong> mezclar materiales es común. Por ejemplo, vinil durable en zonas de alto desgaste + insertos de tela para comodidad puede ser una gran combinación para la vida real.</p>
+    </div>
+  </details>
+
+  <details id="ref-scope" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">Elige el nivel correcto de trabajo</span>
+      <span class="issue-card__summary-text">Elige la solución más pequeña que sí resuelve el problema.</span>
+    </summary>
+    <div class="issue-card__body">
+      <p>Elige la solución más pequeña que sí resuelve el problema.</p>
+
+      <h3>Reparación vs retapizado vs reemplazo</h3>
+      <ul>
+        <li><strong>Reparación (puntual):</strong> arreglar una costura o rotura pequeña; funciona cuando el material alrededor y la espuma están sanos.</li>
+        <li><strong>Reemplazo de panel:</strong> cambiar un panel dañado (común en bolsters); la combinación depende de la edad y el grano.</li>
+        <li><strong>Retapizado:</strong> reemplazar la funda y reconstruir estructura; mejor cuando fallan varios paneles o el trabajo de espuma cambia la forma.</li>
+        <li><strong>Fundas/kits de reemplazo:</strong> mejora estética; rara vez arregla comodidad o problemas estructurales.</li>
+      </ul>
+
+      <h3>Pensar primero en la espuma</h3>
+      <ul>
+        <li>La comodidad viene de la espuma/soporte, no de la funda.</li>
+        <li>Reconstruir espuma puede ser todo el trabajo si la funda aún está sana.</li>
+        <li>Si la espuma cambia la forma, la funda puede necesitar reparación o reemplazo para ajustar.</li>
+      </ul>
+
+      <h3>Un asiento vs conjuntos que combinen</h3>
+      <ul>
+        <li>Reparar un solo asiento funciona en autos de uso diario y proyectos con presupuesto.</li>
+        <li>Para una apariencia uniforme, planifica por etapas; un material nuevo puede verse distinto a uno envejecido.</li>
+      </ul>
+    </div>
+  </details>
+
+  <details id="ref-pricing" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">Precios y cotizaciones</span>
+      <span class="issue-card__summary-text">Compara lo incluido, no solo el precio.</span>
+    </summary>
+    <div class="issue-card__body">
+      <p>El precio depende más de mano de obra y condición que del material. Compara lo incluido, no solo el costo.</p>
+
+      <details class="details-card">
+        <summary>
+          <span>Qué hace que la tapicería sea cara</span>
+          <span class="details-card__summary-text">Mano de obra, complejidad y condición pesan más que el material.</span>
+        </summary>
+        <ul>
+          <li>Tiempo de desmontar y volver a montar (retirar molduras, acceso).</li>
+          <li>Complejidad de paneles y costuras.</li>
+          <li>Reconstrucción de espuma/soporte y arreglos estructurales.</li>
+          <li>Combinación y materiales de mayor grado.</li>
+          <li>Daños ocultos por reparaciones previas.</li>
+        </ul>
+      </details>
+
+      <details class="details-card">
+        <summary>
+          <span>Cómo comparar cotizaciones sin adivinar</span>
+          <span class="details-card__summary-text">Compara lo incluido y cómo se hará el trabajo.</span>
+        </summary>
+        <ul>
+          <li>Pide a cada taller que describa lo que hará en una sola frase.</li>
+          <li>Asegúrate de que lo incluido sea comparable (espuma vs solo funda).</li>
+          <li>En techos interiores, confirma bajar la base + retirar espuma vieja.</li>
+          <li>En asientos, confirma trabajo de espuma/soporte vs solo tapizado.</li>
+        </ul>
+      </details>
+
+      <details class="details-card">
+        <summary>
+          <span>Cómo suele fallar el trabajo barato</span>
+          <span class="details-card__summary-text">Lo que se recorta es preparación, estructura y ajuste.</span>
+        </summary>
+        <ul>
+          <li>Falla el adhesivo porque no se limpió ni preparó la superficie.</li>
+          <li>Falla la costura porque no se reforzaron zonas de estrés o no se ajustó bien el panel.</li>
+          <li>Se ven arrugas y ondas por falta de tensión y ajuste cuidadoso.</li>
+          <li>No mejora la comodidad porque no se tocó la espuma.</li>
+          <li>La misma grieta vuelve porque la espuma y el estrés siguen igual.</li>
+        </ul>
+        <p>Barato no siempre es malo, pero lo durable requiere preparación, estructura, ajuste y método.</p>
+      </details>
+    </div>
+  </details>
+
+  <details id="ref-process" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">Proceso y expectativas</span>
+      <span class="issue-card__summary-text">Qué enviar, cómo funcionan los tiempos y qué revisar al recoger.</span>
+    </summary>
+    <div class="issue-card__body">
+      <details class="details-card">
+        <summary>
+          <span>Cómo pedir una cotización fácil de responder</span>
+          <span class="details-card__summary-text">Año/marca/modelo + 3 fotos + 1 frase clara.</span>
+        </summary>
+        <p>Mantén el mensaje corto, específico y con fotos. No necesitas términos técnicos.</p>
+        <p>Envía:</p>
+        <ul>
+          <li>año / marca / modelo</li>
+          <li>una foto amplia (asiento completo / techo completo / panel de puerta completo)</li>
+          <li>un primer plano (patrón del daño)</li>
+          <li>una foto lateral (altura del asiento / caída / deformación)</li>
+          <li>una frase clara describiendo el síntoma</li>
+        </ul>
+        <p>Ejemplos:</p>
+        <ul>
+          <li>“La tela del techo interior se está cayendo en casi todo el techo.”</li>
+          <li>“El asiento del conductor se siente plano y me siento más abajo que antes.”</li>
+          <li>“El borde exterior del asiento está cuarteado y la espuma se siente blanda.”</li>
+          <li>“El panel de la puerta se despega en el borde superior y se ve deformado.”</li>
+        </ul>
+      </details>
+
+      <details class="details-card">
+        <summary>
+          <span>Agenda y tiempos</span>
+          <span class="details-card__summary-text">El tamaño del trabajo y los materiales definen el calendario.</span>
+        </summary>
+        <p>Los tiempos cambian según el tamaño del trabajo y la disponibilidad de materiales.</p>
+        <ul>
+          <li>Los techos interiores suelen ser de entrega rápida cuando el material está listo.</li>
+          <li>Reconstrucciones de espuma tardan más por desmontaje, moldeado y prueba de ajuste.</li>
+          <li>Renovaciones completas suelen requerir planeación por etapas.</li>
+        </ul>
+        <p>El trabajo solo de superficie es más rápido; las reconstrucciones tardan más porque restauran estructura, no solo la funda.</p>
+      </details>
+
+      <details class="details-card">
+        <summary>
+          <span>Cómo se ve un buen trabajo al recogerlo</span>
+          <span class="details-card__summary-text">El ajuste, las costuras y la sensación deben verse y sentirse consistentes.</span>
+        </summary>
+        <ul>
+          <li>costuras alineadas y simétricas</li>
+          <li>paneles planos sin arrugas ni burbujas “sueltas”</li>
+          <li>bordes bien terminados sin exceso de adhesivo ni líneas irregulares</li>
+          <li>molduras reinstaladas al ras (sin huecos, piezas flojas o ruidos nuevos)</li>
+          <li>el asiento se siente consistente (soporte restaurado, no solo mejor aspecto)</li>
+        </ul>
+        <p>Si algo se ve mal al momento, es más fácil corregirlo ahí que después de semanas de uso.</p>
+      </details>
+
+      <details class="details-card">
+        <summary>
+          <span>Cuidado y duración</span>
+          <span class="details-card__summary-text">El mantenimiento básico frena fallas predecibles.</span>
+        </summary>
+        <ul>
+          <li>La tapicería nueva puede sentirse más firme al inicio, sobre todo si se reconstruyó espuma.</li>
+          <li>Algunos materiales se “asientan” un poco; cambios grandes no son normales.</li>
+          <li>La limpieza regular evita que aceites y suciedad aceleren desgaste y resequedad.</li>
+          <li>El calor acelera el envejecimiento de adhesivos y espuma; la sombra ayuda.</li>
+        </ul>
+        <p>La duración depende del método y la exposición: buena estructura + material adecuado dura.</p>
+      </details>
+    </div>
+  </details>
+</div>
+
+---
+
+<FaqSection heading="Preguntas frecuentes de la guía" faqs={faqs} />
+
+<script
+  is:inline
+  set:html={`
+(() => {
+  const openDetailsFromHash = () => {
+    const hash = window.location.hash;
+    if (!hash) return;
+
+    const target = document.querySelector(hash);
+    if (!target) return;
+
+    const details =
+      target.tagName === 'DETAILS' ? target : target.closest('details');
+    if (!details || details.tagName !== 'DETAILS') return;
+
+    details.open = true;
+  };
+
+  window.addEventListener('DOMContentLoaded', openDetailsFromHash);
+  window.addEventListener('hashchange', openDetailsFromHash);
+})();
+`}
+/>

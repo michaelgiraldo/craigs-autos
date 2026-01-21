@@ -1,0 +1,418 @@
+---
+title: "내장 가이드 | 자동차 내장 결정 프레임워크"
+description: "내장 가이드: 자동차 내장 구매 가이드—소재, 작업 범위, 가격, 과정."
+pageKey: "upholsteryGuide"
+---
+import LocalizedLink from "../../../components/LocalizedLink.astro";
+
+import PageHero from "../../../components/PageHero.astro";
+import ServiceCards from "../../../components/ServiceCards.astro";
+import FaqSection from "../../../components/FaqSection.astro";
+
+export const faqs = [
+  {
+    q: "헤드라이너가 처지는 건 천(원단) 문제인가요?",
+    a: "대부분은 아닙니다. 먼저 망가지는 건 폼 백킹과 접착제라서, 백킹이 단단할 때만 ‘다시 붙이기’가 오래갑니다.",
+  },
+  {
+    q: "재커버링 없이 시트 폼만 복원할 수 있나요?",
+    a: "네. 커버 상태가 괜찮다면 폼 복원만으로 착좌감을 되살릴 수 있고, 겉 재료를 바꾸지 않아도 됩니다.",
+  },
+  {
+    q: "어떤 사진이 견적에 가장 도움이 되나요?",
+    a: "연식/브랜드/모델 + 전체 사진 1장 + 손상 클로즈업 1장 + 옆각도 사진 1장(처짐/좌석 높이)이 가장 좋습니다.",
+  },
+  {
+    q: "내장 작업은 보통 얼마나 걸리나요?",
+    a: "헤드라이너는 재료가 준비되면 비교적 빠르게 진행되는 경우가 많습니다. 시트 폼 복원이나 패널이 많은 작업은 분해/성형/피팅 때문에 더 시간이 걸립니다.",
+  },
+  {
+    q: "비닐은 항상 가죽보다 저렴한가요?",
+    a: "항상 그렇진 않습니다. 재료 등급과 작업 복잡도가 라벨보다 중요합니다. 비닐이 관리가 쉬운 편이지만, 가격은 범위와 재료 품질에 따라 달라집니다.",
+  },
+];
+
+<PageHero
+  locale="ko"
+  title="내장 가이드"
+  lead="자동차 내장 구매 가이드: 소재, 작업 범위, 가격, 과정"
+/>
+
+<ServiceCards locale="ko" />
+
+지금 보이는 문제부터 시작하세요. 각 섹션은 원인, 오래가는 해결책, 그리고 돈을 쓰기 전에 물어볼 질문을 정리합니다.
+
+---
+
+<h2 id="issues">문제 찾기</h2>
+
+<div class="issue-cards">
+  <details id="issue-headliner" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">헤드라이너 처짐/기포</span>
+      <span class="issue-card__summary-text">폼 백킹이 무너지면, 접착제만으로는 더위에 못 버팁니다.</span>
+    </summary>
+    <div class="issue-card__body">
+      <p class="issue-card__title">빠른 정리</p>
+      <ul>
+        <li><strong>증상:</strong> 천장 천이 처지거나, 기포처럼 울거나, 내려앉습니다.</li>
+        <li><strong>가능성 높은 원인:</strong> 폼 백킹 분해 + 열로 인한 접착력 저하.</li>
+        <li><strong>오래가는 해결:</strong> 범위가 넓으면 전체 교체/재시공이 일반적; 백킹이 멀쩡할 때만 국소 수리.</li>
+        <li><strong>물어볼 것:</strong> 보드 탈거/기존 폼 제거/고온용 접착제 사용 여부.</li>
+        <li><strong>보낼 사진:</strong> 천장 전체, 처짐 클로즈업, 얼룩/모서리 들뜸 클로즈업.</li>
+      </ul>
+
+      <details class="details-card">
+        <summary>
+          <span>왜 이런 일이 생기나요</span>
+          <span class="details-card__summary-text">폼 백킹이 가루가 되면, 접착제가 버티지 못합니다.</span>
+        </summary>
+        <p>대부분의 헤드라이너는 ‘천 + 얇은 폼’이 단단한 보드에 붙어 있는 구조입니다. 시간이 지나고 열을 많이 받으면 폼이 가루처럼 부서지고, 접착제가 붙을 안정적인 층이 사라집니다.</p>
+        <p>스프레이 접착제나 핀은 잠깐 버틸 수 있지만, 폼이 무너지면 다시 처집니다. 넓게 처지거나 기포가 많다면 보드를 탈거해 폼 잔여물을 완전히 제거하고, 표면을 정리한 뒤 고온용 접착제로 새 재료를 씌우는 방식이 일반적으로 오래갑니다. 가장자리 처짐은 퍼지는 경우가 많고, 얼룩이나 보드 변형이 있으면 교체 쪽으로 기울어집니다.</p>
+      </details>
+
+      <p class="issue-card__links">
+        더 알아보기: <LocalizedLink locale="ko" pageKey="headliners">헤드라이너</LocalizedLink> · 견적 문의:
+        <LocalizedLink locale="ko" pageKey="contact">문의</LocalizedLink>
+      </p>
+    </div>
+  </details>
+
+  <details id="issue-seat-foam" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">시트가 꺼져서 낮게 느껴짐</span>
+      <span class="issue-card__summary-text">겉은 멀쩡해도 폼/지지대가 먼저 무너집니다.</span>
+    </summary>
+    <div class="issue-card__body">
+      <p class="issue-card__title">빠른 정리</p>
+      <ul>
+        <li><strong>증상:</strong> 겉보기는 괜찮지만 앉으면 낮고, 평평하고, 한쪽이 꺼진 느낌.</li>
+        <li><strong>가능성 높은 원인:</strong> 커버 아래 폼/지지대 꺼짐.</li>
+        <li><strong>오래가는 해결:</strong> 폼/지지대 복원 또는 교체; 커버가 건강하면 재사용 가능.</li>
+        <li><strong>물어볼 것:</strong> 폼/지지대 작업을 포함하나요, 커버만 교체하나요?</li>
+        <li><strong>보낼 사진:</strong> 옆면 프로필(높이), 꺼짐/주름/비대칭이 보이는 사진.</li>
+      </ul>
+
+      <details class="details-card">
+        <summary>
+          <span>왜 이런 일이 생기나요</span>
+          <span class="details-card__summary-text">폼/지지대가 꺼지면 착좌감이 낮아집니다.</span>
+        </summary>
+        <p>편안함은 커버보다 폼의 형태/밀도와 지지 구조(스프링, 웨빙, 몰드 프레임 등)에서 나옵니다. 시간이 지나면 폼은 눌려서 탄성이 줄고, 특히 운전석은 한쪽으로 더 빨리 꺼집니다.</p>
+        <p>커버를 새로 씌워도 구조가 돌아오진 않습니다. 커버 상태가 괜찮다면 폼 복원만으로도 착좌감이 크게 좋아질 수 있습니다. 다만 오랫동안 꺼진 상태로 사용해 형태가 변했으면, 폼 복원 후 커버 수리/교체가 필요할 수도 있습니다.</p>
+      </details>
+
+      <p class="issue-card__links">
+        더 알아보기: <LocalizedLink locale="ko" pageKey="carSeats">시트</LocalizedLink> · 견적 문의:
+        <LocalizedLink locale="ko" pageKey="contact">문의</LocalizedLink>
+      </p>
+    </div>
+  </details>
+
+  <details id="issue-seat-bolster" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">시트 바깥쪽(볼스터) 먼저 갈라짐</span>
+      <span class="issue-card__summary-text">승하차 마찰이 집중되는 부위라 먼저 닳습니다.</span>
+    </summary>
+    <div class="issue-card__body">
+      <p class="issue-card__title">빠른 정리</p>
+      <ul>
+        <li><strong>증상:</strong> 시트 가장자리(볼스터) 균열, 찢김, 마모.</li>
+        <li><strong>가능성 높은 원인:</strong> 승하차 마찰 + 볼스터 폼 변형.</li>
+        <li><strong>오래가는 해결:</strong> 손상 패널 교체; 가장자리가 물렁하면 폼도 함께 복원.</li>
+        <li><strong>물어볼 것:</strong> 패널 교체 + 봉제선 보강을 하나요? 폼 엣지도 복원하나요?</li>
+        <li><strong>보낼 사진:</strong> 균열 클로즈업 + 가장자리 형태가 보이는 옆각도 사진.</li>
+      </ul>
+
+      <details class="details-card">
+        <summary>
+          <span>왜 이런 일이 생기나요</span>
+          <span class="details-card__summary-text">매번 타고 내릴 때 볼스터가 먼저 망가집니다.</span>
+        </summary>
+        <p>볼스터는 매일 타고 내릴 때 가장 많이 눌리고 문지르는 부분입니다. 그래서 가장 먼저 주름/얇아짐/균열이 나타납니다.</p>
+        <p>폼이 물렁하면 표면만 손봐서는 오래 못 갑니다. 패널이 계속 당겨지는 상태라 다시 갈라지기 쉽습니다. 오래가는 방식은 폼을 복원해 구조를 되살리고, 손상 패널을 교체해 스트레스를 줄이는 것입니다.</p>
+      </details>
+
+      <p class="issue-card__links">
+        더 알아보기: <LocalizedLink locale="ko" pageKey="carSeats">시트</LocalizedLink> · 견적 문의:
+        <LocalizedLink locale="ko" pageKey="contact">문의</LocalizedLink>
+      </p>
+    </div>
+  </details>
+
+  <details id="issue-door-panel" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">도어 패널 들뜸/변형</span>
+      <span class="issue-card__summary-text">열이 접착제를 약하게 하고, 백킹 보드가 휘기도 합니다.</span>
+    </summary>
+    <div class="issue-card__body">
+      <p class="issue-card__title">빠른 정리</p>
+      <ul>
+        <li><strong>증상:</strong> 가장자리 들뜸, 팔걸이 주변 기포, 패널이 물결처럼 울거나 휨.</li>
+        <li><strong>가능성 높은 원인:</strong> 열로 접착제 약화 + 백킹 보드 변형/연화 + 습기.</li>
+        <li><strong>오래가는 해결:</strong> 백킹이 멀쩡하면 재스킨(리커버); 휘었다면 백킹 복원/교체 후 재시공.</li>
+        <li><strong>물어볼 것:</strong> 백킹 재사용 가능? 백킹 교체 + 고온용 접착제를 쓰나요?</li>
+        <li><strong>보낼 사진:</strong> 패널 전체 + 들뜸/변형 클로즈업.</li>
+      </ul>
+
+      <details class="details-card">
+        <summary>
+          <span>왜 이런 일이 생기나요</span>
+          <span class="details-card__summary-text">열과 습기가 접착을 약하게 하고 백킹을 휘게 합니다.</span>
+        </summary>
+        <p>도어 패널은 보통 ‘겉 재료 + 접착 + 백킹 보드’의 층 구조입니다. 창문 가까운 열이 접착제를 약하게 만들고, 습기가 들어가면 백킹이 휘기도 합니다.</p>
+        <p>백킹이 이미 변형되면 다시 붙이는 작업은 모양과 싸우는 일이 됩니다. 오래가는 방식은 백킹을 복원/교체하고, 올바른 텐션과 접착제로 다시 씌우는 것입니다.</p>
+      </details>
+
+      <p class="issue-card__links">
+        더 알아보기: <LocalizedLink locale="ko" pageKey="autoUpholstery">자동차 내장</LocalizedLink> · 견적 문의:
+        <LocalizedLink locale="ko" pageKey="contact">문의</LocalizedLink>
+      </p>
+    </div>
+  </details>
+</div>
+
+<h2 id="reference">결정 전에 알아둘 것</h2>
+
+아래에서 주제를 고르세요: 재료, 작업 범위, 가격/견적, 그리고 진행 과정.
+
+<div class="issue-cards">
+  <details id="ref-materials" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">실사용에 맞는 재료 선택</span>
+      <span class="issue-card__summary-text">편안함, 청소, 열, 관리 부담으로 고르세요.</span>
+    </summary>
+    <div class="issue-card__body">
+      <p>라벨보다 “행동”으로 고르세요. 가장 중요하게 생각하는 것부터 시작하면 쉽습니다.</p>
+      <ul>
+        <li><strong>편안함/프리미엄 느낌:</strong> 가죽 쪽.</li>
+        <li><strong>관리 쉬움/내구성:</strong> 비닐 쪽.</li>
+        <li><strong>온도감이 무난함:</strong> 직물 쪽.</li>
+        <li><strong>야외 주차/더위:</strong> UV 등급 재료 + 고온용 접착제 우선.</li>
+        <li><strong>관리 부담이 싫음:</strong> 비닐 또는 퍼포먼스 직물.</li>
+      </ul>
+
+      <div class="decision-card">
+        <p class="decision-card__title">가죽</p>
+        <ul>
+          <li><strong>추천:</strong> 편안함, 프리미엄 감, 비교적 균형 잡힌 온도감.</li>
+          <li><strong>비추천:</strong> 관리가 싫거나, 매일 직사광선에 주차.</li>
+          <li><strong>관리:</strong> 정기 세정 + 컨디셔닝(건조/균열 방지).</li>
+          <li><strong>흔한 후회:</strong> 햇빛에 많이 노출되고 관리가 없으면 마모 부위부터 갈라집니다.</li>
+        </ul>
+      </div>
+
+      <div class="decision-card">
+        <p class="decision-card__title">비닐</p>
+        <ul>
+          <li><strong>추천:</strong> 데일리카, 아이/반려동물, 닦기 쉬운 실사용.</li>
+          <li><strong>비추천:</strong> 열에 민감하거나 통기성을 최우선으로 원함.</li>
+          <li><strong>관리:</strong> 자동차용 등급 선택, 강한 솔벤트는 피하기.</li>
+          <li><strong>흔한 후회:</strong> 여름에 직사광선에 있으면 뜨겁고 끈적하게 느껴집니다.</li>
+        </ul>
+      </div>
+
+      <div class="decision-card">
+        <p class="decision-card__title">직물(패브릭)</p>
+        <ul>
+          <li><strong>추천:</strong> 온도감이 무난하고 일상적으로 편안함.</li>
+          <li><strong>비추천:</strong> 자주 흘리는데 바로 청소하기 어렵다면.</li>
+          <li><strong>관리:</strong> 사용량이 많으면 퍼포먼스 원단, 오염은 빠르게 처리.</li>
+          <li><strong>흔한 후회:</strong> 오염 처리 타이밍을 놓쳐 얼룩/냄새가 남습니다.</li>
+        </ul>
+      </div>
+
+      <aside class="callout" aria-label="Heat rule">
+        <p class="callout__title">열/UV 규칙</p>
+        <p>차가 대부분 야외에 있다면 열과 UV가 가장 큰 스트레스입니다. UV 등급 재료와 고온용 접착제를 우선하고, 가능하면 그늘/썬쉐이드를 활용하세요.</p>
+      </aside>
+
+      <p><strong>좋은 소식:</strong> 재료를 섞는 건 흔합니다. 예: 마모가 많은 가장자리는 내구성 비닐 + 가운데는 직물로 편안함을 챙기는 조합이 실사용에서 만족도가 높습니다.</p>
+    </div>
+  </details>
+
+  <details id="ref-scope" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">적절한 작업 범위 고르기</span>
+      <span class="issue-card__summary-text">문제를 해결하는 최소 작업을 선택하세요.</span>
+    </summary>
+    <div class="issue-card__body">
+      <p>문제를 해결하는 최소 작업을 선택하는 것이 가장 후회가 적습니다.</p>
+
+      <h3>수리 vs 재커버링 vs 교체</h3>
+      <ul>
+        <li><strong>수리(국소):</strong> 봉제선/작은 찢김 수리. 주변 재료와 폼이 튼튼할 때 가장 좋습니다.</li>
+        <li><strong>패널 교체:</strong> 손상 패널만 교체(볼스터에 흔함). 매칭은 재료 노화/결에 따라 달라집니다.</li>
+        <li><strong>재커버링:</strong> 커버 교체 + 구조 복원. 여러 패널이 동시에 망가지거나 폼 작업으로 형태가 바뀌면 유리합니다.</li>
+        <li><strong>커버/키트:</strong> 외관 개선 위주. 착좌감/구조 문제는 잘 해결되지 않습니다.</li>
+      </ul>
+
+      <h3>폼 먼저(foam-first)</h3>
+      <ul>
+        <li>편안함은 커버가 아니라 폼/지지대에서 옵니다.</li>
+        <li>커버가 건강하면 폼 복원만으로 끝나는 경우도 많습니다.</li>
+        <li>폼으로 형태가 바뀌면, 커버도 맞게 수리/교체가 필요할 수 있습니다.</li>
+      </ul>
+
+      <h3>한 좌석만 vs 한 세트로 맞추기</h3>
+      <ul>
+        <li>데일리카/예산 중심이면 한 좌석 수리도 충분히 합리적입니다.</li>
+        <li>통일감이 목표라면 단계적으로 계획하세요. 새 재료는 오래된 재료와 광택/톤이 다르게 보일 수 있습니다.</li>
+      </ul>
+    </div>
+  </details>
+
+  <details id="ref-pricing" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">가격과 견적</span>
+      <span class="issue-card__summary-text">가격만 보지 말고 포함 범위를 비교하세요.</span>
+    </summary>
+    <div class="issue-card__body">
+      <p>가격은 재료보다 공임과 상태를 더 많이 따라갑니다. 비용보다 “무엇이 포함되는지”를 비교하세요.</p>
+
+      <details class="details-card">
+        <summary>
+          <span>내장 작업이 비싸지는 이유</span>
+          <span class="details-card__summary-text">재료보다 공임, 복잡도, 상태가 비용을 좌우합니다.</span>
+        </summary>
+        <ul>
+          <li>분해/재조립 시간(트림 탈거, 접근성).</li>
+          <li>패널 구성/봉제선 복잡도.</li>
+          <li>폼/지지대 복원과 구조 수리.</li>
+          <li>매칭과 높은 등급 재료.</li>
+          <li>이전 수리로 인한 숨은 문제.</li>
+        </ul>
+      </details>
+
+      <details class="details-card">
+        <summary>
+          <span>견적을 추측 없이 비교하는 방법</span>
+          <span class="details-card__summary-text">포함 범위와 방법을 같은 기준으로 맞추세요.</span>
+        </summary>
+        <ul>
+          <li>각 샵에 “무엇을 어떻게 할지”를 한 문장으로 설명해 달라고 하세요.</li>
+          <li>포함 범위를 맞추세요(폼 복원 포함인지, 커버만인지).</li>
+          <li>헤드라이너는 보드 탈거 + 폼 제거 포함 여부를 확인하세요.</li>
+          <li>시트는 폼/지지대 작업 포함 여부를 확인하세요.</li>
+        </ul>
+      </details>
+
+      <details class="details-card">
+        <summary>
+          <span>싼 작업이 실패하는 방식</span>
+          <span class="details-card__summary-text">준비/구조/핏을 생략하면 문제는 다시 옵니다.</span>
+        </summary>
+        <ul>
+          <li>접착 실패: 표면을 제대로 청소/준비하지 않음.</li>
+          <li>봉제선 실패: 스트레스 구간 보강 부족 또는 패널 핏이 틀림.</li>
+          <li>주름/물결: 텐션과 피팅을 급하게 처리.</li>
+          <li>착좌감 개선 없음: 폼을 건드리지 않음.</li>
+          <li>같은 균열 재발: 폼과 하중 문제가 그대로.</li>
+        </ul>
+        <p>저렴하다고 무조건 나쁜 건 아니지만, 오래가려면 준비·구조·핏·방법이 필요합니다.</p>
+      </details>
+    </div>
+  </details>
+
+  <details id="ref-process" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">진행 과정과 기대치</span>
+      <span class="issue-card__summary-text">보낼 것, 일정, 픽업 체크까지 정리했습니다.</span>
+    </summary>
+    <div class="issue-card__body">
+      <details class="details-card">
+        <summary>
+          <span>답변하기 쉬운 견적 요청 방법</span>
+          <span class="details-card__summary-text">연식/모델 + 사진 3장 + 한 문장이 핵심입니다.</span>
+        </summary>
+        <p>짧고 구체적으로, 사진을 같이 보내면 가장 빠릅니다. 전문 용어는 필요 없습니다.</p>
+        <p>보내기:</p>
+        <ul>
+          <li>연식 / 브랜드 / 모델</li>
+          <li>전체 사진(좌석 전체 / 천장 전체 / 도어 패널 전체)</li>
+          <li>손상 부위 클로즈업</li>
+          <li>옆각도 사진(좌석 높이/처짐/변형)</li>
+          <li>증상을 한 문장으로</li>
+        </ul>
+        <p>예시:</p>
+        <ul>
+          <li>“천장 천이 대부분 처져 있어요.”</li>
+          <li>“운전석이 평평해지고 예전보다 낮게 앉는 느낌입니다.”</li>
+          <li>“시트 바깥쪽이 갈라지고, 그 부분 폼이 물렁합니다.”</li>
+          <li>“도어 패널 윗부분이 들뜨고 전체가 약간 휘어 보여요.”</li>
+        </ul>
+      </details>
+
+      <details class="details-card">
+        <summary>
+          <span>예약과 일정</span>
+          <span class="details-card__summary-text">작업 크기와 재료 준비가 일정을 결정합니다.</span>
+        </summary>
+        <p>일정은 작업 범위와 재료 수급에 따라 달라집니다.</p>
+        <ul>
+          <li>헤드라이너는 재료가 준비되면 비교적 빠른 편입니다.</li>
+          <li>폼 복원은 분해/성형/피팅이 있어 더 시간이 걸립니다.</li>
+          <li>전체 인테리어는 단계별 계획이 필요한 경우가 많습니다.</li>
+        </ul>
+        <p>겉만 하는 작업은 빠르지만, 구조 복원은 시간이 걸립니다.</p>
+      </details>
+
+      <details class="details-card">
+        <summary>
+          <span>픽업 시 좋은 작업의 기준</span>
+          <span class="details-card__summary-text">핏, 봉제선, 착좌감이 깔끔하고 일관돼야 합니다.</span>
+        </summary>
+        <ul>
+          <li>봉제선이 정렬되고 좌우가 대칭</li>
+          <li>패널이 평평하게 놓이고 주름/기포가 과하지 않음</li>
+          <li>엣지 마감이 깔끔(접착제 번짐/거친 컷 없음)</li>
+          <li>트림 재조립이 깔끔(틈/헐거움/새 소음 없음)</li>
+          <li>착좌감이 좋아짐(겉만 새 것이 아니라 지지가 돌아옴)</li>
+        </ul>
+        <p>처음부터 이상하면 바로 말하는 게 가장 쉽습니다. 몇 주 지난 뒤엔 더 어렵습니다.</p>
+      </details>
+
+      <details class="details-card">
+        <summary>
+          <span>관리와 수명</span>
+          <span class="details-card__summary-text">기본 관리가 ‘예상되는 고장’ 속도를 늦춥니다.</span>
+        </summary>
+        <ul>
+          <li>폼을 복원했다면 처음엔 더 탄탄하게 느껴질 수 있습니다.</li>
+          <li>약간의 “자리 잡음”은 있을 수 있지만 큰 변화는 정상적이지 않습니다.</li>
+          <li>정기 청소는 오일/먼지가 마모를 가속하는 걸 줄입니다.</li>
+          <li>열 노출은 접착제/폼 노화를 빠르게 합니다. 그늘이 도움이 됩니다.</li>
+        </ul>
+        <p>수명은 방법과 환경이 결정합니다. 구조를 제대로 복원하고 재료를 맞추면 오래갑니다.</p>
+      </details>
+    </div>
+  </details>
+</div>
+
+---
+
+<FaqSection heading="내장 가이드 FAQ" faqs={faqs} />
+
+<script
+  is:inline
+  set:html={`
+(() => {
+  const openDetailsFromHash = () => {
+    const hash = window.location.hash;
+    if (!hash) return;
+
+    const target = document.querySelector(hash);
+    if (!target) return;
+
+    const details =
+      target.tagName === 'DETAILS' ? target : target.closest('details');
+    if (!details || details.tagName !== 'DETAILS') return;
+
+    details.open = true;
+  };
+
+  window.addEventListener('DOMContentLoaded', openDetailsFromHash);
+  window.addEventListener('hashchange', openDetailsFromHash);
+})();
+`}
+/>

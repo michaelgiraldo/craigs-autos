@@ -4,6 +4,8 @@ description: "Pamilyang auto upholstery sa San Jose, CA: upuan, kisame, bubong n
 pageKey: "home"
 ---
 
+import LocalizedLink from "../../../components/LocalizedLink.astro";
+
 import PageHero from "../../../components/PageHero.astro";
 import ServiceCards from "../../../components/ServiceCards.astro";
 import FaqSection from "../../../components/FaqSection.astro";
@@ -36,6 +38,13 @@ export const faqs = [
 <ServiceCards locale="tl" currentKey="home" />
 
 Araw-araw napapansin ang interior: punit sa upuan ng driver, kisame na bumababa, vinyl na bitak sa araw. Tumawag o mag-SMS sa Craig's Auto Upholstery sa San Jose at bibigyan ka namin ng malinaw na payo—ano ang puwedeng ayusin nang malinis, ano ang mas ok ibalot muli, at anong kailangan para ma-quote nang tama.
+
+<aside class="callout" aria-label="Gabay sa tapiseriya">
+  <p class="callout__title">Hindi sigurado kung saan magsisimula?</p>
+  <p>
+    Tingnan ang <LocalizedLink locale="tl" pageKey="upholsteryGuide">Gabay sa tapiseriya</LocalizedLink>: gabay kung ano ang sanhi, anong ayos ang tumatagal, paano pumili ng materyal, at anong tanong ang dapat itanong.
+  </p>
+</aside>
 
 ---
 

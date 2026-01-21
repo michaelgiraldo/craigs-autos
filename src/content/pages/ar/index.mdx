@@ -4,6 +4,7 @@ description: "ورشة عائلية في سان خوسيه لتنجيد السي
 pageKey: "home"
 ---
 
+import LocalizedLink from "../../../components/LocalizedLink.astro";
 import PageHero from "../../../components/PageHero.astro";
 import ServiceCards from "../../../components/ServiceCards.astro";
 import FaqSection from "../../../components/FaqSection.astro";
@@ -36,6 +37,13 @@ export const faqs = [
 <ServiceCards locale="ar" currentKey="home" />
 
 مشاكل الداخلية تظهر كل يوم: تمزق في مقعد السائق، بطانة السقف مترهلة، أو تشققات بسبب الشمس. تواصل مع Craig's Auto Upholstery في سان خوسيه لنوضح لك ما يمكن إصلاحه وما يستحسن إعادة تنجيده وما نحتاجه للتسعير الصحيح.
+
+<aside class="callout" aria-label="دليل التنجيد">
+  <p class="callout__title">لا تعرف من أين تبدأ؟</p>
+  <p>
+    ابدأ من <LocalizedLink locale="ar" pageKey="upholsteryGuide">دليل التنجيد</LocalizedLink>: الأعراض → السبب الأرجح → الحل الذي يدوم → ماذا تسأل قبل الدفع.
+  </p>
+</aside>
 
 ---
 

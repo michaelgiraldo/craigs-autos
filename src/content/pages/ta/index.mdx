@@ -4,6 +4,7 @@ description: "சான் ஹோசே குடும்பத்தால் 
 pageKey: "home"
 ---
 
+import LocalizedLink from "../../../components/LocalizedLink.astro";
 import PageHero from "../../../components/PageHero.astro";
 import ServiceCards from "../../../components/ServiceCards.astro";
 import FaqSection from "../../../components/FaqSection.astro";
@@ -36,6 +37,13 @@ export const faqs = [
 <ServiceCards locale="ta" currentKey="home" />
 
 உள்வடிவப் பிரச்சினைகள் தினமும் கண்ணில் படும்: டிரைவர் இருக்கை கிழிவு, ஹெட்லைனர் சாய்வு, வெயிலால் உண்டாகும் முறிவு. Craig's Auto Upholstery‑க்கு அழைக்கவும் அல்லது SMS அனுப்பவும்; எதைப் பழுது செய்யலாம், எதை மீள்உள்வடிவம் செய்ய வேண்டும் என்பதையும், மதிப்பீடுக்கு என்ன தேவை என்பதையும் தெளிவாகக் கூறுவோம்.
+
+<aside class="callout" aria-label="உள்வடிவ வழிகாட்டி">
+  <p class="callout__title">எதைத் தொடங்குவது என்ற குழப்பமா?</p>
+  <p>
+    <LocalizedLink locale="ta" pageKey="upholsteryGuide">உள்வடிவ வழிகாட்டி</LocalizedLink> மூலம் தொடங்குங்கள்: அறிகுறி → காரணம் → நீடிக்கும் தீர்வு → என்ன கேட்க வேண்டும்.
+  </p>
+</aside>
 
 ---
 

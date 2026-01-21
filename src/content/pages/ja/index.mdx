@@ -4,6 +4,7 @@ description: "サンノゼの家族経営内装店。シート、ヘッドライ
 pageKey: "home"
 ---
 
+import LocalizedLink from "../../../components/LocalizedLink.astro";
 import PageHero from "../../../components/PageHero.astro";
 import ServiceCards from "../../../components/ServiceCards.astro";
 import FaqSection from "../../../components/FaqSection.astro";
@@ -36,6 +37,13 @@ export const faqs = [
 <ServiceCards locale="ja" currentKey="home" />
 
 内装の不具合は毎日目に入ります。運転席の破れ、天井内張りのたるみ、日焼けのひび割れ。Craig's Auto Upholstery（サンノゼ）へ電話またはSMSでご相談ください。修理で済むか張り替えが必要か、見積もりに必要な情報をわかりやすくお伝えします。
+
+<aside class="callout" aria-label="内装ガイド">
+  <p class="callout__title">何を直すべきか迷ったら</p>
+  <p>
+    <LocalizedLink locale="ja" pageKey="upholsteryGuide">内装ガイド</LocalizedLink>から始めてください：症状 → 原因 → 長持ちする直し方 → 見積もり前の質問。
+  </p>
+</aside>
 
 ---
 

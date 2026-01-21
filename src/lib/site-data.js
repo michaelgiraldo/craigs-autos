@@ -196,6 +196,22 @@ export const PAGE_PATHS = {
 		ru: '/ru/авто-обивка/',
 		ta: '/ta/கார்-உள்ளமைப்பு/',
 	},
+	upholsteryGuide: {
+		en: '/en/upholstery-guide/',
+		es: '/es/guia-de-tapiceria/',
+		vi: '/vi/huong-dan-boc-noi-that-o-to/',
+		'zh-hans': '/zh-hans/内饰指南/',
+		tl: '/tl/gabay-sa-tapiseriya/',
+		ko: '/ko/내장-가이드/',
+		hi: '/hi/अपहोल्स्ट्री-गाइड/',
+		pa: '/pa/ਅਪਹੋਲਸਟਰੀ-ਗਾਈਡ/',
+		'pt-br': '/pt-br/guia-de-estofamento/',
+		'zh-hant': '/zh-hant/內飾指南/',
+		ja: '/ja/内装ガイド/',
+		ar: '/ar/دليل-التنجيد/',
+		ru: '/ru/руководство-по-обивке/',
+		ta: '/ta/உள்வடிவ-வழிகாட்டி/',
+	},
 	carSeats: {
 		en: '/en/car-seats/',
 		es: '/es/asientos/',
@@ -465,6 +481,7 @@ export const NAV_LABELS = {
 	en: {
 		home: 'Home',
 		autoUpholstery: 'Auto Upholstery',
+		upholsteryGuide: 'Upholstery Guide',
 		carSeats: 'Car Seats',
 		headliners: 'Headliners',
 		convertibleTops: 'Convertible Tops',
@@ -476,6 +493,7 @@ export const NAV_LABELS = {
 	es: {
 		home: 'Inicio',
 		autoUpholstery: 'Tapicería automotriz',
+		upholsteryGuide: 'Guía de tapicería',
 		carSeats: 'Asientos',
 		headliners: 'Techos interiores',
 		convertibleTops: 'Capotas',
@@ -487,6 +505,7 @@ export const NAV_LABELS = {
 	vi: {
 		home: 'Trang chủ',
 		autoUpholstery: 'Bọc nội thất ô tô',
+		upholsteryGuide: 'Hướng dẫn bọc nội thất',
 		carSeats: 'Ghế xe',
 		headliners: 'Trần xe',
 		convertibleTops: 'Mui xe',
@@ -498,6 +517,7 @@ export const NAV_LABELS = {
 	'zh-hans': {
 		home: '首页',
 		autoUpholstery: '汽车内饰',
+		upholsteryGuide: '内饰指南',
 		carSeats: '汽车座椅',
 		headliners: '车顶内衬',
 		convertibleTops: '敞篷车顶',
@@ -509,6 +529,7 @@ export const NAV_LABELS = {
 	tl: {
 		home: 'Panimula',
 		autoUpholstery: 'Tapiseriya ng sasakyan',
+		upholsteryGuide: 'Gabay sa tapiseriya',
 		carSeats: 'Upuan',
 		headliners: 'Kisame',
 		convertibleTops: 'Bubong ng kabriolet',
@@ -520,6 +541,7 @@ export const NAV_LABELS = {
 	ko: {
 		home: '홈',
 		autoUpholstery: '자동차 내장',
+		upholsteryGuide: '내장 가이드',
 		carSeats: '시트',
 		headliners: '헤드라이너',
 		convertibleTops: '컨버터블 탑',
@@ -531,6 +553,7 @@ export const NAV_LABELS = {
 	hi: {
 		home: 'होम',
 		autoUpholstery: 'ऑटो अपहोल्स्ट्री',
+		upholsteryGuide: 'अपहोल्स्ट्री गाइड',
 		carSeats: 'कार सीटें',
 		headliners: 'हेडलाइ너',
 		convertibleTops: 'कन्वर्टिबल टॉप',
@@ -542,6 +565,7 @@ export const NAV_LABELS = {
 	pa: {
 		home: 'ਹੋਮ',
 		autoUpholstery: 'ਆਟੋ ਅਪਹੋਲਸਟਰੀ',
+		upholsteryGuide: 'ਅਪਹੋਲਸਟਰੀ ਗਾਈਡ',
 		carSeats: 'ਕਾਰ ਸੀਟਾਂ',
 		headliners: 'ਹੈਡਲਾਈਨਰ',
 		convertibleTops: 'ਕਨਵਰਟੀਬਲ ਟਾਪ',
@@ -553,6 +577,7 @@ export const NAV_LABELS = {
 	'pt-br': {
 		home: 'Início',
 		autoUpholstery: 'Estofamento automotivo',
+		upholsteryGuide: 'Guia de estofamento',
 		carSeats: 'Bancos',
 		headliners: 'Forro do teto',
 		convertibleTops: 'Capota conversível',
@@ -564,6 +589,7 @@ export const NAV_LABELS = {
 	'zh-hant': {
 		home: '首頁',
 		autoUpholstery: '汽車內飾',
+		upholsteryGuide: '內飾指南',
 		carSeats: '汽車座椅',
 		headliners: '車頂內襯',
 		convertibleTops: '敞篷車頂',
@@ -575,6 +601,7 @@ export const NAV_LABELS = {
 	ja: {
 		home: 'ホーム',
 		autoUpholstery: '自動車内装',
+		upholsteryGuide: '内装ガイド',
 		carSeats: 'シート',
 		headliners: 'ヘッドライナー',
 		convertibleTops: 'コンバーチブルトップ',
@@ -586,6 +613,7 @@ export const NAV_LABELS = {
 	ar: {
 		home: 'الرئيسية',
 		autoUpholstery: 'تنجيد السيارات',
+		upholsteryGuide: 'دليل التنجيد',
 		carSeats: 'مقاعد السيارات',
 		headliners: 'بطانة السقف',
 		convertibleTops: 'السقف القابل للطي',
@@ -597,6 +625,7 @@ export const NAV_LABELS = {
 	ru: {
 		home: 'Главная',
 		autoUpholstery: 'Автообивка',
+		upholsteryGuide: 'Руководство по обивке',
 		carSeats: 'Сиденья',
 		headliners: 'Потолок',
 		convertibleTops: 'Крыша кабриолета',
@@ -608,6 +637,7 @@ export const NAV_LABELS = {
 	ta: {
 		home: 'முகப்பு',
 		autoUpholstery: 'கார் உள்வடிவம்',
+		upholsteryGuide: 'உள்வடிவ வழிகாட்டி',
 		carSeats: 'கார் இருக்கைகள்',
 		headliners: 'ஹெட்லைனர்',
 		convertibleTops: 'கன்வர்டிபிள் டாப்',
