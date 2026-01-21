@@ -993,6 +993,15 @@ a.chip:hover {
 	margin: 0.55rem 0 0;
 }
 
+.callout a {
+	color: var(--color-accent-hover);
+}
+
+.callout a:hover {
+	color: var(--color-accent-hover);
+	text-decoration-thickness: 0.12em;
+}
+
 .table-wrap {
 	margin-top: 1rem;
 	border-radius: var(--radius-lg);
