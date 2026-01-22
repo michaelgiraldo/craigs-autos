@@ -111,14 +111,35 @@ const mobileSecondaryNav = ['classicCars', 'upholsteryGuide', 'gallery', 'review
 
 const business = BUSINESS_COPY[locale] ?? BUSINESS_COPY.en;
 const businessId = new URL('#business', site).toString();
-const structuredData = {
-	'@context': 'https://schema.org',
+
+const websiteId = new URL(`${LOCALES[locale]?.base ?? LOCALES.en.base}#website`, site).toString();
+const webpageId = `${canonicalUrl}#webpage`;
+const breadcrumbId = `${canonicalUrl}#breadcrumb`;
+
+const serviceKeys = ['autoUpholstery', 'carSeats', 'headliners', 'convertibleTops', 'classicCars'];
+const serviceNodesByKey = Object.fromEntries(
+	serviceKeys.map((key) => [
+		key,
+		{
+			'@type': 'Service',
+			'@id': `${new URL(PAGE_PATHS[key][locale], site).toString()}#service`,
+			name: navLabels?.[key] ?? key,
+			url: new URL(PAGE_PATHS[key][locale], site).toString(),
+			provider: { '@id': businessId },
+		},
+	]),
+);
+
+const mainEntityId =
+	pageKey && serviceNodesByKey[pageKey] ? serviceNodesByKey[pageKey]['@id'] : businessId;
+
+const businessNode = {
 	'@type': ['LocalBusiness', 'AutoRepair'],
 	'@id': businessId,
 	name: business.name,
 	legalName: BRAND_NAME,
 	description: business.description,
-	url: canonicalUrl,
+	url: new URL(PAGE_PATHS.home[locale], site).toString(),
 	telephone: SITE.phone,
 	hasMap: appleMapsHref ? [mapsHref, appleMapsHref] : mapsHref,
 	sameAs: SITE.sameAs,
@@ -144,11 +165,6 @@ const structuredData = {
 		closes: range.closes,
 	})),
 	areaServed: 'San Jose, CA',
-	serviceOffered: business.services.map((service) => ({
-		'@type': 'Service',
-		name: service,
-		areaServed: 'San Jose, CA',
-	})),
 };
 
 const breadcrumbItems = [
@@ -169,10 +185,36 @@ if (pageKey && pageKey !== 'home') {
 	});
 }
 
-const breadcrumbStructuredData = {
-	'@context': 'https://schema.org',
+const websiteNode = {
+	'@type': 'WebSite',
+	'@id': websiteId,
+	url: new URL(LOCALES[locale]?.base ?? LOCALES.en.base, site).toString(),
+	name: BRAND_NAME,
+	publisher: { '@id': businessId },
+};
+
+const breadcrumbNode = {
 	'@type': 'BreadcrumbList',
+	'@id': breadcrumbId,
 	itemListElement: breadcrumbItems,
+};
+
+const webpageNode = {
+	'@type': 'WebPage',
+	'@id': webpageId,
+	url: canonicalUrl,
+	name: title,
+	description,
+	inLanguage: lang,
+	isPartOf: { '@id': websiteId },
+	about: { '@id': businessId },
+	mainEntity: { '@id': mainEntityId },
+	breadcrumb: { '@id': breadcrumbId },
+};
+
+const structuredData = {
+	'@context': 'https://schema.org',
+	'@graph': [businessNode, websiteNode, webpageNode, breadcrumbNode, ...Object.values(serviceNodesByKey)],
 };
 
 // SEO notes:
@@ -219,7 +261,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 		))}
 		<link rel="alternate" hreflang="x-default" href={xDefaultHref} />
 		<script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
-		<script type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
 	</head>
 	<body>
 		{isProduction ? (
