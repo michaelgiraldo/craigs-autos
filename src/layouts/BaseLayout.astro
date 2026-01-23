@@ -276,20 +276,38 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 		) : null}
 		<a class="skip-link" href="#main-content">Skip to content</a>
 		<header class="site-header">
-			<div class="container site-header__mobile">
-				<div class="site-header__mobile-top">
-					<a class="brand" href={LOCALES[locale]?.base ?? LOCALES.en.base}>
-						{BRAND_NAME}
-					</a>
-					<LanguageSwitcher
-						links={languageLinks}
-						currentLabel={currentLanguageLabel}
-						ariaLabel={ui.languageLabel ?? 'Language'}
-						id="lang-switcher"
-						mode="toggle"
-					/>
+				<div class="container site-header__mobile">
+					<div class="site-header__mobile-top">
+						<a class="brand" href={LOCALES[locale]?.base ?? LOCALES.en.base}>
+							{BRAND_NAME}
+						</a>
+						<div class="site-header__mobile-actions">
+							<button
+								class="site-menu-toggle"
+								type="button"
+								aria-haspopup="dialog"
+								aria-expanded="false"
+								aria-controls="site-menu-panel"
+								aria-label={ui.menuLabel ?? 'Menu'}
+								title={ui.menuLabel ?? 'Menu'}
+								data-site-menu-toggle
+							>
+								<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+									<path d="M4 6h16" />
+									<path d="M4 12h16" />
+									<path d="M4 18h16" />
+								</svg>
+							</button>
+							<LanguageSwitcher
+								links={languageLinks}
+								currentLabel={currentLanguageLabel}
+								ariaLabel={ui.languageLabel ?? 'Language'}
+								id="lang-switcher"
+								mode="toggle"
+							/>
+						</div>
+					</div>
 				</div>
-			</div>
 			<div class="container site-header__inner">
 				<div class="brand-block">
 					<a class="brand" href={LOCALES[locale]?.base ?? LOCALES.en.base}>
@@ -325,39 +343,39 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 						mode="toggle"
 					/>
 				</div>
-			</div>
-			<nav class="site-nav" aria-label="Primary">
-				<div class="container">
-					<ul class="site-nav__list site-nav__list--mobile site-nav__list--mobile-primary">
-						{mobilePrimaryNav.map((item) => (
-							<li>
-								<a
-									class="site-nav__link"
-									href={item.href}
-									aria-current={item.href === canonicalPath ? 'page' : undefined}
-								>
-									{item.label}
-								</a>
-							</li>
-						))}
-					</ul>
-					<ul class="site-nav__list site-nav__list--mobile site-nav__list--mobile-secondary">
-						{mobileSecondaryNav.map((item) => (
-							<li>
-								<a
-									class="site-nav__link"
-									href={item.href}
-									aria-current={item.href === canonicalPath ? 'page' : undefined}
-								>
-									{item.label}
-								</a>
-							</li>
-						))}
-					</ul>
-					<ul class="site-nav__list site-nav__list--desktop">
-						{navItems.map((item) => (
-							<li>
-								<a
+				</div>
+				<nav class="site-nav" aria-label="Primary">
+					<div class="container">
+						<ul class="site-nav__list site-nav__list--mobile site-nav__list--mobile-primary">
+							{mobilePrimaryNav.map((item) => (
+								<li>
+									<a
+										class="site-nav__link"
+										href={item.href}
+										aria-current={item.href === canonicalPath ? 'page' : undefined}
+									>
+										{item.label}
+									</a>
+								</li>
+							))}
+						</ul>
+						<ul class="site-nav__list site-nav__list--mobile site-nav__list--mobile-secondary">
+							{mobileSecondaryNav.map((item) => (
+								<li>
+									<a
+										class="site-nav__link"
+										href={item.href}
+										aria-current={item.href === canonicalPath ? 'page' : undefined}
+									>
+										{item.label}
+									</a>
+								</li>
+							))}
+						</ul>
+						<ul class="site-nav__list site-nav__list--desktop">
+							{navItems.map((item) => (
+								<li>
+									<a
 									class="site-nav__link"
 									href={item.href}
 									aria-current={item.href === canonicalPath ? 'page' : undefined}
@@ -427,8 +445,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 				</div>
 			</div>
 		</footer>
-		<div class="sticky-cta" role="region" aria-label={ui.quickActionsLabel}>
-			<div class="sticky-cta__inner">
+			<div class="sticky-cta" role="region" aria-label={ui.quickActionsLabel}>
+				<div class="sticky-cta__inner">
 				<a class="sticky-cta__call" href={`tel:${SITE.phone}`}>
 					<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
 						<path
@@ -453,18 +471,57 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 					</svg>
 					{ui.directionsCta}
 				</a>
+				</div>
 			</div>
-		</div>
-		<LanguageSwitcher
-			links={languageLinks}
-			ariaLabel={ui.languageLabel ?? 'Language'}
-			id="lang-switcher"
+			<div class="site-menu__overlay" data-site-menu-overlay hidden>
+				<div
+					class="site-menu__panel"
+					role="dialog"
+					aria-modal="true"
+					aria-label={ui.menuLabel ?? 'Menu'}
+					id="site-menu-panel"
+					tabindex="-1"
+					data-site-menu-panel
+				>
+					<div class="site-menu__panel-header">
+						<span class="site-menu__panel-title">{ui.menuLabel ?? 'Menu'}</span>
+						<button
+							class="site-menu__close"
+							type="button"
+							aria-label="Close"
+							data-site-menu-close
+						>
+							<span aria-hidden="true">×</span>
+						</button>
+					</div>
+					<nav class="site-menu__nav" aria-label={ui.menuLabel ?? 'Menu'}>
+						<ul class="site-menu__list">
+							{navItems.map((item) => (
+								<li>
+									<a
+										class="site-menu__link"
+										href={item.href}
+										aria-current={item.href === canonicalPath ? 'page' : undefined}
+										data-site-menu-link
+									>
+										{item.label}
+									</a>
+								</li>
+							))}
+						</ul>
+					</nav>
+				</div>
+			</div>
+			<LanguageSwitcher
+				links={languageLinks}
+				ariaLabel={ui.languageLabel ?? 'Language'}
+				id="lang-switcher"
 			mode="panel"
 		/>
-		<script type="module" is:inline>
-			(() => {
-				const toggles = Array.from(document.querySelectorAll('[data-lang-switcher-toggle]'));
-				const overlay = document.querySelector('[data-lang-switcher-overlay]');
+			<script type="module" is:inline>
+				(() => {
+					const toggles = Array.from(document.querySelectorAll('[data-lang-switcher-toggle]'));
+					const overlay = document.querySelector('[data-lang-switcher-overlay]');
 				const panel = overlay?.querySelector('[data-lang-switcher-panel]');
 				const input = overlay?.querySelector('[data-lang-switcher-search]');
 				const items = Array.from(overlay?.querySelectorAll('[data-lang-switcher-item]') ?? []);
@@ -593,7 +650,75 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 				items.forEach((item) => {
 					item.querySelector('a')?.addEventListener('click', closePanel);
 				});
-			})();
-		</script>
-	</body>
-</html>
+				})();
+			</script>
+			<script type="module" is:inline>
+				(() => {
+					const toggle = document.querySelector('[data-site-menu-toggle]');
+					const overlay = document.querySelector('[data-site-menu-overlay]');
+					const panel = overlay?.querySelector('[data-site-menu-panel]');
+					const closeButton = overlay?.querySelector('[data-site-menu-close]');
+					const links = Array.from(overlay?.querySelectorAll('[data-site-menu-link]') ?? []);
+
+					if (!toggle || !overlay || !panel || !closeButton) {
+						return;
+					}
+
+					document.documentElement.classList.add('site-menu--js');
+
+					const lockBodyScroll = () => {
+						const scrollY = window.scrollY || document.documentElement.scrollTop;
+						document.body.dataset.menuScrollY = String(scrollY);
+						document.body.style.position = 'fixed';
+						document.body.style.top = `-${scrollY}px`;
+						document.body.style.left = '0';
+						document.body.style.right = '0';
+						document.body.style.width = '100%';
+					};
+
+					const unlockBodyScroll = () => {
+						const scrollY = parseInt(document.body.dataset.menuScrollY || '0', 10);
+						document.body.style.position = '';
+						document.body.style.top = '';
+						document.body.style.left = '';
+						document.body.style.right = '';
+						document.body.style.width = '';
+						delete document.body.dataset.menuScrollY;
+						window.scrollTo(0, scrollY);
+					};
+
+					const openMenu = () => {
+						overlay.hidden = false;
+						toggle.setAttribute('aria-expanded', 'true');
+						lockBodyScroll();
+						panel.focus({ preventScroll: true });
+					};
+
+					const closeMenu = () => {
+						overlay.hidden = true;
+						toggle.setAttribute('aria-expanded', 'false');
+						unlockBodyScroll();
+						toggle.focus({ preventScroll: true });
+					};
+
+					toggle.addEventListener('click', () => {
+						if (overlay.hidden) {
+							openMenu();
+						} else {
+							closeMenu();
+						}
+					});
+
+					closeButton.addEventListener('click', closeMenu);
+					links.forEach((link) => link.addEventListener('click', closeMenu));
+
+					document.addEventListener('keydown', (event) => {
+						if (event.key === 'Escape' && !overlay.hidden) {
+							event.preventDefault();
+							closeMenu();
+						}
+					});
+				})();
+			</script>
+		</body>
+	</html>
