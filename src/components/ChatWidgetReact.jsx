@@ -403,46 +403,51 @@ export default function ChatWidgetReact({ locale = 'en', sessionUrl = '/api/chat
         </button>
       ) : null}
 
-      <div className="chat-panel" id="chat-panel" hidden={!open} aria-hidden={!open}>
-        <div className="chat-panel__body">
-          {runtimeError ? (
-            <div className="chat-fallback" role="status">
-              <p className="chat-fallback__title">{copy.errorTitle ?? 'Something went wrong.'}</p>
-              <p className="chat-fallback__body">{copy.errorBody ?? 'Please try again.'}</p>
-              {isDev ? (
-                <p className="chat-fallback__detail">{String(runtimeError?.message ?? '')}</p>
-              ) : null}
-            </div>
-          ) : runtimeReady ? (
-            <>
-              <ChatKit control={chat.control} className="chat-frame" />
-              {!chatkitReady && !chatkitError ? (
-                <div className="chat-fallback chat-fallback--overlay" role="status">
-                  <p className="chat-fallback__body">
-                    {copy.loadingLabel ?? 'Loading chat...'}
-                  </p>
-                </div>
-              ) : null}
-              {chatkitError ? (
-                <div className="chat-fallback chat-fallback--overlay" role="status">
-                  <p className="chat-fallback__title">{copy.errorTitle ?? 'Something went wrong.'}</p>
-                  <p className="chat-fallback__body">
-                    {copy.errorBody ??
-                      'Please refresh the page, or call/text us if you need help right away.'}
-                  </p>
-                  {isDev ? (
-                    <p className="chat-fallback__detail">{String(chatkitError?.message ?? '')}</p>
-                  ) : null}
-                </div>
-              ) : null}
-            </>
-          ) : (
-            <div className="chat-fallback" role="status">
-              <p className="chat-fallback__body">{copy.loadingLabel ?? 'Loading chat...'}</p>
-            </div>
-          )}
+      {open ? (
+        <div className="chat-panel" id="chat-panel">
+          <div className="chat-panel__body">
+            {runtimeError ? (
+              <div className="chat-fallback" role="status">
+                <p className="chat-fallback__title">
+                  {copy.errorTitle ?? 'Something went wrong.'}
+                </p>
+                <p className="chat-fallback__body">{copy.errorBody ?? 'Please try again.'}</p>
+                {isDev ? (
+                  <p className="chat-fallback__detail">{String(runtimeError?.message ?? '')}</p>
+                ) : null}
+              </div>
+            ) : runtimeReady ? (
+              <>
+                {/* Mount ChatKit only when the panel is visible; it can mis-render if initialized inside a hidden container. */}
+                <ChatKit control={chat.control} className="chat-frame" />
+                {!chatkitReady && !chatkitError ? (
+                  <div className="chat-fallback chat-fallback--overlay" role="status">
+                    <p className="chat-fallback__body">{copy.loadingLabel ?? 'Loading chat...'}</p>
+                  </div>
+                ) : null}
+                {chatkitError ? (
+                  <div className="chat-fallback chat-fallback--overlay" role="status">
+                    <p className="chat-fallback__title">
+                      {copy.errorTitle ?? 'Something went wrong.'}
+                    </p>
+                    <p className="chat-fallback__body">
+                      {copy.errorBody ??
+                        'Please refresh the page, or call/text us if you need help right away.'}
+                    </p>
+                    {isDev ? (
+                      <p className="chat-fallback__detail">{String(chatkitError?.message ?? '')}</p>
+                    ) : null}
+                  </div>
+                ) : null}
+              </>
+            ) : (
+              <div className="chat-fallback" role="status">
+                <p className="chat-fallback__body">{copy.loadingLabel ?? 'Loading chat...'}</p>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      ) : null}
     </div>
   );
 }
