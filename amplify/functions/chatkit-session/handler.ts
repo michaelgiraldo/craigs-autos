@@ -28,40 +28,11 @@ type ChatkitSessionRequest = {
   user?: unknown;
 };
 
-const ALLOWED_ORIGINS = new Set([
-  'https://chat.craigs.autos',
-  'https://craigs.autos',
-  'http://localhost:4321',
-]);
-
-function getOrigin(headers: LambdaHeaders | null | undefined): string | undefined {
-  if (!headers || typeof headers !== 'object') return undefined;
-  return headers.origin ?? headers.Origin ?? undefined;
-}
-
-function corsHeaders(origin: string | undefined): Record<string, string> {
-  const headers = {
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
-  };
-
-  if (typeof origin === 'string' && ALLOWED_ORIGINS.has(origin)) {
-    return {
-      ...headers,
-      'Access-Control-Allow-Origin': origin,
-      Vary: 'Origin',
-    };
-  }
-
-  return { ...headers, 'Access-Control-Allow-Origin': 'null' };
-}
-
-function json(statusCode: number, body: unknown, origin: string | undefined): LambdaResult {
+function json(statusCode: number, body: unknown): LambdaResult {
   return {
     statusCode,
     headers: {
       'Content-Type': 'application/json',
-      ...corsHeaders(origin),
     },
     body: JSON.stringify(body),
   };
@@ -78,22 +49,22 @@ function decodeBody(event: LambdaEvent): string | null {
 
 export const handler = async (event: LambdaEvent): Promise<LambdaResult> => {
   const method = event?.requestContext?.http?.method ?? event?.httpMethod;
-  const origin = getOrigin(event?.headers);
 
   if (method === 'OPTIONS') {
+    // Lambda Function URL CORS handles the browser preflight automatically.
     return {
       statusCode: 204,
-      headers: corsHeaders(origin),
+      headers: {},
       body: '',
     };
   }
 
   if (method !== 'POST') {
-    return json(405, { error: 'Method not allowed' }, origin);
+    return json(405, { error: 'Method not allowed' });
   }
 
   if (!workflowId || !apiKey || !openai) {
-    return json(500, { error: 'Server missing configuration' }, origin);
+    return json(500, { error: 'Server missing configuration' });
   }
 
   let payload: ChatkitSessionRequest = {};
@@ -102,7 +73,7 @@ export const handler = async (event: LambdaEvent): Promise<LambdaResult> => {
     const parsed = body ? JSON.parse(body) : {};
     payload = parsed && typeof parsed === 'object' ? (parsed as ChatkitSessionRequest) : {};
   } catch {
-    return json(400, { error: 'Invalid JSON body' }, origin);
+    return json(400, { error: 'Invalid JSON body' });
   }
 
   const locale = typeof payload.locale === 'string' ? payload.locale : 'en';
@@ -121,9 +92,9 @@ export const handler = async (event: LambdaEvent): Promise<LambdaResult> => {
       },
     });
 
-    return json(200, { client_secret: session.client_secret }, origin);
+    return json(200, { client_secret: session.client_secret });
   } catch (err: any) {
     console.error('ChatKit session create failed', err?.status, err?.message);
-    return json(500, { error: 'Failed to create ChatKit session' }, origin);
+    return json(500, { error: 'Failed to create ChatKit session' });
   }
 };
