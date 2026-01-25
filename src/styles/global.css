@@ -1490,6 +1490,22 @@ a.chip:hover {
 	opacity: 0.85;
 }
 
+.chat-fallback__retry {
+	margin-top: 0.75rem;
+	padding: 0.55rem 0.9rem;
+	border-radius: var(--radius-pill);
+	border: 1px solid var(--color-border);
+	background: #fff;
+	color: var(--color-text);
+	font-weight: 800;
+	letter-spacing: -0.01em;
+	cursor: pointer;
+}
+
+.chat-fallback__retry:hover {
+	background: #f3f4f6;
+}
+
 @media (max-width: 900px) {
 	.chat-widget {
 		right: calc(1rem + var(--safe-right));

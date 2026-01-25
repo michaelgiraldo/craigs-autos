@@ -2,6 +2,44 @@ import React from 'react';
 import { ChatKit, useChatKit } from '@openai/chatkit-react';
 import { BRAND_NAME, CHAT_COPY } from '../lib/site-data.js';
 
+class ChatKitErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { error: null };
+    this.reset = this.reset.bind(this);
+  }
+
+  static getDerivedStateFromError(error) {
+    return { error };
+  }
+
+  reset() {
+    this.setState({ error: null });
+    this.props.onReset?.();
+  }
+
+  render() {
+    const { error } = this.state;
+    if (error) return this.props.fallback?.(error, this.reset) ?? null;
+    return this.props.children;
+  }
+}
+
+function ChatKitWithHooks({ options, onReady, onError, onThreadChange, onChat }) {
+  const chat = useChatKit({
+    ...options,
+    onReady,
+    onError,
+    onThreadChange,
+  });
+
+  React.useEffect(() => {
+    onChat?.(chat);
+  }, [chat, onChat]);
+
+  return <ChatKit control={chat.control} className="chat-frame" />;
+}
+
 const DEFAULT_CHATKIT_RUNTIME_URLS = [
   // The ChatKit React bindings wrap the <openai-chatkit> web component, but do not ship its runtime.
   // Load the official runtime from the ChatKit docs.
@@ -165,10 +203,12 @@ export default function ChatWidgetReact({ locale = 'en', sessionUrl = '/api/chat
   const [userId, setUserId] = React.useState(null);
   const [threadId, setThreadId] = React.useState(null);
   const [resolvedSessionUrl, setResolvedSessionUrl] = React.useState(sessionUrl);
+  const [chatMountId, setChatMountId] = React.useState(0);
   const [chatkitReady, setChatkitReady] = React.useState(false);
   const [runtimeReady, setRuntimeReady] = React.useState(false);
   const [runtimeError, setRuntimeError] = React.useState(null);
   const [chatkitError, setChatkitError] = React.useState(null);
+  const [chatInstance, setChatInstance] = React.useState(null);
   const chatRef = React.useRef(null);
   const isDev = import.meta.env?.DEV;
 
@@ -257,6 +297,13 @@ export default function ChatWidgetReact({ locale = 'en', sessionUrl = '/api/chat
     sessionStorage.removeItem(THREAD_STORAGE_KEY);
     setThreadId(null);
     chatRef.current?.setThreadId?.(null);
+  }, []);
+
+  const resetChat = React.useCallback(() => {
+    setChatkitReady(false);
+    setChatkitError(null);
+    setChatInstance(null);
+    setChatMountId((value) => value + 1);
   }, []);
 
   const options = React.useMemo(() => {
@@ -359,31 +406,14 @@ export default function ChatWidgetReact({ locale = 'en', sessionUrl = '/api/chat
     userId,
   ]);
 
-  const chat = useChatKit({
-    ...options,
-    onReady: () => {
-      setChatkitReady(true);
-      setChatkitError(null);
-    },
-    onError: (detail) => {
-      setChatkitError(detail?.error ?? new Error('Chat unavailable.'));
-    },
-    onThreadChange: (detail) => {
-      const nextId = detail?.threadId;
-      if (!nextId) return;
-      sessionStorage.setItem(THREAD_STORAGE_KEY, nextId);
-      setThreadId(nextId);
-    },
-  });
+  React.useEffect(() => {
+    chatRef.current = chatInstance;
+  }, [chatInstance]);
 
   React.useEffect(() => {
-    chatRef.current = chat;
-  }, [chat]);
-
-  React.useEffect(() => {
-    if (!open || !chatkitReady) return;
-    chat.focusComposer();
-  }, [open, chatkitReady, chat]);
+    if (!open || !chatkitReady || !chatInstance) return;
+    chatInstance.focusComposer();
+  }, [open, chatkitReady, chatInstance]);
 
   return (
     <div className="chat-widget" data-open={open ? 'true' : 'false'} dir={dir}>
@@ -418,27 +448,72 @@ export default function ChatWidgetReact({ locale = 'en', sessionUrl = '/api/chat
               </div>
             ) : runtimeReady ? (
               <>
-                {/* Mount ChatKit only when the panel is visible; it can mis-render if initialized inside a hidden container. */}
-                <ChatKit control={chat.control} className="chat-frame" />
-                {!chatkitReady && !chatkitError ? (
-                  <div className="chat-fallback chat-fallback--overlay" role="status">
-                    <p className="chat-fallback__body">{copy.loadingLabel ?? 'Loading chat...'}</p>
-                  </div>
-                ) : null}
-                {chatkitError ? (
-                  <div className="chat-fallback chat-fallback--overlay" role="status">
-                    <p className="chat-fallback__title">
-                      {copy.errorTitle ?? 'Something went wrong.'}
-                    </p>
-                    <p className="chat-fallback__body">
-                      {copy.errorBody ??
-                        'Please refresh the page, or call/text us if you need help right away.'}
-                    </p>
-                    {isDev ? (
-                      <p className="chat-fallback__detail">{String(chatkitError?.message ?? '')}</p>
-                    ) : null}
-                  </div>
-                ) : null}
+                <ChatKitErrorBoundary
+                  key={chatMountId}
+                  onReset={resetChat}
+                  fallback={(error, reset) => (
+                    <div className="chat-fallback chat-fallback--overlay" role="status">
+                      <p className="chat-fallback__title">
+                        {copy.errorTitle ?? 'Something went wrong.'}
+                      </p>
+                      <p className="chat-fallback__body">
+                        {copy.errorBody ?? 'Please try again or call/text us.'}
+                      </p>
+                      <button className="chat-fallback__retry" type="button" onClick={reset}>
+                        Try again
+                      </button>
+                      {isDev ? (
+                        <p className="chat-fallback__detail">{String(error?.message ?? '')}</p>
+                      ) : null}
+                    </div>
+                  )}
+                >
+                  {/* Mount ChatKit only when the panel is visible; it can mis-render if initialized inside a hidden container. */}
+                  <ChatKitWithHooks
+                    key={`chatkit-${chatMountId}`}
+                    options={options}
+                    onChat={setChatInstance}
+                    onReady={() => {
+                      setChatkitReady(true);
+                      setChatkitError(null);
+                    }}
+                    onError={(detail) => {
+                      setChatkitError(detail?.error ?? new Error('Chat unavailable.'));
+                    }}
+                    onThreadChange={(detail) => {
+                      const nextId = detail?.threadId;
+                      if (!nextId) return;
+                      sessionStorage.setItem(THREAD_STORAGE_KEY, nextId);
+                      setThreadId(nextId);
+                    }}
+                  />
+                  {!chatkitReady && !chatkitError ? (
+                    <div className="chat-fallback chat-fallback--overlay" role="status">
+                      <p className="chat-fallback__body">
+                        {copy.loadingLabel ?? 'Loading chat...'}
+                      </p>
+                    </div>
+                  ) : null}
+                  {chatkitError ? (
+                    <div className="chat-fallback chat-fallback--overlay" role="status">
+                      <p className="chat-fallback__title">
+                        {copy.errorTitle ?? 'Something went wrong.'}
+                      </p>
+                      <p className="chat-fallback__body">
+                        {copy.errorBody ??
+                          'Please refresh the page, or call/text us if you need help right away.'}
+                      </p>
+                      <button className="chat-fallback__retry" type="button" onClick={resetChat}>
+                        Try again
+                      </button>
+                      {isDev ? (
+                        <p className="chat-fallback__detail">
+                          {String(chatkitError?.message ?? '')}
+                        </p>
+                      ) : null}
+                    </div>
+                  ) : null}
+                </ChatKitErrorBoundary>
               </>
             ) : (
               <div className="chat-fallback" role="status">
