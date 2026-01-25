@@ -1,0 +1,9 @@
+---
+import ChatWidgetReact from './ChatWidgetReact.jsx';
+
+const { locale = 'en' } = Astro.props;
+// This site uses `trailingSlash: "always"`, so the dev server expects the slash.
+const sessionUrl = import.meta.env.PUBLIC_CHATKIT_SESSION_URL ?? '/api/chatkit/session/';
+---
+
+<ChatWidgetReact client:load locale={locale} sessionUrl={sessionUrl} />

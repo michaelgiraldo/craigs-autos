@@ -1,5 +1,6 @@
 ---
 import LanguageSwitcher from '../components/LanguageSwitcher.astro';
+import ChatWidget from '../components/ChatWidget.astro';
 import '../styles/global.css';
 import {
 	BRAND_NAME,
@@ -261,6 +262,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 		))}
 		<link rel="alternate" hreflang="x-default" href={xDefaultHref} />
 		<script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+		<!-- ChatKit web component runtime (renders the full chat UI; our code only wraps it). -->
+		<script src="https://cdn.platform.openai.com/deployments/chatkit/chatkit.js" defer></script>
 	</head>
 	<body>
 		{isProduction ? (
@@ -445,6 +448,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 				</div>
 			</div>
 		</footer>
+		<ChatWidget locale={locale} />
 			<div class="sticky-cta" role="region" aria-label={ui.quickActionsLabel}>
 				<div class="sticky-cta__inner">
 				<a class="sticky-cta__call" href={`tel:${SITE.phone}`}>

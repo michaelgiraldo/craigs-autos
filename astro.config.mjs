@@ -1,5 +1,6 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
+import react from '@astrojs/react';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 
@@ -8,6 +9,14 @@ export default defineConfig({
 	site: 'https://craigs.autos',
 	trailingSlash: 'always',
 	vite: {
+		server: {
+			proxy: {
+				'/api/chatkit': {
+					target: 'http://localhost:8787',
+					changeOrigin: true,
+				},
+			},
+		},
 		build: {
 			rollupOptions: {
 				onwarn(warning, warn) {
@@ -26,6 +35,7 @@ export default defineConfig({
 		},
 	},
 	integrations: [
+		react(),
 		mdx(),
 		sitemap({
 			filter: (page) => page !== '/',
