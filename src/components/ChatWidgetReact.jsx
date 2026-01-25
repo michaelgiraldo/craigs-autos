@@ -42,6 +42,7 @@ const CHATKIT_LOCALE_MAP = {
 const THREAD_STORAGE_KEY = 'chatkit-thread-id';
 const USER_KEY = 'chatkit-user-id';
 const OPEN_KEY = 'chatkit-open';
+const AMPLIFY_OUTPUTS_PATH = '/amplify_outputs.json';
 
 let chatkitRuntimePromise = null;
 
@@ -151,6 +152,10 @@ function isMobile() {
   return window.matchMedia('(max-width: 900px)').matches;
 }
 
+function isPlaceholderUrl(value) {
+  return typeof value === 'string' && value.includes('<your-backend>');
+}
+
 export default function ChatWidgetReact({ locale = 'en', sessionUrl = '/api/chatkit/session/' }) {
   const copy = CHAT_COPY[locale] ?? CHAT_COPY.en;
   const chatkitLocale = CHATKIT_LOCALE_MAP[locale] ?? 'en';
@@ -159,6 +164,7 @@ export default function ChatWidgetReact({ locale = 'en', sessionUrl = '/api/chat
   const [open, setOpen] = React.useState(false);
   const [userId, setUserId] = React.useState(null);
   const [threadId, setThreadId] = React.useState(null);
+  const [resolvedSessionUrl, setResolvedSessionUrl] = React.useState(sessionUrl);
   const [chatkitReady, setChatkitReady] = React.useState(false);
   const [runtimeReady, setRuntimeReady] = React.useState(false);
   const [runtimeError, setRuntimeError] = React.useState(null);
@@ -171,6 +177,43 @@ export default function ChatWidgetReact({ locale = 'en', sessionUrl = '/api/chat
     setThreadId(sessionStorage.getItem(THREAD_STORAGE_KEY));
     setOpen(sessionStorage.getItem(OPEN_KEY) === 'true');
   }, []);
+
+  React.useEffect(() => {
+    setResolvedSessionUrl(sessionUrl);
+  }, [sessionUrl]);
+
+  React.useEffect(() => {
+    // In production, prefer the backend URL from Amplify outputs when available.
+    // This avoids hard-coding a session endpoint URL per branch.
+    if (isDev) return;
+
+    const shouldTryOutputs =
+      typeof sessionUrl !== 'string' ||
+      isPlaceholderUrl(sessionUrl) ||
+      sessionUrl.startsWith('/');
+
+    if (!shouldTryOutputs) return;
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const response = await fetch(AMPLIFY_OUTPUTS_PATH, { cache: 'no-store' });
+        if (!response.ok) return;
+        const data = await response.json();
+        const candidate = data?.custom?.chatkit_session_url;
+        if (!cancelled && typeof candidate === 'string' && candidate.trim()) {
+          setResolvedSessionUrl(candidate.trim());
+        }
+      } catch (err) {
+        // Ignore; we'll fall back to the configured URL and let the UI surface errors.
+        if (isDev) console.error('Failed to read amplify_outputs.json', err);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isDev, sessionUrl]);
 
   React.useEffect(() => {
     let cancelled = false;
@@ -221,7 +264,27 @@ export default function ChatWidgetReact({ locale = 'en', sessionUrl = '/api/chat
     return {
       api: {
         async getClientSecret(current) {
-          const response = await fetch(sessionUrl, {
+          let endpoint = resolvedSessionUrl;
+          if (
+            !isDev &&
+            (typeof endpoint !== 'string' || isPlaceholderUrl(endpoint) || endpoint.startsWith('/'))
+          ) {
+            try {
+              const outputsRes = await fetch(AMPLIFY_OUTPUTS_PATH, { cache: 'no-store' });
+              if (outputsRes.ok) {
+                const outputs = await outputsRes.json();
+                const candidate = outputs?.custom?.chatkit_session_url;
+                if (typeof candidate === 'string' && candidate.trim()) {
+                  endpoint = candidate.trim();
+                  setResolvedSessionUrl(endpoint);
+                }
+              }
+            } catch {
+              // Ignore; we'll fall back to the configured endpoint and surface errors from fetch().
+            }
+          }
+
+          const response = await fetch(endpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -291,7 +354,7 @@ export default function ChatWidgetReact({ locale = 'en', sessionUrl = '/api/chat
     copy.startGreeting,
     copy.startPrompts,
     locale,
-    sessionUrl,
+    resolvedSessionUrl,
     threadId,
     userId,
   ]);

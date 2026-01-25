@@ -5,6 +5,7 @@ dist/
 
 # generated types
 .astro/
+.amplify/
 
 # dependencies
 node_modules/
@@ -18,6 +19,8 @@ pnpm-debug.log*
 # environment variables
 .env
 .env.production
+amplify_outputs.json
+public/amplify_outputs.json
 
 # macOS-specific files
 .DS_Store
