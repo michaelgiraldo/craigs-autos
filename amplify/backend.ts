@@ -22,7 +22,8 @@ const chatkitSessionUrl = new FunctionUrl(
         'https://craigs.autos',
         'http://localhost:4321',
       ],
-      allowedMethods: [HttpMethod.POST, HttpMethod.OPTIONS],
+      // Function URL CORS allowMethods does not accept OPTIONS (preflight is handled automatically).
+      allowedMethods: [HttpMethod.POST],
       allowedHeaders: ['content-type'],
       // Lambda Function URL CORS maxAge is capped at 86400 seconds.
       maxAge: Duration.days(1),
