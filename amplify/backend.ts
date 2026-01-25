@@ -24,7 +24,8 @@ const chatkitSessionUrl = new FunctionUrl(
       ],
       allowedMethods: [HttpMethod.POST, HttpMethod.OPTIONS],
       allowedHeaders: ['content-type'],
-      maxAge: Duration.days(10),
+      // Lambda Function URL CORS maxAge is capped at 86400 seconds.
+      maxAge: Duration.days(1),
     },
   }
 );
@@ -35,4 +36,3 @@ backend.addOutput({
     chatkit_session_url: chatkitSessionUrl.url,
   },
 });
-
