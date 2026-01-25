@@ -1403,7 +1403,7 @@ a.chip:hover {
 
 .chat-panel {
 	width: min(420px, calc(100vw - 2.5rem));
-	max-height: min(72vh, 640px);
+	height: min(72vh, 640px);
 	display: flex;
 	flex-direction: column;
 	background: #edfdf2;
@@ -1441,7 +1441,7 @@ a.chip:hover {
 
 .chat-panel__body {
 	flex: 1;
-	min-height: 320px;
+	min-height: 0;
 	background: transparent;
 	position: relative;
 }
