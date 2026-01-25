@@ -5,18 +5,41 @@ const apiKey = process.env.OPENAI_API_KEY;
 
 const openai = apiKey ? new OpenAI({ apiKey }) : null;
 
+type LambdaHeaders = Record<string, string | undefined>;
+
+type LambdaEvent = {
+  headers?: LambdaHeaders | null;
+  requestContext?: { http?: { method?: string } } | null;
+  httpMethod?: string;
+  body?: string | null;
+  isBase64Encoded?: boolean;
+};
+
+type LambdaResult = {
+  statusCode: number;
+  headers: Record<string, string>;
+  body: string;
+};
+
+type ChatkitSessionRequest = {
+  current?: unknown;
+  locale?: unknown;
+  pageUrl?: unknown;
+  user?: unknown;
+};
+
 const ALLOWED_ORIGINS = new Set([
   'https://chat.craigs.autos',
   'https://craigs.autos',
   'http://localhost:4321',
 ]);
 
-function getOrigin(headers) {
+function getOrigin(headers: LambdaHeaders | null | undefined): string | undefined {
   if (!headers || typeof headers !== 'object') return undefined;
-  return headers.origin ?? headers.Origin;
+  return headers.origin ?? headers.Origin ?? undefined;
 }
 
-function corsHeaders(origin) {
+function corsHeaders(origin: string | undefined): Record<string, string> {
   const headers = {
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type',
@@ -33,7 +56,7 @@ function corsHeaders(origin) {
   return { ...headers, 'Access-Control-Allow-Origin': 'null' };
 }
 
-function json(statusCode, body, origin) {
+function json(statusCode: number, body: unknown, origin: string | undefined): LambdaResult {
   return {
     statusCode,
     headers: {
@@ -44,7 +67,7 @@ function json(statusCode, body, origin) {
   };
 }
 
-function decodeBody(event) {
+function decodeBody(event: LambdaEvent): string | null {
   const raw = event?.body;
   if (typeof raw !== 'string' || raw.length === 0) return null;
   if (event?.isBase64Encoded) {
@@ -53,7 +76,7 @@ function decodeBody(event) {
   return raw;
 }
 
-export const handler = async (event) => {
+export const handler = async (event: LambdaEvent): Promise<LambdaResult> => {
   const method = event?.requestContext?.http?.method ?? event?.httpMethod;
   const origin = getOrigin(event?.headers);
 
@@ -73,17 +96,18 @@ export const handler = async (event) => {
     return json(500, { error: 'Server missing configuration' }, origin);
   }
 
-  let payload = {};
+  let payload: ChatkitSessionRequest = {};
   try {
     const body = decodeBody(event);
-    payload = body ? JSON.parse(body) : {};
+    const parsed = body ? JSON.parse(body) : {};
+    payload = parsed && typeof parsed === 'object' ? (parsed as ChatkitSessionRequest) : {};
   } catch {
     return json(400, { error: 'Invalid JSON body' }, origin);
   }
 
-  const locale = typeof payload?.locale === 'string' ? payload.locale : 'en';
-  const pageUrl = typeof payload?.pageUrl === 'string' ? payload.pageUrl : '';
-  const user = typeof payload?.user === 'string' ? payload.user : 'anonymous';
+  const locale = typeof payload.locale === 'string' ? payload.locale : 'en';
+  const pageUrl = typeof payload.pageUrl === 'string' ? payload.pageUrl : '';
+  const user = typeof payload.user === 'string' ? payload.user : 'anonymous';
 
   try {
     const session = await openai.beta.chatkit.sessions.create({
@@ -98,9 +122,8 @@ export const handler = async (event) => {
     });
 
     return json(200, { client_secret: session.client_secret }, origin);
-  } catch (err) {
+  } catch (err: any) {
     console.error('ChatKit session create failed', err?.status, err?.message);
     return json(500, { error: 'Failed to create ChatKit session' }, origin);
   }
 };
-
