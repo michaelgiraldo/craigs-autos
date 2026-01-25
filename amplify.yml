@@ -19,6 +19,7 @@ frontend:
     build:
       commands:
         - |
+          echo "Deploying Amplify Gen 2 backend + generating amplify_outputs.json"
           # Deploy/update the Amplify Gen 2 backend for this branch and write branch-specific
           # `amplify_outputs.json` into `public/` so the site can discover backend endpoints.
           APP_ID="${AWS_APP_ID:-d3du4u03f75wsu}"
