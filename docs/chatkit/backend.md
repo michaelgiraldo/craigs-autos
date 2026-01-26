@@ -56,7 +56,7 @@ Lead email defaults (can be overridden later):
 
 - `LEAD_TO_EMAIL` (default: `victor@craigs.autos`)
 - `LEAD_FROM_EMAIL` (default: `victor@craigs.autos`)
-- `LEAD_SUMMARY_MODEL` (default: `gpt-4.1-mini`)
+- `LEAD_SUMMARY_MODEL` (default: `gpt-5.2-2025-12-11`)
 
 Idempotency wiring (injected by `amplify/backend.ts`):
 
@@ -286,7 +286,7 @@ Key properties:
 
 Model:
 
-- Default `LEAD_SUMMARY_MODEL = gpt-4.1-mini`
+- Default `LEAD_SUMMARY_MODEL = gpt-5.2-2025-12-11`
 
 You can change this via the function environment (deploy required).
 
@@ -354,4 +354,3 @@ This is mostly controlled by the summary prompt + schema rules.
 For operational debugging and where to look when things fail, see:
 
 - `docs/chatkit/runbook.md`
-

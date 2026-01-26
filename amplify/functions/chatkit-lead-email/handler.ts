@@ -15,7 +15,7 @@ const leadDedupeDb =
 
 const leadToEmail = process.env.LEAD_TO_EMAIL ?? 'victor@craigs.autos';
 const leadFromEmail = process.env.LEAD_FROM_EMAIL ?? 'victor@craigs.autos';
-const leadSummaryModel = process.env.LEAD_SUMMARY_MODEL ?? 'gpt-5.2-chat-latest';
+const leadSummaryModel = process.env.LEAD_SUMMARY_MODEL ?? 'gpt-5.2-2025-12-11';
 const SHOP_NAME = "Craig's Auto Upholstery";
 const SHOP_PHONE_DISPLAY = '(408) 379-3820';
 const SHOP_PHONE_DIGITS = '4083793820';
