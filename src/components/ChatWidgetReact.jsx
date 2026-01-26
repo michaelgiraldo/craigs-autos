@@ -25,12 +25,13 @@ class ChatKitErrorBoundary extends React.Component {
   }
 }
 
-function ChatKitWithHooks({ options, onReady, onError, onThreadChange, onChat }) {
+function ChatKitWithHooks({ options, onReady, onError, onThreadChange, onResponseEnd, onChat }) {
   const chat = useChatKit({
     ...options,
     onReady,
     onError,
     onThreadChange,
+    onResponseEnd,
   });
 
   React.useEffect(() => {
@@ -216,6 +217,7 @@ export default function ChatWidgetReact({
   const [chatkitError, setChatkitError] = React.useState(null);
   const [chatInstance, setChatInstance] = React.useState(null);
   const chatRef = React.useRef(null);
+  const leadEmailInFlightRef = React.useRef(false);
   const isDev = import.meta.env?.DEV;
 
   React.useEffect(() => {
@@ -310,6 +312,7 @@ export default function ChatWidgetReact({
 
   const sendLeadEmail = React.useCallback(
     async ({ reason = 'chat_closed' } = {}) => {
+      if (leadEmailInFlightRef.current) return;
       const activeThreadId = threadId;
       if (!activeThreadId) return;
       if (typeof resolvedLeadEmailUrl !== 'string' || !resolvedLeadEmailUrl.trim()) return;
@@ -337,6 +340,7 @@ export default function ChatWidgetReact({
       if (globalThis.localStorage?.getItem(sentKey) === 'true') return;
 
       try {
+        leadEmailInFlightRef.current = true;
         const response = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -362,6 +366,8 @@ export default function ChatWidgetReact({
         }
       } catch (err) {
         if (isDev) console.error('ChatKit lead email request failed', err);
+      } finally {
+        leadEmailInFlightRef.current = false;
       }
     },
     [isDev, locale, resolvedLeadEmailUrl, threadId, userId]
@@ -559,6 +565,10 @@ export default function ChatWidgetReact({
                     onReady={() => {
                       setChatkitReady(true);
                       setChatkitError(null);
+                    }}
+                    onResponseEnd={() => {
+                      // Attempt to email the lead automatically once contact info is captured.
+                      void sendLeadEmail({ reason: 'auto' });
                     }}
                     onError={(detail) => {
                       setChatkitError(detail?.error ?? new Error('Chat unavailable.'));

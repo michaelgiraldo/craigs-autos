@@ -31,6 +31,7 @@ type LeadEmailRequest = {
   locale?: unknown;
   pageUrl?: unknown;
   user?: unknown;
+  reason?: unknown;
 };
 
 function json(statusCode: number, body: unknown): LambdaResult {
@@ -111,6 +112,34 @@ function isPlausibleEmail(value: string): boolean {
 function isPlausiblePhone(value: string): boolean {
   const digits = value.replace(/[^\d]/g, '');
   return digits.length >= 7;
+}
+
+function extractCustomerContact(transcript: TranscriptLine[]): { email: string | null; phone: string | null } {
+  const customerText = transcript
+    .filter((line) => line.speaker === 'Customer')
+    .map((line) => line.text)
+    .join('\n');
+
+  const emailMatch = customerText.match(/[^\s@]+@[^\s@]+\.[^\s@]+/);
+  const email = emailMatch ? emailMatch[0].trim() : null;
+
+  const shopDigits = '4083793820';
+  const phoneCandidates: string[] = [];
+  const phoneRegex = /(\+?\d[\d().\-\s]{7,}\d)/g;
+  for (const match of customerText.matchAll(phoneRegex)) {
+    const raw = (match?.[1] ?? '').trim();
+    if (!raw) continue;
+    const digits = raw.replace(/[^\d]/g, '');
+    if (digits === shopDigits) continue;
+    if (digits.length < 10 || digits.length > 15) continue;
+    phoneCandidates.push(raw);
+  }
+  const phone = phoneCandidates.length ? phoneCandidates[0] : null;
+
+  return {
+    email: email && isPlausibleEmail(email) ? email : null,
+    phone: phone && isPlausiblePhone(phone) ? phone : null,
+  };
 }
 
 function sanitizeLeadSummary(input: any): LeadSummary | null {
@@ -534,6 +563,7 @@ export const handler = async (event: LambdaEvent): Promise<LambdaResult> => {
   const locale = typeof payload.locale === 'string' ? payload.locale : '';
   const pageUrl = typeof payload.pageUrl === 'string' ? payload.pageUrl : '';
   const chatUser = typeof payload.user === 'string' ? payload.user : 'anonymous';
+  const reason = typeof payload.reason === 'string' ? payload.reason : 'auto';
 
   try {
     const { threadTitle, threadUser, lines } = await buildTranscript(threadId);
@@ -544,11 +574,27 @@ export const handler = async (event: LambdaEvent): Promise<LambdaResult> => {
       return json(200, { ok: true, sent: false, reason: 'empty_thread' });
     }
 
+    const detectedContact = extractCustomerContact(lines);
+    if (!detectedContact.email && !detectedContact.phone) {
+      // Lead intake without a way to contact the customer is not actionable.
+      return json(200, { ok: true, sent: false, reason: 'missing_contact' });
+    }
+
     const leadSummary = await generateLeadSummary({
       locale,
       pageUrl,
       transcript: lines,
     });
+
+    // If the model failed to extract contact details, fall back to simple detection from the transcript.
+    const hydratedLeadSummary =
+      leadSummary && (!leadSummary.customer_email || !leadSummary.customer_phone)
+        ? {
+            ...leadSummary,
+            customer_email: leadSummary.customer_email ?? detectedContact.email,
+            customer_phone: leadSummary.customer_phone ?? detectedContact.phone,
+          }
+        : leadSummary;
 
     await sendTranscriptEmail({
       threadId,
@@ -557,10 +603,10 @@ export const handler = async (event: LambdaEvent): Promise<LambdaResult> => {
       chatUser: threadUser ?? chatUser,
       threadTitle,
       transcript: lines,
-      leadSummary,
+      leadSummary: hydratedLeadSummary,
     });
 
-    return json(200, { ok: true, sent: true });
+    return json(200, { ok: true, sent: true, reason });
   } catch (err: any) {
     console.error('Lead email failed', err?.name, err?.message);
     return json(500, { error: 'Failed to send lead email' });
