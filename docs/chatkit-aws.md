@@ -6,6 +6,45 @@ details and automatically emails the shop a transcript + an internal AI summary.
 
 This document is the "what exists and why" reference for future developers.
 
+## Quickstart
+
+Production (AWS Amplify):
+
+1) OpenAI: create/edit the ChatKit workflow in Agent Builder and copy its workflow id (`wf_...`).
+2) OpenAI: add your domains to the domain allowlist (at minimum: `chat.craigs.autos`).
+3) AWS SES (same region as the Amplify backend): verify the sender identity (currently `victor@craigs.autos`).
+4) AWS Amplify: set Secrets for the branch/environment:
+   - `OPENAI_API_KEY`
+   - `CHATKIT_WORKFLOW_ID`
+5) Deploy by committing + pushing to the branch Amplify is connected to.
+
+Local development:
+
+1) Create `.env.local` at the repo root:
+   - `OPENAI_API_KEY=...`
+   - `CHATKIT_WORKFLOW_ID=...`
+2) Install deps: `npm ci`
+3) Run: `npm run dev:local`
+4) Open: `http://localhost:4321/en/`
+
+## Contents
+
+- Goals
+- High-level architecture
+- Glossary
+- OpenAI configuration
+- AWS Amplify Gen2 backend
+- AWS SES configuration
+- Idempotency
+- Frontend integration
+- API reference
+- Backend functions
+- Local development
+- Deployment notes
+- Troubleshooting checklist
+- Files quick reference
+- Common maintenance tasks
+
 ## Goals
 
 - Give customers a real chat experience (not a form).
@@ -42,7 +81,7 @@ Customer browser
       -> DynamoDB lease (idempotency) -> SES email -> DynamoDB mark sent
 ```
 
-## Glossary (ids matter)
+## Glossary
 
 - Workflow id: `wf_...`
   - Configured in OpenAI Agent Builder. Stored as an Amplify Secret: `CHATKIT_WORKFLOW_ID`.
@@ -61,7 +100,7 @@ Customer browser
   - A stable per-browser string stored in localStorage. Used as `user` when creating sessions.
   - Tracks "same visitor" across sessions, but is not a conversation id.
 
-## OpenAI configuration (Agent Builder + domain allowlist)
+## OpenAI configuration
 
 ### Managed workflow (Agent Builder)
 
@@ -140,7 +179,7 @@ IAM:
   - `ses:SendEmail`
   - `ses:SendRawEmail`
 
-## Idempotency (server-side, thread-keyed)
+## Idempotency
 
 Why:
 
@@ -246,6 +285,76 @@ Client-side dedupe:
 - The frontend stores `chatkit-lead-sent:<threadId>=true` in localStorage once the
   backend returns `{ sent: true }`.
 - This reduces unnecessary calls, but server-side DynamoDB is the true source of truth.
+
+## API reference
+
+This repo uses Lambda Function URLs (not API Gateway) and exposes 2 POST endpoints. In production,
+their full URLs are written into `public/amplify_outputs.json` as:
+
+- `custom.chatkit_session_url`
+- `custom.chatkit_lead_email_url`
+
+The frontend discovers them by fetching `/amplify_outputs.json` at runtime.
+
+### POST session endpoint (create ChatKit session)
+
+Used by ChatKit to mint an ephemeral `client_secret` (no OpenAI API key in the browser).
+
+Request body (JSON):
+
+```json
+{
+  "current": {},
+  "locale": "en",
+  "pageUrl": "https://chat.craigs.autos/en/",
+  "user": "anon_..."
+}
+```
+
+Response body (JSON):
+
+```json
+{
+  "client_secret": "ckcs_..."
+}
+```
+
+Notes:
+
+- Implemented in `amplify/functions/chatkit-session/handler.ts`.
+- Also injects shop-local time state variables into the workflow (see "OpenAI configuration").
+
+### POST lead email endpoint (fetch transcript + email the shop)
+
+Request body (JSON):
+
+```json
+{
+  "threadId": "cthr_...",
+  "locale": "en",
+  "pageUrl": "https://chat.craigs.autos/en/",
+  "user": "anon_...",
+  "reason": "auto"
+}
+```
+
+Response body (JSON):
+
+```json
+{
+  "ok": true,
+  "sent": true,
+  "reason": "auto"
+}
+```
+
+Other common responses:
+
+- `{ ok: true, sent: false, reason: "missing_contact" }`
+- `{ ok: true, sent: false, reason: "not_ready", missing_info: [...] }` (when `reason: "auto"`)
+- `{ ok: true, sent: false, reason: "in_progress" }` (another device/tab is sending)
+- `{ ok: true, sent: false, reason: "cooldown" }` (previous send errored; short cooldown)
+- `{ ok: true, sent: true, reason: "already_sent", sent_at: 1234567890 }`
 
 ## Backend functions
 
@@ -390,3 +499,48 @@ This repo mitigates hidden init by only mounting ChatKit when the panel is open.
 - Amplify backend: `amplify/backend.ts`
 - Session minting Lambda: `amplify/functions/chatkit-session/handler.ts`
 - Lead email Lambda: `amplify/functions/chatkit-lead-email/handler.ts`
+
+## Common maintenance tasks
+
+### Change the agent behavior (no deploy needed)
+
+Edit the managed workflow in Agent Builder. The site references it by workflow id (`wf_...`), so prompt
+and guardrail changes apply immediately.
+
+Important:
+
+- If you set the Agent block output format to JSON, the customer will see `{}` instead of normal chat.
+
+### Change UI copy / prompts per locale
+
+Update `CHAT_COPY` in `src/lib/site-data.js`.
+
+### Change email recipient/sender (deploy needed)
+
+Update defaults in `amplify/functions/chatkit-lead-email/resource.ts`:
+
+- `LEAD_TO_EMAIL`
+- `LEAD_FROM_EMAIL`
+- `LEAD_SUMMARY_MODEL`
+
+Then commit + push so Amplify redeploys.
+
+### Update the email template (deploy needed)
+
+Email HTML/text is assembled in `amplify/functions/chatkit-lead-email/handler.ts` inside
+`sendTranscriptEmail(...)`.
+
+### Re-send an email for a thread (idempotency is enabled)
+
+Idempotency is keyed on the ChatKit thread id (`cthr_...`). To force a re-send you must either:
+
+1) Start a new chat thread (creates a new `cthr_...`), or
+2) Delete the item for that `thread_id` from the DynamoDB table `ChatkitLeadDedupeTable`.
+
+### Find the thread id for debugging
+
+Options:
+
+- From the email subject (it includes `(cthr_...)`).
+- From OpenAI logs: `https://platform.openai.com/logs/cthr_...`
+- From the browser session storage key `chatkit-thread-id`.
