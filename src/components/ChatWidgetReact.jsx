@@ -25,12 +25,21 @@ class ChatKitErrorBoundary extends React.Component {
   }
 }
 
-function ChatKitWithHooks({ options, onReady, onError, onThreadChange, onResponseEnd, onChat }) {
+function ChatKitWithHooks({
+  options,
+  onReady,
+  onError,
+  onThreadChange,
+  onResponseStart,
+  onResponseEnd,
+  onChat,
+}) {
   const chat = useChatKit({
     ...options,
     onReady,
     onError,
     onThreadChange,
+    onResponseStart,
     onResponseEnd,
   });
 
@@ -83,6 +92,7 @@ const USER_KEY = 'chatkit-user-id';
 const OPEN_KEY = 'chatkit-open';
 const LEAD_SENT_KEY_PREFIX = 'chatkit-lead-sent:';
 const AMPLIFY_OUTPUTS_PATH = '/amplify_outputs.json';
+const IDLE_LEAD_SEND_MS = 90_000;
 
 let chatkitRuntimePromise = null;
 
@@ -218,6 +228,7 @@ export default function ChatWidgetReact({
   const [chatInstance, setChatInstance] = React.useState(null);
   const chatRef = React.useRef(null);
   const leadEmailInFlightRef = React.useRef(false);
+  const idleTimerRef = React.useRef(null);
   const isDev = import.meta.env?.DEV;
 
   React.useEffect(() => {
@@ -372,6 +383,42 @@ export default function ChatWidgetReact({
     },
     [isDev, locale, resolvedLeadEmailUrl, threadId, userId]
   );
+
+  const bumpIdleTimer = React.useCallback(() => {
+    if (!open) return;
+    if (idleTimerRef.current) window.clearTimeout(idleTimerRef.current);
+    idleTimerRef.current = window.setTimeout(() => {
+      void sendLeadEmail({ reason: 'idle' });
+    }, IDLE_LEAD_SEND_MS);
+  }, [open, sendLeadEmail]);
+
+  React.useEffect(() => {
+    if (!open) {
+      if (idleTimerRef.current) window.clearTimeout(idleTimerRef.current);
+      return;
+    }
+    bumpIdleTimer();
+    return () => {
+      if (idleTimerRef.current) window.clearTimeout(idleTimerRef.current);
+    };
+  }, [bumpIdleTimer, open]);
+
+  React.useEffect(() => {
+    const sendOnPageHide = () => {
+      void sendLeadEmail({ reason: 'pagehide' });
+    };
+
+    window.addEventListener('pagehide', sendOnPageHide);
+    const onVisibility = () => {
+      if (document.visibilityState === 'hidden') sendOnPageHide();
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+
+    return () => {
+      window.removeEventListener('pagehide', sendOnPageHide);
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
+  }, [sendLeadEmail]);
 
   const closeChat = React.useCallback(() => {
     setOpen(false);
@@ -565,9 +612,14 @@ export default function ChatWidgetReact({
                     onReady={() => {
                       setChatkitReady(true);
                       setChatkitError(null);
+                      bumpIdleTimer();
+                    }}
+                    onResponseStart={() => {
+                      bumpIdleTimer();
                     }}
                     onResponseEnd={() => {
                       // Attempt to email the lead automatically once contact info is captured.
+                      bumpIdleTimer();
                       void sendLeadEmail({ reason: 'auto' });
                     }}
                     onError={(detail) => {
@@ -578,6 +630,7 @@ export default function ChatWidgetReact({
                       if (!nextId) return;
                       sessionStorage.setItem(THREAD_STORAGE_KEY, nextId);
                       setThreadId(nextId);
+                      bumpIdleTimer();
                     }}
                   />
                   {!chatkitReady && !chatkitError ? (
