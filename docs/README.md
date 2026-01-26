@@ -4,5 +4,13 @@ This repo is a multi-locale Astro site deployed on AWS Amplify. It includes a pr
 
 ## Key docs
 
-- `docs/chatkit-aws.md` - ChatKit lead intake (architecture, backend/frontend wiring, deployment, troubleshooting)
+- ChatKit lead intake:
+  - `docs/chatkit/overview.md`
+  - `docs/chatkit/frontend.md`
+  - `docs/chatkit/backend.md`
+  - `docs/chatkit/agent-builder.md`
+  - `docs/chatkit/runbook.md`
 
+Legacy entrypoint (kept for older links):
+
+- `docs/chatkit-aws.md` (points to the files above)

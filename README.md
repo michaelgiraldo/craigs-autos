@@ -5,7 +5,7 @@ Multi-locale website for Craig's Auto Upholstery, deployed on AWS Amplify. Inclu
 ## Key documentation
 
 - `docs/README.md`
-- `docs/chatkit-aws.md`
+- `docs/chatkit/overview.md`
 
 ## Local development
 
