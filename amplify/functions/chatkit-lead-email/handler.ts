@@ -77,6 +77,12 @@ type TranscriptLine = {
   text: string;
 };
 
+type AttachmentInfo = {
+  name: string;
+  mime: string | null;
+  url: string;
+};
+
 type LeadSummary = {
   customer_name: string | null;
   customer_phone: string | null;
@@ -287,6 +293,33 @@ function safeHttpUrl(value: string): string | null {
   }
 }
 
+function linkifyTextToHtml(text: string): string {
+  const urlRegex = /https?:\/\/[^\s]+/g;
+  let out = '';
+  let lastIndex = 0;
+
+  for (const match of text.matchAll(urlRegex)) {
+    const raw = match?.[0] ?? '';
+    if (!raw) continue;
+    const index = typeof match.index === 'number' ? match.index : 0;
+    out += escapeHtml(text.slice(lastIndex, index));
+
+    const safe = safeHttpUrl(raw);
+    if (safe) {
+      out += `<a href="${escapeHtml(safe)}" style="color:#141cff;text-decoration:none">${escapeHtml(
+        raw
+      )}</a>`;
+    } else {
+      out += escapeHtml(raw);
+    }
+
+    lastIndex = index + raw.length;
+  }
+
+  out += escapeHtml(text.slice(lastIndex));
+  return out.replace(/\n/g, '<br/>');
+}
+
 function phoneToTelHref(value: string): string | null {
   const digits = value.replace(/[^\d]/g, '');
   if (digits.length < 7 || digits.length > 15) return null;
@@ -307,6 +340,19 @@ function emailToMailto(value: string): string | null {
   const email = value.trim();
   if (!isPlausibleEmail(email)) return null;
   return `mailto:${encodeURIComponent(email)}`;
+}
+
+function mailtoWithDraft(email: string, subject: string, body: string): string | null {
+  const base = emailToMailto(email);
+  if (!base) return null;
+  return `${base}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
+function smsWithBody(phone: string, body: string): string | null {
+  const base = phoneToSmsHref(phone);
+  if (!base) return null;
+  // Widely supported in Android; iOS also works with ?&body= in most cases.
+  return `${base}?&body=${encodeURIComponent(body)}`;
 }
 
 function formatListText(items: string[], prefix = '- '): string {
@@ -390,6 +436,41 @@ function extractCustomerContact(transcript: TranscriptLine[]): { email: string |
     email: email && isPlausibleEmail(email) ? email : null,
     phone: phone && isPlausiblePhone(phone) ? phone : null,
   };
+}
+
+function extractAttachments(transcript: TranscriptLine[]): AttachmentInfo[] {
+  const seen = new Set<string>();
+  const attachments: AttachmentInfo[] = [];
+
+  for (const line of transcript) {
+    const rows = typeof line.text === 'string' ? line.text.split('\n') : [];
+    for (const row of rows) {
+      if (!row.startsWith('Attachment:')) continue;
+      let rest = row.replace(/^Attachment:\s*/, '').trim();
+      if (!rest) continue;
+
+      const urlMatch = rest.match(/https?:\/\/\S+$/);
+      const urlRaw = urlMatch?.[0] ?? '';
+      const urlSafe = urlRaw ? safeHttpUrl(urlRaw) : null;
+      if (!urlSafe) continue;
+
+      rest = rest.slice(0, Math.max(0, rest.length - urlRaw.length)).trim();
+
+      let mime: string | null = null;
+      const mimeMatch = rest.match(/\(([^)]+)\)\s*$/);
+      if (mimeMatch && typeof mimeMatch.index === 'number') {
+        mime = mimeMatch[1]?.trim() ? mimeMatch[1].trim() : null;
+        rest = rest.slice(0, mimeMatch.index).trim();
+      }
+
+      const name = rest || 'attachment';
+      if (seen.has(urlSafe)) continue;
+      seen.add(urlSafe);
+      attachments.push({ name, mime, url: urlSafe });
+    }
+  }
+
+  return attachments;
 }
 
 function sanitizeLeadSummary(input: any): LeadSummary | null {
@@ -619,11 +700,12 @@ async function sendTranscriptEmail(args: {
   locale: string;
   pageUrl: string;
   chatUser: string;
+  reason: string;
   threadTitle: string | null;
   transcript: TranscriptLine[];
   leadSummary: LeadSummary | null;
 }): Promise<string | null> {
-  const { threadId, locale, pageUrl, chatUser, threadTitle, transcript, leadSummary } = args;
+  const { threadId, locale, pageUrl, chatUser, reason, threadTitle, transcript, leadSummary } = args;
 
   const detectedContact = extractCustomerContact(transcript);
   const customerPhone = leadSummary?.customer_phone ?? detectedContact.phone;
@@ -664,7 +746,14 @@ async function sendTranscriptEmail(args: {
       : 'New chat lead';
   const subject = `${subjectBase} (${threadId})`;
 
-  const introLines = ['New chat lead from chat.craigs.autos', ''].filter(Boolean);
+  let sourceLabel = 'craigs.autos';
+  try {
+    const url = pageHref ? new URL(pageHref) : null;
+    if (url?.host) sourceLabel = url.host;
+  } catch {
+    // ignore
+  }
+  const introLines = [`New chat lead from ${sourceLabel}`, ''].filter(Boolean);
 
   if (leadSummary) {
     introLines.push('At a glance');
@@ -704,6 +793,17 @@ async function sendTranscriptEmail(args: {
   if (pageHref) introLines.push(`Page: ${pageHref}`);
   introLines.push('');
 
+  const attachments = extractAttachments(transcript);
+  if (attachments.length) {
+    introLines.push(`Photos/attachments (${attachments.length})`);
+    introLines.push(
+      attachments
+        .map((att) => `- ${att.name}${att.mime ? ` (${att.mime})` : ''}: ${att.url}`)
+        .join('\n')
+    );
+    introLines.push('');
+  }
+
   if (customerTelHref || customerSmsHref || customerMailHref) {
     introLines.push('Quick actions');
     if (customerTelHref) introLines.push(`Call: ${customerTelHref}`);
@@ -734,6 +834,9 @@ async function sendTranscriptEmail(args: {
   const emailDraftBody = normalizeWhitespace(
     `Hi ${contactName},\n\nThanks for reaching out to Craig's Auto Upholstery${contextSnippet}.\n\nIf you can reply with 2-4 photos (1 wide + 1-2 close-ups), we can take a proper look and follow up with next steps. If matching material/color matters, include a photo of the \"good\" area too.\n\nCraig's Auto Upholstery\n(408) 379-3820\n271 Bestor St, San Jose, CA 95112`
   );
+
+  const smsDraftHref = customerPhone ? smsWithBody(customerPhone, smsDraft) : null;
+  const emailDraftHref = customerEmail ? mailtoWithDraft(customerEmail, emailDraftSubject, emailDraftBody) : null;
 
   introLines.push('Copy/paste drafts');
   if (outreachMessage) {
@@ -771,6 +874,8 @@ async function sendTranscriptEmail(args: {
   if (customerLanguage) atAGlanceRows.push({ label: 'Language', value: customerLanguage });
   if (pageHref) atAGlanceRows.push({ label: 'Page', value: pageHref, href: pageHref });
   atAGlanceRows.push({ label: 'Thread', value: threadId, href: threadHref });
+  if (reason) atAGlanceRows.push({ label: 'Trigger', value: reason });
+  if (chatUser) atAGlanceRows.push({ label: 'Chat user', value: chatUser });
 
   const htmlAtAGlanceRows = atAGlanceRows
     .map(({ label, value, href }) => {
@@ -790,7 +895,9 @@ async function sendTranscriptEmail(args: {
   const quickActions: Array<{ label: string; href: string }> = [];
   if (customerTelHref) quickActions.push({ label: 'Call customer', href: customerTelHref });
   if (customerSmsHref) quickActions.push({ label: 'Text customer', href: customerSmsHref });
+  if (smsDraftHref) quickActions.push({ label: 'Text draft', href: smsDraftHref });
   if (customerMailHref) quickActions.push({ label: 'Email customer', href: customerMailHref });
+  if (emailDraftHref) quickActions.push({ label: 'Email draft', href: emailDraftHref });
   if (pageHref) quickActions.push({ label: 'Open page', href: pageHref });
   quickActions.push({ label: 'OpenAI logs', href: threadHref });
 
@@ -814,15 +921,26 @@ async function sendTranscriptEmail(args: {
       </div>`
     : '';
 
+  const attachmentsHtml = attachments.length
+    ? `<div style="font-size:14px;font-weight:700;margin:0 0 10px">Photos/attachments (${attachments.length})</div>
+       <ul style="margin:0;padding-left:18px;font-size:13px;line-height:1.5">
+         ${attachments
+           .map((att) => {
+             const label = `${att.name}${att.mime ? ` (${att.mime})` : ''}`;
+             return `<li style="margin:0 0 8px"><a href="${escapeHtml(att.url)}" style="color:#141cff;text-decoration:none">${escapeHtml(
+               label
+             )}</a></li>`;
+           })
+           .join('')}
+       </ul>`
+    : '';
+
   const transcriptHtml = transcript
     .map((line) => {
       const when = formatTimestamp(line.created_at);
       return `<div style="margin:0 0 10px"><span style="color:#6b7280">[${escapeHtml(
         when
-      )}]</span> <strong>${escapeHtml(line.speaker)}:</strong> ${escapeHtml(line.text).replace(
-        /\n/g,
-        '<br/>'
-      )}</div>`;
+      )}]</span> <strong>${escapeHtml(line.speaker)}:</strong> ${linkifyTextToHtml(line.text)}</div>`;
     })
     .join('');
 
@@ -858,6 +976,15 @@ async function sendTranscriptEmail(args: {
                 <div>${quickActionsHtml || '<span style="color:#6b7280;font-size:13px">No actions available.</span>'}</div>
               </td>
             </tr>
+            ${
+              attachments.length
+                ? `<tr>
+              <td style="padding:18px 22px;border-top:1px solid #e5e7eb">
+                ${attachmentsHtml}
+              </td>
+            </tr>`
+                : ''
+            }
             <tr>
               <td style="padding:18px 22px;border-top:1px solid #e5e7eb">
                 <div style="font-size:14px;font-weight:700;margin:0 0 10px">Call script (3 prompts)</div>
@@ -934,6 +1061,7 @@ async function sendTranscriptEmail(args: {
   const result = await ses.send(
     new SendEmailCommand({
       Source: leadFromEmail,
+      ...(customerEmail ? { ReplyToAddresses: [customerEmail] } : {}),
       Destination: { ToAddresses: [leadToEmail] },
       Message: {
         Subject: { Data: subject, Charset: 'UTF-8' },
@@ -1083,6 +1211,7 @@ export const handler = async (event: LambdaEvent): Promise<LambdaResult> => {
         locale,
         pageUrl,
         chatUser: threadUser ?? chatUser,
+        reason,
         threadTitle,
         transcript: lines,
         leadSummary: hydratedLeadSummary,
