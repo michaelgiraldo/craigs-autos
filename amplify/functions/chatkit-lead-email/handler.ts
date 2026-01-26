@@ -840,7 +840,6 @@ async function sendTranscriptEmail(args: {
     if (leadSummary.vehicle) bodyParts.push(`Vehicle: ${leadSummary.vehicle}`);
     if (leadSummary.project) bodyParts.push(`Project: ${leadSummary.project}`);
     if (leadSummary.timeline) bodyParts.push(`Timeline: ${leadSummary.timeline}`);
-    if (leadSummary.missing_info.length) bodyParts.push(`Missing: ${leadSummary.missing_info.join(', ')}`);
     bodyParts.push('');
   }
 
@@ -896,6 +895,9 @@ async function sendTranscriptEmail(args: {
   bodyParts.push(`OpenAI logs: ${threadHref}`);
   bodyParts.push(`Trigger: ${reason}`);
   bodyParts.push(`Chat user: ${chatUser}`);
+  if (leadSummary?.missing_info?.length) {
+    bodyParts.push(`Missing: ${leadSummary.missing_info.join(', ')}`);
+  }
   if (locale) bodyParts.push(`Locale: ${locale}`);
   if (customerLanguage) bodyParts.push(`Language: ${customerLanguage}`);
   if (pageHref) bodyParts.push(`Page: ${pageHref}`);
@@ -910,9 +912,6 @@ async function sendTranscriptEmail(args: {
   if (leadSummary?.vehicle) atAGlanceRows.push({ label: 'Vehicle', value: leadSummary.vehicle });
   if (leadSummary?.project) atAGlanceRows.push({ label: 'Project', value: leadSummary.project });
   if (leadSummary?.timeline) atAGlanceRows.push({ label: 'Timeline', value: leadSummary.timeline });
-  if (leadSummary?.missing_info?.length) {
-    atAGlanceRows.push({ label: 'Missing', value: leadSummary.missing_info.join(', ') });
-  }
   if (attachments.length) atAGlanceRows.push({ label: 'Photos', value: String(attachments.length) });
 
   const diagnosticRows: Array<{ label: string; value: string; href?: string | null }> = [];
@@ -922,6 +921,9 @@ async function sendTranscriptEmail(args: {
   diagnosticRows.push({ label: 'Thread', value: threadId, href: threadHref });
   if (reason) diagnosticRows.push({ label: 'Trigger', value: reason });
   if (chatUser) diagnosticRows.push({ label: 'Chat user', value: chatUser });
+  if (leadSummary?.missing_info?.length) {
+    diagnosticRows.push({ label: 'Missing', value: leadSummary.missing_info.join(', ') });
+  }
 
   const htmlAtAGlanceRows = atAGlanceRows
     .map(({ label, value, href }) => {
