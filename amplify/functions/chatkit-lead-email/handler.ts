@@ -935,14 +935,13 @@ async function sendTranscriptEmail(args: {
        </ul>`
     : '';
 
-  const transcriptHtml = transcript
-    .map((line) => {
-      const when = formatTimestamp(line.created_at);
-      return `<div style="margin:0 0 10px"><span style="color:#6b7280">[${escapeHtml(
-        when
-      )}]</span> <strong>${escapeHtml(line.speaker)}:</strong> ${linkifyTextToHtml(line.text)}</div>`;
-    })
-    .join('');
+  // Render transcript as a single block (instead of per-line divs) to keep email HTML
+  // small enough that Gmail won't clip it for longer conversations.
+  const transcriptPlain = transcriptLines
+    .map((line) => (typeof line === 'string' ? line : ''))
+    .filter(Boolean)
+    .join('\n\n');
+  const transcriptHtml = linkifyTextToHtml(transcriptPlain);
 
   const html = `<!doctype html>
 <html lang="en">
@@ -1048,7 +1047,7 @@ async function sendTranscriptEmail(args: {
             <tr>
               <td style="padding:18px 22px;border-top:1px solid #e5e7eb">
                 <div style="font-size:14px;font-weight:700;margin:0 0 10px">Transcript</div>
-                <div style="font-size:13px;line-height:1.5;color:#111827">${transcriptHtml}</div>
+                <div style="font-size:13px;line-height:1.5;color:#111827;white-space:pre-wrap;word-break:break-word">${transcriptHtml}</div>
               </td>
             </tr>
           </table>
