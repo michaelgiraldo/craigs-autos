@@ -82,6 +82,7 @@ type LeadSummary = {
   customer_phone: string | null;
   customer_email: string | null;
   customer_location: string | null;
+  customer_language: string | null;
   vehicle: string | null;
   project: string | null;
   timeline: string | null;
@@ -90,6 +91,8 @@ type LeadSummary = {
   summary: string;
   next_steps: string[];
   follow_up_questions: string[];
+  call_script_prompts: string[];
+  outreach_message: string | null;
   missing_info: string[];
 };
 
@@ -325,6 +328,42 @@ function isPlausiblePhone(value: string): boolean {
   return digits.length >= 7;
 }
 
+function localeToLanguageLabel(locale: string): string | null {
+  const normalized = locale.trim().toLowerCase();
+  switch (normalized) {
+    case 'en':
+      return 'English';
+    case 'es':
+      return 'Spanish';
+    case 'pt-br':
+      return 'Portuguese (Brazil)';
+    case 'vi':
+      return 'Vietnamese';
+    case 'tl':
+      return 'Tagalog';
+    case 'ko':
+      return 'Korean';
+    case 'hi':
+      return 'Hindi';
+    case 'pa':
+      return 'Punjabi';
+    case 'ta':
+      return 'Tamil';
+    case 'ar':
+      return 'Arabic';
+    case 'ru':
+      return 'Russian';
+    case 'ja':
+      return 'Japanese';
+    case 'zh-hans':
+      return 'Chinese (Simplified)';
+    case 'zh-hant':
+      return 'Chinese (Traditional)';
+    default:
+      return null;
+  }
+}
+
 function extractCustomerContact(transcript: TranscriptLine[]): { email: string | null; phone: string | null } {
   const customerText = transcript
     .filter((line) => line.speaker === 'Customer')
@@ -379,6 +418,7 @@ function sanitizeLeadSummary(input: any): LeadSummary | null {
     customer_phone: customerPhone && isPlausiblePhone(customerPhone) ? customerPhone : null,
     customer_email: customerEmail && isPlausibleEmail(customerEmail) ? customerEmail : null,
     customer_location: pickStringOrNull(input.customer_location),
+    customer_language: pickStringOrNull(input.customer_language),
     vehicle: pickStringOrNull(input.vehicle),
     project: pickStringOrNull(input.project),
     timeline: pickStringOrNull(input.timeline),
@@ -387,6 +427,8 @@ function sanitizeLeadSummary(input: any): LeadSummary | null {
     summary: summaryText,
     next_steps: pickStringArray(input.next_steps).slice(0, 6),
     follow_up_questions: pickStringArray(input.follow_up_questions).slice(0, 6),
+    call_script_prompts: pickStringArray(input.call_script_prompts).slice(0, 3),
+    outreach_message: pickStringOrNull(input.outreach_message),
     missing_info: pickStringArray(input.missing_info).slice(0, 8),
   };
 }
@@ -411,6 +453,7 @@ async function generateLeadSummary(args: {
       customer_phone: { type: ['string', 'null'] },
       customer_email: { type: ['string', 'null'] },
       customer_location: { type: ['string', 'null'] },
+      customer_language: { type: ['string', 'null'] },
       vehicle: { type: ['string', 'null'] },
       project: { type: ['string', 'null'] },
       timeline: { type: ['string', 'null'] },
@@ -419,6 +462,8 @@ async function generateLeadSummary(args: {
       summary: { type: 'string' },
       next_steps: { type: 'array', items: { type: 'string' }, maxItems: 6 },
       follow_up_questions: { type: 'array', items: { type: 'string' }, maxItems: 6 },
+      call_script_prompts: { type: 'array', items: { type: 'string' }, maxItems: 3 },
+      outreach_message: { type: ['string', 'null'] },
       missing_info: { type: 'array', items: { type: 'string' }, maxItems: 8 },
     },
     required: [
@@ -426,6 +471,7 @@ async function generateLeadSummary(args: {
       'customer_phone',
       'customer_email',
       'customer_location',
+      'customer_language',
       'vehicle',
       'project',
       'timeline',
@@ -434,6 +480,8 @@ async function generateLeadSummary(args: {
       'summary',
       'next_steps',
       'follow_up_questions',
+      'call_script_prompts',
+      'outreach_message',
       'missing_info',
     ],
   };
@@ -449,6 +497,9 @@ async function generateLeadSummary(args: {
         'handoff_ready should be true only when the chat is genuinely ready for a shop follow-up (contact info is present and the customer has described what they need). Otherwise set it to false.',
         'handoff_reason should be a short reason explaining why it is or is not ready (for example: "missing_contact", "missing_project_details", "ready_for_follow_up").',
         'Write the summary and next steps in English.',
+        'customer_language should reflect the language the customer is using. If unclear, use the provided locale.',
+        'call_script_prompts must be exactly 3 short questions the shop can ask to move the lead forward (prioritize missing info).',
+        'outreach_message should be one short paragraph in customer_language that the shop can send (text or email). Keep it friendly, no prices, and ask for photos when helpful.',
         'Do not mention prices or quotes. Do not invent shop hours or policies.',
         'Keep next_steps and follow_up_questions short and actionable (one sentence each).',
       ].join('\n'),
@@ -583,6 +634,25 @@ async function sendTranscriptEmail(args: {
 
   const pageHref = pageUrl ? safeHttpUrl(pageUrl) : null;
   const threadHref = `https://platform.openai.com/logs/${encodeURIComponent(threadId)}`;
+  const customerLanguage =
+    leadSummary?.customer_language ?? (locale ? localeToLanguageLabel(locale) : null);
+  const outreachMessage =
+    leadSummary?.outreach_message && leadSummary.outreach_message.trim()
+      ? leadSummary.outreach_message.trim()
+      : null;
+
+  const defaultCallScriptPrompts = [
+    "Can you confirm the year/make/model (or what item we're working on)?",
+    'Can you send 2-4 photos (1 wide + 1-2 close-ups) so we can take a proper look?',
+    "What's the best way to reach you if we have a quick follow-up question?",
+  ];
+  const callScriptPrompts = (leadSummary?.call_script_prompts ?? [])
+    .map((prompt) => (typeof prompt === 'string' ? prompt.trim() : ''))
+    .filter(Boolean)
+    .slice(0, 3);
+  while (callScriptPrompts.length < 3) {
+    callScriptPrompts.push(defaultCallScriptPrompts[callScriptPrompts.length]);
+  }
 
   const subjectContext = [leadSummary?.vehicle, leadSummary?.project]
     .filter((value) => typeof value === 'string' && value.trim())
@@ -602,6 +672,7 @@ async function sendTranscriptEmail(args: {
     introLines.push(`Phone: ${customerPhone ?? ''}`.trim());
     introLines.push(`Email: ${customerEmail ?? ''}`.trim());
     introLines.push(`Location: ${leadSummary.customer_location ?? ''}`.trim());
+    if (customerLanguage) introLines.push(`Language: ${customerLanguage}`.trim());
     introLines.push(`Vehicle: ${leadSummary.vehicle ?? ''}`.trim());
     introLines.push(`Project: ${leadSummary.project ?? ''}`.trim());
     introLines.push(`Timeline: ${leadSummary.timeline ?? ''}`.trim());
@@ -641,6 +712,12 @@ async function sendTranscriptEmail(args: {
     introLines.push('');
   }
 
+  if (callScriptPrompts.length) {
+    introLines.push('Call script (3 prompts)');
+    introLines.push(formatListText(callScriptPrompts, '- '));
+    introLines.push('');
+  }
+
   const contactName = leadSummary?.customer_name?.trim() ? leadSummary.customer_name.trim() : 'there';
   const vehicleOrProject = [leadSummary?.vehicle, leadSummary?.project]
     .filter((value) => typeof value === 'string' && value.trim())
@@ -659,6 +736,12 @@ async function sendTranscriptEmail(args: {
   );
 
   introLines.push('Copy/paste drafts');
+  if (outreachMessage) {
+    introLines.push(
+      `Suggested outreach${customerLanguage ? ` (${customerLanguage})` : ''}:\n${outreachMessage}`
+    );
+    introLines.push('');
+  }
   introLines.push(`SMS draft:\n${smsDraft}`);
   introLines.push('');
   introLines.push(`Email subject:\n${emailDraftSubject}`);
@@ -685,6 +768,7 @@ async function sendTranscriptEmail(args: {
   if (leadSummary?.project) atAGlanceRows.push({ label: 'Project', value: leadSummary.project });
   if (leadSummary?.timeline) atAGlanceRows.push({ label: 'Timeline', value: leadSummary.timeline });
   if (locale) atAGlanceRows.push({ label: 'Locale', value: locale });
+  if (customerLanguage) atAGlanceRows.push({ label: 'Language', value: customerLanguage });
   if (pageHref) atAGlanceRows.push({ label: 'Page', value: pageHref, href: pageHref });
   atAGlanceRows.push({ label: 'Thread', value: threadId, href: threadHref });
 
@@ -718,6 +802,17 @@ async function sendTranscriptEmail(args: {
         )}</a>`
     )
     .join('');
+
+  const callScriptHtml = formatListHtml(callScriptPrompts);
+  const outreachDraftLabel = `Suggested outreach${customerLanguage ? ` (${customerLanguage})` : ''}`;
+  const outreachDraftBlockHtml = outreachMessage
+    ? `<div style="margin:0 0 12px">
+        <div style="font-size:13px;font-weight:700;margin:0 0 6px">${escapeHtml(outreachDraftLabel)}</div>
+        <pre style="margin:0;padding:12px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;white-space:pre-wrap;word-break:break-word;font-size:13px;line-height:1.4">${escapeHtml(
+          outreachMessage
+        )}</pre>
+      </div>`
+    : '';
 
   const transcriptHtml = transcript
     .map((line) => {
@@ -763,6 +858,12 @@ async function sendTranscriptEmail(args: {
                 <div>${quickActionsHtml || '<span style="color:#6b7280;font-size:13px">No actions available.</span>'}</div>
               </td>
             </tr>
+            <tr>
+              <td style="padding:18px 22px;border-top:1px solid #e5e7eb">
+                <div style="font-size:14px;font-weight:700;margin:0 0 10px">Call script (3 prompts)</div>
+                ${callScriptHtml}
+              </td>
+            </tr>
             ${
               leadSummary
                 ? `<tr>
@@ -796,6 +897,7 @@ async function sendTranscriptEmail(args: {
               <td style="padding:18px 22px;border-top:1px solid #e5e7eb">
                 <div style="font-size:14px;font-weight:700;margin:0 0 10px">Copy/paste drafts</div>
                 <div style="font-size:12px;color:#6b7280;margin:0 0 10px">Edit as needed before sending.</div>
+                ${outreachDraftBlockHtml}
                 <div style="margin:0 0 12px">
                   <div style="font-size:13px;font-weight:700;margin:0 0 6px">SMS draft</div>
                   <pre style="margin:0;padding:12px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;white-space:pre-wrap;word-break:break-word;font-size:13px;line-height:1.4">${escapeHtml(
