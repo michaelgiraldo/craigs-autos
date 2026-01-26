@@ -76,6 +76,8 @@ type LeadSummary = {
   vehicle: string | null;
   project: string | null;
   timeline: string | null;
+  handoff_ready: boolean;
+  handoff_reason: string;
   summary: string;
   next_steps: string[];
   follow_up_questions: string[];
@@ -160,6 +162,8 @@ function sanitizeLeadSummary(input: any): LeadSummary | null {
 
   const customerEmail = pickStringOrNull(input.customer_email);
   const customerPhone = pickStringOrNull(input.customer_phone);
+  const handoffReady = typeof input.handoff_ready === 'boolean' ? input.handoff_ready : false;
+  const handoffReason = typeof input.handoff_reason === 'string' ? input.handoff_reason.trim() : '';
 
   return {
     customer_name: pickStringOrNull(input.customer_name),
@@ -169,6 +173,8 @@ function sanitizeLeadSummary(input: any): LeadSummary | null {
     vehicle: pickStringOrNull(input.vehicle),
     project: pickStringOrNull(input.project),
     timeline: pickStringOrNull(input.timeline),
+    handoff_ready: handoffReady,
+    handoff_reason: handoffReason || (handoffReady ? 'handoff_ready' : 'not_ready'),
     summary: summaryText,
     next_steps: pickStringArray(input.next_steps).slice(0, 6),
     follow_up_questions: pickStringArray(input.follow_up_questions).slice(0, 6),
@@ -199,6 +205,8 @@ async function generateLeadSummary(args: {
       vehicle: { type: ['string', 'null'] },
       project: { type: ['string', 'null'] },
       timeline: { type: ['string', 'null'] },
+      handoff_ready: { type: 'boolean' },
+      handoff_reason: { type: 'string' },
       summary: { type: 'string' },
       next_steps: { type: 'array', items: { type: 'string' }, maxItems: 6 },
       follow_up_questions: { type: 'array', items: { type: 'string' }, maxItems: 6 },
@@ -212,6 +220,8 @@ async function generateLeadSummary(args: {
       'vehicle',
       'project',
       'timeline',
+      'handoff_ready',
+      'handoff_reason',
       'summary',
       'next_steps',
       'follow_up_questions',
@@ -227,6 +237,8 @@ async function generateLeadSummary(args: {
         '',
         'Rules:',
         'Only use information that is explicitly present in the transcript. If something is missing, use null (or empty lists). Do not guess.',
+        'handoff_ready should be true only when the chat is genuinely ready for a shop follow-up (contact info is present and the customer has described what they need). Otherwise set it to false.',
+        'handoff_reason should be a short reason explaining why it is or is not ready (for example: "missing_contact", "missing_project_details", "ready_for_follow_up").',
         'Write the summary and next steps in English.',
         'Do not mention prices or quotes. Do not invent shop hours or policies.',
         'Keep next_steps and follow_up_questions short and actionable (one sentence each).',
@@ -585,6 +597,21 @@ export const handler = async (event: LambdaEvent): Promise<LambdaResult> => {
       pageUrl,
       transcript: lines,
     });
+
+    const shouldSendNow =
+      reason !== 'auto' ||
+      // For automatic attempts (after each assistant response), only send once the conversation
+      // has enough context to be useful to the shop (avoids emailing too early).
+      leadSummary?.handoff_ready === true;
+
+    if (!shouldSendNow) {
+      return json(200, {
+        ok: true,
+        sent: false,
+        reason: leadSummary?.handoff_reason || 'not_ready',
+        missing_info: leadSummary?.missing_info ?? [],
+      });
+    }
 
     // If the model failed to extract contact details, fall back to simple detection from the transcript.
     const hydratedLeadSummary =
