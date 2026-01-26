@@ -18,6 +18,18 @@ frontend:
         - npm ci
     build:
       commands:
+        - |
+          echo "Deploying Amplify Gen 2 backend + generating amplify_outputs.json"
+          # Deploy/update the Amplify Gen 2 backend for this branch and write branch-specific
+          # `amplify_outputs.json` into `public/` so the site can discover backend endpoints.
+          APP_ID="${AWS_APP_ID:-d3du4u03f75wsu}"
+          BRANCH="${AWS_BRANCH:-main}"
+          NODE_OPTIONS="--localstorage-file=$HOME/.node-localstorage" npx ampx pipeline-deploy \
+            --app-id "$APP_ID" \
+            --branch "$BRANCH" \
+            --outputs-out-dir public \
+            --outputs-format json \
+            --outputs-version 1.4
         - npm run build
   artifacts:
     baseDirectory: dist

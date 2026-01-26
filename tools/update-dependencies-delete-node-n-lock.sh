@@ -3,8 +3,8 @@
 set -eu
 setopt pipefail extended_glob null_glob glob_dots
 
-# Update all package.json files (ignoring generated directories like node_modules/dist/coverage)
-# using npm-check-updates, then run npm install in each directory.
+# Update package.json deps across the repo via npm-check-updates, refresh lockfiles,
+# and verify `npm ci` can run (dry-run) so CI/Amplify won't fail.
 
 readonly SCRIPT_PATH=${(%):-%N}
 readonly SCRIPT_DIR=${SCRIPT_PATH:A:h}
@@ -30,16 +30,17 @@ typeset filtered=()
 for pkg in ${packages[@]}; do
   rel=${pkg#./}
   case $rel in
-    (.git/*|.hg/*|.svn/*)
-      continue
-      ;;
-    (.cache/*|.pnpm-store/*|.venv/*)
-      continue
-      ;;
+    (.git/*|.hg/*|.svn/*) continue ;;
     (node_modules/*|*/node_modules/*)
       continue
       ;;
     (dist/*|*/dist/*)
+      continue
+      ;;
+    (.astro/*|*/.astro/*)
+      continue
+      ;;
+    (.amplify/*|*/.amplify/*)
       continue
       ;;
     (cdk.out/*|*/cdk.out/*)
@@ -48,22 +49,7 @@ for pkg in ${packages[@]}; do
     (coverage/*|*/coverage/*)
       continue
       ;;
-    (reports/*|*/reports/*)
-      continue
-      ;;
-    (tmp/*|*/tmp/*|temp/*|*/temp/*)
-      continue
-      ;;
-    (playground/*|*/playground/*)
-      continue
-      ;;
-    (external_fixtures/*|*/external_fixtures/*)
-      continue
-      ;;
-    (docs/file-cards/*|*/docs/file-cards/*)
-      continue
-      ;;
-    (vendor/*|*/vendor/*)
+    (.tmp/*|*/.tmp/*|tmp/*|*/tmp/*|temp/*|*/temp/*)
       continue
       ;;
   esac
@@ -82,9 +68,10 @@ for pkg in ${packages[@]}; do
   printf '\n=== Updating dependencies in: %s ===\n' "$dir"
   (
     cd "$dir"
-    npx npm-check-updates -u
-    rm -rf node_modules package-lock.json
-    CXXFLAGS='--std=c++20' npm install
+    npx --yes npm-check-updates -u
+    rm -f package-lock.json
+    npm install --package-lock-only --no-audit --no-fund
+    npm ci --dry-run --no-audit --no-fund
   )
 done
 

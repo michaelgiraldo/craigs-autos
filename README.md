@@ -1,46 +1,38 @@
-# Astro Starter Kit: Basics
+# Craig's Auto Upholstery website (Astro + ChatKit)
+
+Multi-locale website for Craig's Auto Upholstery, deployed on AWS Amplify. Includes a production ChatKit-powered lead intake chat that emails the shop a transcript + internal AI summary.
+
+## Key documentation
+
+- `docs/README.md`
+- `docs/chatkit/overview.md`
+
+## Local development
+
+Install deps:
 
 ```sh
-npm create astro@latest -- --template basics
+npm ci
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+Create `.env.local` at the repo root (do not commit it):
 
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src
-│   ├── assets
-│   │   └── astro.svg
-│   ├── components
-│   │   └── Welcome.astro
-│   ├── layouts
-│   │   └── Layout.astro
-│   └── pages
-│       └── index.astro
-└── package.json
+```sh
+OPENAI_API_KEY=sk-...
+CHATKIT_WORKFLOW_ID=wf_...
 ```
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
+Run the site + a local ChatKit session endpoint:
 
-## 🧞 Commands
+```sh
+npm run dev:local
+```
 
-All commands are run from the root of the project, from a terminal:
+Then open:
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+- `http://localhost:4321/en/`
 
-## 👀 Want to learn more?
+## Deployment
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+- AWS Amplify is connected to branches; commit + push triggers deploy.
+- ChatKit workflow edits in OpenAI Agent Builder apply immediately (the site references a `wf_...` id), no deploy required.
