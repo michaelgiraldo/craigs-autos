@@ -4,7 +4,7 @@ This file is a long-lived reference for future developers (and coding agents)
 working in this repo. It documents "what exists", how to run it, and where to
 make changes safely.
 
-This is the canonical copy. `AGENT.md` exists only as a short pointer.
+This is the canonical copy.
 
 If you are new here, start with:
 
