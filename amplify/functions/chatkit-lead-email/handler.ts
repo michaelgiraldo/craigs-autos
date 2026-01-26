@@ -274,6 +274,38 @@ function escapeHtml(value: string): string {
     .replace(/'/g, '&#39;');
 }
 
+function safeHttpUrl(value: string): string | null {
+  try {
+    const url = new URL(value);
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') return null;
+    return url.toString();
+  } catch {
+    return null;
+  }
+}
+
+function phoneToTelHref(value: string): string | null {
+  const digits = value.replace(/[^\d]/g, '');
+  if (digits.length < 7 || digits.length > 15) return null;
+  if (digits.length === 10) return `tel:+1${digits}`;
+  if (digits.length === 11 && digits.startsWith('1')) return `tel:+${digits}`;
+  return `tel:+${digits}`;
+}
+
+function phoneToSmsHref(value: string): string | null {
+  const digits = value.replace(/[^\d]/g, '');
+  if (digits.length < 7 || digits.length > 15) return null;
+  if (digits.length === 10) return `sms:+1${digits}`;
+  if (digits.length === 11 && digits.startsWith('1')) return `sms:+${digits}`;
+  return `sms:+${digits}`;
+}
+
+function emailToMailto(value: string): string | null {
+  const email = value.trim();
+  if (!isPlausibleEmail(email)) return null;
+  return `mailto:${encodeURIComponent(email)}`;
+}
+
 function formatListText(items: string[], prefix = '- '): string {
   return items.map((item) => `${prefix}${item}`).join('\n');
 }
@@ -542,6 +574,16 @@ async function sendTranscriptEmail(args: {
 }): Promise<string | null> {
   const { threadId, locale, pageUrl, chatUser, threadTitle, transcript, leadSummary } = args;
 
+  const detectedContact = extractCustomerContact(transcript);
+  const customerPhone = leadSummary?.customer_phone ?? detectedContact.phone;
+  const customerEmail = leadSummary?.customer_email ?? detectedContact.email;
+  const customerTelHref = customerPhone ? phoneToTelHref(customerPhone) : null;
+  const customerSmsHref = customerPhone ? phoneToSmsHref(customerPhone) : null;
+  const customerMailHref = customerEmail ? emailToMailto(customerEmail) : null;
+
+  const pageHref = pageUrl ? safeHttpUrl(pageUrl) : null;
+  const threadHref = `https://platform.openai.com/logs/${encodeURIComponent(threadId)}`;
+
   const subjectContext = [leadSummary?.vehicle, leadSummary?.project]
     .filter((value) => typeof value === 'string' && value.trim())
     .join(' - ');
@@ -557,8 +599,8 @@ async function sendTranscriptEmail(args: {
   if (leadSummary) {
     introLines.push('At a glance');
     introLines.push(`Customer: ${leadSummary.customer_name ?? ''}`.trim());
-    introLines.push(`Phone: ${leadSummary.customer_phone ?? ''}`.trim());
-    introLines.push(`Email: ${leadSummary.customer_email ?? ''}`.trim());
+    introLines.push(`Phone: ${customerPhone ?? ''}`.trim());
+    introLines.push(`Email: ${customerEmail ?? ''}`.trim());
     introLines.push(`Location: ${leadSummary.customer_location ?? ''}`.trim());
     introLines.push(`Vehicle: ${leadSummary.vehicle ?? ''}`.trim());
     introLines.push(`Project: ${leadSummary.project ?? ''}`.trim());
@@ -585,10 +627,45 @@ async function sendTranscriptEmail(args: {
   }
 
   introLines.push(`Thread: ${threadId}`);
+  introLines.push(`OpenAI logs: ${threadHref}`);
   introLines.push(`Chat user: ${chatUser}`);
   if (locale) introLines.push(`Locale: ${locale}`);
-  if (pageUrl) introLines.push(`Page: ${pageUrl}`);
+  if (pageHref) introLines.push(`Page: ${pageHref}`);
   introLines.push('');
+
+  if (customerTelHref || customerSmsHref || customerMailHref) {
+    introLines.push('Quick actions');
+    if (customerTelHref) introLines.push(`Call: ${customerTelHref}`);
+    if (customerSmsHref) introLines.push(`Text: ${customerSmsHref}`);
+    if (customerMailHref) introLines.push(`Email: ${customerMailHref}`);
+    introLines.push('');
+  }
+
+  const contactName = leadSummary?.customer_name?.trim() ? leadSummary.customer_name.trim() : 'there';
+  const vehicleOrProject = [leadSummary?.vehicle, leadSummary?.project]
+    .filter((value) => typeof value === 'string' && value.trim())
+    .join(' - ');
+  const contextSnippet = vehicleOrProject ? ` about your ${vehicleOrProject}` : '';
+
+  const smsDraft = normalizeWhitespace(
+    `Hi ${contactName} - thanks for reaching out to Craig's Auto Upholstery${contextSnippet}. If you can text 2-4 photos (1 wide + 1-2 close-ups), we can take a proper look and follow up with next steps. (408) 379-3820`
+  );
+
+  const emailDraftSubject = vehicleOrProject
+    ? `Craig's Auto Upholstery - next steps for ${vehicleOrProject}`
+    : `Craig's Auto Upholstery - next steps`;
+  const emailDraftBody = normalizeWhitespace(
+    `Hi ${contactName},\n\nThanks for reaching out to Craig's Auto Upholstery${contextSnippet}.\n\nIf you can reply with 2-4 photos (1 wide + 1-2 close-ups), we can take a proper look and follow up with next steps. If matching material/color matters, include a photo of the \"good\" area too.\n\nCraig's Auto Upholstery\n(408) 379-3820\n271 Bestor St, San Jose, CA 95112`
+  );
+
+  introLines.push('Copy/paste drafts');
+  introLines.push(`SMS draft:\n${smsDraft}`);
+  introLines.push('');
+  introLines.push(`Email subject:\n${emailDraftSubject}`);
+  introLines.push('');
+  introLines.push(`Email draft:\n${emailDraftBody}`);
+  introLines.push('');
+
   introLines.push('Transcript:');
   introLines.push('');
 
@@ -599,24 +676,46 @@ async function sendTranscriptEmail(args: {
 
   const bodyText = [...introLines, ...transcriptLines].join('\n\n');
 
-  const htmlAtAGlanceRows = [
-    ['Customer', leadSummary?.customer_name],
-    ['Phone', leadSummary?.customer_phone],
-    ['Email', leadSummary?.customer_email],
-    ['Location', leadSummary?.customer_location],
-    ['Vehicle', leadSummary?.vehicle],
-    ['Project', leadSummary?.project],
-    ['Timeline', leadSummary?.timeline],
-    ['Locale', locale || null],
-    ['Page', pageUrl || null],
-    ['Thread', threadId],
-  ]
-    .filter(([, value]) => typeof value === 'string' && value.trim())
+  const atAGlanceRows: Array<{ label: string; value: string; href?: string | null }> = [];
+  if (leadSummary?.customer_name) atAGlanceRows.push({ label: 'Customer', value: leadSummary.customer_name });
+  if (customerPhone) atAGlanceRows.push({ label: 'Phone', value: customerPhone, href: customerTelHref });
+  if (customerEmail) atAGlanceRows.push({ label: 'Email', value: customerEmail, href: customerMailHref });
+  if (leadSummary?.customer_location) atAGlanceRows.push({ label: 'Location', value: leadSummary.customer_location });
+  if (leadSummary?.vehicle) atAGlanceRows.push({ label: 'Vehicle', value: leadSummary.vehicle });
+  if (leadSummary?.project) atAGlanceRows.push({ label: 'Project', value: leadSummary.project });
+  if (leadSummary?.timeline) atAGlanceRows.push({ label: 'Timeline', value: leadSummary.timeline });
+  if (locale) atAGlanceRows.push({ label: 'Locale', value: locale });
+  if (pageHref) atAGlanceRows.push({ label: 'Page', value: pageHref, href: pageHref });
+  atAGlanceRows.push({ label: 'Thread', value: threadId, href: threadHref });
+
+  const htmlAtAGlanceRows = atAGlanceRows
+    .map(({ label, value, href }) => {
+      const labelCell = `<td style="padding:6px 0;color:#6b7280;vertical-align:top;width:140px">${escapeHtml(
+        label
+      )}</td>`;
+      const valueHtml = href
+        ? `<a href="${escapeHtml(String(href))}" style="color:#141cff;text-decoration:none">${escapeHtml(
+            value
+          )}</a>`
+        : escapeHtml(value);
+      const valueCell = `<td style="padding:6px 0;color:#111827">${valueHtml}</td>`;
+      return `<tr>${labelCell}${valueCell}</tr>`;
+    })
+    .join('');
+
+  const quickActions: Array<{ label: string; href: string }> = [];
+  if (customerTelHref) quickActions.push({ label: 'Call customer', href: customerTelHref });
+  if (customerSmsHref) quickActions.push({ label: 'Text customer', href: customerSmsHref });
+  if (customerMailHref) quickActions.push({ label: 'Email customer', href: customerMailHref });
+  if (pageHref) quickActions.push({ label: 'Open page', href: pageHref });
+  quickActions.push({ label: 'OpenAI logs', href: threadHref });
+
+  const quickActionsHtml = quickActions
     .map(
-      ([label, value]) =>
-        `<tr><td style="padding:6px 0;color:#6b7280;vertical-align:top;width:140px">${escapeHtml(
-          String(label)
-        )}</td><td style="padding:6px 0;color:#111827">${escapeHtml(String(value))}</td></tr>`
+      (action) =>
+        `<a href="${escapeHtml(action.href)}" style="display:inline-block;margin:0 10px 10px 0;padding:10px 14px;border:1px solid #e5e7eb;border-radius:999px;background:#f9fafb;color:#111827;text-decoration:none;font-size:13px;line-height:1">${escapeHtml(
+          action.label
+        )}</a>`
     )
     .join('');
 
@@ -658,6 +757,12 @@ async function sendTranscriptEmail(args: {
                 </table>
               </td>
             </tr>
+            <tr>
+              <td style="padding:0 22px 18px">
+                <div style="font-size:14px;font-weight:700;margin:0 0 10px">Quick actions</div>
+                <div>${quickActionsHtml || '<span style="color:#6b7280;font-size:13px">No actions available.</span>'}</div>
+              </td>
+            </tr>
             ${
               leadSummary
                 ? `<tr>
@@ -687,6 +792,30 @@ async function sendTranscriptEmail(args: {
             </tr>`
                 : ''
             }
+            <tr>
+              <td style="padding:18px 22px;border-top:1px solid #e5e7eb">
+                <div style="font-size:14px;font-weight:700;margin:0 0 10px">Copy/paste drafts</div>
+                <div style="font-size:12px;color:#6b7280;margin:0 0 10px">Edit as needed before sending.</div>
+                <div style="margin:0 0 12px">
+                  <div style="font-size:13px;font-weight:700;margin:0 0 6px">SMS draft</div>
+                  <pre style="margin:0;padding:12px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;white-space:pre-wrap;word-break:break-word;font-size:13px;line-height:1.4">${escapeHtml(
+                    smsDraft
+                  )}</pre>
+                </div>
+                <div style="margin:0 0 12px">
+                  <div style="font-size:13px;font-weight:700;margin:0 0 6px">Email subject</div>
+                  <pre style="margin:0;padding:12px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;white-space:pre-wrap;word-break:break-word;font-size:13px;line-height:1.4">${escapeHtml(
+                    emailDraftSubject
+                  )}</pre>
+                </div>
+                <div>
+                  <div style="font-size:13px;font-weight:700;margin:0 0 6px">Email draft</div>
+                  <pre style="margin:0;padding:12px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;white-space:pre-wrap;word-break:break-word;font-size:13px;line-height:1.4">${escapeHtml(
+                    emailDraftBody
+                  )}</pre>
+                </div>
+              </td>
+            </tr>
             <tr>
               <td style="padding:18px 22px;border-top:1px solid #e5e7eb">
                 <div style="font-size:14px;font-weight:700;margin:0 0 10px">Transcript</div>
