@@ -190,9 +190,6 @@ export const handler = async (event: LambdaEvent): Promise<LambdaResult> => {
       user,
       workflow: {
         id: workflowId,
-        // Disable workflow tracing so end users don't see "Thought for ..." task items.
-        // (You can re-enable tracing during debugging if you want richer traces in the dashboard.)
-        tracing: { enabled: false },
         state_variables: {
           locale,
           page_url: pageUrl,

@@ -159,8 +159,6 @@ const server = http.createServer(async (req, res) => {
           user,
           workflow: {
             id: workflowId,
-            // Keep parity with production: don't emit "Thought for ..." task items.
-            tracing: { enabled: false },
             state_variables: {
               locale,
               page_url: pageUrl,
