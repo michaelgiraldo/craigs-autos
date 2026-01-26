@@ -175,6 +175,12 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    if ((url.pathname === '/api/chatkit/lead' || url.pathname === '/api/chatkit/lead/') && req.method === 'POST') {
+      // Local dev helper: accept the request so the UI can be exercised without SES.
+      json(res, 200, { ok: true, sent: false, reason: 'dev_noop' });
+      return;
+    }
+
     json(res, 404, { error: 'Not found' });
   } catch (err) {
     console.error(err);

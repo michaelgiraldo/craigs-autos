@@ -80,6 +80,7 @@ const CHATKIT_LOCALE_MAP = {
 const THREAD_STORAGE_KEY = 'chatkit-thread-id';
 const USER_KEY = 'chatkit-user-id';
 const OPEN_KEY = 'chatkit-open';
+const LEAD_SENT_KEY_PREFIX = 'chatkit-lead-sent:';
 const AMPLIFY_OUTPUTS_PATH = '/amplify_outputs.json';
 
 let chatkitRuntimePromise = null;
@@ -194,7 +195,11 @@ function isPlaceholderUrl(value) {
   return typeof value === 'string' && value.includes('<your-backend>');
 }
 
-export default function ChatWidgetReact({ locale = 'en', sessionUrl = '/api/chatkit/session/' }) {
+export default function ChatWidgetReact({
+  locale = 'en',
+  sessionUrl = '/api/chatkit/session/',
+  leadEmailUrl = '/api/chatkit/lead/',
+}) {
   const copy = CHAT_COPY[locale] ?? CHAT_COPY.en;
   const chatkitLocale = CHATKIT_LOCALE_MAP[locale] ?? 'en';
   const dir = locale === 'ar' ? 'rtl' : 'ltr';
@@ -203,6 +208,7 @@ export default function ChatWidgetReact({ locale = 'en', sessionUrl = '/api/chat
   const [userId, setUserId] = React.useState(null);
   const [threadId, setThreadId] = React.useState(null);
   const [resolvedSessionUrl, setResolvedSessionUrl] = React.useState(sessionUrl);
+  const [resolvedLeadEmailUrl, setResolvedLeadEmailUrl] = React.useState(leadEmailUrl);
   const [chatMountId, setChatMountId] = React.useState(0);
   const [chatkitReady, setChatkitReady] = React.useState(false);
   const [runtimeReady, setRuntimeReady] = React.useState(false);
@@ -223,6 +229,10 @@ export default function ChatWidgetReact({ locale = 'en', sessionUrl = '/api/chat
   }, [sessionUrl]);
 
   React.useEffect(() => {
+    setResolvedLeadEmailUrl(leadEmailUrl);
+  }, [leadEmailUrl]);
+
+  React.useEffect(() => {
     // In production, prefer the backend URL from Amplify outputs when available.
     // This avoids hard-coding a session endpoint URL per branch.
     if (isDev) return;
@@ -230,7 +240,10 @@ export default function ChatWidgetReact({ locale = 'en', sessionUrl = '/api/chat
     const shouldTryOutputs =
       typeof sessionUrl !== 'string' ||
       isPlaceholderUrl(sessionUrl) ||
-      sessionUrl.startsWith('/');
+      sessionUrl.startsWith('/') ||
+      typeof leadEmailUrl !== 'string' ||
+      isPlaceholderUrl(leadEmailUrl) ||
+      leadEmailUrl.startsWith('/');
 
     if (!shouldTryOutputs) return;
 
@@ -240,9 +253,13 @@ export default function ChatWidgetReact({ locale = 'en', sessionUrl = '/api/chat
         const response = await fetch(AMPLIFY_OUTPUTS_PATH, { cache: 'no-store' });
         if (!response.ok) return;
         const data = await response.json();
-        const candidate = data?.custom?.chatkit_session_url;
-        if (!cancelled && typeof candidate === 'string' && candidate.trim()) {
-          setResolvedSessionUrl(candidate.trim());
+        const sessionCandidate = data?.custom?.chatkit_session_url;
+        if (!cancelled && typeof sessionCandidate === 'string' && sessionCandidate.trim()) {
+          setResolvedSessionUrl(sessionCandidate.trim());
+        }
+        const leadCandidate = data?.custom?.chatkit_lead_email_url;
+        if (!cancelled && typeof leadCandidate === 'string' && leadCandidate.trim()) {
+          setResolvedLeadEmailUrl(leadCandidate.trim());
         }
       } catch (err) {
         // Ignore; we'll fall back to the configured URL and let the UI surface errors.
@@ -253,7 +270,7 @@ export default function ChatWidgetReact({ locale = 'en', sessionUrl = '/api/chat
     return () => {
       cancelled = true;
     };
-  }, [isDev, sessionUrl]);
+  }, [isDev, leadEmailUrl, sessionUrl]);
 
   React.useEffect(() => {
     let cancelled = false;
@@ -291,7 +308,69 @@ export default function ChatWidgetReact({ locale = 'en', sessionUrl = '/api/chat
     return () => document.removeEventListener('keydown', onKeyDown);
   }, []);
 
-  const closeChat = React.useCallback(() => setOpen(false), []);
+  const sendLeadEmail = React.useCallback(
+    async ({ reason = 'chat_closed' } = {}) => {
+      const activeThreadId = threadId;
+      if (!activeThreadId) return;
+      if (typeof resolvedLeadEmailUrl !== 'string' || !resolvedLeadEmailUrl.trim()) return;
+      if (isPlaceholderUrl(resolvedLeadEmailUrl)) return;
+
+      let endpoint = resolvedLeadEmailUrl.trim();
+      if (!isDev && endpoint.startsWith('/')) {
+        try {
+          const outputsRes = await fetch(AMPLIFY_OUTPUTS_PATH, { cache: 'no-store' });
+          if (outputsRes.ok) {
+            const outputs = await outputsRes.json();
+            const candidate = outputs?.custom?.chatkit_lead_email_url;
+            if (typeof candidate === 'string' && candidate.trim()) {
+              endpoint = candidate.trim();
+              setResolvedLeadEmailUrl(endpoint);
+            }
+          }
+        } catch {
+          // Ignore and fall back to the configured endpoint.
+        }
+      }
+      if (endpoint.startsWith('/')) return;
+
+      const sentKey = `${LEAD_SENT_KEY_PREFIX}${activeThreadId}`;
+      if (globalThis.localStorage?.getItem(sentKey) === 'true') return;
+
+      try {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          keepalive: true,
+          body: JSON.stringify({
+            threadId: activeThreadId,
+            locale,
+            user: userId ?? 'anonymous',
+            pageUrl: window.location.href,
+            reason,
+          }),
+        });
+
+        const text = await response.text();
+        if (!response.ok) {
+          if (isDev) console.error('ChatKit lead email error', response.status, text);
+          return;
+        }
+
+        const data = text ? JSON.parse(text) : {};
+        if (data?.sent === true) {
+          globalThis.localStorage?.setItem(sentKey, 'true');
+        }
+      } catch (err) {
+        if (isDev) console.error('ChatKit lead email request failed', err);
+      }
+    },
+    [isDev, locale, resolvedLeadEmailUrl, threadId, userId]
+  );
+
+  const closeChat = React.useCallback(() => {
+    setOpen(false);
+    void sendLeadEmail({ reason: 'chat_closed' });
+  }, [sendLeadEmail]);
 
   const startNewChat = React.useCallback(() => {
     sessionStorage.removeItem(THREAD_STORAGE_KEY);
@@ -324,6 +403,10 @@ export default function ChatWidgetReact({ locale = 'en', sessionUrl = '/api/chat
                 if (typeof candidate === 'string' && candidate.trim()) {
                   endpoint = candidate.trim();
                   setResolvedSessionUrl(endpoint);
+                }
+                const leadCandidate = outputs?.custom?.chatkit_lead_email_url;
+                if (typeof leadCandidate === 'string' && leadCandidate.trim()) {
+                  setResolvedLeadEmailUrl(leadCandidate.trim());
                 }
               }
             } catch {
