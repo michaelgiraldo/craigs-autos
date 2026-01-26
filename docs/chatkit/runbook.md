@@ -221,14 +221,16 @@ Checks (in order):
 Common causes:
 
 - Contact info was never captured (backend requires phone or email in CUSTOMER messages).
-- For `reason: "auto"`, the summary might not be `handoff_ready` yet.
+- Lead email was sent before the customer provided later details (snapshot timing).
 - SES sender not verified, or SES sandbox restrictions.
 - Lambda errors (OpenAI API failures, parsing failures).
 
 Notes on "handoff_ready":
 
-- `reason: "auto"` sends only when `handoff_ready === true` to prevent early emails.
-- `reason: "idle"`, `reason: "pagehide"`, `reason: "chat_closed"` send once contact exists.
+- `handoff_ready` is produced by the summary model as a convenience field.
+- Current send triggers are `idle`, `pagehide`, and `chat_closed` (once contact exists).
+- If you see `last_reason = "auto"` in DynamoDB, you're likely looking at an older deployment
+  (see `docs/chatkit/lead-email-before-after.md`).
 
 ## Scenario D: Duplicate lead emails
 
@@ -293,4 +295,3 @@ Agent behavior issues:
 
 - Confirm lease/cooldown values still prevent duplicate sends and retry storms.
 - Test pagehide/idle triggers (they can fire multiple times).
-

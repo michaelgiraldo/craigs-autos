@@ -152,19 +152,16 @@ The goal is to send the transcript automatically once the chat becomes actionabl
 
 Triggers implemented in `src/components/ChatWidgetReact.jsx`:
 
-1) `reason: "auto"` (primary)
-   - Sent after each assistant response (`onResponseEnd`).
-   - Backend only sends when the chat is "handoff_ready" (prevents early emails).
+1) `reason: "idle"` (primary)
+   - After ~120 seconds without in-chat activity while the chat is open.
+   - The timer resets on in-chat activity (typing, clicks/taps, focus changes) so we
+     don't send while the customer is actively using the chat.
 
-2) `reason: "idle"`
-   - After 90 seconds of idle time while the chat is open.
-   - Helps catch "abandoned chat" where the user gave contact info and left.
-
-3) `reason: "pagehide"`
+2) `reason: "pagehide"`
    - On tab hide/unload.
    - Uses `fetch(..., { keepalive: true })` to try to send during navigation.
 
-4) `reason: "chat_closed"`
+3) `reason: "chat_closed"`
    - When the user closes the chat panel.
    - Still not required (the other triggers are the primary path).
 
@@ -227,7 +224,7 @@ If you change layout/styling:
 2) Reuse known-good `icon` ids; invalid icons break the widget.
 3) Verify the ChatKit UI loads (you see a composer input).
 
-### Change triggers (idle/pagehide/auto)
+### Change triggers (idle/pagehide/close)
 
 1) Update the timing constant in `src/components/ChatWidgetReact.jsx`:
    - `IDLE_LEAD_SEND_MS`
@@ -271,4 +268,3 @@ Check:
 - CORS allows the current origin.
 
 For backend debugging steps, see `docs/chatkit/runbook.md`.
-

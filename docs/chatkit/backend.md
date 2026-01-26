@@ -183,8 +183,9 @@ Implementation:
      - call script prompts (3)
      - customer language + outreach message in that language
 7) Decide whether to send now:
-   - `reason: "auto"` only sends when `handoff_ready === true`
-   - other reasons send once contact exists (to catch abandoned chats)
+   - Current triggers (`idle`, `pagehide`, `chat_closed`) send once contact exists.
+   - We intentionally avoid "send after every assistant response" because it can
+     snapshot the thread mid-conversation (see `docs/chatkit/lead-email-before-after.md`).
 8) Acquire send lease in DynamoDB (threadId-keyed)
 9) Send email via SES (HTML + text)
 10) Mark DynamoDB record as `sent` (or `error` with cooldown)
@@ -194,7 +195,6 @@ Implementation:
 Idempotency is required because the frontend can call the lead-email endpoint
 multiple times:
 
-- after every assistant response
 - after idle
 - on tab hide/unload
 - on manual close
@@ -341,8 +341,9 @@ This is mostly controlled by the summary prompt + schema rules.
 1) Update the instructions inside `generateLeadSummary(...)`.
 2) Deploy.
 3) Test:
-   - Early messages should not email the shop on `reason: "auto"`.
-   - Once contact + project exists, it should email.
+   - The summary should only mark `handoff_ready = true` when contact + project is present.
+   - If you later add a server-side "idle readiness gate", use `handoff_ready` (or a
+     stricter checklist) to avoid emailing incomplete leads.
 
 ## Security and privacy notes (backend)
 
