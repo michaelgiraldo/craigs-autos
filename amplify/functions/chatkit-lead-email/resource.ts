@@ -9,6 +9,7 @@ export const chatkitLeadEmail = defineFunction({
     // Defaults can be overridden later if you want to route leads differently.
     LEAD_TO_EMAIL: 'victor@craigs.autos',
     LEAD_FROM_EMAIL: 'victor@craigs.autos',
+    // Used to generate a concise internal summary + next steps for the shop.
+    LEAD_SUMMARY_MODEL: 'gpt-4.1-mini',
   },
 });
-
