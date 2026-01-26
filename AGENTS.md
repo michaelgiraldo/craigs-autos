@@ -4,6 +4,8 @@ This file is a long-lived reference for future developers (and coding agents)
 working in this repo. It documents "what exists", how to run it, and where to
 make changes safely.
 
+This is the canonical copy. `AGENT.md` exists only as a short pointer.
+
 If you are new here, start with:
 
 - `docs/README.md`
@@ -196,4 +198,3 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
 - Amplify deploys are triggered by commit + push to a connected branch.
 - Agent Builder workflow changes apply immediately (if `CHATKIT_WORKFLOW_ID` stays the same).
 - Prefer small, reviewable commits for infra/backend changes.
-
