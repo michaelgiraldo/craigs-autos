@@ -935,13 +935,16 @@ async function sendTranscriptEmail(args: {
        </ul>`
     : '';
 
-  // Render transcript as a single block (instead of per-line divs) to keep email HTML
-  // small enough that Gmail won't clip it for longer conversations.
-  const transcriptPlain = transcriptLines
-    .map((line) => (typeof line === 'string' ? line : ''))
-    .filter(Boolean)
-    .join('\n\n');
-  const transcriptHtml = linkifyTextToHtml(transcriptPlain);
+  // Render the transcript in a "per message" layout, but keep the HTML lightweight so
+  // long conversations still render reliably in common email clients.
+  const transcriptHtml = transcript
+    .map((line) => {
+      const when = formatTimestamp(line.created_at);
+      return `[${escapeHtml(when)}] <strong>${escapeHtml(
+        line.speaker
+      )}:</strong> ${linkifyTextToHtml(line.text)}`;
+    })
+    .join('<br/><br/>');
 
   const html = `<!doctype html>
 <html lang="en">
