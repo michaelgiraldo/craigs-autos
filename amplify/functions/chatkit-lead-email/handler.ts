@@ -1,8 +1,17 @@
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { DynamoDBDocumentClient, GetCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
+import { randomUUID } from 'node:crypto';
 import OpenAI from 'openai';
 
 const apiKey = process.env.OPENAI_API_KEY;
 const openai = apiKey ? new OpenAI({ apiKey }) : null;
+
+const leadDedupeTableName = process.env.LEAD_DEDUPE_TABLE_NAME;
+const leadDedupeDb =
+  leadDedupeTableName && leadDedupeTableName.trim()
+    ? DynamoDBDocumentClient.from(new DynamoDBClient({}))
+    : null;
 
 const leadToEmail = process.env.LEAD_TO_EMAIL ?? 'victor@craigs.autos';
 const leadFromEmail = process.env.LEAD_FROM_EMAIL ?? 'victor@craigs.autos';
@@ -83,6 +92,174 @@ type LeadSummary = {
   follow_up_questions: string[];
   missing_info: string[];
 };
+
+type LeadDedupeStatus = 'sending' | 'sent' | 'error';
+
+type LeadDedupeRecord = {
+  thread_id: string;
+  status: LeadDedupeStatus;
+  lock_expires_at?: number;
+  lease_id?: string;
+  created_at?: number;
+  updated_at?: number;
+  attempts?: number;
+  sent_at?: number;
+  message_id?: string;
+  last_reason?: string;
+  last_error?: string;
+  ttl?: number;
+};
+
+const LEAD_DEDUPE_LEASE_SECONDS = 120;
+const LEAD_DEDUPE_ERROR_COOLDOWN_SECONDS = 60;
+const LEAD_DEDUPE_TTL_DAYS = 30;
+
+function nowEpochSeconds(): number {
+  return Math.floor(Date.now() / 1000);
+}
+
+function ttlSecondsFromNow(days: number): number {
+  return nowEpochSeconds() + days * 24 * 60 * 60;
+}
+
+function sanitizeLeadDedupeRecord(item: any): LeadDedupeRecord | null {
+  if (!item || typeof item !== 'object') return null;
+  const thread_id = typeof item.thread_id === 'string' ? item.thread_id : '';
+  const status = item.status as LeadDedupeStatus;
+  if (!thread_id) return null;
+  if (status !== 'sending' && status !== 'sent' && status !== 'error') return null;
+  return item as LeadDedupeRecord;
+}
+
+async function getLeadDedupeRecord(threadId: string): Promise<LeadDedupeRecord | null> {
+  if (!leadDedupeDb || !leadDedupeTableName) return null;
+  const result = await leadDedupeDb.send(
+    new GetCommand({
+      TableName: leadDedupeTableName,
+      Key: { thread_id: threadId },
+    })
+  );
+  return sanitizeLeadDedupeRecord(result.Item);
+}
+
+async function acquireLeadSendLease(args: {
+  threadId: string;
+  reason: string;
+}): Promise<{ acquired: true; leaseId: string } | { acquired: false; record: LeadDedupeRecord | null }> {
+  if (!leadDedupeDb || !leadDedupeTableName) {
+    // No table configured (e.g., local dev) => allow sending but without cross-device idempotency.
+    return { acquired: true, leaseId: randomUUID() };
+  }
+
+  const now = nowEpochSeconds();
+  const leaseId = randomUUID();
+  const ttl = ttlSecondsFromNow(LEAD_DEDUPE_TTL_DAYS);
+
+  try {
+    await leadDedupeDb.send(
+      new UpdateCommand({
+        TableName: leadDedupeTableName,
+        Key: { thread_id: args.threadId },
+        UpdateExpression:
+          'SET #status = :sending, #lease_id = :lease_id, #lock_expires_at = :lock_expires_at, #updated_at = :now, #created_at = if_not_exists(#created_at, :now), #last_reason = :reason, #ttl = :ttl, #attempts = if_not_exists(#attempts, :zero) + :one',
+        ExpressionAttributeNames: {
+          '#status': 'status',
+          '#lease_id': 'lease_id',
+          '#lock_expires_at': 'lock_expires_at',
+          '#created_at': 'created_at',
+          '#updated_at': 'updated_at',
+          '#last_reason': 'last_reason',
+          '#ttl': 'ttl',
+          '#attempts': 'attempts',
+        },
+        ExpressionAttributeValues: {
+          ':sending': 'sending',
+          ':sent': 'sent',
+          ':lease_id': leaseId,
+          ':lock_expires_at': now + LEAD_DEDUPE_LEASE_SECONDS,
+          ':now': now,
+          ':reason': args.reason,
+          ':ttl': ttl,
+          ':zero': 0,
+          ':one': 1,
+        },
+        ConditionExpression:
+          'attribute_not_exists(thread_id) OR (#status <> :sent AND (attribute_not_exists(#lock_expires_at) OR #lock_expires_at < :now))',
+      })
+    );
+    return { acquired: true, leaseId };
+  } catch (err: any) {
+    if (err?.name === 'ConditionalCheckFailedException') {
+      const record = await getLeadDedupeRecord(args.threadId);
+      return { acquired: false, record };
+    }
+    throw err;
+  }
+}
+
+async function markLeadSent(args: { threadId: string; leaseId: string; messageId?: string | null }) {
+  if (!leadDedupeDb || !leadDedupeTableName) return;
+  const now = nowEpochSeconds();
+  const ttl = ttlSecondsFromNow(LEAD_DEDUPE_TTL_DAYS);
+  await leadDedupeDb.send(
+    new UpdateCommand({
+      TableName: leadDedupeTableName,
+      Key: { thread_id: args.threadId },
+      UpdateExpression:
+        'SET #status = :sent, #sent_at = :now, #updated_at = :now, #ttl = :ttl' +
+        (args.messageId ? ', #message_id = :message_id' : '') +
+        ' REMOVE #lease_id, #last_error',
+      ExpressionAttributeNames: {
+        '#status': 'status',
+        '#sent_at': 'sent_at',
+        '#updated_at': 'updated_at',
+        '#lease_id': 'lease_id',
+        '#last_error': 'last_error',
+        '#ttl': 'ttl',
+        '#message_id': 'message_id',
+      },
+      ExpressionAttributeValues: {
+        ':sent': 'sent',
+        ':now': now,
+        ':ttl': ttl,
+        ...(args.messageId ? { ':message_id': args.messageId } : {}),
+        ':lease_id': args.leaseId,
+      },
+      ConditionExpression: '#lease_id = :lease_id',
+    })
+  );
+}
+
+async function markLeadError(args: { threadId: string; leaseId: string; errorMessage: string }) {
+  if (!leadDedupeDb || !leadDedupeTableName) return;
+  const now = nowEpochSeconds();
+  const ttl = ttlSecondsFromNow(LEAD_DEDUPE_TTL_DAYS);
+  await leadDedupeDb.send(
+    new UpdateCommand({
+      TableName: leadDedupeTableName,
+      Key: { thread_id: args.threadId },
+      UpdateExpression:
+        'SET #status = :error, #updated_at = :now, #lock_expires_at = :lock_expires_at, #last_error = :last_error, #ttl = :ttl REMOVE #lease_id',
+      ExpressionAttributeNames: {
+        '#status': 'status',
+        '#updated_at': 'updated_at',
+        '#lock_expires_at': 'lock_expires_at',
+        '#last_error': 'last_error',
+        '#ttl': 'ttl',
+        '#lease_id': 'lease_id',
+      },
+      ExpressionAttributeValues: {
+        ':error': 'error',
+        ':now': now,
+        ':lock_expires_at': now + LEAD_DEDUPE_ERROR_COOLDOWN_SECONDS,
+        ':last_error': args.errorMessage.slice(0, 500),
+        ':ttl': ttl,
+        ':lease_id': args.leaseId,
+      },
+      ConditionExpression: '#lease_id = :lease_id',
+    })
+  );
+}
 
 function normalizeWhitespace(value: string): string {
   return value.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
@@ -362,7 +539,7 @@ async function sendTranscriptEmail(args: {
   threadTitle: string | null;
   transcript: TranscriptLine[];
   leadSummary: LeadSummary | null;
-}): Promise<void> {
+}): Promise<string | null> {
   const { threadId, locale, pageUrl, chatUser, threadTitle, transcript, leadSummary } = args;
 
   const subjectContext = [leadSummary?.vehicle, leadSummary?.project]
@@ -523,7 +700,7 @@ async function sendTranscriptEmail(args: {
   </body>
 </html>`;
 
-  await ses.send(
+  const result = await ses.send(
     new SendEmailCommand({
       Source: leadFromEmail,
       Destination: { ToAddresses: [leadToEmail] },
@@ -536,6 +713,7 @@ async function sendTranscriptEmail(args: {
       },
     })
   );
+  return result?.MessageId ?? null;
 }
 
 export const handler = async (event: LambdaEvent): Promise<LambdaResult> => {
@@ -578,6 +756,31 @@ export const handler = async (event: LambdaEvent): Promise<LambdaResult> => {
   const reason = typeof payload.reason === 'string' ? payload.reason : 'auto';
 
   try {
+    // Fast path: if we've already emailed this thread, don't re-fetch transcript or re-run summaries.
+    const now = nowEpochSeconds();
+    if (leadDedupeDb && leadDedupeTableName) {
+      try {
+        const record = await getLeadDedupeRecord(threadId);
+        if (record?.status === 'sent') {
+          return json(200, {
+            ok: true,
+            sent: true,
+            reason: 'already_sent',
+            sent_at: record.sent_at ?? null,
+          });
+        }
+        const lockExpiresAt = typeof record?.lock_expires_at === 'number' ? record.lock_expires_at : 0;
+        if (record?.status === 'sending' && lockExpiresAt > now) {
+          return json(200, { ok: true, sent: false, reason: 'in_progress' });
+        }
+        if (record?.status === 'error' && lockExpiresAt > now) {
+          return json(200, { ok: true, sent: false, reason: 'cooldown' });
+        }
+      } catch (err: any) {
+        console.error('Lead dedupe read failed', err?.name, err?.message);
+      }
+    }
+
     const { threadTitle, threadUser, lines } = await buildTranscript(threadId);
 
     // Avoid sending empty transcripts (e.g., user opened chat but never messaged).
@@ -623,15 +826,53 @@ export const handler = async (event: LambdaEvent): Promise<LambdaResult> => {
           }
         : leadSummary;
 
-    await sendTranscriptEmail({
-      threadId,
-      locale,
-      pageUrl,
-      chatUser: threadUser ?? chatUser,
-      threadTitle,
-      transcript: lines,
-      leadSummary: hydratedLeadSummary,
-    });
+    // Acquire a per-thread lease before sending so we never email the shop twice for the same thread,
+    // even if multiple devices or tab lifecycle events trigger this endpoint concurrently.
+    const lease = await acquireLeadSendLease({ threadId, reason });
+    if (!lease.acquired) {
+      if (lease.record?.status === 'sent') {
+        return json(200, {
+          ok: true,
+          sent: true,
+          reason: 'already_sent',
+          sent_at: lease.record.sent_at ?? null,
+        });
+      }
+      const lockExpiresAt =
+        typeof lease.record?.lock_expires_at === 'number' ? lease.record.lock_expires_at : 0;
+      if (lease.record?.status === 'error' && lockExpiresAt > nowEpochSeconds()) {
+        return json(200, { ok: true, sent: false, reason: 'cooldown' });
+      }
+      return json(200, { ok: true, sent: false, reason: 'in_progress' });
+    }
+
+    try {
+      const messageId = await sendTranscriptEmail({
+        threadId,
+        locale,
+        pageUrl,
+        chatUser: threadUser ?? chatUser,
+        threadTitle,
+        transcript: lines,
+        leadSummary: hydratedLeadSummary,
+      });
+      try {
+        await markLeadSent({ threadId, leaseId: lease.leaseId, messageId });
+      } catch (err: any) {
+        console.error('Lead dedupe mark sent failed', err?.name, err?.message);
+      }
+    } catch (err: any) {
+      try {
+        await markLeadError({
+          threadId,
+          leaseId: lease.leaseId,
+          errorMessage: String(err?.message ?? err ?? 'Failed to send lead email'),
+        });
+      } catch (markErr: any) {
+        console.error('Lead dedupe mark error failed', markErr?.name, markErr?.message);
+      }
+      throw err;
+    }
 
     return json(200, { ok: true, sent: true, reason });
   } catch (err: any) {

@@ -1,5 +1,6 @@
 import { defineBackend } from '@aws-amplify/backend';
-import { Duration, Stack } from 'aws-cdk-lib';
+import { Duration, RemovalPolicy, Stack } from 'aws-cdk-lib';
+import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
 import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { FunctionUrl, FunctionUrlAuthType, HttpMethod } from 'aws-cdk-lib/aws-lambda';
 
@@ -59,6 +60,28 @@ backend.chatkitLeadEmail.resources.lambda.addToRolePolicy(
     actions: ['ses:SendEmail', 'ses:SendRawEmail'],
     resources: ['*'],
   })
+);
+
+// Production-grade idempotency: ensure we only email one lead per ChatKit thread (`cthr_...`),
+// even if multiple browsers/devices trigger the send endpoint.
+const chatkitLeadDedupeTable = new Table(
+  Stack.of(backend.chatkitLeadEmail.resources.lambda),
+  'ChatkitLeadDedupeTable',
+  {
+    billingMode: BillingMode.PAY_PER_REQUEST,
+    partitionKey: { name: 'thread_id', type: AttributeType.STRING },
+    timeToLiveAttribute: 'ttl',
+    // Safe default for production; note that deleting the Amplify environment will retain this table.
+    removalPolicy: RemovalPolicy.RETAIN,
+  }
+);
+
+chatkitLeadDedupeTable.grantReadWriteData(backend.chatkitLeadEmail.resources.lambda);
+// Amplify types `resources.lambda` as IFunction (missing addEnvironment), but the concrete
+// Lambda construct supports it.
+(backend.chatkitLeadEmail.resources.lambda as any).addEnvironment(
+  'LEAD_DEDUPE_TABLE_NAME',
+  chatkitLeadDedupeTable.tableName
 );
 
 backend.addOutput({
