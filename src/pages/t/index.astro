@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Open Messages</title>
+    <title>Send message</title>
     <style>
       :root {
         --bg: #f6f7f9;
@@ -106,11 +106,11 @@
   </head>
   <body>
     <main class="wrap">
-      <h1>Open Messages</h1>
+      <h1>Send message</h1>
       <p id="status">Preparing your message…</p>
 
       <div class="actions">
-        <a id="open-sms" class="btn btn--primary" href="#">Open Messages</a>
+        <a id="open-sms" class="btn btn--primary" href="#">Send message</a>
         <a id="call" class="btn" href="#">Call</a>
         <button id="copy-phone" class="btn" type="button">Copy phone</button>
         <button id="copy-body" class="btn" type="button">Copy message</button>
@@ -127,7 +127,7 @@
       <details>
         <summary>Having trouble?</summary>
         <div class="hint">
-          If Messages doesn’t open, use “Copy message” and paste it into your texting app.
+          If your texting app doesn’t open, use “Copy message” and paste it into your SMS app.
         </div>
       </details>
     </main>
@@ -237,7 +237,7 @@
           } catch {}
         });
 
-        statusEl.textContent = body && String(body).trim() ? 'Opening Messages with a draft…' : 'Opening Messages…';
+        statusEl.textContent = 'Ready to send.';
 
         // Best-effort auto-open. If the browser blocks it, the primary button remains.
         setTimeout(() => {
@@ -251,4 +251,3 @@
     </script>
   </body>
 </html>
-

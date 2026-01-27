@@ -896,15 +896,6 @@ async function sendTranscriptEmail(args: {
         threadId,
         kind: 'customer',
         toPhone: customerPhone,
-        body: '',
-        baseUrl: smsLinkBaseUrl,
-      })
-    : null;
-  const smsDraftLink = customerPhone
-    ? await createSmsLinkUrl({
-        threadId,
-        kind: 'draft',
-        toPhone: customerPhone,
         body: smsDraft,
         baseUrl: smsLinkBaseUrl,
       })
@@ -978,8 +969,7 @@ async function sendTranscriptEmail(args: {
 
   bodyParts.push('Drafts');
   if (smsCustomerLink) bodyParts.push(`Text customer link:\n${smsCustomerLink}`);
-  if (smsDraftLink) bodyParts.push(`Text draft link:\n${smsDraftLink}`);
-  if (customerPhone) bodyParts.push(`Text draft:\n${smsDraft}`);
+  if (customerPhone) bodyParts.push(`Text message:\n${smsDraft}`);
   if (customerEmail) {
     bodyParts.push(`Email subject:\n${emailDraftSubject}`);
     bodyParts.push(`Email draft:\n${emailDraftBody}`);
@@ -1059,7 +1049,6 @@ async function sendTranscriptEmail(args: {
   const quickActions: Array<{ label: string; href: string }> = [];
   if (customerTelHref) quickActions.push({ label: 'Call customer', href: customerTelHref });
   if (smsCustomerLink) quickActions.push({ label: 'Text customer', href: smsCustomerLink });
-  if (smsDraftLink) quickActions.push({ label: 'Text draft', href: smsDraftLink });
   if (customerMailHref) quickActions.push({ label: 'Email customer', href: customerMailHref });
   if (emailDraftHref) quickActions.push({ label: 'Email draft', href: emailDraftHref });
   if (pageHref) quickActions.push({ label: 'Open page', href: pageHref });
