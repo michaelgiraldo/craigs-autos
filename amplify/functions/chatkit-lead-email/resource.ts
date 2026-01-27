@@ -10,6 +10,6 @@ export const chatkitLeadEmail = defineFunction({
     LEAD_TO_EMAIL: 'victor@craigs.autos',
     LEAD_FROM_EMAIL: 'victor@craigs.autos',
     // Used to generate a concise internal summary + next steps for the shop.
-    LEAD_SUMMARY_MODEL: 'gpt-4.1-mini',
+    LEAD_SUMMARY_MODEL: 'gpt-5.2-2025-12-11',
   },
 });
