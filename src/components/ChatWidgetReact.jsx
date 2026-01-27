@@ -92,7 +92,10 @@ const USER_KEY = 'chatkit-user-id';
 const OPEN_KEY = 'chatkit-open';
 const LEAD_SENT_KEY_PREFIX = 'chatkit-lead-sent:';
 const AMPLIFY_OUTPUTS_PATH = '/amplify_outputs.json';
-const IDLE_LEAD_SEND_MS = 120_000;
+// Send leads after a quiet period. This avoids forcing the customer to "end" the chat.
+// We keep it long enough to capture natural back-and-forth, but short enough that leads
+// still arrive even if the customer never explicitly closes the widget.
+const LEAD_QUIET_SEND_MS = 120_000;
 
 let chatkitRuntimePromise = null;
 
@@ -314,14 +317,6 @@ export default function ChatWidgetReact({
     return () => unlockBodyScroll();
   }, [open]);
 
-  React.useEffect(() => {
-    const onKeyDown = (event) => {
-      if (event.key === 'Escape') setOpen(false);
-    };
-    document.addEventListener('keydown', onKeyDown);
-    return () => document.removeEventListener('keydown', onKeyDown);
-  }, []);
-
   const sendLeadEmail = React.useCallback(
     async ({ reason = 'chat_closed' } = {}) => {
       if (leadEmailInFlightRef.current) return;
@@ -385,24 +380,26 @@ export default function ChatWidgetReact({
     [isDev, locale, resolvedLeadEmailUrl, threadId, userId]
   );
 
+  React.useEffect(() => {
+    const onKeyDown = (event) => {
+      if (event.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, []);
+
   const bumpIdleTimer = React.useCallback(() => {
-    if (!open) return;
     if (idleTimerRef.current) window.clearTimeout(idleTimerRef.current);
     idleTimerRef.current = window.setTimeout(() => {
       void sendLeadEmail({ reason: 'idle' });
-    }, IDLE_LEAD_SEND_MS);
-  }, [open, sendLeadEmail]);
+    }, LEAD_QUIET_SEND_MS);
+  }, [sendLeadEmail]);
 
   React.useEffect(() => {
-    if (!open) {
-      if (idleTimerRef.current) window.clearTimeout(idleTimerRef.current);
-      return;
-    }
-    bumpIdleTimer();
     return () => {
       if (idleTimerRef.current) window.clearTimeout(idleTimerRef.current);
     };
-  }, [bumpIdleTimer, open]);
+  }, []);
 
   React.useEffect(() => {
     if (!open) return;
