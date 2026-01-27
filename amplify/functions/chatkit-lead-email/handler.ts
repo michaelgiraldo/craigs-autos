@@ -1,5 +1,5 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, GetCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
+import { DynamoDBDocumentClient, GetCommand, PutCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
 import { randomUUID } from 'node:crypto';
 import OpenAI from 'openai';
@@ -10,6 +10,12 @@ const openai = apiKey ? new OpenAI({ apiKey }) : null;
 const leadDedupeTableName = process.env.LEAD_DEDUPE_TABLE_NAME;
 const leadDedupeDb =
   leadDedupeTableName && leadDedupeTableName.trim()
+    ? DynamoDBDocumentClient.from(new DynamoDBClient({}))
+    : null;
+
+const smsLinkTokenTableName = process.env.SMS_LINK_TOKEN_TABLE_NAME;
+const smsLinkDb =
+  smsLinkTokenTableName && smsLinkTokenTableName.trim()
     ? DynamoDBDocumentClient.from(new DynamoDBClient({}))
     : null;
 
@@ -126,6 +132,7 @@ type LeadDedupeRecord = {
 const LEAD_DEDUPE_LEASE_SECONDS = 120;
 const LEAD_DEDUPE_ERROR_COOLDOWN_SECONDS = 60;
 const LEAD_DEDUPE_TTL_DAYS = 30;
+const SMS_LINK_TOKEN_TTL_DAYS = 7;
 
 function nowEpochSeconds(): number {
   return Math.floor(Date.now() / 1000);
@@ -359,6 +366,77 @@ function linkifyTextToHtml(text: string): string {
 
   out += escapeHtml(text.slice(lastIndex));
   return out.replace(/\n/g, '<br/>');
+}
+
+type SmsLinkTokenKind = 'customer' | 'draft';
+
+type SmsLinkTokenRecord = {
+  token: string;
+  thread_id: string;
+  kind: SmsLinkTokenKind;
+  to_phone: string;
+  body: string;
+  created_at: number;
+  ttl: number;
+};
+
+function inferSmsLinkBaseUrl(pageHref: string | null): string {
+  // Prefer routing production leads through `sms.craigs.autos`, since Gmail will keep https:// links
+  // but often strips `sms:` hrefs inside emails.
+  try {
+    const url = pageHref ? new URL(pageHref) : null;
+    const host = url?.host ?? '';
+    if (host === 'craigs.autos' || host === 'www.craigs.autos') return 'https://sms.craigs.autos';
+    if (url?.origin) return url.origin;
+  } catch {
+    // ignore
+  }
+  return 'https://sms.craigs.autos';
+}
+
+function joinUrl(baseUrl: string, path: string): string {
+  const base = baseUrl.replace(/\/+$/, '');
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  return `${base}${normalizedPath}`;
+}
+
+async function createSmsLinkUrl(args: {
+  threadId: string;
+  kind: SmsLinkTokenKind;
+  toPhone: string;
+  body: string;
+  baseUrl: string;
+}): Promise<string | null> {
+  if (!smsLinkDb || !smsLinkTokenTableName) return null;
+
+  const base = safeHttpUrl(args.baseUrl) ?? 'https://sms.craigs.autos';
+  const token = randomUUID();
+  const record: SmsLinkTokenRecord = {
+    token,
+    thread_id: args.threadId,
+    kind: args.kind,
+    to_phone: args.toPhone,
+    body: args.body ?? '',
+    created_at: nowEpochSeconds(),
+    ttl: ttlSecondsFromNow(SMS_LINK_TOKEN_TTL_DAYS),
+  };
+
+  try {
+    await smsLinkDb.send(
+      new PutCommand({
+        TableName: smsLinkTokenTableName,
+        Item: record,
+        ConditionExpression: 'attribute_not_exists(#token)',
+        ExpressionAttributeNames: { '#token': 'token' },
+      })
+    );
+  } catch (err: any) {
+    console.error('Failed to write SMS link token', err?.name, err?.message);
+    return null;
+  }
+
+  // Use a query param so the landing page can stay fully static (Astro SSG).
+  return joinUrl(base, `/t/?token=${encodeURIComponent(token)}`);
 }
 
 function phoneToTelHref(value: string): string | null {
@@ -754,10 +832,10 @@ async function sendTranscriptEmail(args: {
   const customerPhone = leadSummary?.customer_phone ?? detectedContact.phone;
   const customerEmail = leadSummary?.customer_email ?? detectedContact.email;
   const customerTelHref = customerPhone ? phoneToTelHref(customerPhone) : null;
-  const customerSmsHref = customerPhone ? phoneToSmsHref(customerPhone) : null;
   const customerMailHref = customerEmail ? emailToMailto(customerEmail) : null;
 
   const pageHref = pageUrl ? safeHttpUrl(pageUrl) : null;
+  const smsLinkBaseUrl = inferSmsLinkBaseUrl(pageHref);
   const threadHref = `https://platform.openai.com/logs/${encodeURIComponent(threadId)}`;
   const customerLanguage =
     leadSummary?.customer_language ?? (locale ? localeToLanguageLabel(locale) : null);
@@ -810,6 +888,27 @@ async function sendTranscriptEmail(args: {
   const recommendedOutreach = ensureShopSignature(outreachMessage ?? fallbackOutreach);
   const smsDraft = recommendedOutreach;
 
+  // Gmail often strips `sms:` hrefs, so we generate an https:// token link that resolves into
+  // {to_phone, body} and then opens Messages locally.
+  const smsCustomerLink = customerPhone
+    ? await createSmsLinkUrl({
+        threadId,
+        kind: 'customer',
+        toPhone: customerPhone,
+        body: '',
+        baseUrl: smsLinkBaseUrl,
+      })
+    : null;
+  const smsDraftLink = customerPhone
+    ? await createSmsLinkUrl({
+        threadId,
+        kind: 'draft',
+        toPhone: customerPhone,
+        body: smsDraft,
+        baseUrl: smsLinkBaseUrl,
+      })
+    : null;
+
   const emailDraftSubject = vehicleOrProject
     ? `${SHOP_NAME} - next steps for ${vehicleOrProject}`
     : `${SHOP_NAME} - next steps`;
@@ -819,7 +918,6 @@ async function sendTranscriptEmail(args: {
   }
   emailDraftBody = normalizeWhitespace(emailDraftBody);
 
-  const smsDraftHref = customerPhone ? smsWithBody(customerPhone, smsDraft) : null;
   const emailDraftHref = customerEmail
     ? mailtoWithDraft(customerEmail, emailDraftSubject, emailDraftBody)
     : null;
@@ -878,6 +976,8 @@ async function sendTranscriptEmail(args: {
   }
 
   bodyParts.push('Drafts');
+  if (smsCustomerLink) bodyParts.push(`Text customer link:\n${smsCustomerLink}`);
+  if (smsDraftLink) bodyParts.push(`Text draft link:\n${smsDraftLink}`);
   if (customerPhone) bodyParts.push(`Text draft:\n${smsDraft}`);
   if (customerEmail) {
     bodyParts.push(`Email subject:\n${emailDraftSubject}`);
@@ -957,8 +1057,8 @@ async function sendTranscriptEmail(args: {
 
   const quickActions: Array<{ label: string; href: string }> = [];
   if (customerTelHref) quickActions.push({ label: 'Call customer', href: customerTelHref });
-  if (customerSmsHref) quickActions.push({ label: 'Text customer', href: customerSmsHref });
-  if (smsDraftHref) quickActions.push({ label: 'Text draft', href: smsDraftHref });
+  if (smsCustomerLink) quickActions.push({ label: 'Text customer', href: smsCustomerLink });
+  if (smsDraftLink) quickActions.push({ label: 'Text draft', href: smsDraftLink });
   if (customerMailHref) quickActions.push({ label: 'Email customer', href: customerMailHref });
   if (emailDraftHref) quickActions.push({ label: 'Email draft', href: emailDraftHref });
   if (pageHref) quickActions.push({ label: 'Open page', href: pageHref });
