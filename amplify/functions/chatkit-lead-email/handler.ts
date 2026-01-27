@@ -381,13 +381,14 @@ type SmsLinkTokenRecord = {
 };
 
 function inferSmsLinkBaseUrl(pageHref: string | null): string {
-  // Prefer routing production leads through `sms.craigs.autos`, since Gmail will keep https:// links
-  // but often strips `sms:` hrefs inside emails.
+  // Always route production links through `sms.craigs.autos` (hosted on `main`), since Gmail will
+  // keep https:// links but often strips `sms:` hrefs inside emails.
+  //
+  // In local dev, keep links on the same origin so the `/t/` page works on localhost.
   try {
     const url = pageHref ? new URL(pageHref) : null;
-    const host = url?.host ?? '';
-    if (host === 'craigs.autos' || host === 'www.craigs.autos') return 'https://sms.craigs.autos';
-    if (url?.origin) return url.origin;
+    const hostname = url?.hostname ?? '';
+    if (hostname === 'localhost' || hostname === '127.0.0.1') return url?.origin ?? 'http://localhost:4321';
   } catch {
     // ignore
   }
