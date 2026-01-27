@@ -38,7 +38,15 @@ export default defineConfig({
 		react(),
 		mdx(),
 		sitemap({
-			filter: (page) => page !== '/',
+			// Exclude the root (redirects to /en/) and internal utility pages from indexing.
+			filter: (page) => {
+				try {
+					const pathname = new URL(page).pathname;
+					return pathname !== '/' && pathname !== '/t/' && !pathname.startsWith('/t/');
+				} catch {
+					return true;
+				}
+			},
 		}),
 	],
 });
