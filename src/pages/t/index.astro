@@ -155,13 +155,15 @@
       }
 
       function buildTelHref(phone) {
-        const digits = String(phone || '').replace(/[^\\d]/g, '');
+        // Avoid `\\d` escaping issues in inline scripts by using an explicit digit class.
+        const digits = String(phone || '').replace(/[^0-9]/g, '');
         if (!digits) return '#';
         return digits.length === 10 ? `tel:+1${digits}` : `tel:+${digits}`;
       }
 
       function buildSmsHref(phone, body) {
-        const digits = String(phone || '').replace(/[^\\d]/g, '');
+        // Avoid `\\d` escaping issues in inline scripts by using an explicit digit class.
+        const digits = String(phone || '').replace(/[^0-9]/g, '');
         if (!digits) return '#';
         const to = digits.length === 10 ? `+1${digits}` : `+${digits}`;
         const text = typeof body === 'string' ? body : '';
@@ -251,4 +253,3 @@
     </script>
   </body>
 </html>
-
