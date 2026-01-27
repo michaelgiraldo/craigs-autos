@@ -32,7 +32,9 @@ const pageTranslations = translations ?? getTranslations(pageKey ?? 'home');
 const canonicalPath = canonicalPathProp ?? pageTranslations[locale] ?? LOCALES.en.base;
 const canonicalUrl = new URL(canonicalPath, site).toString();
 const isProduction = import.meta.env.PROD;
-const gtmId = 'GTM-WQJLM7R6';
+const gtmId = typeof import.meta.env.PUBLIC_GTM_ID === 'string' ? import.meta.env.PUBLIC_GTM_ID.trim() : '';
+const gtmEnabled =
+	isProduction && /^GTM-[A-Z0-9]{6,20}$/i.test(gtmId) && !/disabled/i.test(gtmId);
 const gtmPageContext = {
 	event: 'page_context',
 	locale,
@@ -229,7 +231,7 @@ const structuredData = {
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width" />
-		{isProduction ? (
+		{gtmEnabled ? (
 			<>
 				<link rel="preconnect" href="https://www.googletagmanager.com" />
 				<link rel="dns-prefetch" href="https://www.googletagmanager.com" />
@@ -266,7 +268,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 		<script src="https://cdn.platform.openai.com/deployments/chatkit/chatkit.js" defer></script>
 	</head>
 	<body>
-		{isProduction ? (
+		{gtmEnabled ? (
 			<noscript>
 				<iframe
 					src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
