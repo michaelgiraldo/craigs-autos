@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Open Messages</title>
+    <style>
+      :root {
+        --bg: #f6f7f9;
+        --card: #ffffff;
+        --text: #111827;
+        --muted: #6b7280;
+        --border: #e5e7eb;
+        --accent: #141cff;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 24px;
+        background: var(--bg);
+        color: var(--text);
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      }
+      .wrap {
+        max-width: 720px;
+        margin: 0 auto;
+      }
+      h1 {
+        margin: 0 0 8px;
+        font-size: 20px;
+        line-height: 1.2;
+      }
+      p {
+        margin: 0 0 16px;
+        color: var(--muted);
+        line-height: 1.4;
+        font-size: 14px;
+      }
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 0 0 16px;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 14px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: var(--card);
+        color: var(--text);
+        font-size: 13px;
+        line-height: 1;
+        text-decoration: none;
+        cursor: pointer;
+      }
+      .btn--primary {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #ffffff;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 16px;
+      }
+      .label {
+        font-size: 12px;
+        color: var(--muted);
+        margin: 0 0 6px;
+      }
+      .value {
+        margin: 0 0 14px;
+        font-size: 14px;
+        line-height: 1.4;
+        color: var(--text);
+        word-break: break-word;
+        white-space: pre-wrap;
+      }
+      pre.value {
+        font-family: inherit;
+      }
+      details {
+        margin-top: 14px;
+      }
+      summary {
+        cursor: pointer;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .hint {
+        margin-top: 10px;
+        font-size: 13px;
+        color: var(--muted);
+        line-height: 1.4;
+      }
+      .error {
+        color: #b91c1c;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <h1>Open Messages</h1>
+      <p id="status">Preparing your message…</p>
+
+      <div class="actions">
+        <a id="open-sms" class="btn btn--primary" href="#">Open Messages</a>
+        <a id="call" class="btn" href="#">Call</a>
+        <button id="copy-phone" class="btn" type="button">Copy phone</button>
+        <button id="copy-body" class="btn" type="button">Copy message</button>
+      </div>
+
+      <div class="card">
+        <div class="label">To</div>
+        <div id="to" class="value">—</div>
+
+        <div class="label">Message</div>
+        <pre id="body" class="value">—</pre>
+      </div>
+
+      <details>
+        <summary>Having trouble?</summary>
+        <div class="hint">
+          If Messages doesn’t open, use “Copy message” and paste it into your texting app.
+        </div>
+      </details>
+    </main>
+
+    <script type="module">
+      const statusEl = document.getElementById('status');
+      const toEl = document.getElementById('to');
+      const bodyEl = document.getElementById('body');
+      const openSmsEl = document.getElementById('open-sms');
+      const callEl = document.getElementById('call');
+      const copyPhoneBtn = document.getElementById('copy-phone');
+      const copyBodyBtn = document.getElementById('copy-body');
+
+      function getToken() {
+        const url = new URL(window.location.href);
+        const qsToken = url.searchParams.get('token');
+        if (qsToken && qsToken.trim()) return qsToken.trim();
+
+        // Best-effort support for /t/<token>/ if a rewrite rule is ever added later.
+        const parts = url.pathname.split('/').filter(Boolean);
+        const tIndex = parts.indexOf('t');
+        if (tIndex !== -1 && parts[tIndex + 1]) return parts[tIndex + 1];
+
+        return '';
+      }
+
+      function buildTelHref(phone) {
+        const digits = String(phone || '').replace(/[^\\d]/g, '');
+        if (!digits) return '#';
+        return digits.length === 10 ? `tel:+1${digits}` : `tel:+${digits}`;
+      }
+
+      function buildSmsHref(phone, body) {
+        const digits = String(phone || '').replace(/[^\\d]/g, '');
+        if (!digits) return '#';
+        const to = digits.length === 10 ? `+1${digits}` : `+${digits}`;
+        const text = typeof body === 'string' ? body : '';
+        if (!text.trim()) return `sms:${to}`;
+        // Works on iOS/macOS; some clients accept `?body=` as well, but `?&body=` is broadly compatible.
+        return `sms:${to}?&body=${encodeURIComponent(text)}`;
+      }
+
+      async function getOutputs() {
+        try {
+          const res = await fetch('/amplify_outputs.json', { cache: 'no-store' });
+          if (!res.ok) return null;
+          return await res.json();
+        } catch {
+          return null;
+        }
+      }
+
+      async function run() {
+        const token = getToken();
+        if (!token) {
+          statusEl.textContent = 'Missing token.';
+          statusEl.classList.add('error');
+          return;
+        }
+
+        const outputs = await getOutputs();
+        const apiUrl = outputs?.custom?.chatkit_sms_link_url;
+        if (typeof apiUrl !== 'string' || !apiUrl.trim()) {
+          statusEl.textContent = 'SMS link service is not configured.';
+          statusEl.classList.add('error');
+          return;
+        }
+
+        let data;
+        try {
+          const res = await fetch(`${apiUrl}?token=${encodeURIComponent(token)}`, { cache: 'no-store' });
+          data = await res.json();
+          if (!res.ok || !data?.ok) {
+            throw new Error(data?.error || `HTTP ${res.status}`);
+          }
+        } catch {
+          statusEl.textContent = 'This link is invalid or expired.';
+          statusEl.classList.add('error');
+          return;
+        }
+
+        const to = data.to_phone;
+        const body = data.body || '';
+        const smsHref = buildSmsHref(to, body);
+        const telHref = buildTelHref(to);
+
+        toEl.textContent = to || '—';
+        bodyEl.textContent = body || '—';
+        openSmsEl.href = smsHref;
+        callEl.href = telHref;
+
+        copyPhoneBtn.addEventListener('click', async () => {
+          if (!to) return;
+          try {
+            await navigator.clipboard.writeText(String(to));
+            copyPhoneBtn.textContent = 'Copied';
+            setTimeout(() => (copyPhoneBtn.textContent = 'Copy phone'), 1200);
+          } catch {}
+        });
+
+        copyBodyBtn.addEventListener('click', async () => {
+          if (!body) return;
+          try {
+            await navigator.clipboard.writeText(String(body));
+            copyBodyBtn.textContent = 'Copied';
+            setTimeout(() => (copyBodyBtn.textContent = 'Copy message'), 1200);
+          } catch {}
+        });
+
+        statusEl.textContent = body && String(body).trim() ? 'Opening Messages with a draft…' : 'Opening Messages…';
+
+        // Best-effort auto-open. If the browser blocks it, the primary button remains.
+        setTimeout(() => {
+          try {
+            window.location.href = smsHref;
+          } catch {}
+        }, 50);
+      }
+
+      run();
+    </script>
+  </body>
+</html>
+
