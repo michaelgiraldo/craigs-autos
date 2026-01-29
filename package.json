@@ -22,7 +22,7 @@
     "@aws-sdk/types": "^3.973.1",
     "@openai/chatkit": "^1.5.0",
     "@openai/chatkit-react": "^1.4.3",
-    "astro": "^5.16.15",
+    "astro": "^5.17.1",
     "concurrently": "^9.2.1",
     "dotenv": "^17.2.3",
     "openai": "^6.16.0",

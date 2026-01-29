@@ -8,6 +8,9 @@ import sitemap from '@astrojs/sitemap';
 export default defineConfig({
 	site: 'https://craigs.autos',
 	trailingSlash: 'always',
+	devToolbar: {
+		placement: 'bottom-left',
+	},
 	vite: {
 		server: {
 			proxy: {
