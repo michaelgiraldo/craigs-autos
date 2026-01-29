@@ -14,3 +14,7 @@ This repo is a multi-locale Astro site deployed on AWS Amplify. It includes a pr
 Legacy entrypoint (kept for older links):
 
 - `docs/chatkit-aws.md` (points to the files above)
+
+Redirects:
+
+- `docs/redirects.md` (legacy domain → new domain mapping)

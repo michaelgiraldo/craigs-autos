@@ -39,9 +39,21 @@ frontend:
     paths:
       - node_modules/**/*
 redirects:
-  - source: /index.html
-    target: /en/
-    status: 301
   - source: /
-    target: /en/
+    target: https://craigs.autos/en/
+    status: 301
+  - source: /index.html
+    target: https://craigs.autos/en/
+    status: 301
+  - source: /contact
+    target: https://craigs.autos/en/contact/
+    status: 301
+  - source: /gallery
+    target: https://craigs.autos/en/gallery/
+    status: 301
+  - source: /about-us
+    target: https://craigs.autos/en/
+    status: 301
+  - source: /auto-and-marine-upholstery
+    target: https://craigs.autos/en/auto-upholstery/
     status: 301
