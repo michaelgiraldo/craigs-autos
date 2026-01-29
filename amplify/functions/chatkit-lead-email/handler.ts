@@ -1,5 +1,5 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, GetCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
+import { DynamoDBDocumentClient, GetCommand, PutCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
 import { randomUUID } from 'node:crypto';
 import OpenAI from 'openai';
@@ -13,9 +13,19 @@ const leadDedupeDb =
     ? DynamoDBDocumentClient.from(new DynamoDBClient({}))
     : null;
 
+const smsLinkTokenTableName = process.env.SMS_LINK_TOKEN_TABLE_NAME;
+const smsLinkDb =
+  smsLinkTokenTableName && smsLinkTokenTableName.trim()
+    ? DynamoDBDocumentClient.from(new DynamoDBClient({}))
+    : null;
+
 const leadToEmail = process.env.LEAD_TO_EMAIL ?? 'victor@craigs.autos';
 const leadFromEmail = process.env.LEAD_FROM_EMAIL ?? 'victor@craigs.autos';
-const leadSummaryModel = process.env.LEAD_SUMMARY_MODEL ?? 'gpt-4.1-mini';
+const leadSummaryModel = process.env.LEAD_SUMMARY_MODEL ?? 'gpt-5.2-2025-12-11';
+const SHOP_NAME = "Craig's Auto Upholstery";
+const SHOP_PHONE_DISPLAY = '(408) 379-3820';
+const SHOP_PHONE_DIGITS = '4083793820';
+const SHOP_ADDRESS = '271 Bestor St, San Jose, CA 95112';
 
 const ses = new SESClient({});
 
@@ -77,6 +87,12 @@ type TranscriptLine = {
   text: string;
 };
 
+type AttachmentInfo = {
+  name: string;
+  mime: string | null;
+  url: string;
+};
+
 type LeadSummary = {
   customer_name: string | null;
   customer_phone: string | null;
@@ -116,6 +132,7 @@ type LeadDedupeRecord = {
 const LEAD_DEDUPE_LEASE_SECONDS = 120;
 const LEAD_DEDUPE_ERROR_COOLDOWN_SECONDS = 60;
 const LEAD_DEDUPE_TTL_DAYS = 30;
+const SMS_LINK_TOKEN_TTL_DAYS = 7;
 
 function nowEpochSeconds(): number {
   return Math.floor(Date.now() / 1000);
@@ -268,6 +285,43 @@ function normalizeWhitespace(value: string): string {
   return value.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
 }
 
+function digitsOnly(value: string): string {
+  return value.replace(/[^\d]/g, '');
+}
+
+function trimTranscriptForModel(value: string, maxChars = 16_000): string {
+  if (value.length <= maxChars) return value;
+  const headChars = Math.min(4_000, Math.floor(maxChars * 0.25));
+  const separator = '\n\n... (earlier messages omitted) ...\n\n';
+  const tailChars = Math.max(0, maxChars - headChars - separator.length);
+  const head = value.slice(0, headChars);
+  const tail = value.slice(-tailChars);
+  return `${head}${separator}${tail}`.trim();
+}
+
+function hasShopPhone(value: string): boolean {
+  return digitsOnly(value).includes(SHOP_PHONE_DIGITS);
+}
+
+function hasShopName(value: string): boolean {
+  return /craig'?s\s+auto\s+upholstery/i.test(value);
+}
+
+function hasShopAddress(value: string): boolean {
+  return /271\s+bestor/i.test(value) || /\bbestor\b/i.test(value);
+}
+
+function ensureShopSignature(value: string): string {
+  let out = value.trim();
+  if (!hasShopName(out)) {
+    out = `${out}\n\n- ${SHOP_NAME}`;
+  }
+  if (!hasShopPhone(out)) {
+    out = `${out}\n${SHOP_PHONE_DISPLAY}`;
+  }
+  return normalizeWhitespace(out);
+}
+
 function escapeHtml(value: string): string {
   return value
     .replace(/&/g, '&amp;')
@@ -285,6 +339,105 @@ function safeHttpUrl(value: string): string | null {
   } catch {
     return null;
   }
+}
+
+function linkifyTextToHtml(text: string): string {
+  const urlRegex = /https?:\/\/[^\s]+/g;
+  let out = '';
+  let lastIndex = 0;
+
+  for (const match of text.matchAll(urlRegex)) {
+    const raw = match?.[0] ?? '';
+    if (!raw) continue;
+    const index = typeof match.index === 'number' ? match.index : 0;
+    out += escapeHtml(text.slice(lastIndex, index));
+
+    const safe = safeHttpUrl(raw);
+    if (safe) {
+      out += `<a href="${escapeHtml(safe)}" style="color:#141cff;text-decoration:none">${escapeHtml(
+        raw
+      )}</a>`;
+    } else {
+      out += escapeHtml(raw);
+    }
+
+    lastIndex = index + raw.length;
+  }
+
+  out += escapeHtml(text.slice(lastIndex));
+  return out.replace(/\n/g, '<br/>');
+}
+
+type SmsLinkTokenKind = 'customer' | 'draft';
+
+type SmsLinkTokenRecord = {
+  token: string;
+  thread_id: string;
+  kind: SmsLinkTokenKind;
+  to_phone: string;
+  body: string;
+  created_at: number;
+  ttl: number;
+};
+
+function inferSmsLinkBaseUrl(pageHref: string | null): string {
+  // Always route production links through `sms.craigs.autos` (hosted on `main`), since Gmail will
+  // keep https:// links but often strips `sms:` hrefs inside emails.
+  //
+  // In local dev, keep links on the same origin so the `/t/` page works on localhost.
+  try {
+    const url = pageHref ? new URL(pageHref) : null;
+    const hostname = url?.hostname ?? '';
+    if (hostname === 'localhost' || hostname === '127.0.0.1') return url?.origin ?? 'http://localhost:4321';
+  } catch {
+    // ignore
+  }
+  return 'https://sms.craigs.autos';
+}
+
+function joinUrl(baseUrl: string, path: string): string {
+  const base = baseUrl.replace(/\/+$/, '');
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  return `${base}${normalizedPath}`;
+}
+
+async function createSmsLinkUrl(args: {
+  threadId: string;
+  kind: SmsLinkTokenKind;
+  toPhone: string;
+  body: string;
+  baseUrl: string;
+}): Promise<string | null> {
+  if (!smsLinkDb || !smsLinkTokenTableName) return null;
+
+  const base = safeHttpUrl(args.baseUrl) ?? 'https://sms.craigs.autos';
+  const token = randomUUID();
+  const record: SmsLinkTokenRecord = {
+    token,
+    thread_id: args.threadId,
+    kind: args.kind,
+    to_phone: args.toPhone,
+    body: args.body ?? '',
+    created_at: nowEpochSeconds(),
+    ttl: ttlSecondsFromNow(SMS_LINK_TOKEN_TTL_DAYS),
+  };
+
+  try {
+    await smsLinkDb.send(
+      new PutCommand({
+        TableName: smsLinkTokenTableName,
+        Item: record,
+        ConditionExpression: 'attribute_not_exists(#token)',
+        ExpressionAttributeNames: { '#token': 'token' },
+      })
+    );
+  } catch (err: any) {
+    console.error('Failed to write SMS link token', err?.name, err?.message);
+    return null;
+  }
+
+  // Use a query param so the landing page can stay fully static (Astro SSG).
+  return joinUrl(base, `/t/?token=${encodeURIComponent(token)}`);
 }
 
 function phoneToTelHref(value: string): string | null {
@@ -307,6 +460,19 @@ function emailToMailto(value: string): string | null {
   const email = value.trim();
   if (!isPlausibleEmail(email)) return null;
   return `mailto:${encodeURIComponent(email)}`;
+}
+
+function mailtoWithDraft(email: string, subject: string, body: string): string | null {
+  const base = emailToMailto(email);
+  if (!base) return null;
+  return `${base}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
+function smsWithBody(phone: string, body: string): string | null {
+  const base = phoneToSmsHref(phone);
+  if (!base) return null;
+  // `?body=` is broadly supported; some clients may still strip `sms:` links.
+  return `${base}?body=${encodeURIComponent(body)}`;
 }
 
 function formatListText(items: string[], prefix = '- '): string {
@@ -392,6 +558,41 @@ function extractCustomerContact(transcript: TranscriptLine[]): { email: string |
   };
 }
 
+function extractAttachments(transcript: TranscriptLine[]): AttachmentInfo[] {
+  const seen = new Set<string>();
+  const attachments: AttachmentInfo[] = [];
+
+  for (const line of transcript) {
+    const rows = typeof line.text === 'string' ? line.text.split('\n') : [];
+    for (const row of rows) {
+      if (!row.startsWith('Attachment:')) continue;
+      let rest = row.replace(/^Attachment:\s*/, '').trim();
+      if (!rest) continue;
+
+      const urlMatch = rest.match(/https?:\/\/\S+$/);
+      const urlRaw = urlMatch?.[0] ?? '';
+      const urlSafe = urlRaw ? safeHttpUrl(urlRaw) : null;
+      if (!urlSafe) continue;
+
+      rest = rest.slice(0, Math.max(0, rest.length - urlRaw.length)).trim();
+
+      let mime: string | null = null;
+      const mimeMatch = rest.match(/\(([^)]+)\)\s*$/);
+      if (mimeMatch && typeof mimeMatch.index === 'number') {
+        mime = mimeMatch[1]?.trim() ? mimeMatch[1].trim() : null;
+        rest = rest.slice(0, mimeMatch.index).trim();
+      }
+
+      const name = rest || 'attachment';
+      if (seen.has(urlSafe)) continue;
+      seen.add(urlSafe);
+      attachments.push({ name, mime, url: urlSafe });
+    }
+  }
+
+  return attachments;
+}
+
 function sanitizeLeadSummary(input: any): LeadSummary | null {
   if (!input || typeof input !== 'object') return null;
 
@@ -440,10 +641,11 @@ async function generateLeadSummary(args: {
 }): Promise<LeadSummary | null> {
   if (!openai) return null;
 
-  const transcriptText = args.transcript
+  const transcriptTextFull = args.transcript
     .map((line) => `${line.speaker}: ${line.text}`)
-    .join('\n\n')
-    .slice(0, 16_000);
+    .join('\n\n');
+  // Prefer keeping the latest messages in context; long chats often answer key questions near the end.
+  const transcriptText = trimTranscriptForModel(transcriptTextFull, 16_000);
 
   const schema = {
     type: 'object',
@@ -498,8 +700,9 @@ async function generateLeadSummary(args: {
         'handoff_reason should be a short reason explaining why it is or is not ready (for example: "missing_contact", "missing_project_details", "ready_for_follow_up").',
         'Write the summary and next steps in English.',
         'customer_language should reflect the language the customer is using. If unclear, use the provided locale.',
-        'call_script_prompts must be exactly 3 short questions the shop can ask to move the lead forward (prioritize missing info).',
-        'outreach_message should be one short paragraph in customer_language that the shop can send (text or email). Keep it friendly, no prices, and ask for photos when helpful.',
+        'call_script_prompts must be exactly 3 short questions the shop can ask to move the lead forward (prioritize missing info). Do not repeat questions already answered in the transcript.',
+        'follow_up_questions must only include questions that are NOT already answered in the transcript.',
+        `outreach_message should be one short paragraph in customer_language that the shop can send (text or email). It must mention ${SHOP_NAME} and include the shop phone ${SHOP_PHONE_DISPLAY}. Keep it friendly, no prices, and ask for photos when helpful.`,
         'Do not mention prices or quotes. Do not invent shop hours or policies.',
         'Keep next_steps and follow_up_questions short and actionable (one sentence each).',
       ].join('\n'),
@@ -619,20 +822,21 @@ async function sendTranscriptEmail(args: {
   locale: string;
   pageUrl: string;
   chatUser: string;
+  reason: string;
   threadTitle: string | null;
   transcript: TranscriptLine[];
   leadSummary: LeadSummary | null;
 }): Promise<string | null> {
-  const { threadId, locale, pageUrl, chatUser, threadTitle, transcript, leadSummary } = args;
+  const { threadId, locale, pageUrl, chatUser, reason, threadTitle, transcript, leadSummary } = args;
 
   const detectedContact = extractCustomerContact(transcript);
   const customerPhone = leadSummary?.customer_phone ?? detectedContact.phone;
   const customerEmail = leadSummary?.customer_email ?? detectedContact.email;
   const customerTelHref = customerPhone ? phoneToTelHref(customerPhone) : null;
-  const customerSmsHref = customerPhone ? phoneToSmsHref(customerPhone) : null;
   const customerMailHref = customerEmail ? emailToMailto(customerEmail) : null;
 
   const pageHref = pageUrl ? safeHttpUrl(pageUrl) : null;
+  const smsLinkBaseUrl = inferSmsLinkBaseUrl(pageHref);
   const threadHref = `https://platform.openai.com/logs/${encodeURIComponent(threadId)}`;
   const customerLanguage =
     leadSummary?.customer_language ?? (locale ? localeToLanguageLabel(locale) : null);
@@ -664,100 +868,132 @@ async function sendTranscriptEmail(args: {
       : 'New chat lead';
   const subject = `${subjectBase} (${threadId})`;
 
-  const introLines = ['New chat lead from chat.craigs.autos', ''].filter(Boolean);
-
-  if (leadSummary) {
-    introLines.push('At a glance');
-    introLines.push(`Customer: ${leadSummary.customer_name ?? ''}`.trim());
-    introLines.push(`Phone: ${customerPhone ?? ''}`.trim());
-    introLines.push(`Email: ${customerEmail ?? ''}`.trim());
-    introLines.push(`Location: ${leadSummary.customer_location ?? ''}`.trim());
-    if (customerLanguage) introLines.push(`Language: ${customerLanguage}`.trim());
-    introLines.push(`Vehicle: ${leadSummary.vehicle ?? ''}`.trim());
-    introLines.push(`Project: ${leadSummary.project ?? ''}`.trim());
-    introLines.push(`Timeline: ${leadSummary.timeline ?? ''}`.trim());
-    introLines.push(
-      leadSummary.missing_info.length
-        ? `Missing: ${leadSummary.missing_info.join(', ')}`
-        : 'Missing:'
-    );
-    introLines.push('');
-    introLines.push('AI summary');
-    introLines.push(leadSummary.summary);
-    introLines.push('');
-    if (leadSummary.next_steps.length) {
-      introLines.push('Suggested next steps');
-      introLines.push(formatListText(leadSummary.next_steps, '- '));
-      introLines.push('');
-    }
-    if (leadSummary.follow_up_questions.length) {
-      introLines.push('Follow-up questions');
-      introLines.push(formatListText(leadSummary.follow_up_questions, '- '));
-      introLines.push('');
-    }
+  let sourceLabel = 'craigs.autos';
+  try {
+    const url = pageHref ? new URL(pageHref) : null;
+    if (url?.host) sourceLabel = url.host;
+  } catch {
+    // ignore
   }
-
-  introLines.push(`Thread: ${threadId}`);
-  introLines.push(`OpenAI logs: ${threadHref}`);
-  introLines.push(`Chat user: ${chatUser}`);
-  if (locale) introLines.push(`Locale: ${locale}`);
-  if (pageHref) introLines.push(`Page: ${pageHref}`);
-  introLines.push('');
-
-  if (customerTelHref || customerSmsHref || customerMailHref) {
-    introLines.push('Quick actions');
-    if (customerTelHref) introLines.push(`Call: ${customerTelHref}`);
-    if (customerSmsHref) introLines.push(`Text: ${customerSmsHref}`);
-    if (customerMailHref) introLines.push(`Email: ${customerMailHref}`);
-    introLines.push('');
-  }
-
-  if (callScriptPrompts.length) {
-    introLines.push('Call script (3 prompts)');
-    introLines.push(formatListText(callScriptPrompts, '- '));
-    introLines.push('');
-  }
-
-  const contactName = leadSummary?.customer_name?.trim() ? leadSummary.customer_name.trim() : 'there';
+  const attachments = extractAttachments(transcript);
+  const contactName = leadSummary?.customer_name?.trim() ? leadSummary.customer_name.trim() : null;
+  const greetingName = contactName ?? 'there';
   const vehicleOrProject = [leadSummary?.vehicle, leadSummary?.project]
     .filter((value) => typeof value === 'string' && value.trim())
     .join(' - ');
   const contextSnippet = vehicleOrProject ? ` about your ${vehicleOrProject}` : '';
 
-  const smsDraft = normalizeWhitespace(
-    `Hi ${contactName} - thanks for reaching out to Craig's Auto Upholstery${contextSnippet}. If you can text 2-4 photos (1 wide + 1-2 close-ups), we can take a proper look and follow up with next steps. (408) 379-3820`
+  const fallbackOutreach = normalizeWhitespace(
+    `Hi ${greetingName} - thanks for reaching out to ${SHOP_NAME}${contextSnippet}. If you can text 2-4 photos (1 wide + 1-2 close-ups), we can take a proper look and follow up with next steps. ${SHOP_PHONE_DISPLAY}`
   );
+  const recommendedOutreach = ensureShopSignature(outreachMessage ?? fallbackOutreach);
+  const smsDraft = recommendedOutreach;
+
+  // Gmail often strips `sms:` hrefs, so we generate an https:// token link that resolves into
+  // {to_phone, body} and then opens Messages locally.
+  const smsCustomerLink = customerPhone
+    ? await createSmsLinkUrl({
+        threadId,
+        kind: 'customer',
+        toPhone: customerPhone,
+        body: smsDraft,
+        baseUrl: smsLinkBaseUrl,
+      })
+    : null;
 
   const emailDraftSubject = vehicleOrProject
-    ? `Craig's Auto Upholstery - next steps for ${vehicleOrProject}`
-    : `Craig's Auto Upholstery - next steps`;
-  const emailDraftBody = normalizeWhitespace(
-    `Hi ${contactName},\n\nThanks for reaching out to Craig's Auto Upholstery${contextSnippet}.\n\nIf you can reply with 2-4 photos (1 wide + 1-2 close-ups), we can take a proper look and follow up with next steps. If matching material/color matters, include a photo of the \"good\" area too.\n\nCraig's Auto Upholstery\n(408) 379-3820\n271 Bestor St, San Jose, CA 95112`
-  );
-
-  introLines.push('Copy/paste drafts');
-  if (outreachMessage) {
-    introLines.push(
-      `Suggested outreach${customerLanguage ? ` (${customerLanguage})` : ''}:\n${outreachMessage}`
-    );
-    introLines.push('');
+    ? `${SHOP_NAME} - next steps for ${vehicleOrProject}`
+    : `${SHOP_NAME} - next steps`;
+  let emailDraftBody = recommendedOutreach;
+  if (!hasShopAddress(emailDraftBody)) {
+    emailDraftBody = `${emailDraftBody}\n${SHOP_ADDRESS}`;
   }
-  introLines.push(`SMS draft:\n${smsDraft}`);
-  introLines.push('');
-  introLines.push(`Email subject:\n${emailDraftSubject}`);
-  introLines.push('');
-  introLines.push(`Email draft:\n${emailDraftBody}`);
-  introLines.push('');
+  emailDraftBody = normalizeWhitespace(emailDraftBody);
 
-  introLines.push('Transcript:');
-  introLines.push('');
+  const emailDraftHref = customerEmail
+    ? mailtoWithDraft(customerEmail, emailDraftSubject, emailDraftBody)
+    : null;
 
   const transcriptLines = transcript.map((line) => {
     const when = formatTimestamp(line.created_at);
     return `[${when}] ${line.speaker}: ${line.text}`;
   });
 
-  const bodyText = [...introLines, ...transcriptLines].join('\n\n');
+  const bodyParts: string[] = [`New chat lead from ${sourceLabel}`, ''];
+
+  if (leadSummary) {
+    bodyParts.push('At a glance');
+    if (leadSummary.customer_name) bodyParts.push(`Customer: ${leadSummary.customer_name}`);
+    if (customerPhone) bodyParts.push(`Phone: ${customerPhone}`);
+    if (customerEmail) bodyParts.push(`Email: ${customerEmail}`);
+    if (leadSummary.customer_location) bodyParts.push(`Location: ${leadSummary.customer_location}`);
+    if (leadSummary.vehicle) bodyParts.push(`Vehicle: ${leadSummary.vehicle}`);
+    if (leadSummary.project) bodyParts.push(`Project: ${leadSummary.project}`);
+    if (leadSummary.timeline) bodyParts.push(`Timeline: ${leadSummary.timeline}`);
+    bodyParts.push('');
+  }
+
+  if (attachments.length) {
+    bodyParts.push(`Photos/attachments (${attachments.length})`);
+    bodyParts.push(
+      attachments
+        .map((att) => `- ${att.name}${att.mime ? ` (${att.mime})` : ''}: ${att.url}`)
+        .join('\n')
+    );
+    bodyParts.push('');
+  }
+
+  if (leadSummary?.summary) {
+    bodyParts.push('Summary');
+    bodyParts.push(leadSummary.summary);
+    bodyParts.push('');
+  }
+
+  if (leadSummary?.next_steps?.length) {
+    bodyParts.push('Suggested next steps');
+    bodyParts.push(formatListText(leadSummary.next_steps, '- '));
+    bodyParts.push('');
+  }
+
+  if (leadSummary?.follow_up_questions?.length) {
+    bodyParts.push('Follow-up questions');
+    bodyParts.push(formatListText(leadSummary.follow_up_questions, '- '));
+    bodyParts.push('');
+  }
+
+  if (callScriptPrompts.length) {
+    bodyParts.push('Call script (3 prompts)');
+    bodyParts.push(formatListText(callScriptPrompts, '- '));
+    bodyParts.push('');
+  }
+
+  bodyParts.push('Drafts');
+  if (smsCustomerLink) bodyParts.push(`Text customer link:\n${smsCustomerLink}`);
+  if (customerPhone) bodyParts.push(`Text message:\n${smsDraft}`);
+  if (customerEmail) {
+    bodyParts.push(`Email subject:\n${emailDraftSubject}`);
+    bodyParts.push(`Email draft:\n${emailDraftBody}`);
+  }
+  bodyParts.push('');
+
+  bodyParts.push('Transcript');
+  bodyParts.push('');
+  bodyParts.push(...transcriptLines);
+  bodyParts.push('');
+
+  bodyParts.push('Diagnostics');
+  bodyParts.push(`Thread: ${threadId}`);
+  bodyParts.push(`OpenAI logs: ${threadHref}`);
+  bodyParts.push(`Trigger: ${reason}`);
+  bodyParts.push(`Chat user: ${chatUser}`);
+  if (leadSummary?.missing_info?.length) {
+    bodyParts.push(`Missing: ${leadSummary.missing_info.join(', ')}`);
+  }
+  if (locale) bodyParts.push(`Locale: ${locale}`);
+  if (customerLanguage) bodyParts.push(`Language: ${customerLanguage}`);
+  if (pageHref) bodyParts.push(`Page: ${pageHref}`);
+
+  const bodyText = bodyParts.join('\n\n');
 
   const atAGlanceRows: Array<{ label: string; value: string; href?: string | null }> = [];
   if (leadSummary?.customer_name) atAGlanceRows.push({ label: 'Customer', value: leadSummary.customer_name });
@@ -767,10 +1003,18 @@ async function sendTranscriptEmail(args: {
   if (leadSummary?.vehicle) atAGlanceRows.push({ label: 'Vehicle', value: leadSummary.vehicle });
   if (leadSummary?.project) atAGlanceRows.push({ label: 'Project', value: leadSummary.project });
   if (leadSummary?.timeline) atAGlanceRows.push({ label: 'Timeline', value: leadSummary.timeline });
-  if (locale) atAGlanceRows.push({ label: 'Locale', value: locale });
-  if (customerLanguage) atAGlanceRows.push({ label: 'Language', value: customerLanguage });
-  if (pageHref) atAGlanceRows.push({ label: 'Page', value: pageHref, href: pageHref });
-  atAGlanceRows.push({ label: 'Thread', value: threadId, href: threadHref });
+  if (attachments.length) atAGlanceRows.push({ label: 'Photos', value: String(attachments.length) });
+
+  const diagnosticRows: Array<{ label: string; value: string; href?: string | null }> = [];
+  if (locale) diagnosticRows.push({ label: 'Locale', value: locale });
+  if (customerLanguage) diagnosticRows.push({ label: 'Language', value: customerLanguage });
+  if (pageHref) diagnosticRows.push({ label: 'Page', value: pageHref, href: pageHref });
+  diagnosticRows.push({ label: 'Thread', value: threadId, href: threadHref });
+  if (reason) diagnosticRows.push({ label: 'Trigger', value: reason });
+  if (chatUser) diagnosticRows.push({ label: 'Chat user', value: chatUser });
+  if (leadSummary?.missing_info?.length) {
+    diagnosticRows.push({ label: 'Missing', value: leadSummary.missing_info.join(', ') });
+  }
 
   const htmlAtAGlanceRows = atAGlanceRows
     .map(({ label, value, href }) => {
@@ -787,10 +1031,26 @@ async function sendTranscriptEmail(args: {
     })
     .join('');
 
+  const htmlDiagnosticRows = diagnosticRows
+    .map(({ label, value, href }) => {
+      const labelCell = `<td style="padding:6px 0;color:#6b7280;vertical-align:top;width:140px">${escapeHtml(
+        label
+      )}</td>`;
+      const valueHtml = href
+        ? `<a href="${escapeHtml(String(href))}" style="color:#141cff;text-decoration:none">${escapeHtml(
+            value
+          )}</a>`
+        : escapeHtml(value);
+      const valueCell = `<td style="padding:6px 0;color:#111827">${valueHtml}</td>`;
+      return `<tr>${labelCell}${valueCell}</tr>`;
+    })
+    .join('');
+
   const quickActions: Array<{ label: string; href: string }> = [];
   if (customerTelHref) quickActions.push({ label: 'Call customer', href: customerTelHref });
-  if (customerSmsHref) quickActions.push({ label: 'Text customer', href: customerSmsHref });
+  if (smsCustomerLink) quickActions.push({ label: 'Text customer', href: smsCustomerLink });
   if (customerMailHref) quickActions.push({ label: 'Email customer', href: customerMailHref });
+  if (emailDraftHref) quickActions.push({ label: 'Email draft', href: emailDraftHref });
   if (pageHref) quickActions.push({ label: 'Open page', href: pageHref });
   quickActions.push({ label: 'OpenAI logs', href: threadHref });
 
@@ -804,27 +1064,56 @@ async function sendTranscriptEmail(args: {
     .join('');
 
   const callScriptHtml = formatListHtml(callScriptPrompts);
-  const outreachDraftLabel = `Suggested outreach${customerLanguage ? ` (${customerLanguage})` : ''}`;
-  const outreachDraftBlockHtml = outreachMessage
-    ? `<div style="margin:0 0 12px">
-        <div style="font-size:13px;font-weight:700;margin:0 0 6px">${escapeHtml(outreachDraftLabel)}</div>
-        <pre style="margin:0;padding:12px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;white-space:pre-wrap;word-break:break-word;font-size:13px;line-height:1.4">${escapeHtml(
-          outreachMessage
-        )}</pre>
-      </div>`
+
+  const attachmentsHtml = attachments.length
+    ? `<div style="font-size:14px;font-weight:700;margin:0 0 10px">Photos/attachments (${attachments.length})</div>
+       <ul style="margin:0;padding-left:18px;font-size:13px;line-height:1.5">
+         ${attachments
+           .map((att) => {
+             const label = `${att.name}${att.mime ? ` (${att.mime})` : ''}`;
+             return `<li style="margin:0 0 8px"><a href="${escapeHtml(att.url)}" style="color:#141cff;text-decoration:none">${escapeHtml(
+               label
+             )}</a></li>`;
+           })
+           .join('')}
+       </ul>`
     : '';
 
+  const draftsHtmlParts: string[] = [];
+  if (customerPhone) {
+    draftsHtmlParts.push(`<div style="margin:0 0 12px">
+      <div style="font-size:13px;font-weight:700;margin:0 0 6px">Text message</div>
+      <pre style="margin:0;padding:12px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;white-space:pre-wrap;word-break:break-word;font-size:13px;line-height:1.4">${escapeHtml(
+        smsDraft
+      )}</pre>
+    </div>`);
+  }
+  if (customerEmail) {
+    draftsHtmlParts.push(`<div style="margin:0 0 12px">
+      <div style="font-size:13px;font-weight:700;margin:0 0 6px">Email subject</div>
+      <pre style="margin:0;padding:12px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;white-space:pre-wrap;word-break:break-word;font-size:13px;line-height:1.4">${escapeHtml(
+        emailDraftSubject
+      )}</pre>
+    </div>`);
+    draftsHtmlParts.push(`<div>
+      <div style="font-size:13px;font-weight:700;margin:0 0 6px">Email body</div>
+      <pre style="margin:0;padding:12px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;white-space:pre-wrap;word-break:break-word;font-size:13px;line-height:1.4">${escapeHtml(
+        emailDraftBody
+      )}</pre>
+    </div>`);
+  }
+  const draftsHtml = draftsHtmlParts.join('');
+
+  // Render the transcript in a "per message" layout, but keep the HTML lightweight.
   const transcriptHtml = transcript
     .map((line) => {
       const when = formatTimestamp(line.created_at);
-      return `<div style="margin:0 0 10px"><span style="color:#6b7280">[${escapeHtml(
-        when
-      )}]</span> <strong>${escapeHtml(line.speaker)}:</strong> ${escapeHtml(line.text).replace(
-        /\n/g,
-        '<br/>'
-      )}</div>`;
+      const speakerColor = line.speaker === 'Customer' ? '#111827' : '#141cff';
+      return `[${escapeHtml(when)}] <strong style="color:${speakerColor}">${escapeHtml(
+        line.speaker
+      )}:</strong> ${linkifyTextToHtml(line.text)}`;
     })
-    .join('');
+    .join('<br/><br/>');
 
   const html = `<!doctype html>
 <html lang="en">
@@ -858,17 +1147,20 @@ async function sendTranscriptEmail(args: {
                 <div>${quickActionsHtml || '<span style="color:#6b7280;font-size:13px">No actions available.</span>'}</div>
               </td>
             </tr>
-            <tr>
+            ${
+              attachments.length
+                ? `<tr>
               <td style="padding:18px 22px;border-top:1px solid #e5e7eb">
-                <div style="font-size:14px;font-weight:700;margin:0 0 10px">Call script (3 prompts)</div>
-                ${callScriptHtml}
+                ${attachmentsHtml}
               </td>
-            </tr>
+            </tr>`
+                : ''
+            }
             ${
               leadSummary
                 ? `<tr>
               <td style="padding:18px 22px;border-top:1px solid #e5e7eb">
-                <div style="font-size:14px;font-weight:700;margin:0 0 10px">AI summary</div>
+                <div style="font-size:14px;font-weight:700;margin:0 0 10px">Summary</div>
                 <p style="margin:0;line-height:1.5;color:#111827">${escapeHtml(
                   leadSummary.summary
                 )}</p>
@@ -885,43 +1177,34 @@ async function sendTranscriptEmail(args: {
                 <div style="font-size:14px;font-weight:700;margin:0 0 10px">Follow-up questions</div>
                 ${formatListHtml(leadSummary.follow_up_questions)}
               </td>
-            </tr>
-            <tr>
-              <td style="padding:12px 22px;border-top:1px solid #e5e7eb;color:#6b7280;font-size:12px">
-                AI summary is generated from the chat transcript and may need a quick review.
-              </td>
             </tr>`
                 : ''
             }
             <tr>
               <td style="padding:18px 22px;border-top:1px solid #e5e7eb">
-                <div style="font-size:14px;font-weight:700;margin:0 0 10px">Copy/paste drafts</div>
-                <div style="font-size:12px;color:#6b7280;margin:0 0 10px">Edit as needed before sending.</div>
-                ${outreachDraftBlockHtml}
-                <div style="margin:0 0 12px">
-                  <div style="font-size:13px;font-weight:700;margin:0 0 6px">SMS draft</div>
-                  <pre style="margin:0;padding:12px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;white-space:pre-wrap;word-break:break-word;font-size:13px;line-height:1.4">${escapeHtml(
-                    smsDraft
-                  )}</pre>
-                </div>
-                <div style="margin:0 0 12px">
-                  <div style="font-size:13px;font-weight:700;margin:0 0 6px">Email subject</div>
-                  <pre style="margin:0;padding:12px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;white-space:pre-wrap;word-break:break-word;font-size:13px;line-height:1.4">${escapeHtml(
-                    emailDraftSubject
-                  )}</pre>
-                </div>
-                <div>
-                  <div style="font-size:13px;font-weight:700;margin:0 0 6px">Email draft</div>
-                  <pre style="margin:0;padding:12px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;white-space:pre-wrap;word-break:break-word;font-size:13px;line-height:1.4">${escapeHtml(
-                    emailDraftBody
-                  )}</pre>
-                </div>
+                <div style="font-size:14px;font-weight:700;margin:0 0 10px">Call script (3 prompts)</div>
+                ${callScriptHtml}
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:18px 22px;border-top:1px solid #e5e7eb">
+                <div style="font-size:14px;font-weight:700;margin:0 0 10px">Drafts</div>
+                <div style="font-size:12px;color:#6b7280;margin:0 0 10px">Copy/paste (edit as needed).</div>
+                ${draftsHtml || '<span style=\"color:#6b7280;font-size:13px\">No drafts available.</span>'}
               </td>
             </tr>
             <tr>
               <td style="padding:18px 22px;border-top:1px solid #e5e7eb">
                 <div style="font-size:14px;font-weight:700;margin:0 0 10px">Transcript</div>
-                <div style="font-size:13px;line-height:1.5;color:#111827">${transcriptHtml}</div>
+                <div style="font-size:13px;line-height:1.5;color:#111827;white-space:pre-wrap;word-break:break-word">${transcriptHtml}</div>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:18px 22px;border-top:1px solid #e5e7eb">
+                <div style="font-size:14px;font-weight:700;margin:0 0 10px">Diagnostics</div>
+                <table role="presentation" style="width:100%;border-collapse:collapse;font-size:13px">
+                  ${htmlDiagnosticRows || '<tr><td style=\"color:#6b7280\">No diagnostics available.</td></tr>'}
+                </table>
               </td>
             </tr>
           </table>
@@ -934,6 +1217,7 @@ async function sendTranscriptEmail(args: {
   const result = await ses.send(
     new SendEmailCommand({
       Source: leadFromEmail,
+      ...(customerEmail ? { ReplyToAddresses: [customerEmail] } : {}),
       Destination: { ToAddresses: [leadToEmail] },
       Message: {
         Subject: { Data: subject, Charset: 'UTF-8' },
@@ -1083,6 +1367,7 @@ export const handler = async (event: LambdaEvent): Promise<LambdaResult> => {
         locale,
         pageUrl,
         chatUser: threadUser ?? chatUser,
+        reason,
         threadTitle,
         transcript: lines,
         leadSummary: hydratedLeadSummary,

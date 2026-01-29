@@ -6,10 +6,12 @@ import { FunctionUrl, FunctionUrlAuthType, HttpMethod } from 'aws-cdk-lib/aws-la
 
 import { chatkitSession } from './functions/chatkit-session/resource';
 import { chatkitLeadEmail } from './functions/chatkit-lead-email/resource';
+import { chatkitSmsLink } from './functions/chatkit-sms-link/resource';
 
 const backend = defineBackend({
   chatkitSession,
   chatkitLeadEmail,
+  chatkitSmsLink,
 });
 
 // Expose a lightweight HTTPS endpoint that creates ChatKit sessions.
@@ -55,6 +57,28 @@ const chatkitLeadEmailUrl = new FunctionUrl(
   }
 );
 
+// Expose a lightweight endpoint used by `sms.craigs.autos` to resolve a token into
+// {to_phone, body}. The browser then opens `sms:` locally (Apple Messages, etc).
+const chatkitSmsLinkUrl = new FunctionUrl(
+  Stack.of(backend.chatkitSmsLink.resources.lambda),
+  'ChatkitSmsLinkUrl',
+  {
+    function: backend.chatkitSmsLink.resources.lambda,
+    authType: FunctionUrlAuthType.NONE,
+    cors: {
+      allowedOrigins: [
+        'https://sms.craigs.autos',
+        'https://chat.craigs.autos',
+        'https://craigs.autos',
+        'http://localhost:4321',
+      ],
+      allowedMethods: [HttpMethod.GET],
+      allowedHeaders: ['content-type'],
+      maxAge: Duration.days(1),
+    },
+  }
+);
+
 backend.chatkitLeadEmail.resources.lambda.addToRolePolicy(
   new PolicyStatement({
     actions: ['ses:SendEmail', 'ses:SendRawEmail'],
@@ -84,11 +108,37 @@ chatkitLeadDedupeTable.grantReadWriteData(backend.chatkitLeadEmail.resources.lam
   chatkitLeadDedupeTable.tableName
 );
 
+// Used by "Text customer / Text draft" links in lead emails.
+const chatkitSmsLinkTokenTable = new Table(
+  Stack.of(backend.chatkitSmsLink.resources.lambda),
+  'ChatkitSmsLinkTokenTable',
+  {
+    billingMode: BillingMode.PAY_PER_REQUEST,
+    partitionKey: { name: 'token', type: AttributeType.STRING },
+    timeToLiveAttribute: 'ttl',
+    removalPolicy: RemovalPolicy.RETAIN,
+  }
+);
+
+chatkitSmsLinkTokenTable.grantReadData(backend.chatkitSmsLink.resources.lambda);
+chatkitSmsLinkTokenTable.grantReadWriteData(backend.chatkitLeadEmail.resources.lambda);
+
+(backend.chatkitSmsLink.resources.lambda as any).addEnvironment(
+  'SMS_LINK_TOKEN_TABLE_NAME',
+  chatkitSmsLinkTokenTable.tableName
+);
+(backend.chatkitLeadEmail.resources.lambda as any).addEnvironment(
+  'SMS_LINK_TOKEN_TABLE_NAME',
+  chatkitSmsLinkTokenTable.tableName
+);
+
 backend.addOutput({
   custom: {
     // Used by the frontend widget (via /amplify_outputs.json) to locate the session endpoint.
     chatkit_session_url: chatkitSessionUrl.url,
     // Used by the frontend widget to send transcripts to the shop.
     chatkit_lead_email_url: chatkitLeadEmailUrl.url,
+    // Used by sms.craigs.autos/t/<token> to resolve tokens.
+    chatkit_sms_link_url: chatkitSmsLinkUrl.url,
   },
 });

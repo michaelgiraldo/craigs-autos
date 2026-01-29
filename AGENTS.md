@@ -177,14 +177,15 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
   - no duplicate emails for the same `cthr_...`
   - errors do not cause retry storms
 
-### Change triggers (auto/idle/pagehide/close)
+### Change triggers (idle/pagehide/close)
 
 - Edit: `src/components/ChatWidgetReact.jsx`
 - Keep reason strings stable if possible:
-  - `auto`, `idle`, `pagehide`, `chat_closed`
-- Confirm backend gating:
-  - `auto` only sends when `handoff_ready === true`
-  - other reasons send when contact exists
+  - `idle`, `pagehide`, `chat_closed`
+- Confirm behavior:
+  - `idle` fires after a quiet period (timer resets on in-chat activity)
+  - backend sends once contact exists
+  - DynamoDB enforces "send once per thread"
 
 ## Security and privacy
 
