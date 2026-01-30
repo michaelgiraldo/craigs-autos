@@ -31,6 +31,7 @@ frontend:
             --outputs-format json \
             --outputs-version 1.4
         - npm run build
+        - npm run indexnow:submit
   artifacts:
     baseDirectory: dist
     files:
