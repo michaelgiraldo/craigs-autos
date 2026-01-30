@@ -218,7 +218,16 @@ export default function ChatWidgetReact({
   const chatkitLocale = CHATKIT_LOCALE_MAP[locale] ?? 'en';
   const dir = locale === 'ar' ? 'rtl' : 'ltr';
 
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = React.useState(() => {
+    if (typeof window === 'undefined') return false;
+    try {
+      const saved = sessionStorage.getItem(OPEN_KEY);
+      if (saved !== null) return saved === 'true';
+      return true;
+    } catch {
+      return true;
+    }
+  });
   const [userId, setUserId] = React.useState(null);
   const [threadId, setThreadId] = React.useState(null);
   const [resolvedSessionUrl, setResolvedSessionUrl] = React.useState(sessionUrl);
@@ -232,13 +241,13 @@ export default function ChatWidgetReact({
   const chatRef = React.useRef(null);
   const chatPanelRef = React.useRef(null);
   const leadEmailInFlightRef = React.useRef(false);
+  const hasUserInteractedRef = React.useRef(false);
   const idleTimerRef = React.useRef(null);
   const isDev = import.meta.env?.DEV;
 
   React.useEffect(() => {
     setUserId(getOrCreateUserId());
     setThreadId(sessionStorage.getItem(THREAD_STORAGE_KEY));
-    setOpen(sessionStorage.getItem(OPEN_KEY) === 'true');
   }, []);
 
   React.useEffect(() => {
@@ -320,6 +329,7 @@ export default function ChatWidgetReact({
   const sendLeadEmail = React.useCallback(
     async ({ reason = 'chat_closed' } = {}) => {
       if (leadEmailInFlightRef.current) return;
+      if (!hasUserInteractedRef.current) return;
       const activeThreadId = threadId;
       if (!activeThreadId) return;
       if (typeof resolvedLeadEmailUrl !== 'string' || !resolvedLeadEmailUrl.trim()) return;
@@ -389,6 +399,7 @@ export default function ChatWidgetReact({
   }, []);
 
   const bumpIdleTimer = React.useCallback(() => {
+    if (!hasUserInteractedRef.current) return;
     if (idleTimerRef.current) window.clearTimeout(idleTimerRef.current);
     idleTimerRef.current = window.setTimeout(() => {
       void sendLeadEmail({ reason: 'idle' });
@@ -406,7 +417,12 @@ export default function ChatWidgetReact({
     const panel = chatPanelRef.current;
     if (!panel) return;
 
-    const onActivity = () => bumpIdleTimer();
+    const onActivity = (event) => {
+      if (event?.isTrusted) {
+        hasUserInteractedRef.current = true;
+      }
+      bumpIdleTimer();
+    };
 
     // Treat in-chat interaction as activity so we don't fire the idle lead send
     // while the customer is actively typing/clicking in the chat UI.
