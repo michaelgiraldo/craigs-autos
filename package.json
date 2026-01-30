@@ -8,6 +8,7 @@
     "dev:local": "concurrently -k -n api,web -c yellow,cyan \"npm:dev:chatkit\" \"npm:dev\"",
     "prebuild": "node scripts/validate-i18n.mjs",
     "build": "astro build",
+    "indexnow:submit": "node scripts/indexnow-submit.mjs",
     "preview": "astro preview",
     "astro": "astro"
   },
