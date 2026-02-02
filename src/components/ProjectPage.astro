@@ -1,0 +1,72 @@
+---
+import PageHero from './PageHero.astro';
+import ProjectGallery from './ProjectGallery.astro';
+import { getProject } from '../data/projects/index.js';
+
+const { projectId, locale = 'en' } = Astro.props;
+const project = getProject(projectId);
+
+if (!project) {
+	throw new Error(`Project not found: ${projectId}`);
+}
+
+const resolveCopy = (value) => value?.[locale] ?? value?.en ?? '';
+const workItems = project.copy?.workItems?.[locale] ?? project.copy?.workItems?.en ?? [];
+---
+
+<PageHero
+	locale={locale}
+	title={resolveCopy(project.copy?.title)}
+	lead={resolveCopy(project.copy?.lead)}
+/>
+
+<section class="project-section">
+	<div class="container">
+		<h2>{resolveCopy(project.copy?.overviewTitle)}</h2>
+		<p>{resolveCopy(project.copy?.overviewBody)}</p>
+	</div>
+</section>
+
+<section class="project-section project-section--alt">
+	<div class="container">
+		<h2>{resolveCopy(project.copy?.workTitle)}</h2>
+		<ul class="project-list">
+			{workItems.map((item) => (
+				<li>{item}</li>
+			))}
+		</ul>
+	</div>
+</section>
+
+<ProjectGallery projectId={projectId} locale={locale} />
+
+<style>
+	.project-section {
+		padding: 2.5rem 0;
+	}
+
+	.project-section--alt {
+		background: rgba(255, 255, 255, 0.7);
+		border-top: 1px solid var(--color-border);
+		border-bottom: 1px solid var(--color-border);
+	}
+
+	.project-section h2 {
+		margin: 0 0 1rem;
+		font-size: clamp(1.6rem, 2.4vw, 2.2rem);
+	}
+
+	.project-section p {
+		margin: 0;
+		color: var(--color-muted);
+		font-size: 1.05rem;
+	}
+
+	.project-list {
+		margin: 0;
+		padding-left: 1.2rem;
+		display: grid;
+		gap: 0.55rem;
+		color: var(--color-text);
+	}
+</style>

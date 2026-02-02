@@ -1,0 +1,250 @@
+---
+import { Image } from 'astro:assets';
+
+const { images = [], locale = 'en' } = Astro.props;
+const resolveCopy = (value) => value?.[locale] ?? value?.en ?? '';
+---
+
+<div class="lightbox-gallery" data-lightbox-root>
+	<div class="lightbox-gallery__grid">
+		{images.map((image, index) => (
+			<figure class="lightbox-gallery__item">
+				<button
+					class="lightbox-gallery__button"
+					type="button"
+					data-lightbox-open
+					data-lightbox-index={index}
+					data-lightbox-full={image.asset.src}
+					aria-label={resolveCopy(image.alt) || 'Open image'}
+				>
+					<Image
+						src={image.asset}
+						alt={resolveCopy(image.alt)}
+						loading="lazy"
+						decoding="async"
+						sizes="(min-width: 1024px) 320px, (min-width: 640px) 45vw, 100vw"
+					/>
+				</button>
+				{resolveCopy(image.caption) ? (
+					<figcaption>{resolveCopy(image.caption)}</figcaption>
+				) : null}
+			</figure>
+		))}
+	</div>
+
+	<div class="lightbox" data-lightbox>
+		<div class="lightbox__scrim" data-lightbox-close></div>
+		<div class="lightbox__content" role="dialog" aria-modal="true" aria-label="Image preview">
+			<button class="lightbox__close" type="button" data-lightbox-close aria-label="Close">
+				×
+			</button>
+			<button class="lightbox__nav lightbox__nav--prev" type="button" data-lightbox-prev aria-label="Previous image">
+				‹
+			</button>
+			<img class="lightbox__image" data-lightbox-image alt="" />
+			<button class="lightbox__nav lightbox__nav--next" type="button" data-lightbox-next aria-label="Next image">
+				›
+			</button>
+			<p class="lightbox__caption" data-lightbox-caption></p>
+		</div>
+	</div>
+</div>
+
+<script type="module" is:inline>
+	const roots = document.querySelectorAll('[data-lightbox-root]');
+
+	roots.forEach((root) => {
+		if (root.dataset.lightboxReady === 'true') return;
+		root.dataset.lightboxReady = 'true';
+
+		const images = Array.from(root.querySelectorAll('[data-lightbox-open]')).map((button) => {
+			const img = button.querySelector('img');
+			return {
+				src: img?.currentSrc || img?.src || '',
+				alt: img?.alt || '',
+				caption: button.parentElement?.querySelector('figcaption')?.textContent?.trim() || '',
+				full: button.getAttribute('data-lightbox-full') || '',
+			};
+		});
+
+		const lightbox = root.querySelector('[data-lightbox]');
+		const lightboxImage = root.querySelector('[data-lightbox-image]');
+		const lightboxCaption = root.querySelector('[data-lightbox-caption]');
+
+		let currentIndex = 0;
+
+		const openAt = (index) => {
+			currentIndex = index;
+			const item = images[currentIndex];
+			if (!item || !lightbox || !lightboxImage) return;
+			lightboxImage.src = item.full || item.src;
+			lightboxImage.alt = item.alt;
+			if (lightboxCaption) lightboxCaption.textContent = item.caption;
+			lightbox.classList.add('is-open');
+			document.body.style.overflow = 'hidden';
+		};
+
+		const close = () => {
+			if (!lightbox) return;
+			lightbox.classList.remove('is-open');
+			document.body.style.overflow = '';
+		};
+
+		const next = () => openAt((currentIndex + 1) % images.length);
+		const prev = () => openAt((currentIndex - 1 + images.length) % images.length);
+
+		root.querySelectorAll('[data-lightbox-open]').forEach((button) => {
+			button.addEventListener('click', () => {
+				const index = Number(button.getAttribute('data-lightbox-index') || 0);
+				openAt(index);
+			});
+		});
+
+		root.querySelectorAll('[data-lightbox-close]').forEach((button) => {
+			button.addEventListener('click', close);
+		});
+
+		root.querySelector('[data-lightbox-next]')?.addEventListener('click', next);
+		root.querySelector('[data-lightbox-prev]')?.addEventListener('click', prev);
+
+		window.addEventListener('keydown', (event) => {
+			if (!lightbox?.classList.contains('is-open')) return;
+			if (event.key === 'Escape') close();
+			if (event.key === 'ArrowRight') next();
+			if (event.key === 'ArrowLeft') prev();
+		});
+	});
+</script>
+
+<style>
+	.lightbox-gallery__grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+		gap: 1rem;
+		margin-top: 1.5rem;
+	}
+
+	.lightbox-gallery__item {
+		margin: 0;
+		background: var(--color-surface);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-lg);
+		overflow: hidden;
+		box-shadow: var(--shadow-sm);
+	}
+
+	.lightbox-gallery__button {
+		display: block;
+		padding: 0;
+		border: none;
+		background: none;
+		cursor: zoom-in;
+	}
+
+	.lightbox-gallery__item img {
+		display: block;
+		width: 100%;
+		height: auto;
+	}
+
+	.lightbox-gallery__item figcaption {
+		padding: 0.75rem 0.9rem 0.95rem;
+		font-size: 0.95rem;
+		color: var(--color-muted);
+	}
+
+	.lightbox {
+		position: fixed;
+		inset: 0;
+		display: none;
+		align-items: center;
+		justify-content: center;
+		z-index: 120;
+	}
+
+	.lightbox.is-open {
+		display: flex;
+	}
+
+	.lightbox__scrim {
+		position: absolute;
+		inset: 0;
+		background: rgba(10, 10, 10, 0.75);
+	}
+
+	.lightbox__content {
+		position: relative;
+		z-index: 1;
+		max-width: min(90vw, 1100px);
+		max-height: 90vh;
+		display: grid;
+		grid-template-rows: 1fr auto;
+		gap: 0.5rem;
+		align-items: center;
+		justify-items: center;
+	}
+
+	.lightbox__image {
+		max-width: 90vw;
+		max-height: 80vh;
+		object-fit: contain;
+		border-radius: var(--radius-lg);
+		box-shadow: var(--shadow-md);
+		background: #111;
+	}
+
+	.lightbox__caption {
+		margin: 0;
+		color: #f3f4f6;
+		font-size: 0.95rem;
+		text-align: center;
+		max-width: 70ch;
+	}
+
+	.lightbox__close {
+		position: absolute;
+		top: -2.5rem;
+		right: 0;
+		font-size: 2rem;
+		border: none;
+		background: transparent;
+		color: #fff;
+		cursor: pointer;
+	}
+
+	.lightbox__nav {
+		position: absolute;
+		top: 50%;
+		transform: translateY(-50%);
+		border: none;
+		background: rgba(17, 24, 39, 0.55);
+		color: #fff;
+		width: 2.75rem;
+		height: 2.75rem;
+		border-radius: 50%;
+		font-size: 2rem;
+		cursor: pointer;
+	}
+
+	.lightbox__nav--prev {
+		left: -3.5rem;
+	}
+
+	.lightbox__nav--next {
+		right: -3.5rem;
+	}
+
+	@media (max-width: 900px) {
+		.lightbox__nav--prev {
+			left: 0.5rem;
+		}
+
+		.lightbox__nav--next {
+			right: 0.5rem;
+		}
+
+		.lightbox__close {
+			top: -2.2rem;
+		}
+	}
+</style>

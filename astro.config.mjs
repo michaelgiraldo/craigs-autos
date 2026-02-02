@@ -11,6 +11,15 @@ export default defineConfig({
 	devToolbar: {
 		placement: 'bottom-left',
 	},
+	image: {
+		service: {
+			entrypoint: 'astro/assets/services/sharp',
+			config: {
+				quality: 90,
+				formats: ['avif', 'webp', 'jpeg'],
+			},
+		},
+	},
 	vite: {
 		server: {
 			proxy: {
