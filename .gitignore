@@ -27,3 +27,9 @@ public/amplify_outputs.json
 
 # jetbrains setting folder
 .idea/
+
+# temp files
+.tmp
+
+# Local imports
+tmp/
