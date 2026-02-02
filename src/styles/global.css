@@ -173,10 +173,27 @@ button:focus-visible {
 
 .brand {
 	display: inline-flex;
+	align-items: center;
+	gap: 0.6rem;
 	color: var(--color-ink);
 	text-decoration: none;
 	font-weight: 800;
 	letter-spacing: -0.02em;
+}
+
+.brand__logo {
+	display: inline-flex;
+	width: 2.3rem;
+	height: 2.3rem;
+	flex: none;
+}
+
+.brand__logo img {
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	border-radius: 999px;
+	box-shadow: var(--shadow-sm);
 }
 
 .brand-block {
@@ -226,6 +243,11 @@ button:focus-visible {
 }
 
 @media (min-width: 860px) {
+	.brand__logo {
+		width: 2.75rem;
+		height: 2.75rem;
+	}
+
 	.header-contact {
 		display: grid;
 	}
