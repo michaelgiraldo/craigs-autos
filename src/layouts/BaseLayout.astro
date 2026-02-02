@@ -1,7 +1,9 @@
 ---
+import { Image } from 'astro:assets';
 import LanguageSwitcher from '../components/LanguageSwitcher.astro';
 import ChatWidget from '../components/ChatWidget.astro';
 import '../styles/global.css';
+import brandLogo from '../assets/brand/craigs-auto-upholstery-logo.png';
 import {
 	BRAND_NAME,
 	BUSINESS_COPY,
@@ -31,6 +33,8 @@ const site = Astro.site ?? new URL(SITE.url);
 const pageTranslations = translations ?? getTranslations(pageKey ?? 'home');
 const canonicalPath = canonicalPathProp ?? pageTranslations[locale] ?? LOCALES.en.base;
 const canonicalUrl = new URL(canonicalPath, site).toString();
+const logoUrl = new URL('/brand/logo-512.png', site).toString();
+const ogImageUrl = new URL('/og-image.jpg', site).toString();
 const isProduction = import.meta.env.PROD;
 const gtmId = typeof import.meta.env.PUBLIC_GTM_ID === 'string' ? import.meta.env.PUBLIC_GTM_ID.trim() : '';
 const gtmEnabled =
@@ -143,6 +147,7 @@ const businessNode = {
 	legalName: BRAND_NAME,
 	description: business.description,
 	url: new URL(PAGE_PATHS.home[locale], site).toString(),
+	logo: logoUrl,
 	telephone: SITE.phone,
 	hasMap: appleMapsHref ? [mapsHref, appleMapsHref] : mapsHref,
 	sameAs: SITE.sameAs,
@@ -258,8 +263,29 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 		<title>{title}</title>
 		<meta name="description" content={description} />
 		<meta name="msvalidate.01" content="8E6AAAC756CDF5BC52BCC838B3C4753C" />
+		<link rel="icon" href="/favicon.ico" sizes="any" />
+		<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+		<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+		<link rel="icon" type="image/png" sizes="64x64" href="/favicon-64.png" />
+		<link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png" />
+		<link rel="icon" type="image/png" sizes="128x128" href="/favicon-128.png" />
+		<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png" />
+		<link rel="icon" type="image/png" sizes="256x256" href="/favicon-256.png" />
+		<link rel="icon" type="image/png" sizes="512x512" href="/favicon-512.png" />
+		<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 		{noindex ? <meta name="robots" content="noindex, follow" /> : null}
 		<link rel="canonical" href={canonicalUrl} />
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content={BRAND_NAME} />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:url" content={canonicalUrl} />
+		<meta property="og:image" content={ogImageUrl} />
+		<meta property="og:image:alt" content={BRAND_NAME} />
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content={title} />
+		<meta name="twitter:description" content={description} />
+		<meta name="twitter:image" content={ogImageUrl} />
 		{hreflangLinks.map((link) => (
 			<link rel="alternate" hreflang={link.hreflang} href={link.href} />
 		))}
@@ -285,6 +311,16 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 				<div class="container site-header__mobile">
 					<div class="site-header__mobile-top">
 						<a class="brand" href={LOCALES[locale]?.base ?? LOCALES.en.base}>
+							<span class="brand__logo">
+								<Image
+									src={brandLogo}
+									alt={BRAND_NAME}
+									width={56}
+									height={56}
+									loading="eager"
+									decoding="async"
+								/>
+							</span>
 							{BRAND_NAME}
 						</a>
 						<div class="site-header__mobile-actions">
@@ -317,6 +353,16 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 			<div class="container site-header__inner">
 				<div class="brand-block">
 					<a class="brand" href={LOCALES[locale]?.base ?? LOCALES.en.base}>
+						<span class="brand__logo">
+							<Image
+								src={brandLogo}
+								alt={BRAND_NAME}
+								width={64}
+								height={64}
+								loading="eager"
+								decoding="async"
+							/>
+						</span>
 						{BRAND_NAME}
 						</a>
 						<a class="brand__sub" href={mapsHref}>

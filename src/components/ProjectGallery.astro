@@ -1,0 +1,32 @@
+---
+import { getProject } from '../data/projects/index.js';
+import LightboxGallery from './LightboxGallery.astro';
+
+const { projectId, locale = 'en' } = Astro.props;
+const project = getProject(projectId);
+
+if (!project) {
+	throw new Error(`Project not found: ${projectId}`);
+}
+
+const resolveCopy = (value) => value?.[locale] ?? value?.en ?? '';
+const galleryTitle = resolveCopy(project.copy?.galleryTitle) || 'Gallery';
+const images = project.images ?? [];
+---
+
+<section class="project-gallery">
+	<div class="container">
+		<h2>{galleryTitle}</h2>
+		<LightboxGallery images={images} locale={locale} />
+	</div>
+</section>
+<style>
+	.project-gallery {
+		padding: 2.5rem 0 3rem;
+	}
+
+	.project-gallery h2 {
+		margin: 0;
+		font-size: clamp(1.6rem, 2.4vw, 2.2rem);
+	}
+</style>

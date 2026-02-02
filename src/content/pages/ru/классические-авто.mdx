@@ -4,6 +4,7 @@ description: "Восстановление классических интерь
 pageKey: "classicCars"
 ---
 import LocalizedLink from "../../../components/LocalizedLink.astro";
+import FeaturedProject from "../../../components/FeaturedProject.astro";
 
 import PageHero from "../../../components/PageHero.astro";
 import ServiceCards from "../../../components/ServiceCards.astro";
@@ -31,6 +32,8 @@ export const faqs = [
 />
 
 <ServiceCards locale="ru" currentKey="classicCars" />
+
+<FeaturedProject projectId="buick-eight" locale="ru" />
 
 Классический салон должен выглядеть цельно. Если сиденья и панели не совпадают, общий вид теряется. Мы помогаем вернуть интерьеру единый стиль.
 
