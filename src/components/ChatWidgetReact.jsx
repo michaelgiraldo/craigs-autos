@@ -209,6 +209,15 @@ function isPlaceholderUrl(value) {
   return typeof value === 'string' && value.includes('<your-backend>');
 }
 
+function pushDataLayer(eventName, params = {}) {
+  try {
+    globalThis.dataLayer = globalThis.dataLayer || [];
+    globalThis.dataLayer.push({ event: eventName, ...params });
+  } catch {
+    // Ignore analytics failures.
+  }
+}
+
 export default function ChatWidgetReact({
   locale = 'en',
   sessionUrl = '/api/chatkit/session/',
@@ -374,15 +383,73 @@ export default function ChatWidgetReact({
         const text = await response.text();
         if (!response.ok) {
           if (isDev) console.error('ChatKit lead email error', response.status, text);
+          pushDataLayer('lead_chat_lead_error', {
+            lead_method: 'chat',
+            lead_locale: locale,
+            lead_request_reason: reason,
+            thread_id: activeThreadId,
+            user_id: userId ?? 'anonymous',
+            page_url: window.location.href,
+            page_path: window.location.pathname,
+            error_code: `http_${response.status}`,
+          });
           return;
         }
 
-        const data = text ? JSON.parse(text) : {};
+        let data = {};
+        try {
+          data = text ? JSON.parse(text) : {};
+        } catch {
+          pushDataLayer('lead_chat_lead_error', {
+            lead_method: 'chat',
+            lead_locale: locale,
+            lead_request_reason: reason,
+            thread_id: activeThreadId,
+            user_id: userId ?? 'anonymous',
+            page_url: window.location.href,
+            page_path: window.location.pathname,
+            error_code: 'parse_error',
+          });
+          return;
+        }
+
+        const backendReason = typeof data?.reason === 'string' ? data.reason : '';
         if (data?.sent === true) {
           globalThis.localStorage?.setItem(sentKey, 'true');
+          pushDataLayer('lead_chat_lead_sent', {
+            lead_method: 'chat',
+            lead_locale: locale,
+            lead_request_reason: reason,
+            lead_reason: backendReason || reason,
+            thread_id: activeThreadId,
+            user_id: userId ?? 'anonymous',
+            page_url: window.location.href,
+            page_path: window.location.pathname,
+          });
+        } else if (data?.sent === false) {
+          pushDataLayer('lead_chat_lead_skipped', {
+            lead_method: 'chat',
+            lead_locale: locale,
+            lead_request_reason: reason,
+            lead_reason: backendReason || 'unknown',
+            thread_id: activeThreadId,
+            user_id: userId ?? 'anonymous',
+            page_url: window.location.href,
+            page_path: window.location.pathname,
+          });
         }
       } catch (err) {
         if (isDev) console.error('ChatKit lead email request failed', err);
+        pushDataLayer('lead_chat_lead_error', {
+          lead_method: 'chat',
+          lead_locale: locale,
+          lead_request_reason: reason,
+          thread_id: threadId,
+          user_id: userId ?? 'anonymous',
+          page_url: window.location.href,
+          page_path: window.location.pathname,
+          error_code: 'network_error',
+        });
       } finally {
         leadEmailInFlightRef.current = false;
       }
@@ -596,7 +663,17 @@ export default function ChatWidgetReact({
           aria-expanded="false"
           aria-controls="chat-panel"
           aria-label={copy.launcherLabel}
-          onClick={() => setOpen(true)}
+          onClick={() => {
+            setOpen(true);
+            pushDataLayer('lead_chat_open', {
+              lead_method: 'chat',
+              lead_locale: locale,
+              thread_id: threadId ?? null,
+              user_id: userId ?? null,
+              page_url: window.location.href,
+              page_path: window.location.pathname,
+            });
+          }}
         >
           <svg className="chat-launcher__icon" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
