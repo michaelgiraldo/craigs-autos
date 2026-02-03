@@ -60,11 +60,14 @@ for (const key of LOCALE_ORDER) {
 	resolvedTranslations[key] = pageTranslations?.[key] ?? LOCALES[key].base;
 }
 
-const xDefaultHref = new URL(resolvedTranslations.en ?? LOCALES.en.base, site).toString();
+// Hreflang should only include true translations for the current page. For pages that exist
+// only in a subset of locales, we omit missing locales instead of pointing at locale homepages.
+const hreflangLocaleKeys = LOCALE_ORDER.filter((key) => Boolean(pageTranslations?.[key]));
+const xDefaultHref = new URL(pageTranslations?.en ?? canonicalPath ?? LOCALES.en.base, site).toString();
 
-const hreflangLinks = LOCALE_ORDER.map((key) => ({
+const hreflangLinks = hreflangLocaleKeys.map((key) => ({
 	hreflang: LOCALES[key].hreflang,
-	href: new URL(resolvedTranslations[key], site).toString(),
+	href: new URL(pageTranslations[key], site).toString(),
 }));
 
 const buildLanguageLink = (key) => {

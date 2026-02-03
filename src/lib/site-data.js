@@ -228,6 +228,9 @@ export const PAGE_PATHS = {
 		ru: '/ru/авто-сиденья/',
 		ta: '/ta/கார்-இருப்புகள்/',
 	},
+	motorcycleSeats: {
+		en: '/en/motorcycle-seat-upholstery/',
+	},
 	headliners: {
 		en: '/en/headliners/',
 		es: '/es/techos-interiores/',
