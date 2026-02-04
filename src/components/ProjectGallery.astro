@@ -1,5 +1,6 @@
 ---
 import { getProject } from '../data/projects/index.js';
+import { NAV_LABELS } from '../lib/site-data.js';
 import LightboxGallery from './LightboxGallery.astro';
 
 const { projectId, locale = 'en' } = Astro.props;
@@ -10,7 +11,8 @@ if (!project) {
 }
 
 const resolveCopy = (value) => value?.[locale] ?? value?.en ?? '';
-const galleryTitle = resolveCopy(project.copy?.galleryTitle) || 'Gallery';
+const labels = NAV_LABELS[locale] ?? NAV_LABELS.en ?? {};
+const galleryTitle = resolveCopy(project.copy?.galleryTitle) || labels.gallery || 'See Our Work';
 const images = project.images ?? [];
 ---
 

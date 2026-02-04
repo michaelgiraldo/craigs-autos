@@ -60,11 +60,13 @@ for (const key of LOCALE_ORDER) {
 	resolvedTranslations[key] = pageTranslations?.[key] ?? LOCALES[key].base;
 }
 
-const xDefaultHref = new URL(resolvedTranslations.en ?? LOCALES.en.base, site).toString();
+// Only emit hreflang for locales that actually have this page translated.
+const hreflangLocaleKeys = LOCALE_ORDER.filter((key) => Boolean(pageTranslations?.[key]));
+const xDefaultHref = new URL(pageTranslations?.en ?? canonicalPath ?? LOCALES.en.base, site).toString();
 
-const hreflangLinks = LOCALE_ORDER.map((key) => ({
+const hreflangLinks = hreflangLocaleKeys.map((key) => ({
 	hreflang: LOCALES[key].hreflang,
-	href: new URL(resolvedTranslations[key], site).toString(),
+	href: new URL(pageTranslations[key], site).toString(),
 }));
 
 const buildLanguageLink = (key) => {
@@ -92,29 +94,57 @@ const currentLanguageLabel = LOCALES[locale]?.label ?? LOCALES.en.label;
 const textDirection = locale === 'ar' ? 'rtl' : 'ltr';
 
 const navLabels = NAV_LABELS[locale] ?? NAV_LABELS.en;
-const navItems = [
-	{ key: 'autoUpholstery', href: PAGE_PATHS.autoUpholstery[locale], label: navLabels.autoUpholstery },
-	{ key: 'carSeats', href: PAGE_PATHS.carSeats[locale], label: navLabels.carSeats },
-	{ key: 'headliners', href: PAGE_PATHS.headliners[locale], label: navLabels.headliners },
-	{
-		key: 'convertibleTops',
-		href: PAGE_PATHS.convertibleTops[locale],
-		label: navLabels.convertibleTops,
-	},
-	{ key: 'classicCars', href: PAGE_PATHS.classicCars[locale], label: navLabels.classicCars },
-	{ key: 'upholsteryGuide', href: PAGE_PATHS.upholsteryGuide[locale], label: navLabels.upholsteryGuide },
-	{ key: 'gallery', href: PAGE_PATHS.gallery[locale], label: navLabels.gallery },
-	{ key: 'reviews', href: PAGE_PATHS.reviews[locale], label: navLabels.reviews },
-	{ key: 'contact', href: PAGE_PATHS.contact[locale], label: navLabels.contact },
+const navItemKeys = [
+	'autoUpholstery',
+	'carSeats',
+	'motorcycleSeats',
+	'headliners',
+	'convertibleTops',
+	'classicCars',
+	'upholsteryGuide',
+	'gallery',
+	'reviews',
+	'contact',
 ];
+const fallbackNavLabels = NAV_LABELS.en ?? {};
+const navItems = navItemKeys
+	.map((key) => {
+		const href = PAGE_PATHS[key]?.[locale];
+		if (!href) {
+			return null;
+		}
+		return {
+			key,
+			href,
+			label: navLabels[key] ?? fallbackNavLabels[key] ?? key,
+		};
+	})
+	.filter(Boolean);
 
 const navItemsByKey = Object.fromEntries(navItems.map((item) => [item.key, item]));
-const mobilePrimaryNav = ['autoUpholstery', 'carSeats', 'headliners', 'convertibleTops'].map(
-	(key) => navItemsByKey[key],
-);
-const mobileSecondaryNav = ['classicCars', 'upholsteryGuide', 'gallery', 'reviews', 'contact'].map(
-	(key) => navItemsByKey[key],
-);
+const servicesLabel = navLabels.services ?? fallbackNavLabels.services ?? 'Services';
+const servicesNav = [
+	'autoUpholstery',
+	'carSeats',
+	'headliners',
+	'convertibleTops',
+	'classicCars',
+]
+	.map((key) => navItemsByKey[key])
+	.filter(Boolean);
+const mobilePrimaryNav = ['autoUpholstery', 'carSeats', 'headliners', 'convertibleTops']
+	.map((key) => navItemsByKey[key])
+	.filter(Boolean);
+const mobileSecondaryNav = [
+	'classicCars',
+	'motorcycleSeats',
+	'upholsteryGuide',
+	'gallery',
+	'reviews',
+	'contact',
+]
+	.map((key) => navItemsByKey[key])
+	.filter(Boolean);
 
 const business = BUSINESS_COPY[locale] ?? BUSINESS_COPY.en;
 const businessId = new URL('#business', site).toString();
@@ -425,17 +455,93 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 							))}
 						</ul>
 						<ul class="site-nav__list site-nav__list--desktop">
-							{navItems.map((item) => (
+							{servicesNav.length > 0 && (
+								<li class="site-nav__item site-nav__item--panel">
+									<details class="site-nav__panel" data-nav-panel>
+										<summary class="site-nav__link site-nav__link--trigger" aria-haspopup="true">
+											<span>{servicesLabel}</span>
+										</summary>
+										<div class="site-nav__panel-body">
+											<div class="site-nav__panel-grid">
+												<div class="site-nav__panel-column">
+													<ul class="site-nav__panel-list">
+														{servicesNav.map((item) => (
+															<li>
+																<a
+																	class="site-nav__panel-link"
+																	href={item.href}
+																	aria-current={item.href === canonicalPath ? 'page' : undefined}
+																>
+																	{item.label}
+																</a>
+															</li>
+														))}
+													</ul>
+												</div>
+											</div>
+										</div>
+									</details>
+								</li>
+							)}
+							{navItemsByKey.motorcycleSeats && (
 								<li>
 									<a
-									class="site-nav__link"
-									href={item.href}
-									aria-current={item.href === canonicalPath ? 'page' : undefined}
-								>
-									{item.label}
-								</a>
-							</li>
-						))}
+										class="site-nav__link"
+										href={navItemsByKey.motorcycleSeats.href}
+										aria-current={
+											navItemsByKey.motorcycleSeats.href === canonicalPath ? 'page' : undefined
+										}
+									>
+										{navItemsByKey.motorcycleSeats.label}
+									</a>
+								</li>
+							)}
+							{navItemsByKey.gallery && (
+								<li>
+									<a
+										class="site-nav__link"
+										href={navItemsByKey.gallery.href}
+										aria-current={navItemsByKey.gallery.href === canonicalPath ? 'page' : undefined}
+									>
+										{navItemsByKey.gallery.label}
+									</a>
+								</li>
+							)}
+							{navItemsByKey.upholsteryGuide && (
+								<li>
+									<a
+										class="site-nav__link"
+										href={navItemsByKey.upholsteryGuide.href}
+										aria-current={
+											navItemsByKey.upholsteryGuide.href === canonicalPath ? 'page' : undefined
+										}
+									>
+										{navItemsByKey.upholsteryGuide.label}
+									</a>
+								</li>
+							)}
+							{navItemsByKey.reviews && (
+								<li>
+									<a
+										class="site-nav__link"
+										href={navItemsByKey.reviews.href}
+										aria-current={navItemsByKey.reviews.href === canonicalPath ? 'page' : undefined}
+									>
+										{navItemsByKey.reviews.label}
+									</a>
+								</li>
+							)}
+							{navItemsByKey.contact && (
+								<li>
+									<a
+										class="site-nav__link site-nav__link--cta"
+										href={navItemsByKey.contact.href}
+										aria-current={navItemsByKey.contact.href === canonicalPath ? 'page' : undefined}
+									>
+										{navItemsByKey.contact.label}
+									</a>
+								</li>
+							)}
 					</ul>
 				</div>
 			</nav>
@@ -769,6 +875,42 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 						if (event.key === 'Escape' && !overlay.hidden) {
 							event.preventDefault();
 							closeMenu();
+						}
+					});
+				})();
+			</script>
+			<script type="module" is:inline>
+				(() => {
+					const panels = Array.from(document.querySelectorAll('[data-nav-panel]'));
+					if (panels.length === 0) {
+						return;
+					}
+
+					const closeAll = (except = null) => {
+						panels.forEach((panel) => {
+							if (panel !== except) {
+								panel.removeAttribute('open');
+							}
+						});
+					};
+
+					panels.forEach((panel) => {
+						panel.addEventListener('toggle', () => {
+							if (panel.open) {
+								closeAll(panel);
+							}
+						});
+					});
+
+					document.addEventListener('click', (event) => {
+						if (!panels.some((panel) => panel.contains(event.target))) {
+							closeAll();
+						}
+					});
+
+					document.addEventListener('keydown', (event) => {
+						if (event.key === 'Escape') {
+							closeAll();
 						}
 					});
 				})();

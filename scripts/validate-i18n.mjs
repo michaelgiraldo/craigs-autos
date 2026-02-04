@@ -3,6 +3,9 @@ import path from 'node:path';
 import { glob } from 'glob';
 import { LOCALES, LOCALE_ORDER, PAGE_PATHS } from '../src/lib/site-data.js';
 
+// Allow English-first launches for specific pages (translate later).
+const PARTIAL_LOCALE_PAGE_KEYS = new Set();
+
 const errors = [];
 const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
@@ -31,6 +34,12 @@ for (const locale of LOCALE_ORDER) {
 }
 
 for (const [pageKey, localeMap] of Object.entries(PAGE_PATHS)) {
+	if (PARTIAL_LOCALE_PAGE_KEYS.has(pageKey)) {
+		if (!localeMap?.en) {
+			errors.push(`PAGE_PATHS.${pageKey} must include an en path`);
+		}
+		continue;
+	}
 	for (const locale of LOCALE_ORDER) {
 		if (!localeMap?.[locale]) {
 			errors.push(`PAGE_PATHS.${pageKey} missing locale ${locale}`);
@@ -102,6 +111,12 @@ for (const file of files) {
 }
 
 for (const [pageKey, localeSet] of pagesByKey.entries()) {
+	if (PARTIAL_LOCALE_PAGE_KEYS.has(pageKey)) {
+		if (!localeSet.has('en')) {
+			errors.push(`Missing en translation for pageKey ${pageKey}`);
+		}
+		continue;
+	}
 	for (const locale of LOCALE_ORDER) {
 		if (!localeSet.has(locale)) {
 			errors.push(`Missing ${locale} translation for pageKey ${pageKey}`);

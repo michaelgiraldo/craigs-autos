@@ -663,6 +663,11 @@ button:focus-visible {
 	margin: 0;
 }
 
+.site-nav__list--desktop {
+	align-items: center;
+	gap: 0.6rem;
+}
+
 .site-nav__list--mobile {
 	display: none;
 }
@@ -683,11 +688,108 @@ button:focus-visible {
 	color: var(--color-ink);
 }
 
+.site-nav__link--trigger {
+	gap: 0.4rem;
+	font-weight: 700;
+}
+
+.site-nav__link--trigger::after {
+	content: '▾';
+	font-size: 0.75rem;
+	opacity: 0.7;
+}
+
+.site-nav__link--cta {
+	background: var(--color-accent);
+	color: #fff;
+	border-color: transparent;
+	font-weight: 800;
+	box-shadow: var(--shadow-sm);
+}
+
+.site-nav__link--cta:hover {
+	background: var(--color-accent-hover);
+	color: #fff;
+}
+
 .site-nav__link[aria-current="page"] {
 	border-color: rgba(180, 83, 9, 0.35);
 	background: rgba(180, 83, 9, 0.12);
 	color: var(--color-ink);
 	font-weight: 700;
+}
+
+.site-nav__panel {
+	position: relative;
+}
+
+.site-nav__panel summary {
+	list-style: none;
+}
+
+.site-nav__panel summary::-webkit-details-marker {
+	display: none;
+}
+
+.site-nav__panel-body {
+	position: absolute;
+	top: calc(100% + 0.55rem);
+	left: 0;
+	width: min(720px, 92vw);
+	padding: 1rem 1.1rem;
+	border-radius: 1rem;
+	border: 1px solid rgba(17, 24, 39, 0.12);
+	background: rgba(255, 255, 255, 0.98);
+	box-shadow: var(--shadow-md);
+	opacity: 0;
+	transform: translateY(-6px);
+	pointer-events: none;
+	transition: opacity 0.2s ease, transform 0.2s ease;
+	z-index: 20;
+}
+
+
+.site-nav__panel[open] .site-nav__panel-body {
+	opacity: 1;
+	transform: translateY(0);
+	pointer-events: auto;
+}
+
+.site-nav__panel-grid {
+	display: grid;
+	gap: 1rem 2.2rem;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.site-nav__panel-title {
+	display: block;
+	margin-bottom: 0.45rem;
+	font-size: 0.85rem;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: var(--color-muted);
+	font-weight: 700;
+}
+
+.site-nav__panel-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	gap: 0.3rem;
+}
+
+.site-nav__panel-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	color: var(--color-ink);
+	text-decoration: none;
+	font-weight: 700;
+}
+
+.site-nav__panel-link:hover {
+	color: var(--color-accent);
 }
 
 .page {
