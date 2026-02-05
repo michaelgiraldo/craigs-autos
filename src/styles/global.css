@@ -240,8 +240,6 @@ button:focus-visible {
 	align-items: center;
 	justify-content: flex-end;
 	gap: 0.65rem;
-	flex-wrap: wrap;
-	row-gap: 0.35rem;
 }
 
 @media (min-width: 860px) {
@@ -334,48 +332,6 @@ button:focus-visible {
 .header-text:hover {
 	border-color: rgba(180, 83, 9, 0.35);
 	color: var(--color-ink);
-}
-
-.header-email {
-	display: inline-flex;
-	align-items: center;
-	gap: 0.35rem;
-	padding: 0.28rem 0.55rem;
-	border-radius: var(--radius-pill);
-	border: 1px solid rgba(17, 24, 39, 0.12);
-	background: rgba(255, 255, 255, 0.55);
-	color: var(--color-ink);
-	text-decoration: none;
-	font-weight: 700;
-	font-size: 0.85rem;
-	letter-spacing: -0.01em;
-}
-
-.header-email:hover {
-	border-color: rgba(180, 83, 9, 0.35);
-	color: var(--color-ink);
-	text-decoration: underline;
-}
-
-.header-email .icon {
-	width: 0.9rem;
-	height: 0.9rem;
-	opacity: 0.7;
-}
-
-.header-contact__row--secondary {
-	gap: 0.45rem;
-}
-
-.header-email__label {
-	color: var(--color-muted);
-	text-transform: uppercase;
-	letter-spacing: 0.08em;
-	font-size: 0.65rem;
-}
-
-.header-email__value {
-	font-variant-numeric: tabular-nums;
 }
 
 .header-address {
