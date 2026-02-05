@@ -266,6 +266,9 @@ const structuredData = {
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width" />
+		<script is:inline>
+			{`(function(){try{var p=new URLSearchParams(window.location.search);var keys=['gclid','gbraid','wbraid','utm_source','utm_medium','utm_campaign','utm_term','utm_content'];var next={};for(var i=0;i<keys.length;i++){var k=keys[i];var v=p.get(k);if(v){next[k]=v;}}var hasNext=Object.keys(next).length>0;var key='craigs_attribution_v1';var existing={};try{existing=JSON.parse(window.localStorage.getItem(key)||'{}')||{};}catch(e){existing={};}var now=new Date().toISOString();var updated=existing||{};if(hasNext){var touch=Object.assign({ts:now,landing_page:window.location.pathname},next);updated.last_touch=touch;if(!updated.first_touch){updated.first_touch=touch;}}if(!updated.referrer&&document.referrer){updated.referrer=document.referrer;}if(!updated.landing_page){updated.landing_page=window.location.pathname;}if(Object.keys(updated).length){window.localStorage.setItem(key,JSON.stringify(updated));}var maxAge=60*60*24*90;if(next.gclid){document.cookie='gclid='+encodeURIComponent(next.gclid)+'; path=/; max-age='+maxAge+'; SameSite=Lax';}if(next.gbraid){document.cookie='gbraid='+encodeURIComponent(next.gbraid)+'; path=/; max-age='+maxAge+'; SameSite=Lax';}if(next.wbraid){document.cookie='wbraid='+encodeURIComponent(next.wbraid)+'; path=/; max-age='+maxAge+'; SameSite=Lax';}}catch(e){}})();`}
+		</script>
 		{gtmEnabled ? (
 			<>
 				<link rel="preconnect" href="https://www.googletagmanager.com" />
@@ -289,6 +292,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 				/>
 			</>
 		) : null}
+		<script src="/lead-signals.js" defer></script>
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
 		<meta name="description" content={description} />

@@ -7,11 +7,13 @@ import { FunctionUrl, FunctionUrlAuthType, HttpMethod } from 'aws-cdk-lib/aws-la
 import { chatkitSession } from './functions/chatkit-session/resource';
 import { chatkitLeadEmail } from './functions/chatkit-lead-email/resource';
 import { chatkitSmsLink } from './functions/chatkit-sms-link/resource';
+import { chatkitLeadSignal } from './functions/chatkit-lead-signal/resource';
 
 const backend = defineBackend({
   chatkitSession,
   chatkitLeadEmail,
   chatkitSmsLink,
+  chatkitLeadSignal,
 });
 
 // Expose a lightweight HTTPS endpoint that creates ChatKit sessions.
@@ -79,6 +81,26 @@ const chatkitSmsLinkUrl = new FunctionUrl(
   }
 );
 
+// Expose a lightweight endpoint to log lead signals (tel/sms/directions clicks).
+const chatkitLeadSignalUrl = new FunctionUrl(
+  Stack.of(backend.chatkitLeadSignal.resources.lambda),
+  'ChatkitLeadSignalUrl',
+  {
+    function: backend.chatkitLeadSignal.resources.lambda,
+    authType: FunctionUrlAuthType.NONE,
+    cors: {
+      allowedOrigins: [
+        'https://chat.craigs.autos',
+        'https://craigs.autos',
+        'http://localhost:4321',
+      ],
+      allowedMethods: [HttpMethod.POST],
+      allowedHeaders: ['content-type'],
+      maxAge: Duration.days(1),
+    },
+  }
+);
+
 backend.chatkitLeadEmail.resources.lambda.addToRolePolicy(
   new PolicyStatement({
     actions: ['ses:SendEmail', 'ses:SendRawEmail'],
@@ -106,6 +128,30 @@ chatkitLeadDedupeTable.grantReadWriteData(backend.chatkitLeadEmail.resources.lam
 (backend.chatkitLeadEmail.resources.lambda as any).addEnvironment(
   'LEAD_DEDUPE_TABLE_NAME',
   chatkitLeadDedupeTable.tableName
+);
+
+// Store attribution data (GCLID/UTM) for offline conversion uploads.
+const chatkitLeadAttributionTable = new Table(
+  Stack.of(backend.chatkitLeadEmail.resources.lambda),
+  'ChatkitLeadAttributionTable',
+  {
+    billingMode: BillingMode.PAY_PER_REQUEST,
+    partitionKey: { name: 'lead_id', type: AttributeType.STRING },
+    timeToLiveAttribute: 'ttl',
+    removalPolicy: RemovalPolicy.RETAIN,
+  }
+);
+
+chatkitLeadAttributionTable.grantReadWriteData(backend.chatkitLeadEmail.resources.lambda);
+(backend.chatkitLeadEmail.resources.lambda as any).addEnvironment(
+  'LEAD_ATTRIBUTION_TABLE_NAME',
+  chatkitLeadAttributionTable.tableName
+);
+
+chatkitLeadAttributionTable.grantReadWriteData(backend.chatkitLeadSignal.resources.lambda);
+(backend.chatkitLeadSignal.resources.lambda as any).addEnvironment(
+  'LEAD_ATTRIBUTION_TABLE_NAME',
+  chatkitLeadAttributionTable.tableName
 );
 
 // Used by "Text customer / Text draft" links in lead emails.
@@ -140,5 +186,7 @@ backend.addOutput({
     chatkit_lead_email_url: chatkitLeadEmailUrl.url,
     // Used by sms.craigs.autos/t/<token> to resolve tokens.
     chatkit_sms_link_url: chatkitSmsLinkUrl.url,
+    // Used by the frontend to log lead signals (tel/sms/directions clicks).
+    chatkit_lead_signal_url: chatkitLeadSignalUrl.url,
   },
 });

@@ -13,6 +13,12 @@ const leadDedupeDb =
     ? DynamoDBDocumentClient.from(new DynamoDBClient({}))
     : null;
 
+const leadAttributionTableName = process.env.LEAD_ATTRIBUTION_TABLE_NAME;
+const leadAttributionDb =
+  leadAttributionTableName && leadAttributionTableName.trim()
+    ? DynamoDBDocumentClient.from(new DynamoDBClient({}))
+    : null;
+
 const smsLinkTokenTableName = process.env.SMS_LINK_TOKEN_TABLE_NAME;
 const smsLinkDb =
   smsLinkTokenTableName && smsLinkTokenTableName.trim()
@@ -51,6 +57,22 @@ type LeadEmailRequest = {
   pageUrl?: unknown;
   user?: unknown;
   reason?: unknown;
+  attribution?: unknown;
+};
+
+type LeadAttributionPayload = {
+  gclid: string | null;
+  gbraid: string | null;
+  wbraid: string | null;
+  utm_source: string | null;
+  utm_medium: string | null;
+  utm_campaign: string | null;
+  utm_term: string | null;
+  utm_content: string | null;
+  first_touch_ts: string | null;
+  last_touch_ts: string | null;
+  landing_page: string | null;
+  referrer: string | null;
 };
 
 function json(statusCode: number, body: unknown): LambdaResult {
@@ -129,9 +151,36 @@ type LeadDedupeRecord = {
   ttl?: number;
 };
 
+type LeadAttributionRecord = {
+  lead_id: string;
+  thread_id: string;
+  created_at: number;
+  lead_method: 'chat';
+  lead_reason: string;
+  locale: string | null;
+  page_url: string | null;
+  user_id: string | null;
+  gclid: string | null;
+  gbraid: string | null;
+  wbraid: string | null;
+  utm_source: string | null;
+  utm_medium: string | null;
+  utm_campaign: string | null;
+  utm_term: string | null;
+  utm_content: string | null;
+  first_touch_ts: string | null;
+  last_touch_ts: string | null;
+  landing_page: string | null;
+  referrer: string | null;
+  customer_phone: string | null;
+  customer_email: string | null;
+  ttl: number;
+};
+
 const LEAD_DEDUPE_LEASE_SECONDS = 120;
 const LEAD_DEDUPE_ERROR_COOLDOWN_SECONDS = 60;
 const LEAD_DEDUPE_TTL_DAYS = 30;
+const LEAD_ATTRIBUTION_TTL_DAYS = 180;
 const SMS_LINK_TOKEN_TTL_DAYS = 7;
 
 function nowEpochSeconds(): number {
@@ -281,8 +330,89 @@ async function markLeadError(args: { threadId: string; leaseId: string; errorMes
   );
 }
 
+async function storeLeadAttribution(args: {
+  threadId: string;
+  locale: string;
+  pageUrl: string;
+  chatUser: string;
+  reason: string;
+  attribution: LeadAttributionPayload | null;
+  customerPhone: string | null;
+  customerEmail: string | null;
+}): Promise<string | null> {
+  if (!leadAttributionDb || !leadAttributionTableName) return null;
+  const now = nowEpochSeconds();
+  const leadId = randomUUID();
+  const ttl = ttlSecondsFromNow(LEAD_ATTRIBUTION_TTL_DAYS);
+
+  const record: LeadAttributionRecord = {
+    lead_id: leadId,
+    thread_id: args.threadId,
+    created_at: now,
+    lead_method: 'chat',
+    lead_reason: args.reason,
+    locale: args.locale || null,
+    page_url: args.pageUrl || null,
+    user_id: args.chatUser || null,
+    gclid: args.attribution?.gclid ?? null,
+    gbraid: args.attribution?.gbraid ?? null,
+    wbraid: args.attribution?.wbraid ?? null,
+    utm_source: args.attribution?.utm_source ?? null,
+    utm_medium: args.attribution?.utm_medium ?? null,
+    utm_campaign: args.attribution?.utm_campaign ?? null,
+    utm_term: args.attribution?.utm_term ?? null,
+    utm_content: args.attribution?.utm_content ?? null,
+    first_touch_ts: args.attribution?.first_touch_ts ?? null,
+    last_touch_ts: args.attribution?.last_touch_ts ?? null,
+    landing_page: args.attribution?.landing_page ?? null,
+    referrer: args.attribution?.referrer ?? null,
+    customer_phone: args.customerPhone,
+    customer_email: args.customerEmail,
+    ttl,
+  };
+
+  await leadAttributionDb.send(
+    new PutCommand({
+      TableName: leadAttributionTableName,
+      Item: record,
+    })
+  );
+  return leadId;
+}
+
 function normalizeWhitespace(value: string): string {
   return value.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+}
+
+function normalizeAttributionValue(value: unknown, maxLen = 256): string | null {
+  if (typeof value !== 'string') return null;
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  if (trimmed.length <= maxLen) return trimmed;
+  return trimmed.slice(0, maxLen);
+}
+
+function sanitizeAttribution(input: any): LeadAttributionPayload | null {
+  if (!input || typeof input !== 'object') return null;
+  const payload: LeadAttributionPayload = {
+    gclid: normalizeAttributionValue(input.gclid, 128),
+    gbraid: normalizeAttributionValue(input.gbraid, 128),
+    wbraid: normalizeAttributionValue(input.wbraid, 128),
+    utm_source: normalizeAttributionValue(input.utm_source, 128),
+    utm_medium: normalizeAttributionValue(input.utm_medium, 128),
+    utm_campaign: normalizeAttributionValue(input.utm_campaign, 200),
+    utm_term: normalizeAttributionValue(input.utm_term, 200),
+    utm_content: normalizeAttributionValue(input.utm_content, 200),
+    first_touch_ts: normalizeAttributionValue(input.first_touch_ts, 64),
+    last_touch_ts: normalizeAttributionValue(input.last_touch_ts, 64),
+    landing_page: normalizeAttributionValue(input.landing_page, 300),
+    referrer: normalizeAttributionValue(input.referrer, 300),
+  };
+
+  const hasAny = Object.values(payload).some(
+    (value) => typeof value === 'string' && value.trim().length > 0
+  );
+  return hasAny ? payload : null;
 }
 
 function digitsOnly(value: string): string {
@@ -826,8 +956,9 @@ async function sendTranscriptEmail(args: {
   threadTitle: string | null;
   transcript: TranscriptLine[];
   leadSummary: LeadSummary | null;
+  attribution: LeadAttributionPayload | null;
 }): Promise<string | null> {
-  const { threadId, locale, pageUrl, chatUser, reason, threadTitle, transcript, leadSummary } = args;
+  const { threadId, locale, pageUrl, chatUser, reason, threadTitle, transcript, leadSummary, attribution } = args;
 
   const detectedContact = extractCustomerContact(transcript);
   const customerPhone = leadSummary?.customer_phone ?? detectedContact.phone;
@@ -930,6 +1061,30 @@ async function sendTranscriptEmail(args: {
     if (leadSummary.vehicle) bodyParts.push(`Vehicle: ${leadSummary.vehicle}`);
     if (leadSummary.project) bodyParts.push(`Project: ${leadSummary.project}`);
     if (leadSummary.timeline) bodyParts.push(`Timeline: ${leadSummary.timeline}`);
+    bodyParts.push('');
+  }
+
+  if (attribution) {
+    bodyParts.push('Attribution');
+    if (attribution.gclid) bodyParts.push(`GCLID: ${attribution.gclid}`);
+    if (attribution.gbraid) bodyParts.push(`GBRAID: ${attribution.gbraid}`);
+    if (attribution.wbraid) bodyParts.push(`WBRAID: ${attribution.wbraid}`);
+    if (attribution.utm_source || attribution.utm_medium || attribution.utm_campaign) {
+      const utm = [
+        attribution.utm_source ? `utm_source=${attribution.utm_source}` : null,
+        attribution.utm_medium ? `utm_medium=${attribution.utm_medium}` : null,
+        attribution.utm_campaign ? `utm_campaign=${attribution.utm_campaign}` : null,
+        attribution.utm_term ? `utm_term=${attribution.utm_term}` : null,
+        attribution.utm_content ? `utm_content=${attribution.utm_content}` : null,
+      ]
+        .filter(Boolean)
+        .join(' | ');
+      if (utm) bodyParts.push(`UTM: ${utm}`);
+    }
+    if (attribution.landing_page) bodyParts.push(`Landing page: ${attribution.landing_page}`);
+    if (attribution.referrer) bodyParts.push(`Referrer: ${attribution.referrer}`);
+    if (attribution.first_touch_ts) bodyParts.push(`First touch: ${attribution.first_touch_ts}`);
+    if (attribution.last_touch_ts) bodyParts.push(`Last touch: ${attribution.last_touch_ts}`);
     bodyParts.push('');
   }
 
@@ -1269,6 +1424,7 @@ export const handler = async (event: LambdaEvent): Promise<LambdaResult> => {
   const pageUrl = typeof payload.pageUrl === 'string' ? payload.pageUrl : '';
   const chatUser = typeof payload.user === 'string' ? payload.user : 'anonymous';
   const reason = typeof payload.reason === 'string' ? payload.reason : 'auto';
+  const attribution = sanitizeAttribution((payload as any)?.attribution);
 
   try {
     // Fast path: if we've already emailed this thread, don't re-fetch transcript or re-run summaries.
@@ -1371,11 +1527,32 @@ export const handler = async (event: LambdaEvent): Promise<LambdaResult> => {
         threadTitle,
         transcript: lines,
         leadSummary: hydratedLeadSummary,
+        attribution,
       });
       try {
         await markLeadSent({ threadId, leaseId: lease.leaseId, messageId });
       } catch (err: any) {
         console.error('Lead dedupe mark sent failed', err?.name, err?.message);
+      }
+
+      try {
+        const detectedContact = extractCustomerContact(lines);
+        const customerPhone =
+          hydratedLeadSummary?.customer_phone ?? detectedContact.phone ?? null;
+        const customerEmail =
+          hydratedLeadSummary?.customer_email ?? detectedContact.email ?? null;
+        await storeLeadAttribution({
+          threadId,
+          locale,
+          pageUrl,
+          chatUser: threadUser ?? chatUser,
+          reason,
+          attribution,
+          customerPhone,
+          customerEmail,
+        });
+      } catch (err: any) {
+        console.error('Lead attribution write failed', err?.name, err?.message);
       }
     } catch (err: any) {
       try {

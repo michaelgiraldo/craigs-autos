@@ -1,6 +1,7 @@
 import React from 'react';
 import { ChatKit, useChatKit } from '@openai/chatkit-react';
 import { BRAND_NAME, CHAT_COPY } from '../lib/site-data.js';
+import { getAttributionForDataLayer, getAttributionPayload } from '../lib/attribution.js';
 
 class ChatKitErrorBoundary extends React.Component {
   constructor(props) {
@@ -218,6 +219,14 @@ function pushDataLayer(eventName, params = {}) {
   }
 }
 
+function pushLeadDataLayer(eventName, params = {}) {
+  const attribution = getAttributionForDataLayer();
+  pushDataLayer(eventName, {
+    ...(attribution ?? {}),
+    ...params,
+  });
+}
+
 export default function ChatWidgetReact({
   locale = 'en',
   sessionUrl = '/api/chatkit/session/',
@@ -377,13 +386,14 @@ export default function ChatWidgetReact({
             user: userId ?? 'anonymous',
             pageUrl: window.location.href,
             reason,
+            attribution: getAttributionPayload(),
           }),
         });
 
         const text = await response.text();
         if (!response.ok) {
           if (isDev) console.error('ChatKit lead email error', response.status, text);
-          pushDataLayer('lead_chat_lead_error', {
+          pushLeadDataLayer('lead_chat_lead_error', {
             lead_method: 'chat',
             lead_locale: locale,
             lead_request_reason: reason,
@@ -400,7 +410,7 @@ export default function ChatWidgetReact({
         try {
           data = text ? JSON.parse(text) : {};
         } catch {
-          pushDataLayer('lead_chat_lead_error', {
+          pushLeadDataLayer('lead_chat_lead_error', {
             lead_method: 'chat',
             lead_locale: locale,
             lead_request_reason: reason,
@@ -416,7 +426,7 @@ export default function ChatWidgetReact({
         const backendReason = typeof data?.reason === 'string' ? data.reason : '';
         if (data?.sent === true) {
           globalThis.localStorage?.setItem(sentKey, 'true');
-          pushDataLayer('lead_chat_lead_sent', {
+          pushLeadDataLayer('lead_chat_lead_sent', {
             lead_method: 'chat',
             lead_locale: locale,
             lead_request_reason: reason,
@@ -427,7 +437,7 @@ export default function ChatWidgetReact({
             page_path: window.location.pathname,
           });
         } else if (data?.sent === false) {
-          pushDataLayer('lead_chat_lead_skipped', {
+          pushLeadDataLayer('lead_chat_lead_skipped', {
             lead_method: 'chat',
             lead_locale: locale,
             lead_request_reason: reason,
@@ -440,7 +450,7 @@ export default function ChatWidgetReact({
         }
       } catch (err) {
         if (isDev) console.error('ChatKit lead email request failed', err);
-        pushDataLayer('lead_chat_lead_error', {
+        pushLeadDataLayer('lead_chat_lead_error', {
           lead_method: 'chat',
           lead_locale: locale,
           lead_request_reason: reason,
@@ -665,7 +675,7 @@ export default function ChatWidgetReact({
           aria-label={copy.launcherLabel}
           onClick={() => {
             setOpen(true);
-            pushDataLayer('lead_chat_open', {
+            pushLeadDataLayer('lead_chat_open', {
               lead_method: 'chat',
               lead_locale: locale,
               thread_id: threadId ?? null,
