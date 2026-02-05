@@ -118,6 +118,15 @@
     });
   }
 
+  function pushDataLayer(eventName, params) {
+    try {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push(Object.assign({ event: eventName }, params || {}));
+    } catch (e) {
+      // Ignore analytics failures.
+    }
+  }
+
   function handleClick(event) {
     var el = event.target;
     if (!el) return;
@@ -134,6 +143,8 @@
       eventName = 'lead_click_to_call';
     } else if (href.indexOf('sms:') === 0) {
       eventName = 'lead_click_to_text';
+    } else if (href.indexOf('mailto:') === 0) {
+      eventName = 'lead_click_email';
     } else if (href.indexOf('https://www.google.com/maps/dir/') === 0) {
       eventName = 'lead_click_directions';
       provider = 'google_maps';
@@ -153,6 +164,14 @@
       provider: provider,
       attribution: getAttribution(),
     };
+
+    pushDataLayer(eventName, {
+      lead_method: eventName,
+      page_url: window.location.href,
+      click_url: href,
+      provider: provider,
+      locale: document.documentElement ? document.documentElement.lang : null,
+    });
 
     sendSignal(payload);
   }

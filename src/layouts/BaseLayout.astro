@@ -54,6 +54,7 @@ const mapsQuery = encodeURIComponent(
 const mapsHref = `https://www.google.com/maps/dir/?api=1&destination=${mapsQuery}`;
 const appleMapsHref = SITE.appleMapsUrl;
 const smsHref = `sms:${SITE.phone}`;
+const emailHref = `mailto:${SITE.email}`;
 
 const resolvedTranslations = {};
 for (const key of LOCALE_ORDER) {
@@ -179,6 +180,7 @@ const businessNode = {
 	url: new URL(PAGE_PATHS.home[locale], site).toString(),
 	logo: logoUrl,
 	telephone: SITE.phone,
+	email: SITE.email,
 	hasMap: appleMapsHref ? [mapsHref, appleMapsHref] : mapsHref,
 	sameAs: SITE.sameAs,
 	// We intentionally omit AggregateRating/ReviewSnippet markup here:
@@ -420,6 +422,11 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 								{ui.textCta ?? 'Text'}
 							</a>
 						</div>
+						<div class="header-contact__row">
+							<a class="header-email" href={emailHref}>
+								<span dir="ltr">{SITE.email}</span>
+							</a>
+						</div>
 					</div>
 					<LanguageSwitcher
 						links={languageLinks}
@@ -581,6 +588,11 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 						</li>
 						<li>
 							<a href={smsHref}>{ui.textCta ?? 'Text'}</a>
+						</li>
+						<li>
+							<a href={emailHref}>
+								<span dir="ltr">{SITE.email}</span>
+							</a>
 						</li>
 						<li>
 							<a href={mapsHref}>{ui.directionsCta}</a>

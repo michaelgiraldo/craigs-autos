@@ -4,6 +4,7 @@ export const SITE = {
 	url: 'https://craigs.autos',
 	phone: '+14083793820',
 	displayPhone: '(408) 379-3820',
+	email: 'contact@craigs.autos',
 	address: {
 		street: '271 Bestor St',
 		city: 'San Jose',

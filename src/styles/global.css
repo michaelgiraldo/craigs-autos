@@ -334,6 +334,18 @@ button:focus-visible {
 	color: var(--color-ink);
 }
 
+.header-email {
+	color: var(--color-muted);
+	text-decoration: none;
+	font-weight: 650;
+	font-size: 0.9rem;
+}
+
+.header-email:hover {
+	color: var(--color-ink);
+	text-decoration: underline;
+}
+
 .header-address {
 	color: var(--color-muted);
 	text-decoration: none;

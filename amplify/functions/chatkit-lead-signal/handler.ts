@@ -13,6 +13,7 @@ const LEAD_ATTRIBUTION_TTL_DAYS = 180;
 const ALLOWED_EVENTS = new Set([
   'lead_click_to_call',
   'lead_click_to_text',
+  'lead_click_email',
   'lead_click_directions',
 ]);
 
