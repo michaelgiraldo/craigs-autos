@@ -160,6 +160,10 @@ type LeadAttributionRecord = {
   locale: string | null;
   page_url: string | null;
   user_id: string | null;
+  qualified: boolean;
+  qualified_at: number | null;
+  uploaded: boolean;
+  uploaded_at: number | null;
   gclid: string | null;
   gbraid: string | null;
   wbraid: string | null;
@@ -354,6 +358,10 @@ async function storeLeadAttribution(args: {
     locale: args.locale || null,
     page_url: args.pageUrl || null,
     user_id: args.chatUser || null,
+    qualified: false,
+    qualified_at: null,
+    uploaded: false,
+    uploaded_at: null,
     gclid: args.attribution?.gclid ?? null,
     gbraid: args.attribution?.gbraid ?? null,
     wbraid: args.attribution?.wbraid ?? null,

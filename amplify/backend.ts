@@ -8,12 +8,14 @@ import { chatkitSession } from './functions/chatkit-session/resource';
 import { chatkitLeadEmail } from './functions/chatkit-lead-email/resource';
 import { chatkitSmsLink } from './functions/chatkit-sms-link/resource';
 import { chatkitLeadSignal } from './functions/chatkit-lead-signal/resource';
+import { chatkitLeadAdmin } from './functions/chatkit-lead-admin/resource';
 
 const backend = defineBackend({
   chatkitSession,
   chatkitLeadEmail,
   chatkitSmsLink,
   chatkitLeadSignal,
+  chatkitLeadAdmin,
 });
 
 // Expose a lightweight HTTPS endpoint that creates ChatKit sessions.
@@ -101,6 +103,25 @@ const chatkitLeadSignalUrl = new FunctionUrl(
   }
 );
 
+// Expose a lightweight admin endpoint for lead qualification (password protected in Lambda).
+const chatkitLeadAdminUrl = new FunctionUrl(
+  Stack.of(backend.chatkitLeadAdmin.resources.lambda),
+  'ChatkitLeadAdminUrl',
+  {
+    function: backend.chatkitLeadAdmin.resources.lambda,
+    authType: FunctionUrlAuthType.NONE,
+    cors: {
+      allowedOrigins: [
+        'https://craigs.autos',
+        'http://localhost:4321',
+      ],
+      allowedMethods: [HttpMethod.GET, HttpMethod.POST],
+      allowedHeaders: ['content-type', 'authorization'],
+      maxAge: Duration.days(1),
+    },
+  }
+);
+
 backend.chatkitLeadEmail.resources.lambda.addToRolePolicy(
   new PolicyStatement({
     actions: ['ses:SendEmail', 'ses:SendRawEmail'],
@@ -154,6 +175,12 @@ chatkitLeadAttributionTable.grantReadWriteData(backend.chatkitLeadSignal.resourc
   chatkitLeadAttributionTable.tableName
 );
 
+chatkitLeadAttributionTable.grantReadWriteData(backend.chatkitLeadAdmin.resources.lambda);
+(backend.chatkitLeadAdmin.resources.lambda as any).addEnvironment(
+  'LEAD_ATTRIBUTION_TABLE_NAME',
+  chatkitLeadAttributionTable.tableName
+);
+
 // Used by "Text customer / Text draft" links in lead emails.
 const chatkitSmsLinkTokenTable = new Table(
   Stack.of(backend.chatkitSmsLink.resources.lambda),
@@ -188,5 +215,7 @@ backend.addOutput({
     chatkit_sms_link_url: chatkitSmsLinkUrl.url,
     // Used by the frontend to log lead signals (tel/sms/directions clicks).
     chatkit_lead_signal_url: chatkitLeadSignalUrl.url,
+    // Used by the admin UI to fetch and qualify leads.
+    chatkit_lead_admin_url: chatkitLeadAdminUrl.url,
   },
 });

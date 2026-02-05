@@ -140,6 +140,10 @@ export const handler = async (event: LambdaEvent): Promise<LambdaResult> => {
     user_id: typeof payload.user === 'string' ? payload.user : null,
     click_url: typeof payload.clickUrl === 'string' ? payload.clickUrl : null,
     provider: typeof payload.provider === 'string' ? payload.provider : null,
+    qualified: false,
+    qualified_at: null,
+    uploaded: false,
+    uploaded_at: null,
     ttl: ttlSecondsFromNow(LEAD_ATTRIBUTION_TTL_DAYS),
     ...sanitizeAttribution(payload.attribution),
   };

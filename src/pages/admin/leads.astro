@@ -1,0 +1,34 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const title = "Admin | Leads";
+const description = "Lead qualification dashboard.";
+---
+<BaseLayout title={title} description={description} noindex={true} pageKey="admin">
+  <main id="main-content" class="admin-leads">
+    <div class="container">
+      <h1>Lead Qualification</h1>
+      <p class="admin-leads__subtitle">
+        Password protected. Mark qualified leads so they can be uploaded to Google Ads.
+      </p>
+      <div id="admin-leads-app" class="admin-leads__app"></div>
+    </div>
+  </main>
+  <script src="/admin-leads.js" defer></script>
+  <style>
+    .admin-leads { padding: 2.5rem 0 4rem; }
+    .admin-leads__subtitle { color: #445; max-width: 680px; }
+    .admin-card { background: #fff; border: 1px solid #e2e4ea; border-radius: 12px; padding: 16px; box-shadow: 0 6px 20px rgba(22,34,66,0.05); }
+    .admin-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .admin-row input { padding: 10px 12px; border-radius: 8px; border: 1px solid #c8ccd7; min-width: 220px; }
+    .admin-row button { padding: 10px 14px; border-radius: 8px; border: none; background: #1c2a4a; color: #fff; cursor: pointer; }
+    .admin-row button.secondary { background: #f2f4f9; color: #1c2a4a; border: 1px solid #c8ccd7; }
+    .admin-table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+    .admin-table th, .admin-table td { padding: 10px; border-bottom: 1px solid #e6e8f0; text-align: left; font-size: 0.92rem; }
+    .admin-table th { font-size: 0.85rem; color: #445; text-transform: uppercase; letter-spacing: 0.04em; }
+    .badge { padding: 4px 8px; border-radius: 999px; font-size: 0.75rem; }
+    .badge--yes { background: #e5f7e8; color: #1b6e2a; }
+    .badge--no { background: #fde7e7; color: #8b1e1e; }
+    .muted { color: #677; font-size: 0.85rem; }
+  </style>
+</BaseLayout>
