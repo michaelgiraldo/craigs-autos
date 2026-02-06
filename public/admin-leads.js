@@ -201,6 +201,7 @@
       '<thead><tr>' +
       '<th>Date</th>' +
       '<th>Method</th>' +
+      '<th>Device</th>' +
       '<th>Contact</th>' +
       '<th>Source</th>' +
       '<th>GCLID</th>' +
@@ -212,7 +213,7 @@
 
     if (!state.items.length && !state.loading) {
       var empty = document.createElement('tr');
-      empty.innerHTML = '<td colspan="7" class="muted">No leads found.</td>';
+      empty.innerHTML = '<td colspan="8" class="muted">No leads found.</td>';
       tbody.appendChild(empty);
     } else {
       state.items.forEach(function (item) {
@@ -221,6 +222,7 @@
           ? new Date(item.created_at * 1000).toLocaleString()
           : '-';
         var method = item.lead_method || '-';
+        var device = item.device_type || '-';
         var contact = item.customer_phone || item.customer_email || '-';
         var source = item.utm_source || '-';
         var gclid = item.gclid || item.gbraid || item.wbraid || '-';
@@ -229,6 +231,7 @@
         tr.innerHTML =
           '<td>' + created + '</td>' +
           '<td>' + method + '</td>' +
+          '<td>' + device + '</td>' +
           '<td>' + contact + '</td>' +
           '<td>' + source + '</td>' +
           '<td>' + gclid + '</td>' +

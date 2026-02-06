@@ -7,8 +7,8 @@ export const chatkitLeadEmail = defineFunction({
   environment: {
     OPENAI_API_KEY: secret('OPENAI_API_KEY'),
     // Defaults can be overridden later if you want to route leads differently.
-    LEAD_TO_EMAIL: 'victor@craigs.autos',
-    LEAD_FROM_EMAIL: 'victor@craigs.autos',
+    LEAD_TO_EMAIL: 'leads@craigs.autos',
+    LEAD_FROM_EMAIL: 'leads@craigs.autos',
     // Used to generate a concise internal summary + next steps for the shop.
     LEAD_SUMMARY_MODEL: 'gpt-5.2-2025-12-11',
   },

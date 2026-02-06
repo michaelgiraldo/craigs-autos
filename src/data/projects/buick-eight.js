@@ -18,6 +18,7 @@ import buickDeliveryPhoto from '../../assets/images/projects/buick-eight/buick-e
 export const BUICK_EIGHT = {
 	id: 'buick-eight',
 	slug: 'buick-eight',
+	pageKey: 'buickEight',
 	featuredImageId: 'exterior-front',
 	copy: {
 		title: {

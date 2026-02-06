@@ -8,6 +8,9 @@ import LocalizedLink from "../../../components/LocalizedLink.astro";
 import PageHero from "../../../components/PageHero.astro";
 import ServiceCards from "../../../components/ServiceCards.astro";
 import FaqSection from "../../../components/FaqSection.astro";
+import LightboxGallery from "../../../components/LightboxGallery.astro";
+import { CAR_SEATS_GALLERY } from "../../../data/galleries/car-seats.js";
+import { MOTORCYCLE_SEATS_GALLERY } from "../../../data/galleries/motorcycle-seats.js";
 
 export const faqs = [
   {
@@ -28,6 +31,14 @@ export const faqs = [
   },
 ];
 
+export const homeShowcaseImages = [
+  CAR_SEATS_GALLERY.find((item) => item.id === "recaro-classic-bucket-seat-front-view"),
+  CAR_SEATS_GALLERY.find((item) => item.id === "sedan-front-seats-reupholstery-installed"),
+  CAR_SEATS_GALLERY.find((item) => item.id === "custom-seat-set-two-tone-upholstery"),
+  CAR_SEATS_GALLERY.find((item) => item.id === "red-black-classic-front-seats-interior"),
+  MOTORCYCLE_SEATS_GALLERY.find((item) => item.id === "motorcycle-seat-upholstery-green-finish"),
+].filter(Boolean);
+
 <PageHero
   locale="en"
   title="Auto Interior Repair Shop in San Jose"
@@ -35,6 +46,19 @@ export const faqs = [
 />
 
 <ServiceCards locale="en" currentKey="home" />
+
+## Recent upholstery examples
+
+Real work from recent seat and motorcycle jobs. Tap any image to inspect details.
+
+<LightboxGallery images={homeShowcaseImages} locale="en" />
+
+<aside class="callout" aria-label="More seat and motorcycle examples">
+  <p class="callout__title">Want more examples?</p>
+  <p>
+    Explore <LocalizedLink pageKey="carSeats">Car Seats</LocalizedLink>, <LocalizedLink pageKey="motorcycleSeats">Motorcycle Seat Upholstery</LocalizedLink>, or the full <LocalizedLink pageKey="gallery">Gallery</LocalizedLink>.
+  </p>
+</aside>
 
 Interior problems are the kind you notice every day: a driver’s seat tear that keeps growing, a
 headliner that starts to droop, vinyl that’s cracking in the sun. Call or text Craig’s Auto

@@ -25,8 +25,8 @@ const smsLinkDb =
     ? DynamoDBDocumentClient.from(new DynamoDBClient({}))
     : null;
 
-const leadToEmail = process.env.LEAD_TO_EMAIL ?? 'victor@craigs.autos';
-const leadFromEmail = process.env.LEAD_FROM_EMAIL ?? 'victor@craigs.autos';
+const leadToEmail = process.env.LEAD_TO_EMAIL ?? 'leads@craigs.autos';
+const leadFromEmail = process.env.LEAD_FROM_EMAIL ?? 'leads@craigs.autos';
 const leadSummaryModel = process.env.LEAD_SUMMARY_MODEL ?? 'gpt-5.2-2025-12-11';
 const SHOP_NAME = "Craig's Auto Upholstery";
 const SHOP_PHONE_DISPLAY = '(408) 379-3820';
@@ -73,6 +73,7 @@ type LeadAttributionPayload = {
   last_touch_ts: string | null;
   landing_page: string | null;
   referrer: string | null;
+  device_type: 'mobile' | 'desktop' | null;
 };
 
 function json(statusCode: number, body: unknown): LambdaResult {
@@ -164,6 +165,7 @@ type LeadAttributionRecord = {
   qualified_at: number | null;
   uploaded: boolean;
   uploaded_at: number | null;
+  device_type: 'mobile' | 'desktop' | null;
   gclid: string | null;
   gbraid: string | null;
   wbraid: string | null;
@@ -362,6 +364,7 @@ async function storeLeadAttribution(args: {
     qualified_at: null,
     uploaded: false,
     uploaded_at: null,
+    device_type: args.attribution?.device_type ?? null,
     gclid: args.attribution?.gclid ?? null,
     gbraid: args.attribution?.gbraid ?? null,
     wbraid: args.attribution?.wbraid ?? null,
@@ -400,6 +403,13 @@ function normalizeAttributionValue(value: unknown, maxLen = 256): string | null 
   return trimmed.slice(0, maxLen);
 }
 
+function normalizeDeviceType(value: unknown): 'mobile' | 'desktop' | null {
+  if (typeof value !== 'string') return null;
+  const normalized = value.trim().toLowerCase();
+  if (normalized === 'mobile' || normalized === 'desktop') return normalized;
+  return null;
+}
+
 function sanitizeAttribution(input: any): LeadAttributionPayload | null {
   if (!input || typeof input !== 'object') return null;
   const payload: LeadAttributionPayload = {
@@ -415,6 +425,7 @@ function sanitizeAttribution(input: any): LeadAttributionPayload | null {
     last_touch_ts: normalizeAttributionValue(input.last_touch_ts, 64),
     landing_page: normalizeAttributionValue(input.landing_page, 300),
     referrer: normalizeAttributionValue(input.referrer, 300),
+    device_type: normalizeDeviceType(input.device_type),
   };
 
   const hasAny = Object.values(payload).some(
@@ -1074,6 +1085,7 @@ async function sendTranscriptEmail(args: {
 
   if (attribution) {
     bodyParts.push('Attribution');
+    if (attribution.device_type) bodyParts.push(`Device: ${attribution.device_type}`);
     if (attribution.gclid) bodyParts.push(`GCLID: ${attribution.gclid}`);
     if (attribution.gbraid) bodyParts.push(`GBRAID: ${attribution.gbraid}`);
     if (attribution.wbraid) bodyParts.push(`WBRAID: ${attribution.wbraid}`);

@@ -17,6 +17,7 @@ const featuredKicker = resolveCopy(project.copy?.featuredKicker) || 'Featured pr
 const featuredTitle = resolveCopy(project.copy?.title) || 'Project';
 const featuredSummary = resolveCopy(project.copy?.lead) || '';
 const featuredCta = resolveCopy(project.copy?.featuredCta) || 'View project';
+const featuredPageKey = project.pageKey ?? 'buickEight';
 ---
 
 <section class="featured-project" aria-label={featuredKicker}>
@@ -37,7 +38,7 @@ const featuredCta = resolveCopy(project.copy?.featuredCta) || 'View project';
 				<p class="featured-project__kicker">{featuredKicker}</p>
 				<h3>{featuredTitle}</h3>
 				{featuredSummary ? <p>{featuredSummary}</p> : null}
-				<LocalizedLink pageKey="buickEight" locale={locale} class="featured-project__link">
+				<LocalizedLink pageKey={featuredPageKey} locale={locale} class="featured-project__link">
 					{featuredCta}
 				</LocalizedLink>
 			</div>

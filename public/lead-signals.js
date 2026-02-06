@@ -40,6 +40,12 @@
     var stored = readStorage() || {};
     var first = stored.first_touch || {};
     var last = stored.last_touch || first;
+    var deviceType = null;
+    try {
+      deviceType = window.matchMedia('(max-width: 900px)').matches ? 'mobile' : 'desktop';
+    } catch (e) {
+      deviceType = null;
+    }
 
     var payload = {
       gclid: last.gclid || first.gclid || readCookie('gclid'),
@@ -54,6 +60,7 @@
       last_touch_ts: last.ts || null,
       landing_page: stored.landing_page || window.location.pathname,
       referrer: stored.referrer || document.referrer || null,
+      device_type: deviceType,
     };
 
     var hasAny = false;
@@ -171,6 +178,7 @@
       click_url: href,
       provider: provider,
       locale: document.documentElement ? document.documentElement.lang : null,
+      device_type: (payload.attribution && payload.attribution.device_type) || null,
     });
 
     sendSignal(payload);

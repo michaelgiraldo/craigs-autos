@@ -78,6 +78,10 @@ function normalizeValue(value: unknown, maxLen = 256): string | null {
 
 function sanitizeAttribution(input: any) {
   if (!input || typeof input !== 'object') return null;
+  const deviceType =
+    typeof input.device_type === 'string' && (input.device_type === 'mobile' || input.device_type === 'desktop')
+      ? input.device_type
+      : null;
   const payload = {
     gclid: normalizeValue(input.gclid, 128),
     gbraid: normalizeValue(input.gbraid, 128),
@@ -91,6 +95,7 @@ function sanitizeAttribution(input: any) {
     last_touch_ts: normalizeValue(input.last_touch_ts, 64),
     landing_page: normalizeValue(input.landing_page, 300),
     referrer: normalizeValue(input.referrer, 300),
+    device_type: deviceType,
   };
   const hasAny = Object.values(payload).some(
     (value) => typeof value === 'string' && value.trim().length > 0

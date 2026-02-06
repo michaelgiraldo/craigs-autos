@@ -102,8 +102,8 @@ Do not store these in the frontend or in git.
 - SES must be configured in the same region as the Amplify backend.
 - Sender identity must be verified.
 - Defaults live in `amplify/functions/chatkit-lead-email/resource.ts`:
-  - `LEAD_TO_EMAIL` (recipient, default `victor@craigs.autos`)
-  - `LEAD_FROM_EMAIL` (sender, default `victor@craigs.autos`)
+  - `LEAD_TO_EMAIL` (recipient, default `leads@craigs.autos`)
+  - `LEAD_FROM_EMAIL` (sender, default `leads@craigs.autos`)
 
 ## ChatKit: what to know (fast)
 

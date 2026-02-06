@@ -40,6 +40,15 @@ function pickValue(obj, key) {
   return typeof value === 'string' && value.trim() ? value.trim() : null;
 }
 
+function getDeviceType() {
+  if (typeof window === 'undefined') return null;
+  try {
+    return window.matchMedia('(max-width: 900px)').matches ? 'mobile' : 'desktop';
+  } catch {
+    return null;
+  }
+}
+
 function extractTouch(touch) {
   if (!touch || typeof touch !== 'object') return null;
   const out = {};
@@ -77,6 +86,7 @@ export function getAttributionPayload() {
     last_touch_ts: pickValue(lastTouch, 'ts'),
     landing_page: pickValue(stored, 'landing_page') || (typeof window !== 'undefined' ? window.location.pathname : null),
     referrer: pickValue(stored, 'referrer') || (typeof document !== 'undefined' ? document.referrer : null),
+    device_type: getDeviceType(),
   };
 
   const hasAny = Object.values(payload).some((value) => typeof value === 'string' && value.trim());
@@ -95,5 +105,6 @@ export function getAttributionForDataLayer() {
     utm_campaign: payload.utm_campaign ?? null,
     utm_term: payload.utm_term ?? null,
     utm_content: payload.utm_content ?? null,
+    device_type: payload.device_type ?? null,
   };
 }

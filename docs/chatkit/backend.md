@@ -54,8 +54,8 @@ They are referenced in code via Amplify's `secret(...)`:
 
 Lead email defaults (can be overridden later):
 
-- `LEAD_TO_EMAIL` (default: `victor@craigs.autos`)
-- `LEAD_FROM_EMAIL` (default: `victor@craigs.autos`)
+- `LEAD_TO_EMAIL` (default: `leads@craigs.autos`)
+- `LEAD_FROM_EMAIL` (default: `leads@craigs.autos`)
 - `LEAD_SUMMARY_MODEL` (default: `gpt-5.2-2025-12-11`)
 
 Idempotency wiring (injected by `amplify/backend.ts`):

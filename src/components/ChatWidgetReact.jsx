@@ -236,16 +236,8 @@ export default function ChatWidgetReact({
   const chatkitLocale = CHATKIT_LOCALE_MAP[locale] ?? 'en';
   const dir = locale === 'ar' ? 'rtl' : 'ltr';
 
-  const [open, setOpen] = React.useState(() => {
-    if (typeof window === 'undefined') return false;
-    try {
-      const saved = sessionStorage.getItem(OPEN_KEY);
-      if (saved !== null) return saved === 'true';
-      return true;
-    } catch {
-      return true;
-    }
-  });
+  const [open, setOpen] = React.useState(false);
+  const [openInitialized, setOpenInitialized] = React.useState(false);
   const [userId, setUserId] = React.useState(null);
   const [threadId, setThreadId] = React.useState(null);
   const [resolvedSessionUrl, setResolvedSessionUrl] = React.useState(sessionUrl);
@@ -258,6 +250,7 @@ export default function ChatWidgetReact({
   const [chatInstance, setChatInstance] = React.useState(null);
   const chatRef = React.useRef(null);
   const chatPanelRef = React.useRef(null);
+  const seenThreadIdsRef = React.useRef(new Set());
   const leadEmailInFlightRef = React.useRef(false);
   const hasUserInteractedRef = React.useRef(false);
   const idleTimerRef = React.useRef(null);
@@ -266,6 +259,20 @@ export default function ChatWidgetReact({
   React.useEffect(() => {
     setUserId(getOrCreateUserId());
     setThreadId(sessionStorage.getItem(THREAD_STORAGE_KEY));
+  }, []);
+
+  React.useEffect(() => {
+    // Keep SSR hydration stable by rendering closed first, then applying per-device default after mount.
+    let nextOpen = !isMobile();
+    try {
+      const saved = sessionStorage.getItem(OPEN_KEY);
+      if (saved === 'true') nextOpen = true;
+      if (saved === 'false') nextOpen = false;
+    } catch {
+      // Ignore storage access issues; fall back to device default.
+    }
+    setOpen(nextOpen);
+    setOpenInitialized(true);
   }, []);
 
   React.useEffect(() => {
@@ -334,15 +341,20 @@ export default function ChatWidgetReact({
   }, []);
 
   React.useEffect(() => {
+    if (!openInitialized) return;
+    try {
+      sessionStorage.setItem(OPEN_KEY, open ? 'true' : 'false');
+    } catch {
+      // Ignore storage access issues.
+    }
+
     if (!open) {
       unlockBodyScroll();
-      sessionStorage.setItem(OPEN_KEY, 'false');
       return;
     }
-    sessionStorage.setItem(OPEN_KEY, 'true');
     if (isMobile()) lockBodyScroll();
     return () => unlockBodyScroll();
-  }, [open]);
+  }, [open, openInitialized]);
 
   const sendLeadEmail = React.useCallback(
     async ({ reason = 'chat_closed' } = {}) => {
@@ -753,6 +765,17 @@ export default function ChatWidgetReact({
                       if (!nextId) return;
                       sessionStorage.setItem(THREAD_STORAGE_KEY, nextId);
                       setThreadId(nextId);
+                      if (!seenThreadIdsRef.current.has(nextId)) {
+                        seenThreadIdsRef.current.add(nextId);
+                        pushLeadDataLayer('lead_chat_session_started', {
+                          lead_method: 'chat',
+                          lead_locale: locale,
+                          thread_id: nextId,
+                          user_id: userId ?? 'anonymous',
+                          page_url: window.location.href,
+                          page_path: window.location.pathname,
+                        });
+                      }
                       bumpIdleTimer();
                     }}
                   />
