@@ -1719,8 +1719,8 @@ a.chip:hover {
 }
 
 @media (max-width: 520px) {
-	.chat-launcher__label {
-		display: none;
+	.chat-widget {
+		bottom: calc(10.25rem + var(--safe-bottom));
 	}
 }
 
