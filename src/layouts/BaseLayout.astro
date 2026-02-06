@@ -422,6 +422,16 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 								{ui.textCta ?? 'Text'}
 							</a>
 						</div>
+						<div class="header-contact__row header-contact__row--secondary">
+							<a class="header-email" href={emailHref} aria-label={`Email ${SITE.email}`}>
+								<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+									<path d="M4 6h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z" />
+									<path d="m22 8-10 6L2 8" />
+								</svg>
+								<span class="header-email__label">Email</span>
+								<span class="header-email__value" dir="ltr">{SITE.email}</span>
+							</a>
+						</div>
 					</div>
 					<LanguageSwitcher
 						links={languageLinks}
