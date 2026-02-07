@@ -8,9 +8,7 @@ import LocalizedLink from "../../../components/LocalizedLink.astro";
 import PageHero from "../../../components/PageHero.astro";
 import ServiceCards from "../../../components/ServiceCards.astro";
 import FaqSection from "../../../components/FaqSection.astro";
-import LightboxGallery from "../../../components/LightboxGallery.astro";
-import { CAR_SEATS_GALLERY } from "../../../data/galleries/car-seats.js";
-import { CAR_SEATS_BEFORE_AFTER } from "../../../data/galleries/car-seats-before-after.js";
+import PageShowcaseSections from "../../../components/PageShowcaseSections.astro";
 
 export const faqs = [
   {
@@ -31,38 +29,6 @@ export const faqs = [
   },
 ];
 
-export const seatGalleryHighlights = [
-  CAR_SEATS_GALLERY.find((item) => item.id === "sedan-front-seats-reupholstery-installed"),
-  CAR_SEATS_GALLERY.find((item) => item.id === "classic-mercedes-front-seats-upholstery"),
-  CAR_SEATS_GALLERY.find((item) => item.id === "classic-rear-bench-seat-upholstery"),
-  CAR_SEATS_GALLERY.find((item) => item.id === "custom-seat-set-two-tone-upholstery"),
-  CAR_SEATS_GALLERY.find((item) => item.id === "tan-bench-seat-upholstery-shop"),
-  CAR_SEATS_GALLERY.find((item) => item.id === "suv-diamond-stitched-seat-interior"),
-  CAR_SEATS_GALLERY.find((item) => item.id === "red-black-classic-front-seats-interior"),
-  CAR_SEATS_GALLERY.find((item) => item.id === "recaro-classic-bucket-seat-front-view"),
-].filter(Boolean);
-
-export const beforeAfterShowcaseImages = CAR_SEATS_BEFORE_AFTER.flatMap((item) => {
-  const items = [];
-  if (item.beforeAsset) {
-    items.push({
-      id: `${item.id}-before`,
-      asset: item.beforeAsset,
-      alt: item.beforeAlt ?? { en: "Car seat before upholstery work." },
-      caption: item.beforeCaption ?? { en: "Before" },
-    });
-  }
-  if (item.afterAsset) {
-    items.push({
-      id: `${item.id}-after`,
-      asset: item.afterAsset,
-      alt: item.afterAlt ?? { en: "Car seat after upholstery work." },
-      caption: item.afterCaption ?? { en: "After" },
-    });
-  }
-  return items;
-});
-
 <PageHero
   locale="en"
   title="Car Seat Repair in San Jose"
@@ -70,6 +36,7 @@ export const beforeAfterShowcaseImages = CAR_SEATS_BEFORE_AFTER.flatMap((item) =
 />
 
 <ServiceCards locale="en" currentKey="carSeats" />
+<PageShowcaseSections locale="en" pageKey="carSeats" />
 
 Your seat is the part of the interior you touch every day. When a seam splits, a panel tears, or
 the cushion goes flat, it makes the whole car feel worn—fast.
@@ -85,24 +52,11 @@ belongs** with the rest of the interior, and it should **feel supportive** again
 </aside>
 
 <aside class="callout" aria-label="Seat project example">
-  <p class="callout__title">Recent seat project</p>
+  <p class="callout__title">Seat project example</p>
   <p>
     See our <LocalizedLink pageKey="porscheBoxsterSSeatProject">Porsche Boxster S seat reupholstery</LocalizedLink> with saddle leather bolsters and houndstooth inserts.
   </p>
 </aside>
-
-## Recent car seat gallery
-
-These are recent seat-focused examples so you can evaluate fit, seam quality, and material finish.
-
-<LightboxGallery images={seatGalleryHighlights} locale="en" />
-
-## Before and after seat examples
-
-Use these as a quick quality check: consistent seam lines, tighter fit, and a seat profile that
-looks intentional after the work.
-
-<LightboxGallery images={beforeAfterShowcaseImages} locale="en" />
 
 ---
 

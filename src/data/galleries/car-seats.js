@@ -2,6 +2,7 @@ import boatSeatBlackVinyl from '../../assets/images/services/car-seats/boat-seat
 import classicMercedesFrontSeats from '../../assets/images/services/car-seats/classic-mercedes-front-seats-upholstery.jpg';
 import classicRearBench from '../../assets/images/services/car-seats/classic-rear-bench-seat-upholstery.jpg';
 import classicRedBenchDetail from '../../assets/images/services/car-seats/classic-red-bench-seat-detail.jpg';
+import clothBucketSeatSingle from '../../assets/images/services/car-seats/cloth-bucket-seat-after-reupholstery-single.jpg';
 import customSeatSetTwoTone from '../../assets/images/services/car-seats/custom-seat-set-two-tone-upholstery.jpg';
 import recaroClassicBucket from '../../assets/images/services/car-seats/recaro-classic-bucket-seat-front-view.jpg';
 import redBlackClassicFrontSeats from '../../assets/images/services/car-seats/red-black-classic-front-seats-interior.jpg';
@@ -23,6 +24,12 @@ export const CAR_SEATS_GALLERY = [
 		asset: classicMercedesFrontSeats,
 		alt: { en: 'Classic front seats with fresh upholstery in the shop.' },
 		caption: { en: 'Classic front seats in finished upholstery.' },
+	},
+	{
+		id: 'cloth-bucket-seat-after-reupholstery-single',
+		asset: clothBucketSeatSingle,
+		alt: { en: 'Single cloth bucket seat after reupholstery.' },
+		caption: { en: 'Single cloth bucket seat after reupholstery.' },
 	},
 	{
 		id: 'classic-rear-bench-seat-upholstery',

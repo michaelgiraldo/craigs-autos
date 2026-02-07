@@ -1,0 +1,137 @@
+---
+import { Image } from 'astro:assets';
+
+const { pairs = [], locale = 'en', label = '' } = Astro.props;
+const resolveCopy = (value) => value?.[locale] ?? value?.en ?? '';
+
+const BEFORE_LABELS = {
+	en: 'Before',
+	es: 'Antes',
+	vi: 'Truoc',
+	'zh-hans': '改装前',
+	tl: 'Bago',
+	ko: '작업 전',
+	hi: 'पहले',
+	pa: 'ਪਹਿਲਾਂ',
+	'pt-br': 'Antes',
+	'zh-hant': '改裝前',
+	ja: '施工前',
+	ar: 'قبل',
+	ru: 'До',
+	ta: 'முன்',
+};
+
+const AFTER_LABELS = {
+	en: 'After',
+	es: 'Despues',
+	vi: 'Sau',
+	'zh-hans': '改装后',
+	tl: 'Pagkatapos',
+	ko: '작업 후',
+	hi: 'बाद में',
+	pa: 'ਬਾਅਦ',
+	'pt-br': 'Depois',
+	'zh-hant': '改裝後',
+	ja: '施工後',
+	ar: 'بعد',
+	ru: 'После',
+	ta: 'பின்',
+};
+
+const beforeLabel = BEFORE_LABELS[locale] ?? BEFORE_LABELS.en;
+const afterLabel = AFTER_LABELS[locale] ?? AFTER_LABELS.en;
+---
+
+<section class="before-after" aria-label={label || 'Before and after'}>
+	{label ? <h2>{label}</h2> : null}
+	<div class="before-after__grid">
+		{pairs.map((pair) => (
+			<article class="before-after__card" data-pair-id={pair.pairId || pair.id}>
+				<div class="before-after__cell">
+					<p class="before-after__label">{beforeLabel}</p>
+					<Image
+						src={pair.before.asset}
+						alt={resolveCopy(pair.before.alt)}
+						loading="lazy"
+						decoding="async"
+						sizes="(min-width: 1024px) 480px, (min-width: 640px) 45vw, 100vw"
+					/>
+					{resolveCopy(pair.before.caption) ? (
+						<p class="before-after__caption">{resolveCopy(pair.before.caption)}</p>
+					) : null}
+				</div>
+				<div class="before-after__cell">
+					<p class="before-after__label">{afterLabel}</p>
+					<Image
+						src={pair.after.asset}
+						alt={resolveCopy(pair.after.alt)}
+						loading="lazy"
+						decoding="async"
+						sizes="(min-width: 1024px) 480px, (min-width: 640px) 45vw, 100vw"
+					/>
+					{resolveCopy(pair.after.caption) ? (
+						<p class="before-after__caption">{resolveCopy(pair.after.caption)}</p>
+					) : null}
+				</div>
+			</article>
+		))}
+	</div>
+</section>
+
+<style>
+	.before-after {
+		padding: 1.5rem 0 2.5rem;
+	}
+
+	.before-after h2 {
+		margin: 0 0 1.1rem;
+		font-size: clamp(1.35rem, 2vw, 1.9rem);
+	}
+
+	.before-after__grid {
+		display: grid;
+		gap: 1.6rem;
+	}
+
+	.before-after__card {
+		background: var(--color-surface);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-lg);
+		padding: 1rem;
+		display: grid;
+		gap: 1rem;
+	}
+
+	.before-after__cell {
+		display: grid;
+		gap: 0.65rem;
+	}
+
+	.before-after__cell img {
+		display: block;
+		width: 100%;
+		height: auto;
+		border-radius: var(--radius-lg);
+	}
+
+	.before-after__label {
+		margin: 0;
+		font-weight: 600;
+		letter-spacing: 0.02em;
+		text-transform: uppercase;
+		font-size: 0.82rem;
+		color: var(--color-muted);
+	}
+
+	.before-after__caption {
+		margin: 0;
+		font-size: 0.95rem;
+		color: var(--color-muted);
+	}
+
+	@media (min-width: 760px) {
+		.before-after__card {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+</style>

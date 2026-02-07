@@ -8,6 +8,7 @@ import FeaturedProject from "../../../components/FeaturedProject.astro";
 
 import PageHero from "../../../components/PageHero.astro";
 import ServiceCards from "../../../components/ServiceCards.astro";
+import PageShowcaseSections from "../../../components/PageShowcaseSections.astro";
 
 <PageHero
   locale="zh-hant"
@@ -16,9 +17,10 @@ import ServiceCards from "../../../components/ServiceCards.astro";
 />
 
 <ServiceCards locale="zh-hant" currentKey="gallery" />
-
-<FeaturedProject projectId="porsche-boxster-s-seat-project" locale="zh-hant" />
 <FeaturedProject projectId="buick-eight" locale="zh-hant" />
+<FeaturedProject projectId="porsche-boxster-s-seat-project" locale="zh-hant" />
+
+<PageShowcaseSections locale="zh-hant" pageKey="gallery" />
 
 多數人會先看照片再決定是否聯絡。以下是看照片的重點，也能幫你快速判斷做工是否到位。
 

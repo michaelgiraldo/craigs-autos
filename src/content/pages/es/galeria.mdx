@@ -8,6 +8,7 @@ import FeaturedProject from "../../../components/FeaturedProject.astro";
 
 import PageHero from "../../../components/PageHero.astro";
 import ServiceCards from "../../../components/ServiceCards.astro";
+import PageShowcaseSections from "../../../components/PageShowcaseSections.astro";
 
 <PageHero
   locale="es"
@@ -16,9 +17,10 @@ import ServiceCards from "../../../components/ServiceCards.astro";
 />
 
 <ServiceCards locale="es" currentKey="gallery" />
-
-<FeaturedProject projectId="porsche-boxster-s-seat-project" locale="es" />
 <FeaturedProject projectId="buick-eight" locale="es" />
+<FeaturedProject projectId="porsche-boxster-s-seat-project" locale="es" />
+
+<PageShowcaseSections locale="es" pageKey="gallery" />
 
 Las fotos son cómo la mayoría decide si llamar. Esta página es una guía rápida de qué mirar en
 asientos, techos interiores, capotas convertibles e interiores clásicos, y cómo obtener ejemplos

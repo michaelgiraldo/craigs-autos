@@ -8,40 +8,7 @@ import FeaturedProject from "../../../components/FeaturedProject.astro";
 
 import PageHero from "../../../components/PageHero.astro";
 import ServiceCards from "../../../components/ServiceCards.astro";
-import LightboxGallery from "../../../components/LightboxGallery.astro";
-import { CAR_SEATS_GALLERY } from "../../../data/galleries/car-seats.js";
-import { MOTORCYCLE_SEATS_GALLERY } from "../../../data/galleries/motorcycle-seats.js";
-import { CAR_SEATS_BEFORE_AFTER } from "../../../data/galleries/car-seats-before-after.js";
-
-export const serviceGalleryHighlights = [
-  CAR_SEATS_GALLERY.find((item) => item.id === "sedan-front-seats-reupholstery-installed"),
-  CAR_SEATS_GALLERY.find((item) => item.id === "custom-seat-set-two-tone-upholstery"),
-  CAR_SEATS_GALLERY.find((item) => item.id === "classic-mercedes-front-seats-upholstery"),
-  CAR_SEATS_GALLERY.find((item) => item.id === "recaro-classic-bucket-seat-front-view"),
-  MOTORCYCLE_SEATS_GALLERY.find((item) => item.id === "motorcycle-seat-upholstery-green-finish"),
-  MOTORCYCLE_SEATS_GALLERY.find((item) => item.id === "ktm-orange-motorcycle-seat-top-view"),
-].filter(Boolean);
-
-export const beforeAfterGalleryHighlights = CAR_SEATS_BEFORE_AFTER.flatMap((item) => {
-  const items = [];
-  if (item.beforeAsset) {
-    items.push({
-      id: `${item.id}-before`,
-      asset: item.beforeAsset,
-      alt: item.beforeAlt ?? { en: "Car seat before upholstery work." },
-      caption: item.beforeCaption ?? { en: "Before" },
-    });
-  }
-  if (item.afterAsset) {
-    items.push({
-      id: `${item.id}-after`,
-      asset: item.afterAsset,
-      alt: item.afterAlt ?? { en: "Car seat after upholstery work." },
-      caption: item.afterCaption ?? { en: "After" },
-    });
-  }
-  return items;
-});
+import PageShowcaseSections from "../../../components/PageShowcaseSections.astro";
 
 <PageHero
   locale="en"
@@ -51,21 +18,9 @@ export const beforeAfterGalleryHighlights = CAR_SEATS_BEFORE_AFTER.flatMap((item
 
 <ServiceCards locale="en" currentKey="gallery" />
 
-<FeaturedProject projectId="porsche-boxster-s-seat-project" locale="en" />
 <FeaturedProject projectId="buick-eight" locale="en" />
-
-## Service gallery highlights
-
-Not every strong result is a full case-study project. These service examples show seat and
-motorcycle work we can apply across many vehicle types.
-
-<LightboxGallery images={serviceGalleryHighlights} locale="en" />
-
-## Before and after seat examples
-
-These before/after examples help you evaluate what changed in fit, profile, and finish.
-
-<LightboxGallery images={beforeAfterGalleryHighlights} locale="en" />
+<FeaturedProject projectId="porsche-boxster-s-seat-project" locale="en" />
+<PageShowcaseSections locale="en" pageKey="gallery" />
 
 Photos are how most people decide whether to call. This page is a quick guide to what to look for
 in seats, headliners, convertible tops, and classic interiors—plus the easiest way to get examples

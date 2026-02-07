@@ -7,9 +7,8 @@ import LocalizedLink from "../../../components/LocalizedLink.astro";
 
 import PageHero from "../../../components/PageHero.astro";
 import ServiceCards from "../../../components/ServiceCards.astro";
+import PageShowcaseSections from "../../../components/PageShowcaseSections.astro";
 import FaqSection from "../../../components/FaqSection.astro";
-import LightboxGallery from "../../../components/LightboxGallery.astro";
-import { MOTORCYCLE_SEATS_GALLERY } from "../../../data/galleries/motorcycle-seats.js";
 
 export const faqs = [
   {
@@ -38,11 +37,6 @@ export const faqs = [
   },
 ];
 
-export const motorcycleGalleryHighlights = [
-  MOTORCYCLE_SEATS_GALLERY.find((item) => item.id === "motorcycle-seat-upholstery-green-finish"),
-  MOTORCYCLE_SEATS_GALLERY.find((item) => item.id === "ktm-orange-motorcycle-seat-top-view"),
-].filter(Boolean);
-
 <PageHero
   locale="en"
   title="Motorcycle Seat Upholstery in San Jose"
@@ -50,6 +44,7 @@ export const motorcycleGalleryHighlights = [
 />
 
 <ServiceCards locale="en" currentKey="motorcycleSeats" />
+<PageShowcaseSections locale="en" pageKey="motorcycleSeats" />
 
 A motorcycle seat isn’t “interior trim.” It’s your interface with the bike.
 
@@ -75,14 +70,6 @@ We handle motorcycle seat upholstery in San Jose with two outcomes in mind:
     The logic is the same as car seats: <LocalizedLink pageKey="upholsteryGuide" hash="#issue-seat-foam">Upholstery Guide: Seat feels flat or low</LocalizedLink>.
   </p>
 </aside>
-
-## Recent motorcycle seat examples
-
-Recent motorcycle seat work focused on clean finish, panel shape, and stitch quality.
-
-<LightboxGallery images={motorcycleGalleryHighlights} locale="en" />
-
----
 
 ## Motorcycle seat problems we fix
 

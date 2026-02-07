@@ -1,0 +1,79 @@
+---
+import LightboxGallery from './LightboxGallery.astro';
+import BeforeAfterPairGrid from './BeforeAfterPairGrid.astro';
+import {
+	BEFORE_AFTER_SHOWCASE_PAIRS,
+	CAR_SEATS_ALL_IMAGES,
+	HOME_SHOWCASE_IMAGES,
+	MOTORCYCLE_SEAT_HIGHLIGHT_IMAGES,
+	SERVICE_GALLERY_HIGHLIGHT_IMAGES,
+	SHOWCASE_COPY,
+} from '../data/galleries/page-showcase.js';
+
+const { locale = 'en', pageKey = 'home' } = Astro.props;
+const resolveCopy = (value) => value?.[locale] ?? value?.en ?? '';
+const copy = SHOWCASE_COPY[pageKey] ?? {};
+---
+
+{pageKey === 'home' ? (
+	<section class="page-showcase" aria-label={resolveCopy(copy.title)}>
+		<h2>{resolveCopy(copy.title)}</h2>
+		<LightboxGallery images={HOME_SHOWCASE_IMAGES} locale={locale} />
+	</section>
+) : null}
+
+{pageKey === 'carSeats' ? (
+	<section class="page-showcase" aria-label={resolveCopy(copy.highlightTitle)}>
+		<h2>{resolveCopy(copy.highlightTitle)}</h2>
+		<LightboxGallery images={CAR_SEATS_ALL_IMAGES} locale={locale} />
+	</section>
+) : null}
+
+{pageKey === 'gallery' ? (
+	<section class="page-showcase" aria-label={resolveCopy(copy.highlightTitle)}>
+		<h2>{resolveCopy(copy.highlightTitle)}</h2>
+		<LightboxGallery images={SERVICE_GALLERY_HIGHLIGHT_IMAGES} locale={locale} />
+	</section>
+) : null}
+
+{pageKey === 'carSeats' ? (
+	<BeforeAfterPairGrid
+		pairs={BEFORE_AFTER_SHOWCASE_PAIRS}
+		locale={locale}
+		label={resolveCopy(copy.beforeAfterTitle)}
+	/>
+) : null}
+
+{pageKey === 'gallery' ? (
+	<BeforeAfterPairGrid
+		pairs={BEFORE_AFTER_SHOWCASE_PAIRS}
+		locale={locale}
+		label={resolveCopy(copy.beforeAfterTitle)}
+	/>
+) : null}
+
+{pageKey === 'motorcycleSeats' ? (
+	<section class="page-showcase" aria-label={resolveCopy(copy.highlightTitle)}>
+		<h2>{resolveCopy(copy.highlightTitle)}</h2>
+		<LightboxGallery images={MOTORCYCLE_SEAT_HIGHLIGHT_IMAGES} locale={locale} />
+	</section>
+) : null}
+
+<style>
+	.page-showcase {
+		padding: 2.25rem 0;
+	}
+
+	.page-showcase h2 {
+		margin: 0 0 0.75rem;
+		font-size: clamp(1.35rem, 2vw, 1.9rem);
+	}
+
+	.page-showcase h2 + .lightbox-gallery {
+		margin-bottom: 2rem;
+	}
+
+	.page-showcase .lightbox-gallery {
+		margin-bottom: 0;
+	}
+</style>

@@ -8,6 +8,7 @@ import FeaturedProject from "../../../components/FeaturedProject.astro";
 
 import PageHero from "../../../components/PageHero.astro";
 import ServiceCards from "../../../components/ServiceCards.astro";
+import PageShowcaseSections from "../../../components/PageShowcaseSections.astro";
 
 <PageHero
   locale="pt-br"
@@ -16,9 +17,10 @@ import ServiceCards from "../../../components/ServiceCards.astro";
 />
 
 <ServiceCards locale="pt-br" currentKey="gallery" />
-
-<FeaturedProject projectId="porsche-boxster-s-seat-project" locale="pt-br" />
 <FeaturedProject projectId="buick-eight" locale="pt-br" />
+<FeaturedProject projectId="porsche-boxster-s-seat-project" locale="pt-br" />
+
+<PageShowcaseSections locale="pt-br" pageKey="gallery" />
 
 A maioria decide pela foto. Aqui vai um guia rápido do que observar em bancos, forro do teto, capotas e interiores clássicos—e como obter exemplos relevantes.
 
