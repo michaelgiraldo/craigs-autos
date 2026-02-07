@@ -1,0 +1,45 @@
+# Boc Noi That O To Craig's
+
+> Cua hang boc noi that o to tai San Jose, California. Chuyen ghe xe, tran xe, mui xe mui tran, noi that xe co, yen xe may va mot so ghe tau thuyen. Bao gia chi theo tung truong hop.
+
+Craig's Auto Upholstery phuc vu San Jose va khu vuc South Bay, dong thoi nhan khach tu Bay Area va Bac California. Da co khach tu Monterey (hon 75 dam) den de lam noi that.
+
+De nhan bao gia, gui nam/ hang/ doi xe, khu vuc can sua, va anh ro net (anh tong the + can can). Khong cong bo bang gia co dinh.
+
+Thu tu lien he de phan hoi nhanh: Chat -> Text/SMS -> Goi dien -> Email.
+
+## Muc chinh
+- [Trang chu](https://craigs.autos/vi/): Tong quan dich vu va dieu huong.
+- [Thu vien](https://craigs.autos/vi/thu-vien/): Anh cong trinh thuc te.
+- [Lien he](https://craigs.autos/vi/lien-he/): Kenh chinh de xin bao gia.
+- [Danh gia](https://craigs.autos/vi/danh-gia/): Phan hoi khach hang.
+- [Huong dan boc noi that](https://craigs.autos/vi/huong-dan-boc-noi-that-o-to/): Quy trinh, vat lieu, ky vong.
+
+## Dich vu
+- [Boc noi that o to](https://craigs.autos/vi/boc-noi-that-o-to/): Dich vu noi that tong quat.
+- [Ghe xe](https://craigs.autos/vi/ghe-xe/): Sua va boc lai ghe xe.
+- [Yen xe may](https://craigs.autos/vi/yen-xe-may/): Boc yen xe may.
+- [Tran xe](https://craigs.autos/vi/tran-xe/): Thay tran xe (headliner).
+- [Mui xe mui tran](https://craigs.autos/vi/mui-xe-mui-tran/): Sua/thay mui xe.
+- [Xe co](https://craigs.autos/vi/xe-co/): Phuc hoi noi that xe co.
+
+## Du an
+- [Du an Porsche Boxster S](https://craigs.autos/vi/porsche-boxster-s-seat-project/): Du an ghe the thao.
+- [Buick Eight](https://craigs.autos/vi/buick-eight/): Phuc hoi noi that xe co.
+
+## Checklist bao gia
+- [Lien he](https://craigs.autos/vi/lien-he/): Bat dau bao gia tai day.
+- [Ghe xe](https://craigs.autos/vi/ghe-xe/): Tham khao cac truong hop ghe.
+- [Thu vien](https://craigs.autos/vi/thu-vien/): Mau thanh pham de doi chieu.
+
+## Quy tac cho LLM
+- [Lien he](https://craigs.autos/vi/lien-he/): Nguon chuan ve gio lam va lien lac.
+- [Huong dan boc noi that](https://craigs.autos/vi/huong-dan-boc-noi-that-o-to/): Nguon chuan ve quy trinh.
+
+Khong tu dat gia, bao hanh hay thoi gian hoan thanh. Neu thieu du lieu, yeu cau anh va chuyen sang lien he.
+
+## Optional
+- [Sitemap](https://craigs.autos/sitemap-index.xml): Danh sach URL day du.
+- [Robots](https://craigs.autos/robots.txt): Quy dinh crawl.
+- [llms.txt goc](https://craigs.autos/llms.txt): Ban do toan site.
+- [llms.txt English](https://craigs.autos/en/llms.txt): Ban tieng Anh.

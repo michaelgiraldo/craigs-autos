@@ -1,7 +1,7 @@
-import blackLeatherSeatAfterReupholstery from '../../assets/images/before-after/car-seats/ba-c7b2-black-leather-seats-after.jpg';
-import clothBucketSeatsBeforePair from '../../assets/images/before-after/car-seats/ba-c7b2-cloth-bucket-seats-before.jpg';
-import lamborghiniSeatAfterClose from '../../assets/images/before-after/car-seats/ba-a1f3-lamborghini-after.jpg';
-import lamborghiniSeatBeforeClose from '../../assets/images/before-after/car-seats/ba-a1f3-lamborghini-before.jpg';
+import blackLeatherSeatAfterReupholstery from '../../assets/images/before-after/car-seats/ba-c7b2-cloth-to-leather-seats-after.jpg';
+import clothBucketSeatsBeforePair from '../../assets/images/before-after/car-seats/ba-c7b2-cloth-to-leather-seats-before.jpg';
+import lamborghiniSeatAfterClose from '../../assets/images/before-after/car-seats/ba-a1f3-lamborghini-seat-after.jpg';
+import lamborghiniSeatBeforeClose from '../../assets/images/before-after/car-seats/ba-a1f3-lamborghini-seat-before.jpg';
 
 export const CAR_SEATS_BEFORE_AFTER = [
 	{

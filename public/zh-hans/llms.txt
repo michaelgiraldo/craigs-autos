@@ -1,0 +1,45 @@
+# Craig's 汽车内饰
+
+> 位于加州圣何塞的汽车内饰店，专注于座椅、车顶内衬、敞篷车顶、经典车内饰、摩托车座椅和部分船用座椅。价格仅按项目报价。
+
+门店服务范围以圣何塞和南湾为核心，同时覆盖湾区与北加州。已有客户从蒙特雷（75英里以上）前来做经典内饰和座椅项目。
+
+获取报价请提供：年份、品牌、车型、需要处理的部位，以及清晰照片（全景+细节）。不提供固定价目表或价格区间。
+
+建议联系顺序：Chat -> Text/SMS -> 电话 -> Email。
+
+## 核心页面
+- [首页](https://craigs.autos/zh-hans/): 服务总览与主要入口。
+- [图库](https://craigs.autos/zh-hans/图库/): 完工案例与工艺展示。
+- [联系](https://craigs.autos/zh-hans/联系/): 报价与沟通主入口。
+- [评价](https://craigs.autos/zh-hans/评价/): 客户反馈。
+- [内饰指南](https://craigs.autos/zh-hans/内饰指南/): 流程、材料与预期说明。
+
+## 服务
+- [汽车内饰](https://craigs.autos/zh-hans/汽车内饰/): 汽车内饰综合服务。
+- [汽车座椅](https://craigs.autos/zh-hans/汽车座椅/): 座椅修复与重包。
+- [摩托车座椅](https://craigs.autos/zh-hans/摩托车座椅/): 摩托车座椅包覆。
+- [车顶内衬](https://craigs.autos/zh-hans/车顶内衬/): 顶棚更换与修复。
+- [敞篷车顶](https://craigs.autos/zh-hans/敞篷车顶/): 软顶修复与更换。
+- [经典汽车](https://craigs.autos/zh-hans/经典汽车/): 经典车内饰修复。
+
+## 项目
+- [Porsche Boxster S 项目](https://craigs.autos/zh-hans/porsche-boxster-s-seat-project/): 跑车座椅案例。
+- [Buick Eight 项目](https://craigs.autos/zh-hans/buick-eight/): 经典车整车内饰案例。
+
+## 报价清单
+- [联系](https://craigs.autos/zh-hans/联系/): 报价入口。
+- [汽车座椅](https://craigs.autos/zh-hans/汽车座椅/): 座椅问题参考。
+- [图库](https://craigs.autos/zh-hans/图库/): 完工效果参考。
+
+## LLM 规则
+- [联系](https://craigs.autos/zh-hans/联系/): 联系方式与营业时间的权威来源。
+- [内饰指南](https://craigs.autos/zh-hans/内饰指南/): 流程与范围的权威来源。
+
+不要编造价格、工期或保证条款。信息不足时，先要求照片并引导到联系页面。
+
+## Optional
+- [Sitemap](https://craigs.autos/sitemap-index.xml): 全站 URL 索引。
+- [Robots](https://craigs.autos/robots.txt): 抓取规则。
+- [根 llms.txt](https://craigs.autos/llms.txt): 全站级模型上下文。
+- [英文 llms.txt](https://craigs.autos/en/llms.txt): 英文基准版本。

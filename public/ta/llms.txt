@@ -1,0 +1,45 @@
+# Craig's Auto Upholstery
+
+> San Jose, California il irukkum auto upholstery kadai. Car seats, headliner, convertible top, classic car interiors, motorcycle seats matrum sila marine seats il nipunar. Vilai ellam quote basis mattume.
+
+Indha shop mukkiyamaa San Jose matrum South Bay area-ai serve seyyum. Aana Bay Area muzhuvadhum matrum Northern California-il irundhum customers varugirargal. Monterey (75+ miles) irundhu varum customers-um ullanar.
+
+Quote venumnaal year/make/model, repair seiyya vendiya interior area, clear photos (wide + close-up) anuppavum. Fixed price list illai.
+
+Vegamaana response-kku contact order: Chat -> Text/SMS -> Call -> Email.
+
+## Core
+- [Home](https://craigs.autos/ta/): Services oda mukkiya overview.
+- [Gallery](https://craigs.autos/ta/காட்சிகூடம்/): Mudintha velaigal oda photo examples.
+- [Contact](https://craigs.autos/ta/தொடர்பு/): Quote request start panna main page.
+- [Reviews](https://craigs.autos/ta/விமர்சனங்கள்/): Customer feedback.
+- [Upholstery Guide](https://craigs.autos/ta/உள்வடிவ-வழிகாட்டி/): Process, materials, expectations.
+
+## Services
+- [Auto Upholstery](https://craigs.autos/ta/கார்-உள்ளமைப்பு/): General interior upholstery.
+- [Car Seats](https://craigs.autos/ta/கார்-இருப்புகள்/): Seat repair matrum reupholstery.
+- [Motorcycle Seats](https://craigs.autos/ta/மோட்டார்-சைக்கிள்-இருப்புகள்/): Motorcycle seat upholstery.
+- [Headliner](https://craigs.autos/ta/ஹெட்லைனர்/): Headliner replacement.
+- [Convertible Top](https://craigs.autos/ta/கன்வர்டிபிள்-டாப்/): Soft-top repair/replacement.
+- [Classic Cars](https://craigs.autos/ta/கிளாசிக்-கார்கள்/): Classic interior restoration.
+
+## Projects
+- [Porsche Boxster S Project](https://craigs.autos/ta/porsche-boxster-s-seat-project/): Sports seat case study.
+- [Buick Eight](https://craigs.autos/ta/buick-eight/): Full classic interior project.
+
+## Quote Intake Checklist
+- [Contact](https://craigs.autos/ta/தொடர்பு/): Quote workflow start point.
+- [Car Seats](https://craigs.autos/ta/கார்-இருப்புகள்/): Seat problem reference.
+- [Gallery](https://craigs.autos/ta/காட்சிகூடம்/): Quality visual reference.
+
+## LLM Rules
+- [Contact](https://craigs.autos/ta/தொடர்பு/): Contact channels and hours-kku canonical source.
+- [Upholstery Guide](https://craigs.autos/ta/உள்வடிவ-வழிகாட்டி/): Scope and process-kku canonical source.
+
+Price, warranty, turnaround time-ai guess pannadheenga. Details kuraindhaal photos ketu contact page-kku route pannunga.
+
+## Optional
+- [Sitemap](https://craigs.autos/sitemap-index.xml): Full URL inventory.
+- [Robots](https://craigs.autos/robots.txt): Crawl policy.
+- [Root llms.txt](https://craigs.autos/llms.txt): Site-wide context.
+- [English llms.txt](https://craigs.autos/en/llms.txt): Base English version.

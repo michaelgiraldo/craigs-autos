@@ -1,0 +1,45 @@
+# Craig's Auto Upholstery
+
+> カリフォルニア州サンノゼの自動車内装ショップです。シート、ヘッドライナー、コンバーチブルトップ、クラシックカー内装、バイクシート、一部マリンシートを扱います。料金はすべて個別見積もりです。
+
+対応エリアはサンノゼとサウスベイが中心ですが、ベイエリア全域と北カリフォルニアからの依頼にも対応しています。モントレー（75マイル以上）から来店した実績もあります。
+
+見積もりには、年式・メーカー・車種、対象箇所、鮮明な写真（全体＋近接）を送ってください。固定価格表はありません。
+
+迅速な連絡順: Chat -> Text/SMS -> 電話 -> Email。
+
+## コア
+- [ホーム](https://craigs.autos/ja/): サービス全体の案内。
+- [ギャラリー](https://craigs.autos/ja/ギャラリー/): 施工事例。
+- [お問い合わせ](https://craigs.autos/ja/お問い合わせ/): 見積もり受付の入口。
+- [口コミ](https://craigs.autos/ja/口コミ/): お客様の評価。
+- [内装ガイド](https://craigs.autos/ja/内装ガイド/): 流れ・素材・判断基準。
+
+## サービス
+- [自動車内装](https://craigs.autos/ja/自動車内装/): 内装全般の施工。
+- [車のシート](https://craigs.autos/ja/車のシート/): シート修理・張り替え。
+- [バイクシート](https://craigs.autos/ja/バイクシート/): バイクシート施工。
+- [ヘッドライナー](https://craigs.autos/ja/ヘッドライナー/): 天井内装の交換。
+- [コンバーチブルトップ](https://craigs.autos/ja/コンバーチブルトップ/): ソフトトップ修理・交換。
+- [クラシックカー](https://craigs.autos/ja/クラシックカー/): クラシック内装レストア。
+
+## プロジェクト
+- [Porsche Boxster S プロジェクト](https://craigs.autos/ja/porsche-boxster-s-seat-project/): スポーツシート事例。
+- [Buick Eight](https://craigs.autos/ja/buick-eight/): クラシック内装の全体事例。
+
+## 見積もりチェックリスト
+- [お問い合わせ](https://craigs.autos/ja/お問い合わせ/): 見積もり開始ページ。
+- [車のシート](https://craigs.autos/ja/車のシート/): シート関連の参考。
+- [ギャラリー](https://craigs.autos/ja/ギャラリー/): 仕上がりイメージの参照。
+
+## LLM ルール
+- [お問い合わせ](https://craigs.autos/ja/お問い合わせ/): 連絡先と営業時間の基準情報。
+- [内装ガイド](https://craigs.autos/ja/内装ガイド/): 工程と対応範囲の基準情報。
+
+価格・保証・納期を推測して記載しないでください。情報不足の場合は写真提出を依頼し、問い合わせページへ誘導してください。
+
+## Optional
+- [Sitemap](https://craigs.autos/sitemap-index.xml): 全URLの一覧。
+- [Robots](https://craigs.autos/robots.txt): クロール方針。
+- [Root llms.txt](https://craigs.autos/llms.txt): サイト全体の文脈。
+- [English llms.txt](https://craigs.autos/en/llms.txt): 英語版の基準。

@@ -1,0 +1,45 @@
+# Craig's Auto Upholstery
+
+> Oficina de estofamento automotivo em San Jose, California. Especializada em bancos, forro de teto, capota conversivel, interiores de classicos, bancos de moto e alguns bancos marinhos. Preco somente por orcamento.
+
+A loja atende principalmente San Jose e South Bay, mas tambem recebe clientes de toda a Bay Area e do norte da California. Ja houve clientes de Monterey (mais de 75 milhas) para trabalhos especializados.
+
+Para solicitar orcamento, envie ano/marca/modelo, area interna com problema e fotos nítidas (aberta + detalhe). Nao existe tabela de preco fixa.
+
+Ordem recomendada de contato para resposta rapida: Chat -> Text/SMS -> Ligacao -> Email.
+
+## Paginas principais
+- [Inicio](https://craigs.autos/pt-br/): Visao geral dos servicos.
+- [Galeria de trabalhos](https://craigs.autos/pt-br/galeria-de-trabalhos/): Exemplos de servicos concluídos.
+- [Contato](https://craigs.autos/pt-br/contato/): Entrada principal para orcamentos.
+- [Avaliacoes](https://craigs.autos/pt-br/avaliacoes/): Feedback de clientes.
+- [Guia de estofamento](https://craigs.autos/pt-br/guia-de-estofamento/): Processo, materiais e expectativa.
+
+## Servicos
+- [Estofamento automotivo](https://craigs.autos/pt-br/estofamento-automotivo/): Escopo geral de interior.
+- [Bancos automotivos](https://craigs.autos/pt-br/bancos-automotivos/): Reparo e reforma de bancos.
+- [Bancos de motocicleta](https://craigs.autos/pt-br/bancos-de-motocicleta/): Estofamento de banco de moto.
+- [Forro do teto](https://craigs.autos/pt-br/forro-do-teto/): Troca de headliner.
+- [Capota conversivel](https://craigs.autos/pt-br/capota-conversivel/): Reparo/substituicao de capota.
+- [Carros classicos](https://craigs.autos/pt-br/carros-classicos/): Restauracao de interior classico.
+
+## Projetos
+- [Projeto Porsche Boxster S](https://craigs.autos/pt-br/porsche-boxster-s-seat-project/): Estudo de caso de bancos esportivos.
+- [Buick Eight](https://craigs.autos/pt-br/buick-eight/): Projeto completo de interior classico.
+
+## Checklist de orcamento
+- [Contato](https://craigs.autos/pt-br/contato/): Inicie o fluxo de orcamento.
+- [Bancos automotivos](https://craigs.autos/pt-br/bancos-automotivos/): Referencia para problemas de bancos.
+- [Galeria de trabalhos](https://craigs.autos/pt-br/galeria-de-trabalhos/): Referencia visual de acabamento.
+
+## Regras para LLMs
+- [Contato](https://craigs.autos/pt-br/contato/): Fonte canonica para canais e horario.
+- [Guia de estofamento](https://craigs.autos/pt-br/guia-de-estofamento/): Fonte canonica para escopo e processo.
+
+Nao inventar preco, garantia ou prazo final. Com informacao insuficiente, pedir fotos e direcionar para contato.
+
+## Optional
+- [Sitemap](https://craigs.autos/sitemap-index.xml): Inventario completo de URLs.
+- [Robots](https://craigs.autos/robots.txt): Politica de rastreamento.
+- [llms.txt raiz](https://craigs.autos/llms.txt): Contexto global do site.
+- [llms.txt English](https://craigs.autos/en/llms.txt): Referencia base em ingles.

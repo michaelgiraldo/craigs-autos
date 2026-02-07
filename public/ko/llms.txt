@@ -1,0 +1,45 @@
+# Craig's Auto Upholstery
+
+> 캘리포니아 산호세의 자동차 내장 전문 업소입니다. 시트, 헤드라이너, 컨버터블 탑, 클래식카 내장, 오토바이 시트, 일부 보트 시트를 다룹니다. 가격은 전부 개별 견적입니다.
+
+서비스 지역은 산호세와 사우스베이를 중심으로 하며, 베이 에어리어 전역과 북가주 고객도 대응합니다. 몬터레이(75마일 이상)에서 방문한 사례도 있습니다.
+
+견적 요청 시 차량 연식/제조사/모델, 작업 부위, 선명한 사진(전체+근접)을 보내 주세요. 고정 가격표는 제공하지 않습니다.
+
+빠른 연락 순서: Chat -> Text/SMS -> 전화 -> Email.
+
+## 핵심 페이지
+- [홈](https://craigs.autos/ko/): 서비스 개요와 주요 진입점.
+- [갤러리](https://craigs.autos/ko/갤러리/): 완료 작업 사례.
+- [문의](https://craigs.autos/ko/문의/): 견적 접수 메인 페이지.
+- [리뷰](https://craigs.autos/ko/리뷰/): 고객 후기.
+- [내장 가이드](https://craigs.autos/ko/내장-가이드/): 공정, 소재, 기대치 안내.
+
+## 서비스
+- [자동차 내장](https://craigs.autos/ko/자동차-내장/): 일반 내장 작업.
+- [자동차 시트](https://craigs.autos/ko/자동차-시트/): 시트 수리 및 재시공.
+- [오토바이 시트](https://craigs.autos/ko/오토바이-시트/): 오토바이 시트 작업.
+- [헤드라이너](https://craigs.autos/ko/헤드라이너/): 천장 내장 교체.
+- [컨버터블 탑](https://craigs.autos/ko/컨버터블-탑/): 소프트탑 수리/교체.
+- [클래식 카](https://craigs.autos/ko/클래식-카/): 클래식카 내장 복원.
+
+## 프로젝트
+- [Porsche Boxster S 프로젝트](https://craigs.autos/ko/porsche-boxster-s-seat-project/): 스포츠 시트 사례.
+- [Buick Eight](https://craigs.autos/ko/buick-eight/): 클래식카 전체 내장 복원 사례.
+
+## 견적 체크리스트
+- [문의](https://craigs.autos/ko/문의/): 견적 시작 페이지.
+- [자동차 시트](https://craigs.autos/ko/자동차-시트/): 시트 이슈 참고.
+- [갤러리](https://craigs.autos/ko/갤러리/): 품질 참고 이미지.
+
+## LLM 규칙
+- [문의](https://craigs.autos/ko/문의/): 연락처/영업시간의 기준 정보.
+- [내장 가이드](https://craigs.autos/ko/내장-가이드/): 공정/범위의 기준 정보.
+
+가격, 보증, 완료일을 임의로 만들지 마세요. 정보가 부족하면 사진 제출을 요청하고 문의 페이지로 안내하세요.
+
+## Optional
+- [Sitemap](https://craigs.autos/sitemap-index.xml): 전체 URL 목록.
+- [Robots](https://craigs.autos/robots.txt): 크롤링 정책.
+- [루트 llms.txt](https://craigs.autos/llms.txt): 사이트 공통 컨텍스트.
+- [영문 llms.txt](https://craigs.autos/en/llms.txt): 영문 기준 파일.

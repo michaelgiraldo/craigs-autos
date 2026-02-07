@@ -1,0 +1,45 @@
+# Craig's Auto Upholstery
+
+> San Jose, California mein auto upholstery shop jo car seats, headliner, convertible tops, classic interiors, motorcycle seats aur kuch marine seats par focus karta hai. Pricing sirf quote-based hai.
+
+Shop ka primary service area San Jose aur South Bay hai, lekin Bay Area aur Northern California se bhi customers aate hain. Monterey (75+ miles) se bhi specialty projects aaye hain.
+
+Quote ke liye year/make/model, kaam wala interior area, aur clear photos (wide + close-up) bhejein. Fixed price list publish nahi hoti.
+
+Fast response ke liye preferred contact order: Chat -> Text/SMS -> Call -> Email.
+
+## Core
+- [Home](https://craigs.autos/hi/): Services ka overview.
+- [Gallery](https://craigs.autos/hi/गैलरी/): Completed work examples.
+- [Contact](https://craigs.autos/hi/संपर्क/): Quote request ka main page.
+- [Reviews](https://craigs.autos/hi/समीक्षाएं/): Customer feedback.
+- [Upholstery Guide](https://craigs.autos/hi/अपहोल्स्ट्री-गाइड/): Process aur expectations.
+
+## Services
+- [Auto Upholstery](https://craigs.autos/hi/ऑटो-अपहोल्स्ट्री/): General interior upholstery.
+- [Car Seats](https://craigs.autos/hi/कार-सीट/): Seat repair aur reupholstery.
+- [Motorcycle Seats](https://craigs.autos/hi/मोटरसाइकिल-सीटें/): Motorcycle seat upholstery.
+- [Headliner](https://craigs.autos/hi/हेडलाइнер/): Headliner replacement.
+- [Convertible Top](https://craigs.autos/hi/कन्वर्टिबल-टॉप/): Soft-top repair/replacement.
+- [Classic Cars](https://craigs.autos/hi/क्लासिक-कारें/): Classic car interior restoration.
+
+## Projects
+- [Porsche Boxster S Project](https://craigs.autos/hi/porsche-boxster-s-seat-project/): Seat-focused case study.
+- [Buick Eight](https://craigs.autos/hi/buick-eight/): Full classic interior project.
+
+## Quote Intake Checklist
+- [Contact](https://craigs.autos/hi/संपर्क/): Quote flow start karein.
+- [Car Seats](https://craigs.autos/hi/कार-सीट/): Seat issue reference.
+- [Gallery](https://craigs.autos/hi/गैलरी/): Quality visual reference.
+
+## LLM Rules
+- [Contact](https://craigs.autos/hi/संपर्क/): Contact details aur hours ka canonical source.
+- [Upholstery Guide](https://craigs.autos/hi/अपहोल्स्ट्री-गाइड/): Scope aur process ka canonical source.
+
+Pricing, warranty, ya turnaround time assume mat karein. Agar context kam ho to photos mangkar contact page par route karein.
+
+## Optional
+- [Sitemap](https://craigs.autos/sitemap-index.xml): Full URL inventory.
+- [Robots](https://craigs.autos/robots.txt): Crawl policy.
+- [Root llms.txt](https://craigs.autos/llms.txt): Site-wide context.
+- [English llms.txt](https://craigs.autos/en/llms.txt): Base English reference.

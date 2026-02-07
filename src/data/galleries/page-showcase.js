@@ -97,11 +97,11 @@ const withMotorcycleCopy = (item) =>
 export const HOME_SHOWCASE_IMAGES = [
 	findProjectImage(PORSCHE_BOXSTER_S_SEAT_PROJECT, 'door-panel'),
 	findProjectImage(BUICK_EIGHT, 'headliner'),
-	withSeatCopy(findById(CAR_SEATS_GALLERY, 'sedan-front-seats-reupholstery-installed')),
 	withSeatCopy(findById(CAR_SEATS_GALLERY, 'custom-seat-set-two-tone-upholstery')),
 	withSeatCopy(findById(CAR_SEATS_GALLERY, 'classic-rear-bench-seat-upholstery')),
 	withSeatCopy(findById(CAR_SEATS_GALLERY, 'classic-red-bench-seat-detail')),
 	withSeatCopy(findById(CAR_SEATS_GALLERY, 'suv-diamond-stitched-seat-interior')),
+	withSeatCopy(findById(CAR_SEATS_GALLERY, 'red-black-classic-front-seats-interior')),
 	withSeatCopy(findById(CAR_SEATS_GALLERY, 'recaro-classic-bucket-seat-front-view')),
 	withSeatCopy(findById(CAR_SEATS_GALLERY, 'rv-captain-seat-upholstery-installed')),
 	withSeatCopy(findById(CAR_SEATS_GALLERY, 'boat-seat-black-vinyl-upholstery')),

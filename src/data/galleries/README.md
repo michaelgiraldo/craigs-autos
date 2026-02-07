@@ -19,3 +19,4 @@ This folder stores non-project gallery manifests.
 - Keep case-study assets in `src/assets/images/projects/`.
 - Keep service assets in `src/assets/images/services/`.
 - Keep before/after assets in `src/assets/images/before-after/`.
+- Before/after file naming uses `ba-<pairId>-before.jpg` and `ba-<pairId>-after.jpg`; the `pairId` in `car-seats-before-after.js` must match the filename.

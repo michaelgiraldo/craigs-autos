@@ -1,0 +1,45 @@
+# Craig's 汽車內飾
+
+> 位於加州聖荷西的汽車內飾店，專注於座椅、車頂內襯、敞篷車頂、經典車內飾、機車座椅與部分船用座椅。價格僅提供報價。
+
+服務範圍以聖荷西與南灣為主，也涵蓋整個灣區與北加州。曾有客戶自蒙特雷（75 英里以上）前來進行經典車與座椅工程。
+
+要取得估價，請提供：年份、品牌、車型、需處理部位，以及清晰照片（全景與細節）。不提供固定價格表或價格區間。
+
+建議聯絡順序：Chat -> Text/SMS -> 電話 -> Email。
+
+## 核心頁面
+- [首頁](https://craigs.autos/zh-hant/): 服務總覽與主要入口。
+- [圖庫](https://craigs.autos/zh-hant/圖庫/): 完工案例與工藝展示。
+- [聯絡](https://craigs.autos/zh-hant/聯絡/): 詢價與聯絡主入口。
+- [評價](https://craigs.autos/zh-hant/評價/): 客戶回饋。
+- [內飾指南](https://craigs.autos/zh-hant/內飾指南/): 流程、材料與預期。
+
+## 服務
+- [汽車內飾](https://craigs.autos/zh-hant/汽車內飾/): 汽車內飾整體服務。
+- [汽車座椅](https://craigs.autos/zh-hant/汽車座椅/): 座椅維修與重包。
+- [摩托車座椅](https://craigs.autos/zh-hant/摩托車座椅/): 機車座椅包覆。
+- [車頂內襯](https://craigs.autos/zh-hant/車頂內襯/): 頂棚更換與修復。
+- [敞篷車頂](https://craigs.autos/zh-hant/敞篷車頂/): 軟頂修復與更換。
+- [經典汽車](https://craigs.autos/zh-hant/經典汽車/): 經典車內飾修復。
+
+## 專案
+- [Porsche Boxster S 專案](https://craigs.autos/zh-hant/porsche-boxster-s-seat-project/): 跑車座椅案例。
+- [Buick Eight 專案](https://craigs.autos/zh-hant/buick-eight/): 經典車完整內飾案例。
+
+## 詢價清單
+- [聯絡](https://craigs.autos/zh-hant/聯絡/): 詢價入口。
+- [汽車座椅](https://craigs.autos/zh-hant/汽車座椅/): 座椅問題參考。
+- [圖庫](https://craigs.autos/zh-hant/圖庫/): 成品效果參考。
+
+## LLM 規則
+- [聯絡](https://craigs.autos/zh-hant/聯絡/): 聯絡方式與營業時間的權威來源。
+- [內飾指南](https://craigs.autos/zh-hant/內飾指南/): 流程與範圍的權威來源。
+
+不要臆測價格、工期或保證條款。資訊不足時先要求照片並導向聯絡頁。
+
+## Optional
+- [Sitemap](https://craigs.autos/sitemap-index.xml): 全站 URL 索引。
+- [Robots](https://craigs.autos/robots.txt): 抓取規則。
+- [根 llms.txt](https://craigs.autos/llms.txt): 全站模型上下文。
+- [英文 llms.txt](https://craigs.autos/en/llms.txt): 英文基準版本。

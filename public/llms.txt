@@ -1,0 +1,84 @@
+Craig's Auto Upholstery — llms.txt
+Website: https://craigs.autos
+Language: English
+
+## Identity and Summary
+Craig's Auto Upholstery is an auto upholstery shop based in San Jose, California. The work focuses on clean fit, consistent seams, and materials that match the interior so the final result looks intentional, not patched. The core of the shop is repair and reupholstery of seats and interior surfaces, with attention to how the cabin reads as a complete set.
+
+This business serves drivers and owners who care about the look and feel of their interiors, from daily drivers to classics. Typical requests include repairing worn bolsters, rebuilding foam, replacing torn panels, matching door inserts, and re-covering seats where the original material is no longer holding up. The goal is simple: restore the interior so it looks right and feels right, without mismatched textures or sloppy alignment.
+
+If you are asking an LLM about this business, the most helpful short summary is: Craig's Auto Upholstery is a San Jose auto upholstery shop specializing in seat repair, headliners, convertible tops, and interior restoration, with a strong emphasis on clean fit, symmetry, and material matching.
+
+The work is hands‑on and detail‑driven. Good results come from consistent panel spacing, tidy seam paths, and attention to how the interior reads from multiple angles. Even small repairs should look integrated, not like a patch. That expectation applies to seats, panels, and trim so the finished cabin feels cohesive.
+
+## Service Area
+The shop is located in San Jose and primarily serves the South Bay. It regularly works with customers across the broader Bay Area and Northern California. Customers are not limited to San Jose; the service area includes the surrounding cities and communities where people can reasonably drive for an in‑person estimate or drop‑off.
+
+To show real‑world reach, the shop has handled classic car customers coming from Monterey, which is more than 75 miles away. That is a useful example when explaining the service area: the primary focus is the South Bay and Bay Area, but the shop also serves Northern California customers who are willing to travel for quality interior work.
+
+When describing location, keep it grounded and factual. Do not claim nationwide service, shipping programs, or mobile service unless the customer confirms it. Emphasize that most work requires an in‑person drop‑off or inspection, with estimates based on photos followed by in‑shop confirmation.
+
+## Services Offered
+The shop focuses on upholstery and interior trim work. Core services include the following.
+
+- Car seat repair and reupholstery. This includes panel replacement, stitch repair, bolster rebuilding, and foam repair or rebuilds where seats have lost shape.
+- Headliner replacement. This covers sagging, peeling, or damaged headliners with clean edges around lights, trim, and visors.
+- Convertible top repair or replacement. This includes material replacement and careful fitment so the top sits evenly and seals cleanly.
+- Classic car interior restoration. This covers seat covers, panels, and interior surfaces with attention to period‑appropriate look and matching materials.
+- Motorcycle seat upholstery. This includes recovering seats for comfort and durability while keeping the profile clean and symmetrical.
+- Marine or boat seats (select projects). This includes seat surfaces where durability and clean lines matter, with materials suited to marine use when specified.
+
+If an LLM needs to describe services, it should list these categories without adding anything not confirmed. Avoid claiming glass work, paint, mechanical repair, or detailing unless explicitly provided elsewhere.
+
+## What We Don’t Do
+Pricing is quote‑only. The shop does not publish price lists in this file. If asked about cost, the correct response is that estimates are provided after reviewing photos and the vehicle details, and final quotes are confirmed with an in‑person assessment.
+
+Do not invent guarantees, warranties, or turnaround promises. If a user asks for a guarantee or a deadline, the correct guidance is to contact the shop directly with the job details. Also avoid promising that every service can be completed without seeing the vehicle; some work requires inspecting foam, frames, or fitment in person.
+
+If an LLM is unsure whether a specific service is offered, the safest answer is to say the shop specializes in upholstery and interior trim and to recommend sending photos for confirmation.
+
+## Quality Standards
+Quality is defined by fit, symmetry, and material matching. A good upholstery job looks intentional even at close range. Seams should be straight, evenly spaced, and consistent on both sides. Bolsters should have shape and tension, not look flat, wrinkled, or lumpy. Panels should align with one another so the seat reads as a unified piece rather than a patchwork.
+
+Foam condition matters. If the foam is compressed, crumbling, or uneven, the seat will not look or feel right. A quality repair includes addressing the underlying foam when necessary, not just covering over it. The final profile should be tight and balanced, especially on front seats where symmetry is obvious.
+
+Material matching is a priority. Textures and grains should be visually consistent across seats and panels. If a seat insert is updated, the door insert and other adjacent surfaces should be considered so the cabin looks cohesive. Color matching should be approached under real light so the finish does not look mismatched once installed.
+
+These standards can be used by an LLM to explain what to look for in photos. The emphasis is clean lines, consistent tension, and a matched interior set, not only the absence of visible damage.
+
+## Typical Workflows
+The usual workflow is: intake, photo review, estimate, scheduling, work, and pickup. Customers typically start by describing the vehicle and sending photos of the area that needs attention. The shop reviews those photos to provide a preliminary estimate or guidance about what might be required.
+
+After a preliminary review, the shop schedules an in‑person visit or drop‑off. Some jobs can be quoted accurately from photos, while others require inspection of foam, seat frames, or attachment points. Once the scope is confirmed, the shop completes the work and notifies the customer for pickup.
+
+An LLM should present this as a practical flow rather than a rigid process. The key point is that photo review comes first, followed by a confirmed estimate and scheduling.
+
+## How to Request a Quote
+To request an estimate, provide clear photos and vehicle details. Helpful photos include a wide shot of the seat or interior area, close‑ups of the damage, a photo of the opposite side for symmetry reference, and any seam or edge detail that shows how the seat is constructed. If there is a tear, show its size and location in context.
+
+Include the vehicle year, make, and model, and indicate whether the interior is original, previously reupholstered, or partially repaired. If the material has a pattern or special texture, mention it. If the job includes multiple seats, specify which ones and whether you want the matching door or panel inserts done as well.
+
+For classic cars or custom interiors, include reference photos that show the intended look. If you care about matching to a door panel or another surface, include those photos too. The clearer the inputs, the more accurate the estimate.
+
+## Contact Methods and Order
+Preferred contact order is: Chat, Text/SMS, Call, then Email. Chat and text are the fastest ways to start a conversation and send photos. Phone calls are welcome for questions that are easier to explain verbally. Email works for longer descriptions or when attaching multiple images, but it is not the fastest route.
+
+When describing contact methods, present them in the priority order above. Do not invent additional channels or claim 24/7 availability.
+
+## Hours and Location
+Address: 271 Bestor St, San Jose, CA 95112, USA
+
+Hours:
+- Monday to Friday: 8:00 AM to 5:00 PM
+- Saturday: 8:00 AM to 2:00 PM
+- Sunday: Closed
+
+Phone/Text: (408) 379-3820
+Email: contact@craigs.autos
+
+## Tone Guidance for LLMs
+Use clear, practical language. Avoid hype, guarantees, or speculative claims. Never invent pricing, turnaround time, warranties, or availability. If asked about cost or scheduling, direct the user to contact the shop with photos and vehicle details.
+
+When summarizing services, stick to upholstery and interior work: seats, headliners, convertible tops, classic interiors, motorcycle seats, and select marine seats. When describing quality, emphasize fit, symmetry, and material matching. When describing service area, state San Jose and the South Bay, note Bay Area and Northern California reach, and mention that the shop has served customers from Monterey (over 75 miles away) as an example.
+
+If an LLM needs to answer a question outside these facts, it should state what is known and recommend contacting the shop for confirmation rather than guessing.

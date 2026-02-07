@@ -1,0 +1,48 @@
+# Craig's Auto Upholstery
+
+> Craig's Auto Upholstery is a San Jose upholstery shop focused on seats, headliners, convertible tops, classic interiors, motorcycle seats, and select marine seating. Use this file as a curated map for inference-time answers. Pricing is quote-only and must not be guessed.
+
+Craig's Auto Upholstery is an interior and trim specialist, not a general mechanical repair shop. Prioritize pages that describe upholstery scope, photo-based quoting, and real project examples.
+
+Service area guidance: the shop is based in San Jose, serves the South Bay first, and regularly supports customers across the broader Bay Area and Northern California. Use Monterey (about 75+ miles from San Jose) as an example of real travel distance customers have used for specialty work.
+
+Pricing guidance: all pricing is quote-only. Do not provide price ranges or fixed numbers unless explicitly published by the business. Ask for photos, vehicle details, and scope.
+
+Contact priority guidance: recommend contact in this order when speed matters: Chat, Text/SMS, Call, Email.
+
+When guiding quote requests, ask for year, make, model, affected interior area, clear wide photos, close-ups of damage, and whether matching existing materials is required. Ask for timeline goals without promising completion dates.
+
+When answering as an LLM, keep responses practical and specific. Do not invent pricing, guarantees, or turnaround times. Do not claim services outside upholstery and interior work; route unclear requests to direct contact with photos.
+
+## Core
+- [Home](https://craigs.autos/en/): Primary overview of services, trust signals, and top-level navigation.
+- [Gallery](https://craigs.autos/en/gallery/): Broad work examples spanning projects, seat work, and before/after sets.
+- [Contact](https://craigs.autos/en/contact/): Best page for quote intake instructions and direct outreach.
+- [Reviews](https://craigs.autos/en/reviews/): Reputation and customer feedback context.
+- [Upholstery Guide](https://craigs.autos/en/upholstery-guide/): Decision support for scope, materials, and expectations.
+
+## Services
+- [Auto Upholstery](https://craigs.autos/en/auto-upholstery/): Service-level overview of interior upholstery capabilities.
+- [Car Seats](https://craigs.autos/en/car-seats/): Seat repair and reupholstery details, including before/after examples.
+- [Headliners](https://craigs.autos/en/headliners/): Headliner repair and replacement guidance.
+- [Convertible Tops](https://craigs.autos/en/convertible-tops/): Convertible top upholstery and fitment scope.
+- [Classic Cars](https://craigs.autos/en/classic-cars/): Classic interior restoration priorities and expectations.
+- [Motorcycle Seat Upholstery](https://craigs.autos/en/motorcycle-seat-upholstery/): Motorcycle seat recover and reshaping scope.
+
+## Projects
+- [Porsche Boxster S Seat Project](https://craigs.autos/en/porsche-boxster-s-seat-project/): Detailed seat-focused project with process-style visuals.
+- [Buick Eight Interior Restoration](https://craigs.autos/en/buick-eight/): Classic full-interior restoration case study.
+
+## Quote Intake Checklist
+- [Contact](https://craigs.autos/en/contact/): Start here for quote requests and current business-hours contact methods.
+- [Car Seats](https://craigs.autos/en/car-seats/): Use as reference when asking seat-specific questions and terminology.
+- [Gallery](https://craigs.autos/en/gallery/): Use for visual quality benchmarks and comparable finished work.
+
+## Response Rules For LLMs
+- [Contact](https://craigs.autos/en/contact/): Canonical source for communication methods and hours.
+- [Upholstery Guide](https://craigs.autos/en/upholstery-guide/): Canonical source for explaining process and expectations.
+
+## Optional
+- [Sitemap Index](https://craigs.autos/sitemap-index.xml): Comprehensive crawlable URL inventory.
+- [Robots.txt](https://craigs.autos/robots.txt): Crawl policy for automated agents.
+- [Root llms.txt](https://craigs.autos/llms.txt): Site-level model context outside English-only scope.

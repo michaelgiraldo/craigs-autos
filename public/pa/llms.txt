@@ -1,0 +1,45 @@
+# Craig's Auto Upholstery
+
+> San Jose, California vich auto upholstery shop. Car seats, headliners, convertible tops, classic interiors, motorcycle seats te kujh marine seats vich mahir. Pricing sirf quote de adhar te hundi hai.
+
+Eh shop San Jose ate South Bay nu primary tarike naal serve kardi hai, par Bay Area te Northern California ton vi customers aunde ne. Monterey (75+ miles) ton vi customers aaye han.
+
+Quote layi vehicle da year/make/model, kaam wali interior jagah, te saaf photos (wide + close-up) bhejo. Koi fixed price list publish nahi hundi.
+
+Tez response layi contact order: Chat -> Text/SMS -> Call -> Email.
+
+## Core
+- [Home](https://craigs.autos/pa/): Services da overview.
+- [Gallery](https://craigs.autos/pa/ਗੈਲਰੀ/): Finished work examples.
+- [Contact](https://craigs.autos/pa/ਸੰਪਰਕ/): Quote request da main point.
+- [Reviews](https://craigs.autos/pa/ਸਮੀਖਿਆਵਾਂ/): Customer feedback.
+- [Upholstery Guide](https://craigs.autos/pa/ਅਪਹੋਲਸਟਰੀ-ਗਾਈਡ/): Process te expectations.
+
+## Services
+- [Auto Upholstery](https://craigs.autos/pa/ਆਟੋ-ਅਪਹੋਲਸਟਰੀ/): General interior upholstery.
+- [Car Seats](https://craigs.autos/pa/ਕਾਰ-ਸੀਟਾਂ/): Seat repair te reupholstery.
+- [Motorcycle Seats](https://craigs.autos/pa/ਮੋਟਰਸਾਈਕਲ-ਸੀਟਾਂ/): Motorcycle seat upholstery.
+- [Headliners](https://craigs.autos/pa/ਹੈਡਲਾਈਨਰ/): Headliner replacement.
+- [Convertible Tops](https://craigs.autos/pa/ਕਨਵਰਟੀਬਲ-ਟਾਪ/): Soft-top repair/replacement.
+- [Classic Cars](https://craigs.autos/pa/ਕਲਾਸਿਕ-ਕਾਰਾਂ/): Classic interior restoration.
+
+## Projects
+- [Porsche Boxster S Project](https://craigs.autos/pa/porsche-boxster-s-seat-project/): Seat-focused case study.
+- [Buick Eight](https://craigs.autos/pa/buick-eight/): Classic interior full project.
+
+## Quote Intake Checklist
+- [Contact](https://craigs.autos/pa/ਸੰਪਰਕ/): Quote flow shuru karo.
+- [Car Seats](https://craigs.autos/pa/ਕਾਰ-ਸੀਟਾਂ/): Seat issue reference.
+- [Gallery](https://craigs.autos/pa/ਗੈਲਰੀ/): Quality visual reference.
+
+## LLM Rules
+- [Contact](https://craigs.autos/pa/ਸੰਪਰਕ/): Contact te hours layi canonical source.
+- [Upholstery Guide](https://craigs.autos/pa/ਅਪਹੋਲਸਟਰੀ-ਗਾਈਡ/): Scope te process layi canonical source.
+
+Pricing, warranty ja turnaround time invent na karo. Je context ghatt hove ta photos mang ke contact page wal guide karo.
+
+## Optional
+- [Sitemap](https://craigs.autos/sitemap-index.xml): Full URL inventory.
+- [Robots](https://craigs.autos/robots.txt): Crawl policy.
+- [Root llms.txt](https://craigs.autos/llms.txt): Site-wide context.
+- [English llms.txt](https://craigs.autos/en/llms.txt): Base English version.

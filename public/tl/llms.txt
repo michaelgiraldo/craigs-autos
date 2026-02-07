@@ -1,0 +1,45 @@
+# Craig's Auto Upholstery
+
+> Shop ng auto upholstery sa San Jose, California para sa car seats, headliners, convertible tops, classic interiors, motorcycle seats, at piling marine seats. Quote-only ang pricing.
+
+Saklaw ng shop ang San Jose at South Bay, at tumatanggap din ng kliyente mula sa mas malawak na Bay Area at Northern California. May mga kliyenteng nanggagaling pa sa Monterey (75+ milya) para sa specialty na interior work.
+
+Para sa quote, magpadala ng year/make/model, bahagi ng interior na ipapagawa, at malinaw na larawan (wide shot + close-up). Walang fixed price list.
+
+Pinakamabilis na contact order: Chat -> Text/SMS -> Tawag -> Email.
+
+## Core
+- [Home](https://craigs.autos/tl/): Pangunahing overview ng serbisyo.
+- [Galeriya](https://craigs.autos/tl/galeriya/): Mga halimbawa ng natapos na trabaho.
+- [Ugnayan](https://craigs.autos/tl/ugnayan/): Pangunahing quote intake page.
+- [Mga review](https://craigs.autos/tl/mga-review/): Feedback ng customer.
+- [Gabay sa tapiseriya](https://craigs.autos/tl/gabay-sa-tapiseriya/): Proseso, materyales, at expectations.
+
+## Services
+- [Tapiseriya ng sasakyan](https://craigs.autos/tl/tapiseriya-ng-sasakyan/): Pangkalahatang interior upholstery.
+- [Upuan ng sasakyan](https://craigs.autos/tl/upuan-ng-sasakyan/): Repair at reupholstery ng seats.
+- [Upuan ng motorsiklo](https://craigs.autos/tl/upuan-ng-motorsiklo/): Upholstery para sa motorcycle seats.
+- [Kisame ng sasakyan](https://craigs.autos/tl/kisame-ng-sasakyan/): Headliner replacement.
+- [Bubong ng kabriolet](https://craigs.autos/tl/bubong-ng-kabriolet/): Convertible top repair/replacement.
+- [Klasikong sasakyan](https://craigs.autos/tl/klasikong-sasakyan/): Classic interior restoration.
+
+## Projects
+- [Porsche Boxster S project](https://craigs.autos/tl/porsche-boxster-s-seat-project/): Seat-focused case study.
+- [Buick Eight](https://craigs.autos/tl/buick-eight/): Full classic interior project.
+
+## Quote Intake Checklist
+- [Ugnayan](https://craigs.autos/tl/ugnayan/): Simula ng quote workflow.
+- [Upuan ng sasakyan](https://craigs.autos/tl/upuan-ng-sasakyan/): Reference para sa seat-specific issues.
+- [Galeriya](https://craigs.autos/tl/galeriya/): Visual reference ng kalidad.
+
+## LLM Rules
+- [Ugnayan](https://craigs.autos/tl/ugnayan/): Canonical source para sa contact at oras.
+- [Gabay sa tapiseriya](https://craigs.autos/tl/gabay-sa-tapiseriya/): Canonical source para sa process at scope.
+
+Huwag mag-imbento ng presyo, warranty, o completion date. Kapag kulang ang detalye, humingi ng photos at i-route sa contact page.
+
+## Optional
+- [Sitemap](https://craigs.autos/sitemap-index.xml): Buong listahan ng URLs.
+- [Robots](https://craigs.autos/robots.txt): Crawl policy.
+- [Root llms.txt](https://craigs.autos/llms.txt): Site-wide context.
+- [English llms.txt](https://craigs.autos/en/llms.txt): Base English file.

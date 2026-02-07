@@ -1,0 +1,45 @@
+# Tapiceria Automotriz Craig's
+
+> Taller de tapiceria automotriz en San Jose, California. Especialistas en asientos, techos interiores, capotas, interiores clasicos y asientos de motocicleta. Precios solo por cotizacion.
+
+Craig's Auto Upholstery atiende San Jose y South Bay, y tambien clientes del Bay Area y del norte de California. Hay clientes que viajan desde Monterey (75+ millas) para trabajos especializados.
+
+Para cotizar, comparte ano, marca, modelo, area a reparar y fotos claras (toma amplia + acercamientos). No se publican precios fijos ni rangos.
+
+Orden recomendado de contacto para respuesta rapida: Chat -> Texto/SMS -> Llamada -> Email.
+
+## Secciones principales
+- [Inicio](https://craigs.autos/es/): Vista general de servicios y formas de contacto.
+- [Galeria](https://craigs.autos/es/galeria/): Ejemplos de trabajos terminados.
+- [Contacto](https://craigs.autos/es/contacto/): Entrada principal para cotizaciones.
+- [Opiniones](https://craigs.autos/es/opiniones/): Resenas de clientes.
+- [Guia de tapiceria](https://craigs.autos/es/guia-de-tapiceria/): Alcance, materiales y expectativas.
+
+## Servicios
+- [Tapiceria automotriz](https://craigs.autos/es/tapiceria-automotriz/): Trabajo interior en general.
+- [Asientos](https://craigs.autos/es/asientos/): Reparacion y retapizado.
+- [Asientos de motocicleta](https://craigs.autos/es/asientos-de-motocicleta/): Reparacion y recubrimiento de asientos de moto.
+- [Techos interiores](https://craigs.autos/es/techos-interiores/): Reemplazo de headliner.
+- [Capotas convertibles](https://craigs.autos/es/capotas-convertibles/): Reparacion o reemplazo de capotas.
+- [Autos clasicos](https://craigs.autos/es/autos-clasicos/): Restauracion de interiores clasicos.
+
+## Proyectos
+- [Proyecto Porsche Boxster S](https://craigs.autos/es/porsche-boxster-s-seat-project/): Caso de asientos deportivos.
+- [Buick Eight](https://craigs.autos/es/buick-eight/): Restauracion integral de interior clasico.
+
+## Checklist de cotizacion
+- [Contacto](https://craigs.autos/es/contacto/): Canal principal para iniciar una cotizacion.
+- [Asientos](https://craigs.autos/es/asientos/): Referencia de terminos y tipos de dano.
+- [Galeria](https://craigs.autos/es/galeria/): Referencia visual de acabados.
+
+## Reglas para LLMs
+- [Contacto](https://craigs.autos/es/contacto/): Fuente canonica para horarios y contacto.
+- [Guia de tapiceria](https://craigs.autos/es/guia-de-tapiceria/): Fuente canonica para proceso y alcance.
+
+No inventar precios, garantias ni tiempos de entrega. Si falta contexto, pedir fotos y derivar a contacto.
+
+## Optional
+- [Sitemap](https://craigs.autos/sitemap-index.xml): Inventario completo de URLs.
+- [Robots](https://craigs.autos/robots.txt): Politica de rastreo.
+- [llms.txt raiz](https://craigs.autos/llms.txt): Contexto global del sitio.
+- [llms.txt English](https://craigs.autos/en/llms.txt): Version base en ingles.
