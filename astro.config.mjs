@@ -54,7 +54,13 @@ export default defineConfig({
 			filter: (page) => {
 				try {
 					const pathname = new URL(page).pathname;
-					return pathname !== '/' && pathname !== '/t/' && !pathname.startsWith('/t/');
+					return (
+						pathname !== '/' &&
+						pathname !== '/t/' &&
+						!pathname.startsWith('/t/') &&
+						pathname !== '/admin/' &&
+						!pathname.startsWith('/admin/')
+					);
 				} catch {
 					return true;
 				}
