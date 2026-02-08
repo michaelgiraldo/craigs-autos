@@ -9,9 +9,14 @@ setopt pipefail extended_glob null_glob glob_dots
 readonly SCRIPT_PATH=${(%):-%N}
 readonly SCRIPT_DIR=${SCRIPT_PATH:A:h}
 readonly ROOT_DIR=${SCRIPT_DIR:h}
+readonly NPM_CACHE_DIR="${ROOT_DIR}/.npm-cache"
 
 cd "$ROOT_DIR"
 printf 'Scanning for package.json files under repository root: %s\n' "$ROOT_DIR"
+
+# Avoid global cache permission issues by always using a repo-local cache.
+mkdir -p "$NPM_CACHE_DIR"
+export npm_config_cache="$NPM_CACHE_DIR"
 
 if ! (( $+commands[npx] )); then
   printf 'npx is required but was not found in PATH.\n' >&2
@@ -62,7 +67,7 @@ if (( $#packages == 0 )); then
   exit 0
 fi
 
-typeset pkg dir
+typeset pkg='' dir=''
 for pkg in ${packages[@]}; do
   dir=${pkg:h}
   printf '\n=== Updating dependencies in: %s ===\n' "$dir"
