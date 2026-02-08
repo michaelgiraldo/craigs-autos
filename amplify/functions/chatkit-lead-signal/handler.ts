@@ -11,6 +11,7 @@ const leadAttributionDb =
 const LEAD_ATTRIBUTION_TTL_DAYS = 180;
 
 const ALLOWED_EVENTS = new Set([
+  'lead_ad_landing',
   'lead_click_to_call',
   'lead_click_to_text',
   'lead_click_email',
@@ -103,6 +104,64 @@ function sanitizeAttribution(input: any) {
   return hasAny ? payload : null;
 }
 
+function attributionFromUrl(urlValue: unknown) {
+  const raw = normalizeValue(urlValue, 2000);
+  if (!raw) return null;
+  try {
+    const url = new URL(raw, 'https://craigs.autos');
+    const payload = {
+      gclid: normalizeValue(url.searchParams.get('gclid'), 128),
+      gbraid: normalizeValue(url.searchParams.get('gbraid'), 128),
+      wbraid: normalizeValue(url.searchParams.get('wbraid'), 128),
+      utm_source: normalizeValue(url.searchParams.get('utm_source'), 128),
+      utm_medium: normalizeValue(url.searchParams.get('utm_medium'), 128),
+      utm_campaign: normalizeValue(url.searchParams.get('utm_campaign'), 200),
+      utm_term: normalizeValue(url.searchParams.get('utm_term'), 200),
+      utm_content: normalizeValue(url.searchParams.get('utm_content'), 200),
+    };
+    const hasAny = Object.values(payload).some(
+      (value) => typeof value === 'string' && value.trim().length > 0
+    );
+    return hasAny ? payload : null;
+  } catch {
+    return null;
+  }
+}
+
+function mergedAttribution(
+  inputAttribution: unknown,
+  pageUrl: unknown,
+  clickUrl: unknown
+) {
+  const base = sanitizeAttribution(inputAttribution);
+  const fromPage = attributionFromUrl(pageUrl);
+  const fromClick = attributionFromUrl(clickUrl);
+
+  const merged = {
+    ...(base || {}),
+    gclid: (base && base.gclid) || (fromPage && fromPage.gclid) || (fromClick && fromClick.gclid) || null,
+    gbraid: (base && base.gbraid) || (fromPage && fromPage.gbraid) || (fromClick && fromClick.gbraid) || null,
+    wbraid: (base && base.wbraid) || (fromPage && fromPage.wbraid) || (fromClick && fromClick.wbraid) || null,
+    utm_source:
+      (base && base.utm_source) || (fromPage && fromPage.utm_source) || (fromClick && fromClick.utm_source) || null,
+    utm_medium:
+      (base && base.utm_medium) || (fromPage && fromPage.utm_medium) || (fromClick && fromClick.utm_medium) || null,
+    utm_campaign:
+      (base && base.utm_campaign) ||
+      (fromPage && fromPage.utm_campaign) ||
+      (fromClick && fromClick.utm_campaign) ||
+      null,
+    utm_term: (base && base.utm_term) || (fromPage && fromPage.utm_term) || (fromClick && fromClick.utm_term) || null,
+    utm_content:
+      (base && base.utm_content) || (fromPage && fromPage.utm_content) || (fromClick && fromClick.utm_content) || null,
+  };
+
+  const hasAny = Object.values(merged).some(
+    (value) => typeof value === 'string' && value.trim().length > 0
+  );
+  return hasAny ? merged : null;
+}
+
 export const handler = async (event: LambdaEvent): Promise<LambdaResult> => {
   const method = event?.requestContext?.http?.method ?? event?.httpMethod;
 
@@ -151,7 +210,7 @@ export const handler = async (event: LambdaEvent): Promise<LambdaResult> => {
     uploaded: false,
     uploaded_at: null,
     ttl: ttlSecondsFromNow(LEAD_ATTRIBUTION_TTL_DAYS),
-    ...sanitizeAttribution(payload.attribution),
+    ...mergedAttribution(payload.attribution, payload.pageUrl, payload.clickUrl),
   };
 
   await leadAttributionDb.send(

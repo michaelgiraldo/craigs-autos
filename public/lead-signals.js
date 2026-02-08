@@ -2,6 +2,7 @@
   var OUTPUTS_PATH = '/amplify_outputs.json';
   var STORAGE_KEY = 'craigs_attribution_v1';
   var USER_KEY = 'chatkit-user-id';
+  var PAID_LANDING_SESSION_KEY = 'craigs_paid_landing_seen_v1';
   var endpointCache = null;
   var endpointPromise = null;
 
@@ -109,16 +110,15 @@
       var body = JSON.stringify(payload);
       if (navigator.sendBeacon) {
         try {
-          var blob = new Blob([body], { type: 'application/json' });
-          navigator.sendBeacon(endpoint, blob);
-          return;
+          var sent = navigator.sendBeacon(endpoint, body);
+          if (sent) return;
         } catch (e) {
           // fall through
         }
       }
       fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        mode: 'no-cors',
         keepalive: true,
         body: body,
       }).catch(function () {});
@@ -132,6 +132,109 @@
     } catch (e) {
       // Ignore analytics failures.
     }
+  }
+
+  function getUrlAttributionParams() {
+    try {
+      var p = new URLSearchParams(window.location.search || '');
+      return {
+        gclid: p.get('gclid') || null,
+        gbraid: p.get('gbraid') || null,
+        wbraid: p.get('wbraid') || null,
+        utm_source: p.get('utm_source') || null,
+        utm_medium: p.get('utm_medium') || null,
+        utm_campaign: p.get('utm_campaign') || null,
+        utm_term: p.get('utm_term') || null,
+        utm_content: p.get('utm_content') || null,
+      };
+    } catch (e) {
+      return {
+        gclid: null,
+        gbraid: null,
+        wbraid: null,
+        utm_source: null,
+        utm_medium: null,
+        utm_campaign: null,
+        utm_term: null,
+        utm_content: null,
+      };
+    }
+  }
+
+  function hasPaidClickId(params) {
+    return Boolean(params && (params.gclid || params.gbraid || params.wbraid));
+  }
+
+  function attributionForDataLayer(attribution) {
+    var a = attribution || {};
+    return {
+      gclid: a.gclid || null,
+      gbraid: a.gbraid || null,
+      wbraid: a.wbraid || null,
+      utm_source: a.utm_source || null,
+      utm_medium: a.utm_medium || null,
+      utm_campaign: a.utm_campaign || null,
+      utm_term: a.utm_term || null,
+      utm_content: a.utm_content || null,
+      device_type: a.device_type || null,
+    };
+  }
+
+  function markPaidLandingSeen(signature) {
+    try {
+      if (!signature || !window.sessionStorage) return;
+      window.sessionStorage.setItem(PAID_LANDING_SESSION_KEY, signature);
+    } catch (e) {
+      // Ignore storage failures.
+    }
+  }
+
+  function wasPaidLandingSeen(signature) {
+    try {
+      if (!signature || !window.sessionStorage) return false;
+      return window.sessionStorage.getItem(PAID_LANDING_SESSION_KEY) === signature;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function handlePaidLanding() {
+    var params = getUrlAttributionParams();
+    if (!hasPaidClickId(params)) return;
+
+    var attribution = getAttribution() || {};
+    if (params.gclid) attribution.gclid = params.gclid;
+    if (params.gbraid) attribution.gbraid = params.gbraid;
+    if (params.wbraid) attribution.wbraid = params.wbraid;
+    if (params.utm_source) attribution.utm_source = params.utm_source;
+    if (params.utm_medium) attribution.utm_medium = params.utm_medium;
+    if (params.utm_campaign) attribution.utm_campaign = params.utm_campaign;
+    if (params.utm_term) attribution.utm_term = params.utm_term;
+    if (params.utm_content) attribution.utm_content = params.utm_content;
+
+    var signature = [params.gclid || '', params.gbraid || '', params.wbraid || '', window.location.pathname].join('|');
+    if (wasPaidLandingSeen(signature)) return;
+
+    var payload = {
+      event: 'lead_ad_landing',
+      pageUrl: window.location.href,
+      user: getUserId(),
+      locale: document.documentElement ? document.documentElement.lang : null,
+      clickUrl: window.location.href,
+      provider: 'google_ads',
+      attribution: attribution,
+    };
+
+    pushDataLayer('lead_ad_landing', Object.assign({
+      lead_method: 'lead_ad_landing',
+      page_url: window.location.href,
+      click_url: window.location.href,
+      provider: 'google_ads',
+      locale: document.documentElement ? document.documentElement.lang : null,
+    }, attributionForDataLayer(attribution)));
+
+    sendSignal(payload);
+    markPaidLandingSeen(signature);
   }
 
   function handleClick(event) {
@@ -162,6 +265,7 @@
 
     if (!eventName) return;
 
+    var attribution = getAttribution();
     var payload = {
       event: eventName,
       pageUrl: window.location.href,
@@ -169,20 +273,20 @@
       locale: document.documentElement ? document.documentElement.lang : null,
       clickUrl: href,
       provider: provider,
-      attribution: getAttribution(),
+      attribution: attribution,
     };
 
-    pushDataLayer(eventName, {
+    pushDataLayer(eventName, Object.assign({
       lead_method: eventName,
       page_url: window.location.href,
       click_url: href,
       provider: provider,
       locale: document.documentElement ? document.documentElement.lang : null,
-      device_type: (payload.attribution && payload.attribution.device_type) || null,
-    });
+    }, attributionForDataLayer(attribution)));
 
     sendSignal(payload);
   }
 
+  handlePaidLanding();
   document.addEventListener('click', handleClick, { capture: true });
 })();
