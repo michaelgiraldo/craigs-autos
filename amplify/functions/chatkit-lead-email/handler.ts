@@ -608,7 +608,8 @@ function phoneToSmsHref(value: string): string | null {
 function emailToMailto(value: string): string | null {
   const email = value.trim();
   if (!isPlausibleEmail(email)) return null;
-  return `mailto:${encodeURIComponent(email)}`;
+  // Keep addr-spec literal in the `mailto:` path so clients reliably populate the "To" field.
+  return `mailto:${email}`;
 }
 
 function mailtoWithDraft(email: string, subject: string, body: string): string | null {
