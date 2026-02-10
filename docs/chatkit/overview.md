@@ -180,7 +180,6 @@ Always start by getting the thread id (`cthr_...`). Once you have it:
 
 - OpenAI logs: `https://platform.openai.com/logs/cthr_...`
 - Dedupe record: DynamoDB item keyed by `thread_id = cthr_...`
-- Email subject includes `(cthr_...)` for quick search
+- Lead email body includes `Thread: cthr_...` in Diagnostics
 
 For step-by-step debugging, see `docs/chatkit/runbook.md`.
-

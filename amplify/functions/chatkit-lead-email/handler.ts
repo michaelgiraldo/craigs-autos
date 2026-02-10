@@ -3,6 +3,7 @@ import { DynamoDBDocumentClient, GetCommand, PutCommand, UpdateCommand } from '@
 import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
 import { randomUUID } from 'node:crypto';
 import OpenAI from 'openai';
+import { buildLeadEmailSubject, buildOutreachDrafts } from './drafts';
 
 const apiKey = process.env.OPENAI_API_KEY;
 const openai = apiKey ? new OpenAI({ apiKey }) : null;
@@ -434,10 +435,6 @@ function sanitizeAttribution(input: any): LeadAttributionPayload | null {
   return hasAny ? payload : null;
 }
 
-function digitsOnly(value: string): string {
-  return value.replace(/[^\d]/g, '');
-}
-
 function trimTranscriptForModel(value: string, maxChars = 16_000): string {
   if (value.length <= maxChars) return value;
   const headChars = Math.min(4_000, Math.floor(maxChars * 0.25));
@@ -446,29 +443,6 @@ function trimTranscriptForModel(value: string, maxChars = 16_000): string {
   const head = value.slice(0, headChars);
   const tail = value.slice(-tailChars);
   return `${head}${separator}${tail}`.trim();
-}
-
-function hasShopPhone(value: string): boolean {
-  return digitsOnly(value).includes(SHOP_PHONE_DIGITS);
-}
-
-function hasShopName(value: string): boolean {
-  return /craig'?s\s+auto\s+upholstery/i.test(value);
-}
-
-function hasShopAddress(value: string): boolean {
-  return /271\s+bestor/i.test(value) || /\bbestor\b/i.test(value);
-}
-
-function ensureShopSignature(value: string): string {
-  let out = value.trim();
-  if (!hasShopName(out)) {
-    out = `${out}\n\n- ${SHOP_NAME}`;
-  }
-  if (!hasShopPhone(out)) {
-    out = `${out}\n${SHOP_PHONE_DISPLAY}`;
-  }
-  return normalizeWhitespace(out);
 }
 
 function escapeHtml(value: string): string {
@@ -991,10 +965,14 @@ async function sendTranscriptEmail(args: {
   const threadHref = `https://platform.openai.com/logs/${encodeURIComponent(threadId)}`;
   const customerLanguage =
     leadSummary?.customer_language ?? (locale ? localeToLanguageLabel(locale) : null);
-  const outreachMessage =
-    leadSummary?.outreach_message && leadSummary.outreach_message.trim()
-      ? leadSummary.outreach_message.trim()
-      : null;
+  const subject = buildLeadEmailSubject({ leadSummary, threadTitle });
+  const { smsDraft, emailDraftSubject, emailDraftBody } = buildOutreachDrafts({
+    leadSummary,
+    shopName: SHOP_NAME,
+    shopPhoneDisplay: SHOP_PHONE_DISPLAY,
+    shopPhoneDigits: SHOP_PHONE_DIGITS,
+    shopAddress: SHOP_ADDRESS,
+  });
 
   const defaultCallScriptPrompts = [
     "Can you confirm the year/make/model (or what item we're working on)?",
@@ -1009,16 +987,6 @@ async function sendTranscriptEmail(args: {
     callScriptPrompts.push(defaultCallScriptPrompts[callScriptPrompts.length]);
   }
 
-  const subjectContext = [leadSummary?.vehicle, leadSummary?.project]
-    .filter((value) => typeof value === 'string' && value.trim())
-    .join(' - ');
-  const subjectBase = subjectContext
-    ? `New chat lead: ${subjectContext}`
-    : threadTitle
-      ? `New chat lead: ${threadTitle}`
-      : 'New chat lead';
-  const subject = `${subjectBase} (${threadId})`;
-
   let sourceLabel = 'craigs.autos';
   try {
     const url = pageHref ? new URL(pageHref) : null;
@@ -1027,18 +995,6 @@ async function sendTranscriptEmail(args: {
     // ignore
   }
   const attachments = extractAttachments(transcript);
-  const contactName = leadSummary?.customer_name?.trim() ? leadSummary.customer_name.trim() : null;
-  const greetingName = contactName ?? 'there';
-  const vehicleOrProject = [leadSummary?.vehicle, leadSummary?.project]
-    .filter((value) => typeof value === 'string' && value.trim())
-    .join(' - ');
-  const contextSnippet = vehicleOrProject ? ` about your ${vehicleOrProject}` : '';
-
-  const fallbackOutreach = normalizeWhitespace(
-    `Hi ${greetingName} - thanks for reaching out to ${SHOP_NAME}${contextSnippet}. If you can text 2-4 photos (1 wide + 1-2 close-ups), we can take a proper look and follow up with next steps. ${SHOP_PHONE_DISPLAY}`
-  );
-  const recommendedOutreach = ensureShopSignature(outreachMessage ?? fallbackOutreach);
-  const smsDraft = recommendedOutreach;
 
   // Gmail often strips `sms:` hrefs, so we generate an https:// token link that resolves into
   // {to_phone, body} and then opens Messages locally.
@@ -1051,15 +1007,6 @@ async function sendTranscriptEmail(args: {
         baseUrl: smsLinkBaseUrl,
       })
     : null;
-
-  const emailDraftSubject = vehicleOrProject
-    ? `${SHOP_NAME} - next steps for ${vehicleOrProject}`
-    : `${SHOP_NAME} - next steps`;
-  let emailDraftBody = recommendedOutreach;
-  if (!hasShopAddress(emailDraftBody)) {
-    emailDraftBody = `${emailDraftBody}\n${SHOP_ADDRESS}`;
-  }
-  emailDraftBody = normalizeWhitespace(emailDraftBody);
 
   const emailDraftHref = customerEmail
     ? mailtoWithDraft(customerEmail, emailDraftSubject, emailDraftBody)

@@ -29,8 +29,8 @@ You need the thread id to debug anything.
 
 Ways to get it:
 
-- From the lead email subject:
-  - It includes `(cthr_...)`.
+- From the lead email body:
+  - In **Diagnostics**, copy `Thread: cthr_...`.
 
 - From the browser:
   - DevTools -> Application -> Session Storage -> key `chatkit-thread-id`
