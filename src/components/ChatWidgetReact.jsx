@@ -94,9 +94,9 @@ const OPEN_KEY = 'chatkit-open';
 const LEAD_SENT_KEY_PREFIX = 'chatkit-lead-sent:';
 const AMPLIFY_OUTPUTS_PATH = '/amplify_outputs.json';
 // Send leads after a quiet period. This avoids forcing the customer to "end" the chat.
-// We keep it long enough to capture natural back-and-forth, but short enough that leads
-// still arrive even if the customer never explicitly closes the widget.
-const LEAD_QUIET_SEND_MS = 120_000;
+// Five minutes lets the user continue a natural conversation before we attempt to build/send
+// a lead summary. Shorter windows can generate incomplete leads too early.
+const LEAD_QUIET_SEND_MS = 300_000;
 
 let chatkitRuntimePromise = null;
 

@@ -187,6 +187,7 @@ type LeadAttributionRecord = {
 const LEAD_DEDUPE_LEASE_SECONDS = 120;
 const LEAD_DEDUPE_ERROR_COOLDOWN_SECONDS = 60;
 const LEAD_DEDUPE_TTL_DAYS = 30;
+const LEAD_IDLE_DELAY_SECONDS = 300;
 const LEAD_ATTRIBUTION_TTL_DAYS = 180;
 const SMS_LINK_TOKEN_TTL_DAYS = 7;
 
@@ -196,6 +197,16 @@ function nowEpochSeconds(): number {
 
 function ttlSecondsFromNow(days: number): number {
   return nowEpochSeconds() + days * 24 * 60 * 60;
+}
+
+function latestActivityEpochSeconds(lines: TranscriptLine[]): number | null {
+  if (!lines.length) return null;
+  let latest = 0;
+  for (const line of lines) {
+    const createdAt = Math.floor(line?.created_at ?? 0);
+    if (createdAt > latest) latest = createdAt;
+  }
+  return latest > 0 ? latest : null;
 }
 
 function sanitizeLeadDedupeRecord(item: any): LeadDedupeRecord | null {
@@ -820,8 +831,14 @@ async function generateLeadSummary(args: {
         '',
         'Rules:',
         'Only use information that is explicitly present in the transcript. If something is missing, use null (or empty lists). Do not guess.',
-        'handoff_ready should be true only when the chat is genuinely ready for a shop follow-up (contact info is present and the customer has described what they need). Otherwise set it to false.',
-        'handoff_reason should be a short reason explaining why it is or is not ready (for example: "missing_contact", "missing_project_details", "ready_for_follow_up").',
+        'handoff_ready should be true only when the conversation has reached minimum lead quality:',
+        '- At least one contact method is present (customer_phone or customer_email).',
+        '- The customer has described what they need for their vehicle/item (project is present or explicit request is present).',
+        '- There is enough context for follow-up (vehicle make/model/item type is present, OR this is explicitly identified elsewhere in transcript).',
+        'If any of these are missing, set handoff_ready to false.',
+        'handoff_reason should be a short reason explaining why it is or is not ready, from one of:',
+        '"missing_contact", "missing_project_details", "missing_vehicle_context", "ready_for_follow_up".',
+        'If handoff_ready is false, include any missing items in missing_info using short labels.',
         'Write the summary and next steps in English.',
         'customer_language should reflect the language the customer is using. If unclear, use the provided locale.',
         'call_script_prompts must be exactly 3 short questions the shop can ask to move the lead forward (prioritize missing info). Do not repeat questions already answered in the transcript.',
@@ -1434,6 +1451,21 @@ export const handler = async (event: LambdaEvent): Promise<LambdaResult> => {
       return json(200, { ok: true, sent: false, reason: 'missing_contact' });
     }
 
+    if (reason !== 'auto') {
+      const lastMessageAt = latestActivityEpochSeconds(lines);
+      const currentEpoch = nowEpochSeconds();
+      if (lastMessageAt !== null && currentEpoch - lastMessageAt < LEAD_IDLE_DELAY_SECONDS) {
+        return json(200, {
+          ok: true,
+          sent: false,
+          reason: 'not_idle',
+          last_activity_at: lastMessageAt,
+          idle_seconds: LEAD_IDLE_DELAY_SECONDS,
+          seconds_since_last_activity: currentEpoch - lastMessageAt,
+        });
+      }
+    }
+
     const leadSummary = await generateLeadSummary({
       locale,
       pageUrl,
@@ -1441,9 +1473,9 @@ export const handler = async (event: LambdaEvent): Promise<LambdaResult> => {
     });
 
     const shouldSendNow =
-      reason !== 'auto' ||
-      // For automatic attempts (after each assistant response), only send once the conversation
-      // has enough context to be useful to the shop (avoids emailing too early).
+      // All completion paths should meet a minimum quality bar before sending.
+      // This prevents premature lead emails from short pauses, explicit closes,
+      // or pagehide events from firing incomplete summaries.
       leadSummary?.handoff_ready === true;
 
     if (!shouldSendNow) {
