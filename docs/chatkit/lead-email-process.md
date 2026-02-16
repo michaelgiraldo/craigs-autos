@@ -162,7 +162,7 @@ Chat activity -> no auto send path
     - `buildRawEmail` generates MIME `multipart/mixed` with `multipart/alternative`
     - send via `new SendRawEmailCommand(...)`
   - `Website/amplify/backend.ts`
-    - passes `CHATKIT_ATTACHMENT_PREVIEW_BASE_URL` into lead-email Lambda env
+    - provides both `chatkit_attachment_upload_url` and `chatkit_lead_email_url` to the frontend via outputs
   - `Website/amplify/functions/chatkit-attachment-upload/handler.ts`
     - attachments are saved in `chatkit-attachments/` keys in S3
     - GET `?id=<key>` returns binary attachment payload
