@@ -563,7 +563,6 @@ function isInlineImageMime(mime: string): boolean {
 async function fetchInlineAttachment(attachment: AttachmentInfo): Promise<InlineAttachment | null> {
   const sourceUrl = safeHttpUrl(attachment.url);
   if (!sourceUrl) return null;
-  if (!attachment.storageKey) return null;
   const mimeType = pickAttachmentMime(attachment.mime);
   if (!isInlineImageMime(mimeType)) return null;
   try {

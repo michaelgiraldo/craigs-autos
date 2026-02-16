@@ -239,7 +239,6 @@ export default function ChatWidgetReact({
   locale = 'en',
   sessionUrl = '/api/chatkit/session/',
   leadEmailUrl = '/api/chatkit/lead/',
-  attachmentUploadUrl = '/api/chatkit/attachment/',
 }) {
   const copy = CHAT_COPY[locale] ?? CHAT_COPY.en;
   const chatkitLocale = CHATKIT_LOCALE_MAP[locale] ?? 'en';
@@ -251,9 +250,6 @@ export default function ChatWidgetReact({
   const [threadId, setThreadId] = React.useState(null);
   const [resolvedSessionUrl, setResolvedSessionUrl] = React.useState(sessionUrl);
   const [resolvedLeadEmailUrl, setResolvedLeadEmailUrl] = React.useState(leadEmailUrl);
-  const [resolvedAttachmentUploadUrl, setResolvedAttachmentUploadUrl] = React.useState(
-    attachmentUploadUrl
-  );
   const [chatMountId, setChatMountId] = React.useState(0);
   const [chatkitReady, setChatkitReady] = React.useState(false);
   const [runtimeReady, setRuntimeReady] = React.useState(false);
@@ -296,10 +292,6 @@ export default function ChatWidgetReact({
   }, [leadEmailUrl]);
 
   React.useEffect(() => {
-    setResolvedAttachmentUploadUrl(attachmentUploadUrl);
-  }, [attachmentUploadUrl]);
-
-  React.useEffect(() => {
     // In production, prefer the backend URL from Amplify outputs when available.
     // This avoids hard-coding a session endpoint URL per branch.
     if (isDev) return;
@@ -310,10 +302,7 @@ export default function ChatWidgetReact({
       sessionUrl.startsWith('/') ||
       typeof leadEmailUrl !== 'string' ||
       isPlaceholderUrl(leadEmailUrl) ||
-      leadEmailUrl.startsWith('/') ||
-      typeof attachmentUploadUrl !== 'string' ||
-      isPlaceholderUrl(attachmentUploadUrl) ||
-      attachmentUploadUrl.startsWith('/');
+      leadEmailUrl.startsWith('/');
 
     if (!shouldTryOutputs) return;
 
@@ -331,14 +320,6 @@ export default function ChatWidgetReact({
         if (!cancelled && typeof leadCandidate === 'string' && leadCandidate.trim()) {
           setResolvedLeadEmailUrl(leadCandidate.trim());
         }
-        const attachmentCandidate = data?.custom?.chatkit_attachment_upload_url;
-        if (
-          !cancelled &&
-          typeof attachmentCandidate === 'string' &&
-          attachmentCandidate.trim()
-        ) {
-          setResolvedAttachmentUploadUrl(attachmentCandidate.trim());
-        }
       } catch (err) {
         // Ignore; we'll fall back to the configured URL and let the UI surface errors.
         if (isDev) console.error('Failed to read amplify_outputs.json', err);
@@ -348,7 +329,7 @@ export default function ChatWidgetReact({
     return () => {
       cancelled = true;
     };
-  }, [isDev, attachmentUploadUrl, leadEmailUrl, sessionUrl]);
+  }, [isDev, leadEmailUrl, sessionUrl]);
 
   React.useEffect(() => {
     let cancelled = false;
@@ -592,18 +573,6 @@ export default function ChatWidgetReact({
 
   const options = React.useMemo(() => {
     const initialThread = threadId ?? undefined;
-    const normalizedAttachmentUploadUrl =
-      typeof resolvedAttachmentUploadUrl === 'string' ? resolvedAttachmentUploadUrl.trim() : '';
-
-    const hasValidAttachmentUploadUrl = Boolean(
-      normalizedAttachmentUploadUrl &&
-        !isPlaceholderUrl(normalizedAttachmentUploadUrl) &&
-        (isDev || !normalizedAttachmentUploadUrl.startsWith('/'))
-    );
-
-    const uploadStrategy = hasValidAttachmentUploadUrl
-      ? { type: 'direct', uploadUrl: normalizedAttachmentUploadUrl }
-      : undefined;
 
     const apiConfig = {
       async getClientSecret(current) {
@@ -624,10 +593,6 @@ export default function ChatWidgetReact({
               const leadCandidate = outputs?.custom?.chatkit_lead_email_url;
               if (typeof leadCandidate === 'string' && leadCandidate.trim()) {
                 setResolvedLeadEmailUrl(leadCandidate.trim());
-              }
-              const attachmentCandidate = outputs?.custom?.chatkit_attachment_upload_url;
-              if (typeof attachmentCandidate === 'string' && attachmentCandidate.trim()) {
-                setResolvedAttachmentUploadUrl(attachmentCandidate.trim());
               }
             }
           } catch {
@@ -654,17 +619,14 @@ export default function ChatWidgetReact({
         const data = text ? JSON.parse(text) : {};
         return data.client_secret;
       },
-      ...(uploadStrategy ? { uploadStrategy } : {}),
     };
 
-    const attachmentConfig = hasValidAttachmentUploadUrl
-        ? {
-            enabled: true,
-            maxSize: CHATKIT_MAX_ATTACHMENT_BYTES,
-            maxCount: 1,
-            accept: CHATKIT_ATTACHMENT_ACCEPT,
-          }
-        : { enabled: false };
+    const attachmentConfig = {
+      enabled: true,
+      maxSize: CHATKIT_MAX_ATTACHMENT_BYTES,
+      maxCount: 1,
+      accept: CHATKIT_ATTACHMENT_ACCEPT,
+    };
 
     return {
       api: apiConfig,
@@ -718,7 +680,6 @@ export default function ChatWidgetReact({
     copy.startGreeting,
     copy.startPrompts,
     locale,
-    resolvedAttachmentUploadUrl,
     resolvedSessionUrl,
     threadId,
     userId,

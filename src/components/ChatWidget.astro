@@ -5,8 +5,6 @@ const { locale = 'en' } = Astro.props;
 // This site uses `trailingSlash: "always"`, so the dev server expects the slash.
 const sessionUrl = import.meta.env.PUBLIC_CHATKIT_SESSION_URL ?? '/api/chatkit/session/';
 const leadEmailUrl = import.meta.env.PUBLIC_CHATKIT_LEAD_EMAIL_URL ?? '/api/chatkit/lead/';
-const attachmentUploadUrl =
-  import.meta.env.PUBLIC_CHATKIT_ATTACHMENT_UPLOAD_URL ?? '/api/chatkit/attachment/';
 ---
 
 <ChatWidgetReact
@@ -14,5 +12,4 @@ const attachmentUploadUrl =
   locale={locale}
   sessionUrl={sessionUrl}
   leadEmailUrl={leadEmailUrl}
-  attachmentUploadUrl={attachmentUploadUrl}
 />

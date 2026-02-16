@@ -6,6 +6,8 @@ const apiKey = process.env.OPENAI_API_KEY;
 const openai = apiKey ? new OpenAI({ apiKey }) : null;
 
 const SHOP_TIMEZONE = 'America/Los_Angeles';
+const CHATKIT_UPLOAD_MAX_FILE_SIZE_MB = 8;
+const CHATKIT_UPLOAD_MAX_FILES = 1;
 
 type LambdaHeaders = Record<string, string | undefined>;
 
@@ -194,6 +196,13 @@ export const handler = async (event: LambdaEvent): Promise<LambdaResult> => {
           locale,
           page_url: pageUrl,
           ...shopState,
+        },
+      },
+      chatkit_configuration: {
+        file_upload: {
+          enabled: true,
+          max_file_size: CHATKIT_UPLOAD_MAX_FILE_SIZE_MB,
+          max_files: CHATKIT_UPLOAD_MAX_FILES,
         },
       },
     });

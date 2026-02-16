@@ -1,12 +1,10 @@
 import { defineBackend } from '@aws-amplify/backend';
 import { Duration, RemovalPolicy, Stack } from 'aws-cdk-lib';
 import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
-import { BlockPublicAccess, Bucket } from 'aws-cdk-lib/aws-s3';
 import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { FunctionUrl, FunctionUrlAuthType, HttpMethod } from 'aws-cdk-lib/aws-lambda';
 
 import { chatkitSession } from './functions/chatkit-session/resource';
-import { chatkitAttachmentUpload } from './functions/chatkit-attachment-upload/resource';
 import { chatkitLeadEmail } from './functions/chatkit-lead-email/resource';
 import { chatkitSmsLink } from './functions/chatkit-sms-link/resource';
 import { chatkitLeadSignal } from './functions/chatkit-lead-signal/resource';
@@ -14,7 +12,6 @@ import { chatkitLeadAdmin } from './functions/chatkit-lead-admin/resource';
 
 const backend = defineBackend({
   chatkitSession,
-  chatkitAttachmentUpload,
   chatkitLeadEmail,
   chatkitSmsLink,
   chatkitLeadSignal,
@@ -37,27 +34,6 @@ const chatkitSessionUrl = new FunctionUrl(
       ],
       // Function URL CORS allowMethods does not accept OPTIONS (preflight is handled automatically).
       allowedMethods: [HttpMethod.POST],
-      allowedHeaders: ['content-type'],
-      // Lambda Function URL CORS maxAge is capped at 86400 seconds.
-      maxAge: Duration.days(1),
-    },
-  }
-);
-
-const chatkitAttachmentUploadUrl = new FunctionUrl(
-  Stack.of(backend.chatkitAttachmentUpload.resources.lambda),
-  'ChatkitAttachmentUploadUrl',
-  {
-    function: backend.chatkitAttachmentUpload.resources.lambda,
-    authType: FunctionUrlAuthType.NONE,
-    cors: {
-      allowedOrigins: [
-        'https://chat.craigs.autos',
-        'https://craigs.autos',
-        'http://localhost:4321',
-      ],
-      // Function URL CORS allowMethods does not accept OPTIONS (preflight is handled automatically).
-      allowedMethods: [HttpMethod.POST, HttpMethod.GET],
       allowedHeaders: ['content-type'],
       // Lambda Function URL CORS maxAge is capped at 86400 seconds.
       maxAge: Duration.days(1),
@@ -144,33 +120,6 @@ const chatkitLeadAdminUrl = new FunctionUrl(
       maxAge: Duration.days(1),
     },
   }
-);
-
-const chatkitAttachmentBucket = new Bucket(
-  Stack.of(backend.chatkitAttachmentUpload.resources.lambda),
-  'ChatkitAttachmentBucket',
-  {
-    blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
-    enforceSSL: true,
-    removalPolicy: RemovalPolicy.RETAIN,
-    lifecycleRules: [
-      {
-        // Keep only what's needed for human follow-up quality; adjust if long-term retention needed.
-        expiration: Duration.days(365),
-      },
-    ],
-  }
-);
-
-chatkitAttachmentBucket.grantPut(backend.chatkitAttachmentUpload.resources.lambda);
-chatkitAttachmentBucket.grantRead(backend.chatkitAttachmentUpload.resources.lambda);
-(backend.chatkitAttachmentUpload.resources.lambda as any).addEnvironment(
-  'CHATKIT_ATTACHMENT_BUCKET_NAME',
-  chatkitAttachmentBucket.bucketName
-);
-(backend.chatkitAttachmentUpload.resources.lambda as any).addEnvironment(
-  'CHATKIT_ATTACHMENT_MAX_BYTES',
-  '8000000'
 );
 
 backend.chatkitLeadEmail.resources.lambda.addToRolePolicy(
@@ -262,8 +211,6 @@ backend.addOutput({
     chatkit_session_url: chatkitSessionUrl.url,
     // Used by the frontend widget to send transcripts to the shop.
     chatkit_lead_email_url: chatkitLeadEmailUrl.url,
-    // Used by the frontend widget to upload chat attachments.
-    chatkit_attachment_upload_url: chatkitAttachmentUploadUrl.url,
     // Used by sms.craigs.autos/t/<token> to resolve tokens.
     chatkit_sms_link_url: chatkitSmsLinkUrl.url,
     // Used by the frontend to log lead signals (tel/sms/directions clicks).
