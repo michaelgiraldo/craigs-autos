@@ -1,7 +1,7 @@
 import { defineBackend } from '@aws-amplify/backend';
 import { Duration, RemovalPolicy, Stack } from 'aws-cdk-lib';
 import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
-import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { FunctionUrl, FunctionUrlAuthType, HttpMethod } from 'aws-cdk-lib/aws-lambda';
 
 import { chatkitSession } from './functions/chatkit-session/resource';
@@ -127,6 +127,49 @@ backend.chatkitLeadEmail.resources.lambda.addToRolePolicy(
     actions: ['ses:SendEmail', 'ses:SendRawEmail'],
     resources: ['*'],
   })
+);
+
+const chatkitLeadRetrySchedulerInvokeRole = new Role(
+  Stack.of(backend.chatkitLeadEmail.resources.lambda),
+  'ChatkitLeadRetrySchedulerInvokeRole',
+  {
+    assumedBy: new ServicePrincipal('scheduler.amazonaws.com'),
+  }
+);
+
+chatkitLeadRetrySchedulerInvokeRole.addToPolicy(
+  new PolicyStatement({
+    actions: ['lambda:InvokeFunction'],
+    resources: ['*'],
+  })
+);
+
+backend.chatkitLeadEmail.resources.lambda.addToRolePolicy(
+  new PolicyStatement({
+    actions: [
+      'scheduler:CreateSchedule',
+      'scheduler:UpdateSchedule',
+      'scheduler:DeleteSchedule',
+      'scheduler:GetSchedule',
+    ],
+    resources: ['*'],
+  })
+);
+
+backend.chatkitLeadEmail.resources.lambda.addToRolePolicy(
+  new PolicyStatement({
+    actions: ['iam:PassRole'],
+    resources: [chatkitLeadRetrySchedulerInvokeRole.roleArn],
+  })
+);
+
+(backend.chatkitLeadEmail.resources.lambda as any).addEnvironment(
+  'LEAD_RETRY_SCHEDULER_ROLE_ARN',
+  chatkitLeadRetrySchedulerInvokeRole.roleArn
+);
+(backend.chatkitLeadEmail.resources.lambda as any).addEnvironment(
+  'LEAD_RETRY_SCHEDULE_GROUP',
+  'default'
 );
 
 // Production-grade idempotency: ensure we only email one lead per ChatKit thread (`cthr_...`),

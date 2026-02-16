@@ -1,6 +1,12 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, GetCommand, PutCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { SESv2Client, SendEmailCommand } from '@aws-sdk/client-sesv2';
+import {
+  CreateScheduleCommand,
+  DeleteScheduleCommand,
+  SchedulerClient,
+  UpdateScheduleCommand,
+} from '@aws-sdk/client-scheduler';
 import { randomUUID } from 'node:crypto';
 import OpenAI from 'openai';
 import { buildLeadEmailSubject, buildOutreachDrafts } from './drafts';
@@ -29,12 +35,15 @@ const smsLinkDb =
 const leadToEmail = process.env.LEAD_TO_EMAIL ?? 'leads@craigs.autos';
 const leadFromEmail = process.env.LEAD_FROM_EMAIL ?? 'leads@craigs.autos';
 const leadSummaryModel = process.env.LEAD_SUMMARY_MODEL ?? 'gpt-5.2-2025-12-11';
+const leadRetrySchedulerRoleArn = process.env.LEAD_RETRY_SCHEDULER_ROLE_ARN ?? '';
+const leadRetryScheduleGroupName = process.env.LEAD_RETRY_SCHEDULE_GROUP ?? 'default';
 const SHOP_NAME = "Craig's Auto Upholstery";
 const SHOP_PHONE_DISPLAY = '(408) 379-3820';
 const SHOP_PHONE_DIGITS = '4083793820';
 const SHOP_ADDRESS = '271 Bestor St, San Jose, CA 95112';
 
 const ses = new SESv2Client({});
+const scheduler = leadRetrySchedulerRoleArn ? new SchedulerClient({}) : null;
 
 type LambdaHeaders = Record<string, string | undefined>;
 
@@ -197,6 +206,7 @@ const LEAD_DEDUPE_LEASE_SECONDS = 120;
 const LEAD_DEDUPE_ERROR_COOLDOWN_SECONDS = 60;
 const LEAD_DEDUPE_TTL_DAYS = 30;
 const LEAD_IDLE_DELAY_SECONDS = 300;
+const LEAD_RETRY_GRACE_SECONDS = 5;
 const LEAD_ATTRIBUTION_TTL_DAYS = 180;
 const SMS_LINK_TOKEN_TTL_DAYS = 7;
 const LEAD_INLINE_ATTACHMENT_MAX_BYTES = 3_000_000;
@@ -217,6 +227,89 @@ function latestActivityEpochSeconds(lines: TranscriptLine[]): number | null {
     if (createdAt > latest) latest = createdAt;
   }
   return latest > 0 ? latest : null;
+}
+
+function buildRetryScheduleName(threadId: string): string {
+  const safeId = threadId.replace(/[^A-Za-z0-9_-]/g, '-');
+  return `lead-retry-${safeId}`.slice(0, 64);
+}
+
+function atExpressionUtc(epochSeconds: number): string {
+  const utc = new Date(epochSeconds * 1000).toISOString().replace(/\.\d{3}Z$/, '');
+  return `at(${utc})`;
+}
+
+async function upsertLeadRetrySchedule(args: {
+  threadId: string;
+  runAtEpochSeconds: number;
+  functionArn: string;
+  payload: LeadEmailRequest;
+}): Promise<boolean> {
+  if (!scheduler || !args.functionArn || !leadRetrySchedulerRoleArn) return false;
+
+  const scheduleName = buildRetryScheduleName(args.threadId);
+  const scheduleExpression = atExpressionUtc(args.runAtEpochSeconds);
+  const input = JSON.stringify({
+    ...args.payload,
+    reason: 'server_retry',
+  });
+
+  const scheduleRequest = {
+    Name: scheduleName,
+    GroupName: leadRetryScheduleGroupName,
+    FlexibleTimeWindow: { Mode: 'OFF' as const },
+    ScheduleExpression: scheduleExpression,
+    ScheduleExpressionTimezone: 'UTC',
+    ActionAfterCompletion: 'DELETE' as const,
+    Target: {
+      Arn: args.functionArn,
+      RoleArn: leadRetrySchedulerRoleArn,
+      Input: input,
+      RetryPolicy: {
+        MaximumEventAgeInSeconds: 3600,
+        MaximumRetryAttempts: 1,
+      },
+    },
+  };
+
+  try {
+    await scheduler.send(new CreateScheduleCommand(scheduleRequest));
+    return true;
+  } catch (err: any) {
+    if (err?.name !== 'ConflictException') {
+      console.error('Lead retry schedule create failed', err?.name, err?.message);
+      return false;
+    }
+  }
+
+  try {
+    await scheduler.send(
+      new UpdateScheduleCommand({
+        ...scheduleRequest,
+        State: 'ENABLED',
+      })
+    );
+    return true;
+  } catch (err: any) {
+    console.error('Lead retry schedule update failed', err?.name, err?.message);
+    return false;
+  }
+}
+
+async function deleteLeadRetrySchedule(threadId: string): Promise<void> {
+  if (!scheduler) return;
+  const scheduleName = buildRetryScheduleName(threadId);
+  try {
+    await scheduler.send(
+      new DeleteScheduleCommand({
+        Name: scheduleName,
+        GroupName: leadRetryScheduleGroupName,
+      })
+    );
+  } catch (err: any) {
+    if (err?.name === 'ResourceNotFoundException') return;
+    console.error('Lead retry schedule delete failed', err?.name, err?.message);
+  }
 }
 
 function sanitizeLeadDedupeRecord(item: any): LeadDedupeRecord | null {
@@ -1556,10 +1649,15 @@ async function sendTranscriptEmail(args: {
   return result?.MessageId ?? null;
 }
 
-export const handler = async (event: LambdaEvent): Promise<LambdaResult> => {
-  const method = event?.requestContext?.http?.method ?? event?.httpMethod;
+export const handler = async (
+  event: LambdaEvent | LeadEmailRequest,
+  context?: { invokedFunctionArn?: string }
+): Promise<LambdaResult> => {
+  const httpEvent = event as LambdaEvent;
+  const method = httpEvent?.requestContext?.http?.method ?? httpEvent?.httpMethod;
+  const isHttpRequest = typeof method === 'string' && method.length > 0;
 
-  if (method === 'OPTIONS') {
+  if (isHttpRequest && method === 'OPTIONS') {
     // Lambda Function URL CORS handles the browser preflight automatically.
     return {
       statusCode: 204,
@@ -1568,7 +1666,7 @@ export const handler = async (event: LambdaEvent): Promise<LambdaResult> => {
     };
   }
 
-  if (method !== 'POST') {
+  if (isHttpRequest && method !== 'POST') {
     return json(405, { error: 'Method not allowed' });
   }
 
@@ -1577,12 +1675,16 @@ export const handler = async (event: LambdaEvent): Promise<LambdaResult> => {
   }
 
   let payload: LeadEmailRequest = {};
-  try {
-    const body = decodeBody(event);
-    const parsed = body ? JSON.parse(body) : {};
-    payload = parsed && typeof parsed === 'object' ? (parsed as LeadEmailRequest) : {};
-  } catch {
-    return json(400, { error: 'Invalid JSON body' });
+  if (isHttpRequest) {
+    try {
+      const body = decodeBody(httpEvent);
+      const parsed = body ? JSON.parse(body) : {};
+      payload = parsed && typeof parsed === 'object' ? (parsed as LeadEmailRequest) : {};
+    } catch {
+      return json(400, { error: 'Invalid JSON body' });
+    }
+  } else if (event && typeof event === 'object') {
+    payload = event as LeadEmailRequest;
   }
 
   const threadId = typeof payload.threadId === 'string' ? payload.threadId : '';
@@ -1595,6 +1697,7 @@ export const handler = async (event: LambdaEvent): Promise<LambdaResult> => {
   const chatUser = typeof payload.user === 'string' ? payload.user : 'anonymous';
   const reason = typeof payload.reason === 'string' ? payload.reason : 'auto';
   const attribution = sanitizeAttribution((payload as any)?.attribution);
+  const functionArn = typeof context?.invokedFunctionArn === 'string' ? context.invokedFunctionArn : '';
 
   try {
     // Fast path: if we've already emailed this thread, don't re-fetch transcript or re-run summaries.
@@ -1636,19 +1739,36 @@ export const handler = async (event: LambdaEvent): Promise<LambdaResult> => {
       return json(200, { ok: true, sent: false, reason: 'missing_contact' });
     }
 
-    if (reason !== 'auto') {
-      const lastMessageAt = latestActivityEpochSeconds(lines);
-      const currentEpoch = nowEpochSeconds();
-      if (lastMessageAt !== null && currentEpoch - lastMessageAt < LEAD_IDLE_DELAY_SECONDS) {
-        return json(200, {
-          ok: true,
-          sent: false,
-          reason: 'not_idle',
-          last_activity_at: lastMessageAt,
-          idle_seconds: LEAD_IDLE_DELAY_SECONDS,
-          seconds_since_last_activity: currentEpoch - lastMessageAt,
-        });
-      }
+    const lastMessageAt = latestActivityEpochSeconds(lines);
+    const currentEpoch = nowEpochSeconds();
+    if (lastMessageAt !== null && currentEpoch - lastMessageAt < LEAD_IDLE_DELAY_SECONDS) {
+      const scheduledFor = Math.max(
+        lastMessageAt + LEAD_IDLE_DELAY_SECONDS + LEAD_RETRY_GRACE_SECONDS,
+        currentEpoch + LEAD_RETRY_GRACE_SECONDS
+      );
+      const retryScheduled = await upsertLeadRetrySchedule({
+        threadId,
+        runAtEpochSeconds: scheduledFor,
+        functionArn,
+        payload: {
+          threadId,
+          locale,
+          pageUrl,
+          user: threadUser ?? chatUser,
+          reason: 'server_retry',
+          attribution,
+        },
+      });
+      return json(200, {
+        ok: true,
+        sent: false,
+        reason: 'not_idle',
+        last_activity_at: lastMessageAt,
+        idle_seconds: LEAD_IDLE_DELAY_SECONDS,
+        seconds_since_last_activity: currentEpoch - lastMessageAt,
+        retry_scheduled: retryScheduled,
+        scheduled_for: scheduledFor,
+      });
     }
 
     const leadSummary = await generateLeadSummary({
@@ -1739,6 +1859,8 @@ export const handler = async (event: LambdaEvent): Promise<LambdaResult> => {
       } catch (err: any) {
         console.error('Lead attribution write failed', err?.name, err?.message);
       }
+
+      await deleteLeadRetrySchedule(threadId);
     } catch (err: any) {
       try {
         await markLeadError({
