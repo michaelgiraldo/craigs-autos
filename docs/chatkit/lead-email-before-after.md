@@ -79,7 +79,7 @@ We removed `auto` sending to avoid mid-conversation snapshots.
 Frontend triggers (`src/components/ChatWidgetReact.jsx`):
 
 1) `reason = "idle"`
-   - Fires after ~120s without in-chat activity
+   - Fires after ~300s (5 minutes) without in-chat activity
    - The idle timer resets on:
      - assistant responses
      - typing (keydown)
@@ -109,11 +109,22 @@ Key difference:
 ASCII flow:
 
 ```text
-Any activity in chat panel -> reset idle timer (120s)
+Any activity in chat panel -> reset idle timer (300s)
 
 Idle timer expires -> POST /lead (reason=idle)
-                   -> backend fetches latest thread and sends one email
+                   -> backend applies readiness gate and sends when ready
 ```
+
+Current readiness gate (applies to all non-auto paths in practice):
+
+- contact required: phone or email must be present
+- `leadSummary?.handoff_ready === true`
+
+If the summary is not yet ready, the response includes:
+
+- `sent: false`
+- `reason: handoff_reason or 'not_ready'`
+- `missing_info` (from model output when available)
 
 ## What stayed the same (important)
 
@@ -125,12 +136,11 @@ Idle timer expires -> POST /lead (reason=idle)
 
 ## Notes for future improvements
 
-If we want "send on idle, but only when the lead is actually ready", implement a
-server-side gate for `reason = "idle"` using intake goals (project + contact +
-location/timeline/photos status).
+The original improvement from this document was adding that gate to idle path.
+The current path also applies this for `pagehide`/`chat_closed` so manual close or
+tab hide does not bypass completeness checks.
 
 If we ever re-introduce a near-real-time trigger, it must either:
 
 - support "final update" sends (store a sent watermark and allow one update on close/pagehide), or
 - use an explicit agent signal (client tool) to indicate the wrap-up moment.
-

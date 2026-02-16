@@ -10,6 +10,7 @@ This repo is a multi-locale Astro site deployed on AWS Amplify. It includes a pr
   - `docs/chatkit/backend.md`
   - `docs/chatkit/agent-builder.md`
   - `docs/chatkit/runbook.md`
+  - `docs/chatkit/lead-email-process.md`
 
 Legacy entrypoint (kept for older links):
 

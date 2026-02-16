@@ -1,6 +1,6 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, GetCommand, PutCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
-import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
+import { SESClient, SendRawEmailCommand } from '@aws-sdk/client-ses';
 import { randomUUID } from 'node:crypto';
 import OpenAI from 'openai';
 import { buildLeadEmailSubject, buildOutreachDrafts } from './drafts';
@@ -29,6 +29,7 @@ const smsLinkDb =
 const leadToEmail = process.env.LEAD_TO_EMAIL ?? 'leads@craigs.autos';
 const leadFromEmail = process.env.LEAD_FROM_EMAIL ?? 'leads@craigs.autos';
 const leadSummaryModel = process.env.LEAD_SUMMARY_MODEL ?? 'gpt-5.2-2025-12-11';
+const attachmentPreviewBaseUrl = process.env.CHATKIT_ATTACHMENT_PREVIEW_BASE_URL ?? '';
 const SHOP_NAME = "Craig's Auto Upholstery";
 const SHOP_PHONE_DISPLAY = '(408) 379-3820';
 const SHOP_PHONE_DIGITS = '4083793820';
@@ -115,6 +116,15 @@ type AttachmentInfo = {
   name: string;
   mime: string | null;
   url: string;
+  storageKey: string | null;
+};
+
+type InlineAttachment = {
+  contentId: string;
+  filename: string;
+  mimeType: string;
+  bytes: Buffer;
+  sourceUrl: string;
 };
 
 type LeadSummary = {
@@ -190,6 +200,7 @@ const LEAD_DEDUPE_TTL_DAYS = 30;
 const LEAD_IDLE_DELAY_SECONDS = 300;
 const LEAD_ATTRIBUTION_TTL_DAYS = 180;
 const SMS_LINK_TOKEN_TTL_DAYS = 7;
+const LEAD_INLINE_ATTACHMENT_MAX_BYTES = 3_000_000;
 
 function nowEpochSeconds(): number {
   return Math.floor(Date.now() / 1000);
@@ -475,6 +486,161 @@ function safeHttpUrl(value: string): string | null {
   }
 }
 
+function toEncodedHeaderWord(value: string): string {
+  const safeValue = value.replace(/[\r\n]+/g, ' ');
+  if (/^[\x20-\x7e]*$/.test(safeValue)) return safeValue;
+  const encoded = Buffer.from(safeValue, 'utf8').toString('base64');
+  return `=?UTF-8?B?${encoded}?=`;
+}
+
+function chunkBase64(value: string, lineLength = 76): string {
+  const chunks: string[] = [];
+  for (let i = 0; i < value.length; i += lineLength) {
+    chunks.push(value.slice(i, i + lineLength));
+  }
+  return chunks.join('\r\n');
+}
+
+function toBase64(value: string): string {
+  return chunkBase64(Buffer.from(value, 'utf8').toString('base64'));
+}
+
+function decodeUriSafe(value: string): string {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
+function parseAttachmentStorageKey(urlText: string): string {
+  try {
+    const parsedUrl = new URL(urlText);
+    const rawId = parsedUrl.searchParams.get('id') ?? '';
+    if (rawId) {
+      const decoded = decodeUriSafe(rawId).trim();
+      if (decoded && /^[A-Za-z0-9._/-]+$/.test(decoded) && !decoded.includes('..')) return decoded;
+    }
+
+    const pathSegment = parsedUrl.pathname.split('/').filter(Boolean).pop() ?? '';
+    if (pathSegment && /^[A-Za-z0-9._/-]+$/.test(pathSegment) && !pathSegment.includes('..')) {
+      return pathSegment;
+    }
+  } catch {
+    // ignore
+  }
+  return '';
+}
+
+function sanitizeAttachmentFilename(value: string, mimeType: string): string {
+  const normalized = typeof value === 'string' && value.trim() ? value.trim() : 'attachment';
+  const safe = normalized.replace(/[<>:"/\\|?*]/g, '_').slice(0, 120);
+  const hasExt = /\.[^.]+$/.test(safe);
+  if (hasExt) return safe;
+
+  const extension =
+    mimeType === 'image/png'
+      ? '.png'
+      : mimeType === 'image/webp'
+        ? '.webp'
+        : mimeType === 'image/heic'
+          ? '.heic'
+          : mimeType === 'image/heif'
+            ? '.heif'
+            : '.jpg';
+  return `${safe}${extension}`;
+}
+
+function pickAttachmentMime(mime: string | null): string {
+  const normalized = (mime ?? '').trim().toLowerCase();
+  if (normalized.startsWith('image/')) return normalized;
+  return 'image/jpeg';
+}
+
+function isInlineImageMime(mime: string): boolean {
+  return mime.startsWith('image/');
+}
+
+async function fetchInlineAttachment(attachment: AttachmentInfo): Promise<InlineAttachment | null> {
+  if (!attachmentPreviewBaseUrl) return null;
+  if (!attachment.storageKey) return null;
+  const mimeType = pickAttachmentMime(attachment.mime);
+  if (!isInlineImageMime(mimeType)) return null;
+
+  const sourceUrl = `${attachmentPreviewBaseUrl}?id=${encodeURIComponent(attachment.storageKey)}`;
+  try {
+    const response = await fetch(sourceUrl);
+    if (!response.ok) return null;
+    const bytes = Buffer.from(await response.arrayBuffer());
+    if (!bytes.length || bytes.length > LEAD_INLINE_ATTACHMENT_MAX_BYTES) return null;
+
+    const contentType = pickAttachmentMime(
+      response.headers.get('content-type') ?? mimeType
+    );
+    const filename = sanitizeAttachmentFilename(attachment.name, contentType);
+    const contentId = `attachment-${randomUUID()}@craigs.autos`;
+    return {
+      contentId,
+      filename,
+      mimeType: contentType,
+      bytes,
+      sourceUrl,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function buildRawEmail(args: {
+  from: string;
+  to: string;
+  replyTo?: string | null;
+  subject: string;
+  textBody: string;
+  htmlBody: string;
+  attachments: InlineAttachment[];
+}): Buffer {
+  const mixedBoundary = `mixed-${randomUUID()}`;
+  const alternativeBoundary = `alternative-${randomUUID()}`;
+  const lines: string[] = [];
+
+  lines.push(`From: ${toEncodedHeaderWord(args.from)}`);
+  lines.push(`To: ${toEncodedHeaderWord(args.to)}`);
+  if (args.replyTo) lines.push(`Reply-To: ${toEncodedHeaderWord(args.replyTo)}`);
+  lines.push(`Subject: ${toEncodedHeaderWord(args.subject)}`);
+  lines.push('MIME-Version: 1.0');
+  lines.push(`Content-Type: multipart/mixed; boundary="${mixedBoundary}"`);
+  lines.push('');
+  lines.push(`--${mixedBoundary}`);
+  lines.push(`Content-Type: multipart/alternative; boundary="${alternativeBoundary}"`);
+  lines.push('');
+  lines.push(`--${alternativeBoundary}`);
+  lines.push('Content-Type: text/plain; charset=UTF-8');
+  lines.push('Content-Transfer-Encoding: base64');
+  lines.push('');
+  lines.push(toBase64(args.textBody));
+  lines.push(`--${alternativeBoundary}`);
+  lines.push('Content-Type: text/html; charset=UTF-8');
+  lines.push('Content-Transfer-Encoding: base64');
+  lines.push('');
+  lines.push(toBase64(args.htmlBody));
+  lines.push(`--${alternativeBoundary}--`);
+
+  for (const attachment of args.attachments) {
+    lines.push(`--${mixedBoundary}`);
+    lines.push(`Content-Type: ${attachment.mimeType}`);
+    lines.push(`Content-ID: <${attachment.contentId}>`);
+    lines.push('Content-Transfer-Encoding: base64');
+    lines.push(`Content-Disposition: inline; filename="${attachment.filename.replace(/"/g, '\\"')}"`);
+    lines.push('');
+    lines.push(chunkBase64(attachment.bytes.toString('base64')));
+  }
+
+  lines.push(`--${mixedBoundary}--`);
+  lines.push('');
+  return Buffer.from(lines.join('\r\n'), 'utf8');
+}
+
 function linkifyTextToHtml(text: string): string {
   const urlRegex = /https?:\/\/[^\s]+/g;
   let out = '';
@@ -721,7 +887,8 @@ function extractAttachments(transcript: TranscriptLine[]): AttachmentInfo[] {
       const name = rest || 'attachment';
       if (seen.has(urlSafe)) continue;
       seen.add(urlSafe);
-      attachments.push({ name, mime, url: urlSafe });
+      const storageKey = parseAttachmentStorageKey(urlSafe);
+      attachments.push({ name, mime, url: urlSafe, storageKey: storageKey || null });
     }
   }
 
@@ -1012,6 +1179,12 @@ async function sendTranscriptEmail(args: {
     // ignore
   }
   const attachments = extractAttachments(transcript);
+  const inlineAttachmentsResolved = (
+    await Promise.all(attachments.map((attachment) => fetchInlineAttachment(attachment)))
+  ).filter((item): item is InlineAttachment => Boolean(item));
+  const inlineAttachmentMap = new Map<string, InlineAttachment>(
+    inlineAttachmentsResolved.map((attachment) => [attachment.sourceUrl, attachment])
+  );
 
   // Gmail often strips `sms:` hrefs, so we generate an https:// token link that resolves into
   // {to_phone, body} and then opens Messages locally.
@@ -1210,10 +1383,16 @@ async function sendTranscriptEmail(args: {
        <ul style="margin:0;padding-left:18px;font-size:13px;line-height:1.5">
          ${attachments
            .map((att) => {
-             const label = `${att.name}${att.mime ? ` (${att.mime})` : ''}`;
+              const label = `${att.name}${att.mime ? ` (${att.mime})` : ''}`;
+             const inline = inlineAttachmentMap.get(att.url);
+             const preview = inline
+               ? `<div style="margin:8px 0 18px"><img src="cid:${inline.contentId}" alt="${escapeHtml(
+                   att.name
+                 )}" style="max-width:100%;height:auto;border:1px solid #e5e7eb;border-radius:8px" /></div>`
+               : '';
              return `<li style="margin:0 0 8px"><a href="${escapeHtml(att.url)}" style="color:#141cff;text-decoration:none">${escapeHtml(
-               label
-             )}</a></li>`;
+                label
+             )}</a></li>${preview}`;
            })
            .join('')}
        </ul>`
@@ -1354,18 +1533,21 @@ async function sendTranscriptEmail(args: {
   </body>
 </html>`;
 
+  const rawMessage = buildRawEmail({
+    from: leadFromEmail,
+    to: leadToEmail,
+    replyTo: customerEmail ?? null,
+    subject,
+    textBody: bodyText,
+    htmlBody: html,
+    attachments: inlineAttachmentsResolved,
+  });
+
   const result = await ses.send(
-    new SendEmailCommand({
+    new SendRawEmailCommand({
       Source: leadFromEmail,
-      ...(customerEmail ? { ReplyToAddresses: [customerEmail] } : {}),
-      Destination: { ToAddresses: [leadToEmail] },
-      Message: {
-        Subject: { Data: subject, Charset: 'UTF-8' },
-        Body: {
-          Text: { Data: bodyText, Charset: 'UTF-8' },
-          Html: { Data: html, Charset: 'UTF-8' },
-        },
-      },
+      RawMessage: { Data: rawMessage },
+      Destinations: [leadToEmail],
     })
   );
   return result?.MessageId ?? null;

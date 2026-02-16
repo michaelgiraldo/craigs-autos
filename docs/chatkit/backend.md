@@ -186,8 +186,9 @@ Implementation:
    - Current triggers (`idle`, `pagehide`, `chat_closed`) send once contact exists.
    - We intentionally avoid "send after every assistant response" because it can
      snapshot the thread mid-conversation (see `docs/chatkit/lead-email-before-after.md`).
+   - Final send gate is `handoff_ready` from the summary model.
 8) Acquire send lease in DynamoDB (threadId-keyed)
-9) Send email via SES (HTML + text)
+9) Build a multipart MIME email and send via SES (plain text + HTML + optional inline images)
 10) Mark DynamoDB record as `sent` (or `error` with cooldown)
 
 ### Idempotency: DynamoDB lease model
@@ -263,6 +264,8 @@ It produces:
   - call script prompts
   - copy/paste drafts (SMS, email subject/body, suggested outreach)
   - transcript
+- optional inline photos rendered with `Content-ID` CID references when attachments are
+  small image previews from attachment storage
 
 If you modify the email template, keep both HTML and text in sync.
 

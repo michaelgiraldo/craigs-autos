@@ -153,7 +153,7 @@ The goal is to send the transcript automatically once the chat becomes actionabl
 Triggers implemented in `src/components/ChatWidgetReact.jsx`:
 
 1) `reason: "idle"` (primary)
-   - After ~120 seconds without in-chat activity while the chat is open.
+   - After ~300 seconds (5 minutes) without in-chat activity while the chat is open.
    - The timer resets on in-chat activity (typing, clicks/taps, focus changes) so we
      don't send while the customer is actively using the chat.
 
@@ -227,7 +227,7 @@ If you change layout/styling:
 ### Change triggers (idle/pagehide/close)
 
 1) Update the timing constant in `src/components/ChatWidgetReact.jsx`:
-   - `IDLE_LEAD_SEND_MS`
+   - `LEAD_QUIET_SEND_MS`
 2) Keep `reason` strings stable unless you also update backend logic/metrics.
 3) Verify you still get at most one email per thread (server idempotency).
 
