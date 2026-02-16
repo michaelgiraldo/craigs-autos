@@ -102,7 +102,7 @@ Backend /lead handler
   ├─> acquire send lease in DynamoDB (thread-keyed)
   ├─> fetch attachments via preview URLs when possible
   ├─> build multipart MIME raw email (text + html + inline image parts)
-  ├─> send via SES SendRawEmail
+  ├─> send via SES v2 SendEmail (Raw content)
   └─> mark sent + message id (or cool-down on failure)
 ```
 
@@ -160,7 +160,7 @@ Chat activity -> no auto send path
     - `parseAttachmentStorageKey` extracts safe S3 keys
     - `fetchInlineAttachment` fetches preview URL into bytes
     - `buildRawEmail` generates MIME `multipart/mixed` with `multipart/alternative`
-    - send via `new SendRawEmailCommand(...)`
+    - send via `new SendEmailCommand(...)` using SES v2 raw content
   - `Website/amplify/backend.ts`
     - provides both `chatkit_attachment_upload_url` and `chatkit_lead_email_url` to the frontend via outputs
   - `Website/amplify/functions/chatkit-attachment-upload/handler.ts`

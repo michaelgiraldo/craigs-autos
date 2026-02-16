@@ -1,6 +1,6 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, GetCommand, PutCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
-import { SESClient, SendRawEmailCommand } from '@aws-sdk/client-ses';
+import { SESv2Client, SendEmailCommand } from '@aws-sdk/client-sesv2';
 import { randomUUID } from 'node:crypto';
 import OpenAI from 'openai';
 import { buildLeadEmailSubject, buildOutreachDrafts } from './drafts';
@@ -34,7 +34,7 @@ const SHOP_PHONE_DISPLAY = '(408) 379-3820';
 const SHOP_PHONE_DIGITS = '4083793820';
 const SHOP_ADDRESS = '271 Bestor St, San Jose, CA 95112';
 
-const ses = new SESClient({});
+const ses = new SESv2Client({});
 
 type LambdaHeaders = Record<string, string | undefined>;
 
@@ -1541,10 +1541,16 @@ async function sendTranscriptEmail(args: {
   });
 
   const result = await ses.send(
-    new SendRawEmailCommand({
-      Source: leadFromEmail,
-      RawMessage: { Data: rawMessage },
-      Destinations: [leadToEmail],
+    new SendEmailCommand({
+      FromEmailAddress: leadFromEmail,
+      Destination: {
+        ToAddresses: [leadToEmail],
+      },
+      Content: {
+        Raw: {
+          Data: rawMessage,
+        },
+      },
     })
   );
   return result?.MessageId ?? null;

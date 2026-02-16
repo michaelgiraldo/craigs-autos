@@ -6,8 +6,8 @@ const apiKey = process.env.OPENAI_API_KEY;
 const openai = apiKey ? new OpenAI({ apiKey }) : null;
 
 const SHOP_TIMEZONE = 'America/Los_Angeles';
-const CHATKIT_UPLOAD_MAX_FILE_SIZE_MB = 8;
-const CHATKIT_UPLOAD_MAX_FILES = 1;
+const CHATKIT_UPLOAD_MAX_FILE_SIZE_MB = 12;
+const CHATKIT_UPLOAD_MAX_FILES = 7;
 
 type LambdaHeaders = Record<string, string | undefined>;
 

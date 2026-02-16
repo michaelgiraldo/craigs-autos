@@ -97,7 +97,9 @@ const AMPLIFY_OUTPUTS_PATH = '/amplify_outputs.json';
 // Five minutes lets the user continue a natural conversation before we attempt to build/send
 // a lead summary. Shorter windows can generate incomplete leads too early.
 const LEAD_QUIET_SEND_MS = 300_000;
-const CHATKIT_MAX_ATTACHMENT_BYTES = 8_000_000;
+// Allow up to 12 MB per attachment in the composer.
+const CHATKIT_MAX_ATTACHMENT_BYTES = 12 * 1024 * 1024;
+const CHATKIT_MAX_ATTACHMENTS = 7;
 const CHATKIT_ATTACHMENT_ACCEPT = {
   'image/jpeg': ['.jpg', '.jpeg'],
   'image/png': ['.png'],
@@ -624,7 +626,7 @@ export default function ChatWidgetReact({
     const attachmentConfig = {
       enabled: true,
       maxSize: CHATKIT_MAX_ATTACHMENT_BYTES,
-      maxCount: 1,
+      maxCount: CHATKIT_MAX_ATTACHMENTS,
       accept: CHATKIT_ATTACHMENT_ACCEPT,
     };
 
