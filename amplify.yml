@@ -24,6 +24,7 @@ frontend:
           # `amplify_outputs.json` into `public/` so the site can discover backend endpoints.
           APP_ID="${AWS_APP_ID:-d3du4u03f75wsu}"
           BRANCH="${AWS_BRANCH:-main}"
+          npm run verify:backend-types
           NODE_OPTIONS="--localstorage-file=$HOME/.node-localstorage" npx ampx pipeline-deploy \
             --app-id "$APP_ID" \
             --branch "$BRANCH" \

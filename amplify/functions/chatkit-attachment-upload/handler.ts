@@ -197,11 +197,13 @@ async function streamToBuffer(body: unknown): Promise<Buffer> {
   if (!body) return Buffer.alloc(0);
   if (typeof body === 'string') return Buffer.from(body);
   if (Buffer.isBuffer(body)) return body;
+  if (body instanceof Uint8Array) return Buffer.from(body);
+  if (body instanceof ArrayBuffer) return Buffer.from(new Uint8Array(body));
 
   const streamBody = body as {
-    transformToByteArray?: () => Promise<Uint8Array | number[]>;
     arrayBuffer?: () => Promise<ArrayBuffer>;
-    on?: (event: string, listener: (...args: unknown[]) => void) => void;
+    transformToByteArray?: () => Promise<Uint8Array | number[]>;
+    on?: (event: 'data' | 'error' | 'end', listener: (value?: unknown) => void) => void;
   };
 
   if (typeof streamBody.arrayBuffer === 'function') {
@@ -222,15 +224,27 @@ async function streamToBuffer(body: unknown): Promise<Buffer> {
     }
 
     readable.on('data', (chunk: unknown) => {
-      const bufferChunk =
-        chunk instanceof Buffer
-          ? chunk
-          : typeof chunk === 'string'
-            ? Buffer.from(chunk)
-            : Buffer.isBuffer(chunk)
-              ? Buffer.from(chunk)
-              : Buffer.from(String(chunk));
-      chunks.push(bufferChunk);
+      if (chunk instanceof Buffer) {
+        chunks.push(chunk);
+        return;
+      }
+
+      if (chunk instanceof ArrayBuffer) {
+        chunks.push(Buffer.from(new Uint8Array(chunk)));
+        return;
+      }
+
+      if (chunk instanceof Uint8Array) {
+        chunks.push(Buffer.from(chunk));
+        return;
+      }
+
+      if (typeof chunk === 'string') {
+        chunks.push(Buffer.from(chunk));
+        return;
+      }
+
+      chunks.push(Buffer.from(String(chunk)));
     });
     readable.on('error', (error: unknown) => reject(error instanceof Error ? error : new Error(String(error))));
     readable.on('end', () => resolve());
