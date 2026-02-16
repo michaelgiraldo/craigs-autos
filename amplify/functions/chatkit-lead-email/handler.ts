@@ -29,7 +29,6 @@ const smsLinkDb =
 const leadToEmail = process.env.LEAD_TO_EMAIL ?? 'leads@craigs.autos';
 const leadFromEmail = process.env.LEAD_FROM_EMAIL ?? 'leads@craigs.autos';
 const leadSummaryModel = process.env.LEAD_SUMMARY_MODEL ?? 'gpt-5.2-2025-12-11';
-const attachmentPreviewBaseUrl = process.env.CHATKIT_ATTACHMENT_PREVIEW_BASE_URL ?? '';
 const SHOP_NAME = "Craig's Auto Upholstery";
 const SHOP_PHONE_DISPLAY = '(408) 379-3820';
 const SHOP_PHONE_DIGITS = '4083793820';
@@ -562,12 +561,11 @@ function isInlineImageMime(mime: string): boolean {
 }
 
 async function fetchInlineAttachment(attachment: AttachmentInfo): Promise<InlineAttachment | null> {
-  if (!attachmentPreviewBaseUrl) return null;
+  const sourceUrl = safeHttpUrl(attachment.url);
+  if (!sourceUrl) return null;
   if (!attachment.storageKey) return null;
   const mimeType = pickAttachmentMime(attachment.mime);
   if (!isInlineImageMime(mimeType)) return null;
-
-  const sourceUrl = `${attachmentPreviewBaseUrl}?id=${encodeURIComponent(attachment.storageKey)}`;
   try {
     const response = await fetch(sourceUrl);
     if (!response.ok) return null;

@@ -169,10 +169,6 @@ chatkitAttachmentBucket.grantRead(backend.chatkitAttachmentUpload.resources.lamb
   chatkitAttachmentBucket.bucketName
 );
 (backend.chatkitAttachmentUpload.resources.lambda as any).addEnvironment(
-  'CHATKIT_ATTACHMENT_PREVIEW_BASE_URL',
-  chatkitAttachmentUploadUrl.url
-);
-(backend.chatkitAttachmentUpload.resources.lambda as any).addEnvironment(
   'CHATKIT_ATTACHMENT_MAX_BYTES',
   '8000000'
 );
@@ -258,10 +254,6 @@ chatkitSmsLinkTokenTable.grantReadWriteData(backend.chatkitLeadEmail.resources.l
 (backend.chatkitLeadEmail.resources.lambda as any).addEnvironment(
   'SMS_LINK_TOKEN_TABLE_NAME',
   chatkitSmsLinkTokenTable.tableName
-);
-(backend.chatkitLeadEmail.resources.lambda as any).addEnvironment(
-  'CHATKIT_ATTACHMENT_PREVIEW_BASE_URL',
-  chatkitAttachmentUploadUrl.url
 );
 
 backend.addOutput({

@@ -3,7 +3,6 @@ import { extname } from 'node:path';
 import { S3Client, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 
 const bucketName = process.env.CHATKIT_ATTACHMENT_BUCKET_NAME;
-const previewBaseUrl = process.env.CHATKIT_ATTACHMENT_PREVIEW_BASE_URL;
 const maxAttachmentBytes = Number.parseInt(process.env.CHATKIT_ATTACHMENT_MAX_BYTES ?? '8000000', 10);
 const allowedMimeTypes = new Set(
   (process.env.CHATKIT_ATTACHMENT_ALLOWED_MIME_TYPES ?? '')
@@ -84,6 +83,20 @@ function sanitizeObjectId(value: string): string {
   return value;
 }
 
+function buildPreviewBaseUrl(event: LambdaEvent): string {
+  const headers = normalizeHeaders(event.headers);
+  const host = headers['x-forwarded-host'] || headers.host;
+  if (!host) return '';
+
+  const protoHeader = headers['x-forwarded-proto']?.split(',')[0]?.trim() ?? '';
+  const protocol =
+    protoHeader === 'http' || protoHeader === 'https'
+      ? protoHeader
+      : 'https';
+  const path = event.rawPath?.startsWith('/') ? event.rawPath : '/';
+  return `${protocol}://${host}${path}`;
+}
+
 function extensionForMimeType(mimeType: string): string {
   switch (mimeType) {
     case 'image/jpeg':
@@ -145,7 +158,11 @@ async function parseUploadedFile(event: LambdaEvent): Promise<{
   return { threadId };
 }
 
-async function putAttachment(file: File, threadId: string | null): Promise<{
+async function putAttachment(
+  file: File,
+  threadId: string | null,
+  previewBaseUrl: string
+): Promise<{
   id: string;
   name: string;
   preview_url: string;
@@ -183,13 +200,10 @@ async function putAttachment(file: File, threadId: string | null): Promise<{
     })
   );
 
-  const baseUrl = previewBaseUrl?.trim() ?? '';
-  const previewUrl = baseUrl ? `${baseUrl}?id=${encodeURIComponent(key)}` : '';
-
   return {
     id: key,
     name: fileName,
-    preview_url: previewUrl,
+    preview_url: previewBaseUrl ? `${previewBaseUrl}?id=${encodeURIComponent(key)}` : '',
   };
 }
 
@@ -305,12 +319,13 @@ export const handler = async (event: LambdaEvent): Promise<LambdaResponse> => {
       return json(405, { error: 'Method not allowed' });
     }
 
+    const previewBaseUrl = buildPreviewBaseUrl(event);
     const { file, threadId } = await parseUploadedFile(event);
     if (!file) {
       return json(400, { error: 'No file uploaded. Include a multipart file field named "file".' });
     }
 
-    const uploaded = await putAttachment(file, threadId);
+    const uploaded = await putAttachment(file, threadId, previewBaseUrl);
     const mimeType = file.type || 'application/octet-stream';
 
     return {
