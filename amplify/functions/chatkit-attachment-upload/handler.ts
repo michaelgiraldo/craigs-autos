@@ -197,13 +197,25 @@ async function streamToBuffer(body: unknown): Promise<Buffer> {
   if (!body) return Buffer.alloc(0);
   if (typeof body === 'string') return Buffer.from(body);
   if (Buffer.isBuffer(body)) return body;
-  if (typeof body.transformToByteArray === 'function') {
-    return Buffer.from(await body.transformToByteArray());
+
+  const streamBody = body as {
+    transformToByteArray?: () => Promise<Uint8Array | number[]>;
+    arrayBuffer?: () => Promise<ArrayBuffer>;
+    on?: (event: string, listener: (...args: unknown[]) => void) => void;
+  };
+
+  if (typeof streamBody.arrayBuffer === 'function') {
+    const arrayBuffer = await streamBody.arrayBuffer();
+    return Buffer.from(arrayBuffer);
+  }
+
+  if (typeof streamBody.transformToByteArray === 'function') {
+    return Buffer.from(await streamBody.transformToByteArray());
   }
 
   const chunks: Buffer[] = [];
   await new Promise<void>((resolve, reject) => {
-    const readable = body as any;
+    const readable = streamBody;
     if (!readable.on || typeof readable.on !== 'function') {
       reject(new Error('Response body is not stream-like.'));
       return;
