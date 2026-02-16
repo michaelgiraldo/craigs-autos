@@ -221,9 +221,19 @@ async function streamToBuffer(body: unknown): Promise<Buffer> {
       return;
     }
 
-    readable.on('data', (chunk: Buffer) => chunks.push(Buffer.from(chunk)));
-    readable.on('error', reject);
-    readable.on('end', resolve);
+    readable.on('data', (chunk: unknown) => {
+      const bufferChunk =
+        chunk instanceof Buffer
+          ? chunk
+          : typeof chunk === 'string'
+            ? Buffer.from(chunk)
+            : Buffer.isBuffer(chunk)
+              ? Buffer.from(chunk)
+              : Buffer.from(String(chunk));
+      chunks.push(bufferChunk);
+    });
+    readable.on('error', (error: unknown) => reject(error instanceof Error ? error : new Error(String(error))));
+    readable.on('end', () => resolve());
   });
 
   return Buffer.concat(chunks);
