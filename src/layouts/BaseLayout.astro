@@ -29,12 +29,35 @@ const {
 	pageKey,
 	noindex = false,
 } = frontmatter;
+const pageDescription =
+	typeof description === 'string' && description.trim().length > 0
+		? description.trim()
+		: (BUSINESS_COPY[locale] ?? BUSINESS_COPY.en).description;
 const site = Astro.site ?? new URL(SITE.url);
 const pageTranslations = translations ?? getTranslations(pageKey ?? 'home');
 const canonicalPath = canonicalPathProp ?? pageTranslations[locale] ?? LOCALES.en.base;
 const canonicalUrl = new URL(canonicalPath, site).toString();
 const logoUrl = new URL('/brand/logo-512.png', site).toString();
 const ogImageUrl = new URL('/og-image.jpg', site).toString();
+const ogImageAlt = `${title} | ${BRAND_NAME}`;
+const ogImageWidth = '1200';
+const ogImageHeight = '630';
+const ogLocaleByKey = {
+	en: 'en_US',
+	es: 'es_ES',
+	vi: 'vi_VN',
+	'zh-hans': 'zh_CN',
+	tl: 'tl_PH',
+	ko: 'ko_KR',
+	hi: 'hi_IN',
+	pa: 'pa_IN',
+	'pt-br': 'pt_BR',
+	'zh-hant': 'zh_TW',
+	ja: 'ja_JP',
+	ar: 'ar_AR',
+	ru: 'ru_RU',
+	ta: 'ta_IN',
+};
 const isProduction = import.meta.env.PROD;
 const gtmId = typeof import.meta.env.PUBLIC_GTM_ID === 'string' ? import.meta.env.PUBLIC_GTM_ID.trim() : '';
 const gtmEnabled =
@@ -69,6 +92,15 @@ const hreflangLinks = hreflangLocaleKeys.map((key) => ({
 	hreflang: LOCALES[key].hreflang,
 	href: new URL(pageTranslations[key], site).toString(),
 }));
+const ogLocale = ogLocaleByKey[locale] ?? 'en_US';
+const ogLocaleAlternates = Array.from(
+	new Set(
+		hreflangLocaleKeys
+			.filter((key) => key !== locale)
+			.map((key) => ogLocaleByKey[key])
+			.filter(Boolean),
+	),
+);
 
 const buildLanguageLink = (key) => {
 	const localeMeta = LOCALES[key];
@@ -244,7 +276,7 @@ const webpageNode = {
 	'@id': webpageId,
 	url: canonicalUrl,
 	name: title,
-	description,
+	description: pageDescription,
 	inLanguage: lang,
 	isPartOf: { '@id': websiteId },
 	about: { '@id': businessId },
@@ -297,7 +329,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 		<script src="/lead-signals.js" defer></script>
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
-		<meta name="description" content={description} />
+		<meta name="description" content={pageDescription} />
 		<meta name="msvalidate.01" content="8E6AAAC756CDF5BC52BCC838B3C4753C" />
 		<link rel="icon" href="/favicon.ico" sizes="any" />
 		<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
@@ -314,14 +346,22 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 		<meta property="og:type" content="website" />
 		<meta property="og:site_name" content={BRAND_NAME} />
 		<meta property="og:title" content={title} />
-		<meta property="og:description" content={description} />
+		<meta property="og:description" content={pageDescription} />
+		<meta property="og:locale" content={ogLocale} />
+		{ogLocaleAlternates.map((alternateLocale) => (
+			<meta property="og:locale:alternate" content={alternateLocale} />
+		))}
 		<meta property="og:url" content={canonicalUrl} />
 		<meta property="og:image" content={ogImageUrl} />
-		<meta property="og:image:alt" content={BRAND_NAME} />
+		<meta property="og:image:type" content="image/jpeg" />
+		<meta property="og:image:width" content={ogImageWidth} />
+		<meta property="og:image:height" content={ogImageHeight} />
+		<meta property="og:image:alt" content={ogImageAlt} />
 		<meta name="twitter:card" content="summary_large_image" />
 		<meta name="twitter:title" content={title} />
-		<meta name="twitter:description" content={description} />
+		<meta name="twitter:description" content={pageDescription} />
 		<meta name="twitter:image" content={ogImageUrl} />
+		<meta name="twitter:image:alt" content={ogImageAlt} />
 		{hreflangLinks.map((link) => (
 			<link rel="alternate" hreflang={link.hreflang} href={link.href} />
 		))}

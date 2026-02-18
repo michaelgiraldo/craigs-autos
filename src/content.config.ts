@@ -4,7 +4,7 @@ const pages = defineCollection({
 	type: 'content',
 	schema: z.object({
 		title: z.string(),
-		description: z.string(),
+		description: z.string().min(1),
 		pageKey: z.string(),
 		noindex: z.boolean().optional(),
 	}),
