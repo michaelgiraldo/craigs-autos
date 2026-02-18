@@ -33,15 +33,42 @@ const pageDescription =
 	typeof description === 'string' && description.trim().length > 0
 		? description.trim()
 		: (BUSINESS_COPY[locale] ?? BUSINESS_COPY.en).description;
+const socialBusiness = BUSINESS_COPY[locale] ?? BUSINESS_COPY.en;
+const navLabelsForMeta = NAV_LABELS[locale] ?? NAV_LABELS.en;
+const truncateSocialText = (value, maxChars) => {
+	const text = String(value ?? '').replace(/\s+/g, ' ').trim();
+	if (!text || text.length <= maxChars) {
+		return text;
+	}
+	return `${text.slice(0, Math.max(0, maxChars - 1)).replace(/[ ,.;:!?，。！？、：；-]+$/u, '')}…`;
+};
+const socialPageLabel =
+	pageKey && typeof navLabelsForMeta[pageKey] === 'string' ? navLabelsForMeta[pageKey] : null;
+const socialTitle = truncateSocialText(
+	socialPageLabel && pageKey !== 'home'
+		? `${socialPageLabel} · ${socialBusiness.name ?? BRAND_NAME}`
+		: (socialBusiness.name ?? BRAND_NAME),
+	72,
+);
+const socialDescription = truncateSocialText(
+	socialPageLabel && pageKey !== 'home'
+		? `${socialPageLabel}. ${socialBusiness.description ?? pageDescription}`
+		: (socialBusiness.description ?? pageDescription),
+	180,
+);
 const site = Astro.site ?? new URL(SITE.url);
 const pageTranslations = translations ?? getTranslations(pageKey ?? 'home');
 const canonicalPath = canonicalPathProp ?? pageTranslations[locale] ?? LOCALES.en.base;
 const canonicalUrl = new URL(canonicalPath, site).toString();
 const logoUrl = new URL('/brand/logo-512.png', site).toString();
+const defaultOgImagePath = PAGE_PATHS.home?.[locale] ? `/og/${locale}/home.jpg` : '/og/en/home.jpg';
 const localizedOgImagePath =
-	pageKey && PAGE_PATHS[pageKey]?.[locale] ? `/og/${locale}/${pageKey}.jpg` : '/og-image.jpg';
+	pageKey && PAGE_PATHS[pageKey]?.[locale] ? `/og/${locale}/${pageKey}.jpg` : defaultOgImagePath;
 const ogImageUrl = new URL(localizedOgImagePath, site).toString();
-const ogImageAlt = `${title} | ${BRAND_NAME}`;
+const ogImageAltBase = (socialTitle || title || BRAND_NAME).trim();
+const ogImageAlt = ogImageAltBase.toLowerCase().includes(BRAND_NAME.toLowerCase())
+	? ogImageAltBase
+	: `${ogImageAltBase} | ${BRAND_NAME}`;
 const ogImageWidth = '1200';
 const ogImageHeight = '630';
 const ogLocaleByKey = {
@@ -347,8 +374,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 		<link rel="canonical" href={canonicalUrl} />
 		<meta property="og:type" content="website" />
 		<meta property="og:site_name" content={BRAND_NAME} />
-		<meta property="og:title" content={title} />
-		<meta property="og:description" content={pageDescription} />
+		<meta property="og:title" content={socialTitle || title} />
+		<meta property="og:description" content={socialDescription || pageDescription} />
 		<meta property="og:locale" content={ogLocale} />
 		{ogLocaleAlternates.map((alternateLocale) => (
 			<meta property="og:locale:alternate" content={alternateLocale} />
@@ -360,8 +387,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 		<meta property="og:image:height" content={ogImageHeight} />
 		<meta property="og:image:alt" content={ogImageAlt} />
 		<meta name="twitter:card" content="summary_large_image" />
-		<meta name="twitter:title" content={title} />
-		<meta name="twitter:description" content={pageDescription} />
+		<meta name="twitter:title" content={socialTitle || title} />
+		<meta name="twitter:description" content={socialDescription || pageDescription} />
 		<meta name="twitter:image" content={ogImageUrl} />
 		<meta name="twitter:image:alt" content={ogImageAlt} />
 		{hreflangLinks.map((link) => (
