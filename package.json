@@ -7,7 +7,8 @@
     "dev:chatkit": "node server/chatkit-dev.mjs",
     "dev:local": "concurrently -k -n api,web -c yellow,cyan \"npm:dev:chatkit\" \"npm:dev\"",
     "verify:backend-types": "npx tsc --pretty false --noEmit -p amplify/tsconfig.json",
-    "prebuild": "node scripts/validate-i18n.mjs",
+    "generate:og": "node scripts/generate-og-images.mjs",
+    "prebuild": "node scripts/validate-i18n.mjs && npm run generate:og",
     "predeploy": "npm run verify:backend-types",
     "build": "astro build",
     "indexnow:submit": "node scripts/indexnow-submit.mjs",
@@ -26,12 +27,14 @@
     "@aws-sdk/types": "^3.973.1",
     "@openai/chatkit": "^1.6.0",
     "@openai/chatkit-react": "^1.5.0",
+    "@resvg/resvg-js": "^2.6.2",
     "astro": "^5.17.2",
     "concurrently": "^9.2.1",
     "dotenv": "^17.3.1",
     "openai": "^6.22.0",
     "react": "^19.2.4",
-    "react-dom": "^19.2.4"
+    "react-dom": "^19.2.4",
+    "sharp": "^0.34.5"
   },
   "devDependencies": {
     "@aws-amplify/backend": "^1.21.0",

@@ -23,6 +23,7 @@ pnpm-debug.log*
 .env.production
 amplify_outputs.json
 public/amplify_outputs.json
+public/og/
 
 # macOS-specific files
 .DS_Store

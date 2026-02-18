@@ -38,7 +38,9 @@ const pageTranslations = translations ?? getTranslations(pageKey ?? 'home');
 const canonicalPath = canonicalPathProp ?? pageTranslations[locale] ?? LOCALES.en.base;
 const canonicalUrl = new URL(canonicalPath, site).toString();
 const logoUrl = new URL('/brand/logo-512.png', site).toString();
-const ogImageUrl = new URL('/og-image.jpg', site).toString();
+const localizedOgImagePath =
+	pageKey && PAGE_PATHS[pageKey]?.[locale] ? `/og/${locale}/${pageKey}.jpg` : '/og-image.jpg';
+const ogImageUrl = new URL(localizedOgImagePath, site).toString();
 const ogImageAlt = `${title} | ${BRAND_NAME}`;
 const ogImageWidth = '1200';
 const ogImageHeight = '630';
