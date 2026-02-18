@@ -16,6 +16,10 @@ Legacy entrypoint (kept for older links):
 
 - `docs/chatkit-aws.md` (points to the files above)
 
+Security + architecture audit:
+
+- `docs/breaking-change-audit-2026-02-18.md`
+
 Redirects:
 
 - `docs/redirects.md` (legacy domain → new domain mapping)
