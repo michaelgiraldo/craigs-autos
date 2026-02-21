@@ -16,11 +16,12 @@ Scope:
 - `amplify/functions/chatkit-session` (Lambda): creates short-lived OpenAI session secrets for the browser.
 - `amplify/functions/chatkit-lead-email` (Lambda): builds transcript, summarizes, and sends lead email.
 - `amplify/functions/chatkit-attachment-upload` (Lambda): receives user files and stores them in S3.
-- `amplify/functions/chatkit-sms-link` (Lambda): creates short-lived tokens for click-safe SMS links in the email.
+- `amplify/functions/chatkit-message-link` (Lambda): resolves short-lived token links used by
+  message handoff actions in lead emails (SMS + Google Voice entry).
 - `S3 bucket (chatkit-attachment-bucket)`: stores uploaded attachments and serves them with preview URLs.
 - `DynamoDB (ChatkitLeadDedupeTable)`: enforces one send per thread and tracks lease/error state.
 - `DynamoDB (ChatkitLeadAttributionTable)`: stores lead metadata for offline conversion use.
-- `DynamoDB (ChatkitSmsLinkTokenTable)`: stores SMS draft links with TTL.
+- `DynamoDB (ChatkitMessageLinkTokenTable)`: stores message draft links with TTL.
 - `SES`: sends the final email (raw MIME with optional inline image parts).
 - `OpenAI ChatKit`: holds canonical thread and transcript history.
 
@@ -37,8 +38,8 @@ Current retention in this repo:
 - Lead attribution metadata (`DynamoDB`):
   - `ChatkitLeadAttributionTable` uses `LEAD_ATTRIBUTION_TTL_DAYS`.
   - Current TTL is **180 days**.
-- SMS link tokens (`DynamoDB`):
-  - `SMS_LINK_TOKEN_TTL_DAYS` in `handler.ts`.
+- Message link tokens (`DynamoDB`):
+  - `MESSAGE_LINK_TOKEN_TTL_DAYS` in `handler.ts`.
   - Current TTL is **7 days**.
 - Chat transcripts:
   - Not persisted in this repo.
@@ -54,6 +55,10 @@ Current retention in this repo:
 - The backend only sends when the summary model returns `handoff_ready = true`.
 - The email body now inlines small preview images so photos are visible inline in
   the owner email, no extra clicks needed.
+- Lead email quick actions include both `Send via SMS` and `Send via Google Voice`.
+- Google Voice one-click currently means: open Google Voice web UI and best-effort
+  copy the draft message to clipboard for paste/send (no auto-send).
+- Legacy SMS-named link contracts were removed in this phase (breaking change).
 - No new AWS service was introduced. This is implemented with existing Lambdas,
   S3, SES, and DynamoDB plus existing chat runtime behavior.
 
@@ -155,9 +160,10 @@ Chat activity -> no auto send path
     - response reasons: `already_sent`, `missing_contact`, `not_ready`, `not_idle`, etc.
 
 - Attachment preview + inline embedding
-  - `Website/amplify/functions/chatkit-lead-email/handler.ts`
+  - `Website/amplify/functions/chatkit-lead-email/email-delivery.ts`
+  - `Website/amplify/functions/chatkit-lead-email/attachments.ts`
+  - `Website/amplify/functions/chatkit-lead-email/email-mime.ts`
     - `extractAttachments` parses transcript attachment lines
-    - `parseAttachmentStorageKey` extracts safe S3 keys
     - `fetchInlineAttachment` fetches preview URL into bytes
     - `buildRawEmail` generates MIME `multipart/mixed` with `multipart/alternative`
     - send via `new SendEmailCommand(...)` using SES v2 raw content

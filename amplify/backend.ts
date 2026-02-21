@@ -2,21 +2,56 @@ import { defineBackend } from '@aws-amplify/backend';
 import { Duration, RemovalPolicy, Stack } from 'aws-cdk-lib';
 import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
 import { PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
-import { FunctionUrl, FunctionUrlAuthType, HttpMethod } from 'aws-cdk-lib/aws-lambda';
+import { CfnFunction, FunctionUrl, FunctionUrlAuthType, HttpMethod } from 'aws-cdk-lib/aws-lambda';
 
 import { chatkitSession } from './functions/chatkit-session/resource';
 import { chatkitLeadEmail } from './functions/chatkit-lead-email/resource';
-import { chatkitSmsLink } from './functions/chatkit-sms-link/resource';
+import { chatkitMessageLink } from './functions/chatkit-message-link/resource';
 import { chatkitLeadSignal } from './functions/chatkit-lead-signal/resource';
 import { chatkitLeadAdmin } from './functions/chatkit-lead-admin/resource';
 
 const backend = defineBackend({
   chatkitSession,
   chatkitLeadEmail,
-  chatkitSmsLink,
+  chatkitMessageLink,
   chatkitLeadSignal,
   chatkitLeadAdmin,
 });
+
+function setLambdaDescription(resource: unknown, description: string): void {
+  const cfn = (resource as any)?.node?.defaultChild;
+  if (cfn instanceof CfnFunction) {
+    cfn.addPropertyOverride('Description', description);
+    return;
+  }
+  // Fallback for interface-typed resources where the underlying child is still a CfnFunction.
+  if (cfn && typeof cfn.addPropertyOverride === 'function') {
+    cfn.addPropertyOverride('Description', description);
+    return;
+  }
+  throw new Error('Unable to set Lambda description: missing CfnFunction default child');
+}
+
+setLambdaDescription(
+  backend.chatkitSession.resources.lambda,
+  'Creates ChatKit sessions and returns ephemeral client secrets with locale, page, user, and shop-time state.'
+);
+setLambdaDescription(
+  backend.chatkitLeadEmail.resources.lambda,
+  'Fetches ChatKit transcripts, generates internal lead summaries, enforces thread-level idempotency, and sends lead emails via SES.'
+);
+setLambdaDescription(
+  backend.chatkitMessageLink.resources.lambda,
+  'Resolves tokenized message-link payloads into recipient phone and message body for the /message handoff page.'
+);
+setLambdaDescription(
+  backend.chatkitLeadSignal.resources.lambda,
+  'Logs lead interaction attribution events (call, text, email, directions, landing) to DynamoDB.'
+);
+setLambdaDescription(
+  backend.chatkitLeadAdmin.resources.lambda,
+  'Password-protected admin API to list lead records and update qualification status for conversion workflows.'
+);
 
 // Expose a lightweight HTTPS endpoint that creates ChatKit sessions.
 // This keeps OpenAI credentials on the server while ChatKit renders the UI client-side.
@@ -61,17 +96,16 @@ const chatkitLeadEmailUrl = new FunctionUrl(
   }
 );
 
-// Expose a lightweight endpoint used by `sms.craigs.autos` to resolve a token into
-// {to_phone, body}. The browser then opens `sms:` locally (Apple Messages, etc).
-const chatkitSmsLinkUrl = new FunctionUrl(
-  Stack.of(backend.chatkitSmsLink.resources.lambda),
-  'ChatkitSmsLinkUrl',
+// Expose a lightweight endpoint used by `/message` to resolve a token into
+// {to_phone, body}. The browser then opens the selected channel client (SMS, Google Voice, etc).
+const chatkitMessageLinkUrl = new FunctionUrl(
+  Stack.of(backend.chatkitMessageLink.resources.lambda),
+  'ChatkitMessageLinkUrl',
   {
-    function: backend.chatkitSmsLink.resources.lambda,
+    function: backend.chatkitMessageLink.resources.lambda,
     authType: FunctionUrlAuthType.NONE,
     cors: {
       allowedOrigins: [
-        'https://sms.craigs.autos',
         'https://chat.craigs.autos',
         'https://craigs.autos',
         'http://localhost:4321',
@@ -224,10 +258,10 @@ chatkitLeadAttributionTable.grantReadWriteData(backend.chatkitLeadAdmin.resource
   chatkitLeadAttributionTable.tableName
 );
 
-// Used by "Text customer / Text draft" links in lead emails.
-const chatkitSmsLinkTokenTable = new Table(
-  Stack.of(backend.chatkitSmsLink.resources.lambda),
-  'ChatkitSmsLinkTokenTable',
+// Used by tokenized message handoff links in lead emails.
+const chatkitMessageLinkTokenTable = new Table(
+  Stack.of(backend.chatkitMessageLink.resources.lambda),
+  'ChatkitMessageLinkTokenTable',
   {
     billingMode: BillingMode.PAY_PER_REQUEST,
     partitionKey: { name: 'token', type: AttributeType.STRING },
@@ -236,16 +270,16 @@ const chatkitSmsLinkTokenTable = new Table(
   }
 );
 
-chatkitSmsLinkTokenTable.grantReadData(backend.chatkitSmsLink.resources.lambda);
-chatkitSmsLinkTokenTable.grantReadWriteData(backend.chatkitLeadEmail.resources.lambda);
+chatkitMessageLinkTokenTable.grantReadData(backend.chatkitMessageLink.resources.lambda);
+chatkitMessageLinkTokenTable.grantReadWriteData(backend.chatkitLeadEmail.resources.lambda);
 
-(backend.chatkitSmsLink.resources.lambda as any).addEnvironment(
-  'SMS_LINK_TOKEN_TABLE_NAME',
-  chatkitSmsLinkTokenTable.tableName
+(backend.chatkitMessageLink.resources.lambda as any).addEnvironment(
+  'MESSAGE_LINK_TOKEN_TABLE_NAME',
+  chatkitMessageLinkTokenTable.tableName
 );
 (backend.chatkitLeadEmail.resources.lambda as any).addEnvironment(
-  'SMS_LINK_TOKEN_TABLE_NAME',
-  chatkitSmsLinkTokenTable.tableName
+  'MESSAGE_LINK_TOKEN_TABLE_NAME',
+  chatkitMessageLinkTokenTable.tableName
 );
 
 backend.addOutput({
@@ -254,8 +288,8 @@ backend.addOutput({
     chatkit_session_url: chatkitSessionUrl.url,
     // Used by the frontend widget to send transcripts to the shop.
     chatkit_lead_email_url: chatkitLeadEmailUrl.url,
-    // Used by sms.craigs.autos/t/<token> to resolve tokens.
-    chatkit_sms_link_url: chatkitSmsLinkUrl.url,
+    // Used by /message/?token=... to resolve tokens into message drafts.
+    chatkit_message_link_url: chatkitMessageLinkUrl.url,
     // Used by the frontend to log lead signals (tel/sms/directions clicks).
     chatkit_lead_signal_url: chatkitLeadSignalUrl.url,
     // Used by the admin UI to fetch and qualify leads.

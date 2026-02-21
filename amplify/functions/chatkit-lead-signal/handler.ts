@@ -1,22 +1,34 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
 import { randomUUID } from 'node:crypto';
-
-const leadAttributionTableName = process.env.LEAD_ATTRIBUTION_TABLE_NAME;
-const leadAttributionDb =
-  leadAttributionTableName && leadAttributionTableName.trim()
-    ? DynamoDBDocumentClient.from(new DynamoDBClient({}))
-    : null;
+import { z } from 'zod';
+import { decodeBody, emptyResponse, getHttpMethod, jsonResponse } from '../_shared/http.ts';
 
 const LEAD_ATTRIBUTION_TTL_DAYS = 180;
 
-const ALLOWED_EVENTS = new Set([
+const leadSignalEnvSchema = z.object({
+  LEAD_ATTRIBUTION_TABLE_NAME: z.string().trim().min(1),
+});
+
+const allowedEventSchema = z.enum([
   'lead_ad_landing',
   'lead_click_to_call',
   'lead_click_to_text',
   'lead_click_email',
   'lead_click_directions',
 ]);
+
+const leadSignalPayloadSchema = z
+  .object({
+    event: z.string(),
+    pageUrl: z.string().optional(),
+    user: z.string().optional(),
+    locale: z.string().optional(),
+    clickUrl: z.string().optional(),
+    provider: z.string().optional(),
+    attribution: z.unknown().optional(),
+  })
+  .passthrough();
 
 type LambdaEvent = {
   headers?: Record<string, string | undefined> | null;
@@ -32,41 +44,20 @@ type LambdaResult = {
   body: string;
 };
 
-type LeadSignalRequest = {
-  event?: unknown;
-  pageUrl?: unknown;
-  user?: unknown;
-  locale?: unknown;
-  clickUrl?: unknown;
-  provider?: unknown;
-  attribution?: unknown;
+type LeadSignalRequest = z.infer<typeof leadSignalPayloadSchema>;
+
+type LeadSignalDeps = {
+  configValid: boolean;
+  nowEpochSeconds: () => number;
+  writeRecord: (record: Record<string, unknown>) => Promise<void>;
 };
 
 function json(statusCode: number, body: unknown): LambdaResult {
-  return {
-    statusCode,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(body),
-  };
+  return jsonResponse(statusCode, body);
 }
 
-function decodeBody(event: LambdaEvent): string | null {
-  const raw = event?.body;
-  if (typeof raw !== 'string' || raw.length === 0) return null;
-  if (event?.isBase64Encoded) {
-    return Buffer.from(raw, 'base64').toString('utf8');
-  }
-  return raw;
-}
-
-function nowEpochSeconds(): number {
-  return Math.floor(Date.now() / 1000);
-}
-
-function ttlSecondsFromNow(days: number): number {
-  return nowEpochSeconds() + days * 24 * 60 * 60;
+function ttlSecondsFromNow(nowEpoch: number, days: number): number {
+  return nowEpoch + days * 24 * 60 * 60;
 }
 
 function normalizeValue(value: unknown, maxLen = 256): string | null {
@@ -80,7 +71,8 @@ function normalizeValue(value: unknown, maxLen = 256): string | null {
 function sanitizeAttribution(input: any) {
   if (!input || typeof input !== 'object') return null;
   const deviceType =
-    typeof input.device_type === 'string' && (input.device_type === 'mobile' || input.device_type === 'desktop')
+    typeof input.device_type === 'string' &&
+    (input.device_type === 'mobile' || input.device_type === 'desktop')
       ? input.device_type
       : null;
   const payload = {
@@ -99,7 +91,7 @@ function sanitizeAttribution(input: any) {
     device_type: deviceType,
   };
   const hasAny = Object.values(payload).some(
-    (value) => typeof value === 'string' && value.trim().length > 0
+    (value) => typeof value === 'string' && value.trim().length > 0,
   );
   return hasAny ? payload : null;
 }
@@ -120,7 +112,7 @@ function attributionFromUrl(urlValue: unknown) {
       utm_content: normalizeValue(url.searchParams.get('utm_content'), 200),
     };
     const hasAny = Object.values(payload).some(
-      (value) => typeof value === 'string' && value.trim().length > 0
+      (value) => typeof value === 'string' && value.trim().length > 0,
     );
     return hasAny ? payload : null;
   } catch {
@@ -128,97 +120,138 @@ function attributionFromUrl(urlValue: unknown) {
   }
 }
 
-function mergedAttribution(
-  inputAttribution: unknown,
-  pageUrl: unknown,
-  clickUrl: unknown
-) {
+function mergedAttribution(inputAttribution: unknown, pageUrl: unknown, clickUrl: unknown) {
   const base = sanitizeAttribution(inputAttribution);
   const fromPage = attributionFromUrl(pageUrl);
   const fromClick = attributionFromUrl(clickUrl);
 
   const merged = {
     ...(base || {}),
-    gclid: (base && base.gclid) || (fromPage && fromPage.gclid) || (fromClick && fromClick.gclid) || null,
-    gbraid: (base && base.gbraid) || (fromPage && fromPage.gbraid) || (fromClick && fromClick.gbraid) || null,
-    wbraid: (base && base.wbraid) || (fromPage && fromPage.wbraid) || (fromClick && fromClick.wbraid) || null,
+    gclid:
+      (base && base.gclid) ||
+      (fromPage && fromPage.gclid) ||
+      (fromClick && fromClick.gclid) ||
+      null,
+    gbraid:
+      (base && base.gbraid) ||
+      (fromPage && fromPage.gbraid) ||
+      (fromClick && fromClick.gbraid) ||
+      null,
+    wbraid:
+      (base && base.wbraid) ||
+      (fromPage && fromPage.wbraid) ||
+      (fromClick && fromClick.wbraid) ||
+      null,
     utm_source:
-      (base && base.utm_source) || (fromPage && fromPage.utm_source) || (fromClick && fromClick.utm_source) || null,
+      (base && base.utm_source) ||
+      (fromPage && fromPage.utm_source) ||
+      (fromClick && fromClick.utm_source) ||
+      null,
     utm_medium:
-      (base && base.utm_medium) || (fromPage && fromPage.utm_medium) || (fromClick && fromClick.utm_medium) || null,
+      (base && base.utm_medium) ||
+      (fromPage && fromPage.utm_medium) ||
+      (fromClick && fromClick.utm_medium) ||
+      null,
     utm_campaign:
       (base && base.utm_campaign) ||
       (fromPage && fromPage.utm_campaign) ||
       (fromClick && fromClick.utm_campaign) ||
       null,
-    utm_term: (base && base.utm_term) || (fromPage && fromPage.utm_term) || (fromClick && fromClick.utm_term) || null,
+    utm_term:
+      (base && base.utm_term) ||
+      (fromPage && fromPage.utm_term) ||
+      (fromClick && fromClick.utm_term) ||
+      null,
     utm_content:
-      (base && base.utm_content) || (fromPage && fromPage.utm_content) || (fromClick && fromClick.utm_content) || null,
+      (base && base.utm_content) ||
+      (fromPage && fromPage.utm_content) ||
+      (fromClick && fromClick.utm_content) ||
+      null,
   };
 
   const hasAny = Object.values(merged).some(
-    (value) => typeof value === 'string' && value.trim().length > 0
+    (value) => typeof value === 'string' && value.trim().length > 0,
   );
   return hasAny ? merged : null;
 }
 
-export const handler = async (event: LambdaEvent): Promise<LambdaResult> => {
-  const method = event?.requestContext?.http?.method ?? event?.httpMethod;
+export function createLeadSignalHandler(deps: LeadSignalDeps) {
+  return async (event: LambdaEvent): Promise<LambdaResult> => {
+    const method = getHttpMethod(event);
 
-  if (method === 'OPTIONS') {
-    return {
-      statusCode: 204,
-      headers: {},
-      body: '',
+    if (method === 'OPTIONS') {
+      return emptyResponse(204);
+    }
+
+    if (method !== 'POST') {
+      return json(405, { error: 'Method not allowed' });
+    }
+
+    if (!deps.configValid) {
+      return json(500, { error: 'Server missing configuration' });
+    }
+
+    let payload: LeadSignalRequest = { event: '' };
+    try {
+      const body = decodeBody(event);
+      const parsed = body ? JSON.parse(body) : {};
+      const result = leadSignalPayloadSchema.safeParse(
+        parsed && typeof parsed === 'object' ? parsed : {},
+      );
+      if (!result.success) return json(400, { error: 'Invalid request payload' });
+      payload = result.data;
+    } catch {
+      return json(400, { error: 'Invalid JSON body' });
+    }
+
+    const eventNameResult = allowedEventSchema.safeParse(payload.event);
+    if (!eventNameResult.success) {
+      return json(400, { error: 'Invalid event' });
+    }
+    const eventName = eventNameResult.data;
+
+    const now = deps.nowEpochSeconds();
+    const record = {
+      lead_id: randomUUID(),
+      created_at: now,
+      lead_method: eventName,
+      lead_reason: eventName,
+      locale: typeof payload.locale === 'string' ? payload.locale : null,
+      page_url: typeof payload.pageUrl === 'string' ? payload.pageUrl : null,
+      user_id: typeof payload.user === 'string' ? payload.user : null,
+      click_url: typeof payload.clickUrl === 'string' ? payload.clickUrl : null,
+      provider: typeof payload.provider === 'string' ? payload.provider : null,
+      qualified: false,
+      qualified_at: null,
+      uploaded: false,
+      uploaded_at: null,
+      ttl: ttlSecondsFromNow(now, LEAD_ATTRIBUTION_TTL_DAYS),
+      ...mergedAttribution(payload.attribution, payload.pageUrl, payload.clickUrl),
     };
-  }
 
-  if (method !== 'POST') {
-    return json(405, { error: 'Method not allowed' });
-  }
-
-  if (!leadAttributionDb || !leadAttributionTableName) {
-    return json(500, { error: 'Server missing configuration' });
-  }
-
-  let payload: LeadSignalRequest = {};
-  try {
-    const body = decodeBody(event);
-    const parsed = body ? JSON.parse(body) : {};
-    payload = parsed && typeof parsed === 'object' ? (parsed as LeadSignalRequest) : {};
-  } catch {
-    return json(400, { error: 'Invalid JSON body' });
-  }
-
-  const eventName = typeof payload.event === 'string' ? payload.event : '';
-  if (!ALLOWED_EVENTS.has(eventName)) {
-    return json(400, { error: 'Invalid event' });
-  }
-
-  const record = {
-    lead_id: randomUUID(),
-    created_at: nowEpochSeconds(),
-    lead_method: eventName,
-    lead_reason: eventName,
-    locale: typeof payload.locale === 'string' ? payload.locale : null,
-    page_url: typeof payload.pageUrl === 'string' ? payload.pageUrl : null,
-    user_id: typeof payload.user === 'string' ? payload.user : null,
-    click_url: typeof payload.clickUrl === 'string' ? payload.clickUrl : null,
-    provider: typeof payload.provider === 'string' ? payload.provider : null,
-    qualified: false,
-    qualified_at: null,
-    uploaded: false,
-    uploaded_at: null,
-    ttl: ttlSecondsFromNow(LEAD_ATTRIBUTION_TTL_DAYS),
-    ...mergedAttribution(payload.attribution, payload.pageUrl, payload.clickUrl),
+    await deps.writeRecord(record);
+    return json(200, { ok: true });
   };
+}
 
-  await leadAttributionDb.send(
-    new PutCommand({
-      TableName: leadAttributionTableName,
-      Item: record,
-    })
-  );
+function nowEpochSeconds(): number {
+  return Math.floor(Date.now() / 1000);
+}
 
-  return json(200, { ok: true });
-};
+const parsedEnv = leadSignalEnvSchema.safeParse(process.env);
+const runtimeTableName = parsedEnv.success ? parsedEnv.data.LEAD_ATTRIBUTION_TABLE_NAME : '';
+const runtimeDb = runtimeTableName ? DynamoDBDocumentClient.from(new DynamoDBClient({})) : null;
+
+export const handler = createLeadSignalHandler({
+  configValid: Boolean(parsedEnv.success && runtimeDb && runtimeTableName),
+  nowEpochSeconds,
+  writeRecord: async (record) => {
+    if (!runtimeDb || !runtimeTableName) return;
+    await runtimeDb.send(
+      new PutCommand({
+        TableName: runtimeTableName,
+        Item: record,
+      }),
+    );
+  },
+});

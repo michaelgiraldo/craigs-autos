@@ -124,7 +124,7 @@ What improves:
 
 What we found:
 
-- SMS token handler reads token and returns payload but does not delete/consume it in `amplify/functions/chatkit-sms-link/handler.ts:71-90`
+- Message-link token handler reads token and returns payload but does not delete/consume it in `amplify/functions/chatkit-message-link/handler.ts`
 
 Why this matters (plain language):
 
@@ -226,14 +226,14 @@ What improves:
 - Better security baseline
 - Fewer known vulnerable transitive packages
 
-## Route-Specific Note: `/t` Internal SMS Route
+## Route-Specific Note: `/message` Internal Message Route
 
 This route was specifically reviewed because it is intended to be internal and non-indexable.
 
 Current status:
 
-- Page includes `noindex, nofollow` in `src/pages/t/index.astro:6`.
-- Sitemap filter excludes `/t` and `/admin` paths in `astro.config.mjs:52-68`.
+- Page includes `noindex, nofollow` in `src/pages/message/index.astro:6`.
+- Sitemap filter excludes `/message` and `/admin` paths in `astro.config.mjs:52-68`.
 
 Conclusion:
 

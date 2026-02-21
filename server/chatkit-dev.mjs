@@ -1,13 +1,8 @@
 import http from 'node:http';
-import { URL } from 'node:url';
 import { randomUUID } from 'node:crypto';
 
-import dotenv from 'dotenv';
 import OpenAI from 'openai';
-
-// Load local env for dev (kept out of git via .gitignore).
-dotenv.config({ path: '.env.local' });
-dotenv.config();
+import { computeShopState } from '../shared/shop-hours.js';
 
 const port = Number.parseInt(process.env.CHATKIT_DEV_PORT ?? '8787', 10);
 const workflowId = process.env.CHATKIT_WORKFLOW_ID;
@@ -23,97 +18,6 @@ if (!apiKey) {
 const openai = new OpenAI({ apiKey });
 
 const SHOP_TIMEZONE = 'America/Los_Angeles';
-const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
-function weekdayToIndex(value) {
-  const idx = WEEKDAYS.indexOf(value);
-  return idx === -1 ? 0 : idx;
-}
-
-function minutesFromParts(hour, minute) {
-  return hour * 60 + minute;
-}
-
-function formatTime12h(totalMinutes) {
-  const hour24 = Math.floor(totalMinutes / 60);
-  const minute = totalMinutes % 60;
-  const suffix = hour24 >= 12 ? 'PM' : 'AM';
-  let hour12 = hour24 % 12;
-  if (hour12 === 0) hour12 = 12;
-  return `${hour12}:${String(minute).padStart(2, '0')} ${suffix}`;
-}
-
-function scheduleForWeekday(weekday) {
-  switch (weekday) {
-    case 'Monday':
-    case 'Tuesday':
-    case 'Wednesday':
-    case 'Thursday':
-    case 'Friday':
-      return { open: minutesFromParts(8, 0), close: minutesFromParts(17, 0) };
-    case 'Saturday':
-      return { open: minutesFromParts(8, 0), close: minutesFromParts(14, 0) };
-    default:
-      return null;
-  }
-}
-
-function computeShopState(now, timezone) {
-  const weekday = new Intl.DateTimeFormat('en-US', {
-    timeZone: timezone,
-    weekday: 'long',
-  }).format(now);
-
-  const timeParts = new Intl.DateTimeFormat('en-US', {
-    timeZone: timezone,
-    hour: '2-digit',
-    minute: '2-digit',
-    hourCycle: 'h23',
-  }).formatToParts(now);
-
-  const hour = Number.parseInt(timeParts.find((p) => p.type === 'hour')?.value ?? '0', 10);
-  const minute = Number.parseInt(timeParts.find((p) => p.type === 'minute')?.value ?? '0', 10);
-  const localTime24h = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
-  const nowMinutes = minutesFromParts(hour, minute);
-
-  const todaySchedule = scheduleForWeekday(weekday);
-  const isOpenNow = todaySchedule
-    ? nowMinutes >= todaySchedule.open && nowMinutes < todaySchedule.close
-    : false;
-
-  const weekdayIndex = weekdayToIndex(weekday);
-  let nextOpenDay = '';
-  let nextOpenTime = '';
-
-  for (let offset = 0; offset < 8; offset += 1) {
-    const dayIndex = (weekdayIndex + offset) % 7;
-    const dayName = WEEKDAYS[dayIndex];
-    const schedule = scheduleForWeekday(dayName);
-    if (!schedule) continue;
-
-    if (offset === 0) {
-      if (nowMinutes < schedule.open) {
-        nextOpenDay = dayName;
-        nextOpenTime = formatTime12h(schedule.open);
-        break;
-      }
-      continue;
-    }
-
-    nextOpenDay = dayName;
-    nextOpenTime = formatTime12h(schedule.open);
-    break;
-  }
-
-  return {
-    shop_timezone: timezone,
-    shop_local_weekday: weekday,
-    shop_local_time_24h: localTime24h,
-    shop_is_open_now: isOpenNow,
-    shop_next_open_day: nextOpenDay,
-    shop_next_open_time: nextOpenTime,
-  };
-}
 
 function json(res, statusCode, body) {
   res.statusCode = statusCode;
@@ -141,8 +45,14 @@ async function readJson(req) {
 
 function normalizeHeaders(req) {
   const result = {};
-  for (const [key, value] of req.headers.entries()) {
-    result[key.toLowerCase()] = value;
+  for (const [key, value] of Object.entries(req.headers ?? {})) {
+    if (Array.isArray(value)) {
+      if (value[0]) result[key.toLowerCase()] = String(value[0]);
+      continue;
+    }
+    if (value != null) {
+      result[key.toLowerCase()] = String(value);
+    }
   }
   return result;
 }
@@ -169,7 +79,14 @@ async function parseAttachmentFromRequest(req) {
   }
 
   const mimeType = file.type || 'application/octet-stream';
-  const allowed = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/heic', 'image/heif']);
+  const allowed = new Set([
+    'image/jpeg',
+    'image/png',
+    'image/webp',
+    'image/gif',
+    'image/heic',
+    'image/heif',
+  ]);
   if (!allowed.has(mimeType)) {
     return { error: `Unsupported mime type: ${mimeType}` };
   }
@@ -179,7 +96,8 @@ async function parseAttachmentFromRequest(req) {
     return { error: 'Attachment too large.' };
   }
 
-  const rawName = typeof file.name === 'string' && file.name.trim() ? file.name.trim() : 'chat-attachment';
+  const rawName =
+    typeof file.name === 'string' && file.name.trim() ? file.name.trim() : 'chat-attachment';
   const safeName = rawName.replace(/[<>:"/\\|?*]/g, '_').slice(0, 200);
   return {
     fileId: `att_${randomUUID()}`,
@@ -202,7 +120,10 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
-    if ((url.pathname === '/api/chatkit/session' || url.pathname === '/api/chatkit/session/') && req.method === 'POST') {
+    if (
+      (url.pathname === '/api/chatkit/session' || url.pathname === '/api/chatkit/session/') &&
+      req.method === 'POST'
+    ) {
       if (!workflowId || !apiKey) {
         json(res, 500, { error: 'Server missing OPENAI_API_KEY or CHATKIT_WORKFLOW_ID' });
         return;
@@ -261,7 +182,10 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
-    if ((url.pathname === '/api/chatkit/lead' || url.pathname === '/api/chatkit/lead/') && req.method === 'POST') {
+    if (
+      (url.pathname === '/api/chatkit/lead' || url.pathname === '/api/chatkit/lead/') &&
+      req.method === 'POST'
+    ) {
       // Local dev helper: accept the request so the UI can be exercised without SES.
       json(res, 200, { ok: true, sent: false, reason: 'dev_noop' });
       return;

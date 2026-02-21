@@ -1,4 +1,10 @@
 User-agent: *
 Allow: /
+Disallow: /t
+Disallow: /t/
+Disallow: /message
+Disallow: /message/
+Disallow: /admin
+Disallow: /admin/
 
 Sitemap: https://craigs.autos/sitemap-index.xml

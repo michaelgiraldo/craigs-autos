@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex, nofollow" />
-    <title>Send message</title>
+    <title>Send customer message</title>
     <style>
       :root {
         --bg: #f6f7f9;
@@ -107,11 +107,12 @@
   </head>
   <body>
     <main class="wrap">
-      <h1>Send message</h1>
-      <p id="status">Preparing your message…</p>
+      <h1>Send customer message</h1>
+      <p id="status">Preparing your draft…</p>
 
       <div class="actions">
-        <a id="open-sms" class="btn btn--primary" href="#">Send message</a>
+        <a id="open-sms" class="btn btn--primary" href="#">Send via SMS</a>
+        <button id="open-google-voice" class="btn" type="button">Send via Google Voice</button>
         <a id="call" class="btn" href="#">Call</a>
         <button id="copy-phone" class="btn" type="button">Copy phone</button>
         <button id="copy-body" class="btn" type="button">Copy message</button>
@@ -128,7 +129,7 @@
       <details>
         <summary>Having trouble?</summary>
         <div class="hint">
-          If your texting app doesn’t open, use “Copy message” and paste it into your SMS app.
+          If a channel doesn’t open, use “Copy message” and paste the draft manually.
         </div>
       </details>
     </main>
@@ -138,44 +139,72 @@
       const toEl = document.getElementById('to');
       const bodyEl = document.getElementById('body');
       const openSmsEl = document.getElementById('open-sms');
+      const openGoogleVoiceBtn = document.getElementById('open-google-voice');
       const callEl = document.getElementById('call');
       const copyPhoneBtn = document.getElementById('copy-phone');
       const copyBodyBtn = document.getElementById('copy-body');
+      const FETCH_TIMEOUT_MS = 8_000;
 
       function getToken() {
         const url = new URL(window.location.href);
         const qsToken = url.searchParams.get('token');
         if (qsToken && qsToken.trim()) return qsToken.trim();
 
-        // Best-effort support for /t/<token>/ if a rewrite rule is ever added later.
+        // Best-effort support for /message/<token>/ if a rewrite rule is added later.
         const parts = url.pathname.split('/').filter(Boolean);
-        const tIndex = parts.indexOf('t');
-        if (tIndex !== -1 && parts[tIndex + 1]) return parts[tIndex + 1];
+        const messageIndex = parts.indexOf('message');
+        if (messageIndex !== -1 && parts[messageIndex + 1]) return parts[messageIndex + 1];
 
         return '';
       }
 
-      function buildTelHref(phone) {
-        // Avoid `\\d` escaping issues in inline scripts by using an explicit digit class.
+      function getChannel() {
+        const url = new URL(window.location.href);
+        const value = url.searchParams.get('channel');
+        return value && value.trim() ? value.trim().toLowerCase() : '';
+      }
+
+      function normalizeE164Digits(phone) {
         const digits = String(phone || '').replace(/[^0-9]/g, '');
-        if (!digits) return '#';
-        return digits.length === 10 ? `tel:+1${digits}` : `tel:+${digits}`;
+        if (!digits) return '';
+        if (digits.length === 10) return `1${digits}`;
+        if (digits.length === 11 && digits.startsWith('1')) return digits;
+        if (digits.length >= 7 && digits.length <= 15) return digits;
+        return '';
+      }
+
+      function buildTelHref(phone) {
+        const e164Digits = normalizeE164Digits(phone);
+        if (!e164Digits) return '#';
+        return `tel:+${e164Digits}`;
       }
 
       function buildSmsHref(phone, body) {
-        // Avoid `\\d` escaping issues in inline scripts by using an explicit digit class.
-        const digits = String(phone || '').replace(/[^0-9]/g, '');
-        if (!digits) return '#';
-        const to = digits.length === 10 ? `+1${digits}` : `+${digits}`;
+        const e164Digits = normalizeE164Digits(phone);
+        if (!e164Digits) return '#';
+        const to = `+${e164Digits}`;
         const text = typeof body === 'string' ? body : '';
         if (!text.trim()) return `sms:${to}`;
         // Works on iOS/macOS; some clients accept `?body=` as well, but `?&body=` is broadly compatible.
         return `sms:${to}?&body=${encodeURIComponent(text)}`;
       }
 
+      function buildGoogleVoiceHref(phone) {
+        const e164Digits = normalizeE164Digits(phone);
+        if (!e164Digits) return 'https://voice.google.com/u/0/messages';
+        return `https://voice.google.com/u/0/messages?itemId=${encodeURIComponent(`t.+${e164Digits}`)}`;
+      }
+
+      function withFetchTimeout(init = {}) {
+        if (typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout === 'function') {
+          return { ...init, signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) };
+        }
+        return init;
+      }
+
       async function getOutputs() {
         try {
-          const res = await fetch('/amplify_outputs.json', { cache: 'no-store' });
+          const res = await fetch('/amplify_outputs.json', withFetchTimeout({ cache: 'no-store' }));
           if (!res.ok) return null;
           return await res.json();
         } catch {
@@ -185,6 +214,8 @@
 
       async function run() {
         const token = getToken();
+        const channel = getChannel();
+        const useGoogleVoice = channel === 'google_voice';
         if (!token) {
           statusEl.textContent = 'Missing token.';
           statusEl.classList.add('error');
@@ -192,16 +223,19 @@
         }
 
         const outputs = await getOutputs();
-        const apiUrl = outputs?.custom?.chatkit_sms_link_url;
+        const apiUrl = outputs?.custom?.chatkit_message_link_url;
         if (typeof apiUrl !== 'string' || !apiUrl.trim()) {
-          statusEl.textContent = 'SMS link service is not configured.';
+          statusEl.textContent = 'Message link service is not configured.';
           statusEl.classList.add('error');
           return;
         }
 
         let data;
         try {
-          const res = await fetch(`${apiUrl}?token=${encodeURIComponent(token)}`, { cache: 'no-store' });
+          const res = await fetch(
+            `${apiUrl}?token=${encodeURIComponent(token)}`,
+            withFetchTimeout({ cache: 'no-store' })
+          );
           data = await res.json();
           if (!res.ok || !data?.ok) {
             throw new Error(data?.error || `HTTP ${res.status}`);
@@ -215,12 +249,26 @@
         const to = data.to_phone;
         const body = data.body || '';
         const smsHref = buildSmsHref(to, body);
+        const googleVoiceHref = buildGoogleVoiceHref(to);
         const telHref = buildTelHref(to);
 
         toEl.textContent = to || '—';
         bodyEl.textContent = body || '—';
         openSmsEl.href = smsHref;
         callEl.href = telHref;
+
+        openGoogleVoiceBtn.addEventListener('click', async () => {
+          if (body) {
+            try {
+              await navigator.clipboard.writeText(String(body));
+            } catch {}
+          }
+          try {
+            window.open(googleVoiceHref, '_blank', 'noopener,noreferrer');
+          } catch {
+            window.location.href = googleVoiceHref;
+          }
+        });
 
         copyPhoneBtn.addEventListener('click', async () => {
           if (!to) return;
@@ -240,14 +288,18 @@
           } catch {}
         });
 
-        statusEl.textContent = 'Ready to send.';
+        statusEl.textContent = useGoogleVoice
+          ? 'Draft ready for Google Voice.'
+          : 'Draft ready. Choose a channel.';
 
-        // Best-effort auto-open. If the browser blocks it, the primary button remains.
-        setTimeout(() => {
-          try {
-            window.location.href = smsHref;
-          } catch {}
-        }, 50);
+        if (!useGoogleVoice) {
+          // Best-effort auto-open. If the browser blocks it, the primary button remains.
+          setTimeout(() => {
+            try {
+              window.location.href = smsHref;
+            } catch {}
+          }, 50);
+        }
       }
 
       run();

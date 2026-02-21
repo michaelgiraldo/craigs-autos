@@ -2,7 +2,7 @@ import { defineFunction, secret } from '@aws-amplify/backend';
 
 export const chatkitLeadEmail = defineFunction({
   name: 'chatkit-lead-email',
-  runtime: 20,
+  runtime: 24,
   timeoutSeconds: 30,
   environment: {
     OPENAI_API_KEY: secret('OPENAI_API_KEY'),

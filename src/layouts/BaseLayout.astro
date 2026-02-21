@@ -2,6 +2,9 @@
 import { Image } from 'astro:assets';
 import LanguageSwitcher from '../components/LanguageSwitcher.astro';
 import ChatWidget from '../components/ChatWidget.astro';
+import AnalyticsBody from './base/AnalyticsBody.astro';
+import AnalyticsHead from './base/AnalyticsHead.astro';
+import SeoMetaHead from './base/SeoMetaHead.astro';
 import '../styles/global.css';
 import brandLogo from '../assets/brand/craigs-auto-upholstery-logo.png';
 import {
@@ -91,6 +94,7 @@ const isProduction = import.meta.env.PROD;
 const gtmId = typeof import.meta.env.PUBLIC_GTM_ID === 'string' ? import.meta.env.PUBLIC_GTM_ID.trim() : '';
 const gtmEnabled =
 	isProduction && /^GTM-[A-Z0-9]{6,20}$/i.test(gtmId) && !/disabled/i.test(gtmId);
+const gtmAllowedOnPage = gtmEnabled && !noindex;
 const gtmPageContext = {
 	event: 'page_context',
 	locale,
@@ -326,91 +330,38 @@ const structuredData = {
 
 <!doctype html>
 <html lang={lang} dir={textDirection}>
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
-		<script is:inline>
-			{`(function(){try{var p=new URLSearchParams(window.location.search);var keys=['gclid','gbraid','wbraid','utm_source','utm_medium','utm_campaign','utm_term','utm_content'];var next={};for(var i=0;i<keys.length;i++){var k=keys[i];var v=p.get(k);if(v){next[k]=v;}}var hasNext=Object.keys(next).length>0;var key='craigs_attribution_v1';var existing={};try{existing=JSON.parse(window.localStorage.getItem(key)||'{}')||{};}catch(e){existing={};}var now=new Date().toISOString();var updated=existing||{};if(hasNext){var touch=Object.assign({ts:now,landing_page:window.location.pathname},next);updated.last_touch=touch;if(!updated.first_touch){updated.first_touch=touch;}}if(!updated.referrer&&document.referrer){updated.referrer=document.referrer;}if(!updated.landing_page){updated.landing_page=window.location.pathname;}if(Object.keys(updated).length){window.localStorage.setItem(key,JSON.stringify(updated));}var maxAge=60*60*24*90;if(next.gclid){document.cookie='gclid='+encodeURIComponent(next.gclid)+'; path=/; max-age='+maxAge+'; SameSite=Lax';}if(next.gbraid){document.cookie='gbraid='+encodeURIComponent(next.gbraid)+'; path=/; max-age='+maxAge+'; SameSite=Lax';}if(next.wbraid){document.cookie='wbraid='+encodeURIComponent(next.wbraid)+'; path=/; max-age='+maxAge+'; SameSite=Lax';}}catch(e){}})();`}
-		</script>
-		{gtmEnabled ? (
-			<>
-				<link rel="preconnect" href="https://www.googletagmanager.com" />
-				<link rel="dns-prefetch" href="https://www.googletagmanager.com" />
-				<script
-					is:inline
-					set:html={`
-window.dataLayer = window.dataLayer || [];
-window.dataLayer.push(${JSON.stringify(gtmPageContext)});
-`}
-				/>
-				<script
-					is:inline
-					set:html={`
-(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','${gtmId}');
-`}
-				/>
-			</>
-		) : null}
-		<script src="/lead-signals.js" defer></script>
-		<meta name="generator" content={Astro.generator} />
-		<title>{title}</title>
-		<meta name="description" content={pageDescription} />
-		<meta name="msvalidate.01" content="8E6AAAC756CDF5BC52BCC838B3C4753C" />
-		<link rel="icon" href="/favicon.ico" sizes="any" />
-		<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
-		<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
-		<link rel="icon" type="image/png" sizes="64x64" href="/favicon-64.png" />
-		<link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png" />
-		<link rel="icon" type="image/png" sizes="128x128" href="/favicon-128.png" />
-		<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png" />
-		<link rel="icon" type="image/png" sizes="256x256" href="/favicon-256.png" />
-		<link rel="icon" type="image/png" sizes="512x512" href="/favicon-512.png" />
-		<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-		{noindex ? <meta name="robots" content="noindex, follow" /> : null}
-		<link rel="canonical" href={canonicalUrl} />
-		<meta property="og:type" content="website" />
-		<meta property="og:site_name" content={BRAND_NAME} />
-		<meta property="og:title" content={socialTitle || title} />
-		<meta property="og:description" content={socialDescription || pageDescription} />
-		<meta property="og:locale" content={ogLocale} />
-		{ogLocaleAlternates.map((alternateLocale) => (
-			<meta property="og:locale:alternate" content={alternateLocale} />
-		))}
-		<meta property="og:url" content={canonicalUrl} />
-		<meta property="og:image" content={ogImageUrl} />
-		<meta property="og:image:type" content="image/jpeg" />
-		<meta property="og:image:width" content={ogImageWidth} />
-		<meta property="og:image:height" content={ogImageHeight} />
-		<meta property="og:image:alt" content={ogImageAlt} />
-		<meta name="twitter:card" content="summary_large_image" />
-		<meta name="twitter:title" content={socialTitle || title} />
-		<meta name="twitter:description" content={socialDescription || pageDescription} />
-		<meta name="twitter:image" content={ogImageUrl} />
-		<meta name="twitter:image:alt" content={ogImageAlt} />
-		{hreflangLinks.map((link) => (
-			<link rel="alternate" hreflang={link.hreflang} href={link.href} />
-		))}
-		<link rel="alternate" hreflang="x-default" href={xDefaultHref} />
-		<script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
-		<!-- ChatKit web component runtime (renders the full chat UI; our code only wraps it). -->
-		<script src="https://cdn.platform.openai.com/deployments/chatkit/chatkit.js" defer></script>
-	</head>
-	<body>
-		{gtmEnabled ? (
-			<noscript>
-				<iframe
-					src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
-					height="0"
-					width="0"
-					style="display:none;visibility:hidden"
-					title="Google Tag Manager"
-				/>
-			</noscript>
-		) : null}
+		<head>
+			<meta charset="utf-8" />
+			<meta name="viewport" content="width=device-width" />
+			<AnalyticsHead
+				gtmAllowedOnPage={gtmAllowedOnPage}
+				gtmId={gtmId}
+				gtmPageContext={gtmPageContext}
+			/>
+			<SeoMetaHead
+				generator={Astro.generator}
+				title={title}
+				pageDescription={pageDescription}
+				noindex={noindex}
+				canonicalUrl={canonicalUrl}
+				brandName={BRAND_NAME}
+				socialTitle={socialTitle}
+				socialDescription={socialDescription}
+				ogLocale={ogLocale}
+				ogLocaleAlternates={ogLocaleAlternates}
+				ogImageUrl={ogImageUrl}
+				ogImageWidth={ogImageWidth}
+				ogImageHeight={ogImageHeight}
+				ogImageAlt={ogImageAlt}
+				hreflangLinks={hreflangLinks}
+				xDefaultHref={xDefaultHref}
+				structuredData={structuredData}
+			/>
+			<!-- ChatKit web component runtime (renders the full chat UI; our code only wraps it). -->
+			<script src="https://cdn.platform.openai.com/deployments/chatkit/chatkit.js" defer></script>
+		</head>
+		<body>
+			<AnalyticsBody gtmAllowedOnPage={gtmAllowedOnPage} gtmId={gtmId} />
 		<a class="skip-link" href="#main-content">Skip to content</a>
 		<header class="site-header">
 				<div class="container site-header__mobile">

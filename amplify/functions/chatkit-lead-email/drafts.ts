@@ -19,7 +19,10 @@ type BuildOutreachDraftsArgs = {
 };
 
 function normalizeWhitespace(value: string): string {
-  return value.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+  return value
+    .replace(/\r\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
 }
 
 function digitsOnly(value: string): string {
@@ -40,7 +43,7 @@ function hasShopAddress(value: string): boolean {
 
 function ensureShopSignature(
   value: string,
-  args: Pick<BuildOutreachDraftsArgs, 'shopName' | 'shopPhoneDisplay' | 'shopPhoneDigits'>
+  args: Pick<BuildOutreachDraftsArgs, 'shopName' | 'shopPhoneDisplay' | 'shopPhoneDigits'>,
 ): string {
   let out = value.trim();
   if (!hasShopName(out)) {
@@ -63,9 +66,13 @@ function joinNonEmpty(parts: Array<string | null | undefined>, separator: string
 }
 
 export function buildLeadEmailSubject(args: BuildLeadSubjectArgs): string {
-  const subjectContext = joinNonEmpty([args.leadSummary?.vehicle, args.leadSummary?.project], ' - ');
+  const subjectContext = joinNonEmpty(
+    [args.leadSummary?.vehicle, args.leadSummary?.project],
+    ' - ',
+  );
   if (subjectContext) return `New chat lead: ${subjectContext}`;
-  if (args.threadTitle && args.threadTitle.trim()) return `New chat lead: ${args.threadTitle.trim()}`;
+  if (args.threadTitle && args.threadTitle.trim())
+    return `New chat lead: ${args.threadTitle.trim()}`;
   return 'New chat lead';
 }
 
@@ -76,12 +83,15 @@ export function buildOutreachDrafts(args: BuildOutreachDraftsArgs): {
 } {
   const contactName = pickTrimmedOrNull(args.leadSummary?.customer_name);
   const greetingName = contactName ?? 'there';
-  const vehicleOrProject = joinNonEmpty([args.leadSummary?.vehicle, args.leadSummary?.project], ' - ');
+  const vehicleOrProject = joinNonEmpty(
+    [args.leadSummary?.vehicle, args.leadSummary?.project],
+    ' - ',
+  );
   const contextSnippet = vehicleOrProject ? ` about your ${vehicleOrProject}` : '';
 
   const outreachMessage = pickTrimmedOrNull(args.leadSummary?.outreach_message);
   const fallbackOutreach = normalizeWhitespace(
-    `Hi ${greetingName} - thanks for reaching out to ${args.shopName}${contextSnippet}. If you can text 2-4 photos (1 wide + 1-2 close-ups), we can take a proper look and follow up with next steps. ${args.shopPhoneDisplay}`
+    `Hi ${greetingName} - thanks for reaching out to ${args.shopName}${contextSnippet}. If you can text 2-4 photos (1 wide + 1-2 close-ups), we can take a proper look and follow up with next steps. ${args.shopPhoneDisplay}`,
   );
   const recommendedOutreach = ensureShopSignature(outreachMessage ?? fallbackOutreach, args);
 

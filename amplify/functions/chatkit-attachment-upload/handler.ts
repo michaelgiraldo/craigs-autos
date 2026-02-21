@@ -1,14 +1,36 @@
 import { randomUUID } from 'node:crypto';
 import { extname } from 'node:path';
 import { S3Client, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
+import { z } from 'zod';
 
-const bucketName = process.env.CHATKIT_ATTACHMENT_BUCKET_NAME;
-const maxAttachmentBytes = Number.parseInt(process.env.CHATKIT_ATTACHMENT_MAX_BYTES ?? '8000000', 10);
+const attachmentUploadEnvSchema = z.object({
+  CHATKIT_ATTACHMENT_BUCKET_NAME: z.string().trim().optional(),
+  CHATKIT_ATTACHMENT_MAX_BYTES: z
+    .union([z.string().trim().min(1), z.undefined()])
+    .transform((value) => Number.parseInt(value ?? '8000000', 10))
+    .pipe(z.number().int().positive().max(25_000_000))
+    .optional(),
+  CHATKIT_ATTACHMENT_ALLOWED_MIME_TYPES: z.string().optional(),
+});
+
+const parsedAttachmentUploadEnv = attachmentUploadEnvSchema.safeParse(process.env);
+const bucketName = parsedAttachmentUploadEnv.success
+  ? parsedAttachmentUploadEnv.data.CHATKIT_ATTACHMENT_BUCKET_NAME
+  : process.env.CHATKIT_ATTACHMENT_BUCKET_NAME;
+const maxAttachmentBytes = parsedAttachmentUploadEnv.success
+  ? (parsedAttachmentUploadEnv.data.CHATKIT_ATTACHMENT_MAX_BYTES ?? 8_000_000)
+  : Number.parseInt(process.env.CHATKIT_ATTACHMENT_MAX_BYTES ?? '8000000', 10);
+const normalizedMaxAttachmentBytes =
+  Number.isFinite(maxAttachmentBytes) && maxAttachmentBytes > 0 ? maxAttachmentBytes : 8_000_000;
 const allowedMimeTypes = new Set(
-  (process.env.CHATKIT_ATTACHMENT_ALLOWED_MIME_TYPES ?? '')
+  (
+    (parsedAttachmentUploadEnv.success
+      ? parsedAttachmentUploadEnv.data.CHATKIT_ATTACHMENT_ALLOWED_MIME_TYPES
+      : process.env.CHATKIT_ATTACHMENT_ALLOWED_MIME_TYPES) ?? ''
+  )
     .split(',')
     .map((value) => value.trim())
-    .filter(Boolean)
+    .filter(Boolean),
 );
 const s3 = bucketName ? new S3Client({}) : null;
 
@@ -89,10 +111,7 @@ function buildPreviewBaseUrl(event: LambdaEvent): string {
   if (!host) return '';
 
   const protoHeader = headers['x-forwarded-proto']?.split(',')[0]?.trim() ?? '';
-  const protocol =
-    protoHeader === 'http' || protoHeader === 'https'
-      ? protoHeader
-      : 'https';
+  const protocol = protoHeader === 'http' || protoHeader === 'https' ? protoHeader : 'https';
   const path = event.rawPath?.startsWith('/') ? event.rawPath : '/';
   return `${protocol}://${host}${path}`;
 }
@@ -128,9 +147,7 @@ async function parseUploadedFile(event: LambdaEvent): Promise<{
     return { threadId: null };
   }
 
-  const body = event.isBase64Encoded
-    ? Buffer.from(event.body, 'base64')
-    : Buffer.from(event.body);
+  const body = event.isBase64Encoded ? Buffer.from(event.body, 'base64') : Buffer.from(event.body);
 
   const request = new Request('https://chatkit-attachment.local/upload', {
     method: 'POST',
@@ -139,9 +156,7 @@ async function parseUploadedFile(event: LambdaEvent): Promise<{
   });
 
   const formData = await request.formData();
-  const candidate =
-    formData.get('file') ??
-    formData.get('files');
+  const candidate = formData.get('file') ?? formData.get('files');
   const threadIdValue = formData.get('thread_id');
   const threadId = typeof threadIdValue === 'string' ? threadIdValue : null;
 
@@ -161,7 +176,7 @@ async function parseUploadedFile(event: LambdaEvent): Promise<{
 async function putAttachment(
   file: File,
   threadId: string | null,
-  previewBaseUrl: string
+  previewBaseUrl: string,
 ): Promise<{
   id: string;
   name: string;
@@ -175,7 +190,7 @@ async function putAttachment(
   const key = `chatkit-attachments/${id}${extension}`;
 
   const bytes = Buffer.from(await file.arrayBuffer());
-  if (bytes.length > maxAttachmentBytes) {
+  if (bytes.length > normalizedMaxAttachmentBytes) {
     throw new Error('Attachment too large');
   }
   if (!allowedMimeTypes.has(mimeType)) {
@@ -197,7 +212,7 @@ async function putAttachment(
         'original-name': sanitizeFilename(fileName).slice(0, 1000),
       },
       ContentLength: bytes.length,
-    })
+    }),
   );
 
   return {
@@ -260,7 +275,9 @@ async function streamToBuffer(body: unknown): Promise<Buffer> {
 
       chunks.push(Buffer.from(String(chunk)));
     });
-    readable.on('error', (error: unknown) => reject(error instanceof Error ? error : new Error(String(error))));
+    readable.on('error', (error: unknown) =>
+      reject(error instanceof Error ? error : new Error(String(error))),
+    );
     readable.on('end', () => resolve());
   });
 
@@ -284,7 +301,7 @@ async function fetchAttachmentForDownload(id: string): Promise<LambdaResponse> {
     new GetObjectCommand({
       Bucket: bucketName,
       Key: sanitizedId,
-    })
+    }),
   );
 
   const bytes = await streamToBuffer(response.Body);

@@ -1,7 +1,29 @@
 import React from 'react';
 import { ChatKit, useChatKit } from '@openai/chatkit-react';
 import { BRAND_NAME, CHAT_COPY } from '../lib/site-data.js';
-import { getAttributionForDataLayer, getAttributionPayload } from '../lib/attribution.js';
+import { getAttributionPayload } from '../lib/attribution.js';
+import {
+  fetchAmplifyOutputsUrls,
+  isPlaceholderUrl,
+  postLeadEmail,
+  requestClientSecret,
+  resolveLeadEmailEndpoint,
+  resolveSessionEndpoint,
+  shouldLoadAmplifyOutputs,
+} from './chatwidget/api-client.js';
+import {
+  CHATKIT_ATTACHMENT_ACCEPT,
+  CHATKIT_LOCALE_MAP,
+  CHATKIT_MAX_ATTACHMENTS,
+  CHATKIT_MAX_ATTACHMENT_BYTES,
+  LEAD_SENT_KEY_PREFIX,
+  OPEN_KEY,
+  THREAD_STORAGE_KEY,
+  USER_KEY,
+} from './chatwidget/constants.js';
+import { pushLeadDataLayer } from './chatwidget/data-layer.js';
+import { ensureChatkitRuntime } from './chatwidget/runtime-loader.js';
+import { useLeadTriggers } from './chatwidget/triggers.js';
 
 class ChatKitErrorBoundary extends React.Component {
   constructor(props) {
@@ -51,138 +73,6 @@ function ChatKitWithHooks({
   return <ChatKit control={chat.control} className="chat-frame" />;
 }
 
-const DEFAULT_CHATKIT_RUNTIME_URLS = [
-  // The ChatKit React bindings wrap the <openai-chatkit> web component, but do not ship its runtime.
-  // Load the official runtime from the ChatKit docs.
-  'https://cdn.platform.openai.com/deployments/chatkit/chatkit.js',
-];
-
-const CHATKIT_RUNTIME_URLS = (() => {
-  const list = import.meta?.env?.PUBLIC_CHATKIT_RUNTIME_URLS;
-  if (typeof list === 'string') {
-    const urls = list
-      .split(',')
-      .map((value) => value.trim())
-      .filter(Boolean);
-    if (urls.length) return urls;
-  }
-  const single = import.meta?.env?.PUBLIC_CHATKIT_RUNTIME_URL;
-  if (typeof single === 'string' && single.trim()) return [single.trim()];
-  return DEFAULT_CHATKIT_RUNTIME_URLS;
-})();
-
-const CHATKIT_LOCALE_MAP = {
-  en: 'en',
-  es: 'es',
-  vi: 'vi',
-  'zh-hans': 'zh-CN',
-  tl: 'tl',
-  ko: 'ko',
-  hi: 'hi',
-  pa: 'pa',
-  'pt-br': 'pt-BR',
-  'zh-hant': 'zh-TW',
-  ja: 'ja',
-  ar: 'ar',
-  ru: 'ru',
-  ta: 'ta',
-};
-
-const THREAD_STORAGE_KEY = 'chatkit-thread-id';
-const USER_KEY = 'chatkit-user-id';
-const OPEN_KEY = 'chatkit-open';
-const LEAD_SENT_KEY_PREFIX = 'chatkit-lead-sent:';
-const AMPLIFY_OUTPUTS_PATH = '/amplify_outputs.json';
-// Send leads after a quiet period. This avoids forcing the customer to "end" the chat.
-// Five minutes lets the user continue a natural conversation before we attempt to build/send
-// a lead summary. Shorter windows can generate incomplete leads too early.
-const LEAD_QUIET_SEND_MS = 300_000;
-// Allow up to 12 MB per attachment in the composer.
-const CHATKIT_MAX_ATTACHMENT_BYTES = 12 * 1024 * 1024;
-const CHATKIT_MAX_ATTACHMENTS = 7;
-const CHATKIT_ATTACHMENT_ACCEPT = {
-  'image/jpeg': ['.jpg', '.jpeg'],
-  'image/png': ['.png'],
-  'image/webp': ['.webp'],
-  'image/heic': ['.heic'],
-  'image/heif': ['.heif'],
-};
-
-let chatkitRuntimePromise = null;
-
-function hasChatkitRuntime() {
-  return Boolean(globalThis.customElements?.get?.('openai-chatkit'));
-}
-
-async function waitForChatkitRuntime(timeoutMs = 2000) {
-  if (hasChatkitRuntime()) return;
-  const whenDefined = globalThis.customElements?.whenDefined?.('openai-chatkit');
-  if (!whenDefined) return;
-
-  let timeoutId;
-  await Promise.race([
-    whenDefined,
-    new Promise((_, reject) => {
-      timeoutId = window.setTimeout(() => {
-        reject(new Error('Timed out waiting for ChatKit runtime to register.'));
-      }, timeoutMs);
-    }),
-  ]).finally(() => {
-    if (timeoutId) window.clearTimeout(timeoutId);
-  });
-}
-
-function loadScript(src) {
-  return new Promise((resolve, reject) => {
-    // Allow the runtime to be loaded by the document (preferred) or by this component.
-    const existing = document.querySelector(`script[src="${src}"]`);
-    if (existing) {
-      if (hasChatkitRuntime()) {
-        resolve();
-        return;
-      }
-      existing.addEventListener('load', () => resolve(), { once: true });
-      existing.addEventListener('error', () => reject(new Error(`Failed to load ${src}`)), {
-        once: true,
-      });
-      return;
-    }
-
-    const script = document.createElement('script');
-    script.src = src;
-    // Match the docs: load asynchronously and let the web component register itself.
-    script.async = true;
-    script.dataset.chatkitRuntime = 'true';
-    script.addEventListener('load', () => resolve(), { once: true });
-    script.addEventListener('error', () => reject(new Error(`Failed to load ${src}`)), {
-      once: true,
-    });
-    document.head.appendChild(script);
-  });
-}
-
-async function ensureChatkitRuntime() {
-  if (hasChatkitRuntime()) return;
-  if (chatkitRuntimePromise) return chatkitRuntimePromise;
-
-  chatkitRuntimePromise = (async () => {
-    const errors = [];
-    for (const src of CHATKIT_RUNTIME_URLS) {
-      try {
-        await loadScript(src);
-        await waitForChatkitRuntime();
-        if (hasChatkitRuntime()) return;
-      } catch (err) {
-        errors.push(err);
-      }
-    }
-    const message = errors.map((e) => e?.message).filter(Boolean).join(' | ');
-    throw new Error(message || 'ChatKit runtime failed to load.');
-  })();
-
-  return chatkitRuntimePromise;
-}
-
 function getOrCreateUserId() {
   const existing = globalThis.localStorage?.getItem(USER_KEY);
   if (existing) return existing;
@@ -216,27 +106,6 @@ function isMobile() {
   return window.matchMedia('(max-width: 900px)').matches;
 }
 
-function isPlaceholderUrl(value) {
-  return typeof value === 'string' && value.includes('<your-backend>');
-}
-
-function pushDataLayer(eventName, params = {}) {
-  try {
-    globalThis.dataLayer = globalThis.dataLayer || [];
-    globalThis.dataLayer.push({ event: eventName, ...params });
-  } catch {
-    // Ignore analytics failures.
-  }
-}
-
-function pushLeadDataLayer(eventName, params = {}) {
-  const attribution = getAttributionForDataLayer();
-  pushDataLayer(eventName, {
-    ...(attribution ?? {}),
-    ...params,
-  });
-}
-
 export default function ChatWidgetReact({
   locale = 'en',
   sessionUrl = '/api/chatkit/session/',
@@ -263,7 +132,6 @@ export default function ChatWidgetReact({
   const seenThreadIdsRef = React.useRef(new Set());
   const leadEmailInFlightRef = React.useRef(false);
   const hasUserInteractedRef = React.useRef(false);
-  const idleTimerRef = React.useRef(null);
   const isDev = import.meta.env?.DEV;
 
   React.useEffect(() => {
@@ -297,34 +165,17 @@ export default function ChatWidgetReact({
     // In production, prefer the backend URL from Amplify outputs when available.
     // This avoids hard-coding a session endpoint URL per branch.
     if (isDev) return;
-
-    const shouldTryOutputs =
-      typeof sessionUrl !== 'string' ||
-      isPlaceholderUrl(sessionUrl) ||
-      sessionUrl.startsWith('/') ||
-      typeof leadEmailUrl !== 'string' ||
-      isPlaceholderUrl(leadEmailUrl) ||
-      leadEmailUrl.startsWith('/');
-
-    if (!shouldTryOutputs) return;
+    if (!shouldLoadAmplifyOutputs({ sessionUrl, leadEmailUrl })) return;
 
     let cancelled = false;
     (async () => {
-      try {
-        const response = await fetch(AMPLIFY_OUTPUTS_PATH, { cache: 'no-store' });
-        if (!response.ok) return;
-        const data = await response.json();
-        const sessionCandidate = data?.custom?.chatkit_session_url;
-        if (!cancelled && typeof sessionCandidate === 'string' && sessionCandidate.trim()) {
-          setResolvedSessionUrl(sessionCandidate.trim());
-        }
-        const leadCandidate = data?.custom?.chatkit_lead_email_url;
-        if (!cancelled && typeof leadCandidate === 'string' && leadCandidate.trim()) {
-          setResolvedLeadEmailUrl(leadCandidate.trim());
-        }
-      } catch (err) {
-        // Ignore; we'll fall back to the configured URL and let the UI surface errors.
-        if (isDev) console.error('Failed to read amplify_outputs.json', err);
+      const outputs = await fetchAmplifyOutputsUrls();
+      if (!outputs || cancelled) return;
+      if (outputs.sessionUrl) {
+        setResolvedSessionUrl(outputs.sessionUrl);
+      }
+      if (outputs.leadEmailUrl) {
+        setResolvedLeadEmailUrl(outputs.leadEmailUrl);
       }
     })();
 
@@ -375,22 +226,11 @@ export default function ChatWidgetReact({
       if (typeof resolvedLeadEmailUrl !== 'string' || !resolvedLeadEmailUrl.trim()) return;
       if (isPlaceholderUrl(resolvedLeadEmailUrl)) return;
 
-      let endpoint = resolvedLeadEmailUrl.trim();
-      if (!isDev && endpoint.startsWith('/')) {
-        try {
-          const outputsRes = await fetch(AMPLIFY_OUTPUTS_PATH, { cache: 'no-store' });
-          if (outputsRes.ok) {
-            const outputs = await outputsRes.json();
-            const candidate = outputs?.custom?.chatkit_lead_email_url;
-            if (typeof candidate === 'string' && candidate.trim()) {
-              endpoint = candidate.trim();
-              setResolvedLeadEmailUrl(endpoint);
-            }
-          }
-        } catch {
-          // Ignore and fall back to the configured endpoint.
-        }
-      }
+      const endpoint = await resolveLeadEmailEndpoint({
+        isDev,
+        endpoint: resolvedLeadEmailUrl.trim(),
+        onLeadEmailUrl: setResolvedLeadEmailUrl,
+      });
       if (endpoint.startsWith('/')) return;
 
       const sentKey = `${LEAD_SENT_KEY_PREFIX}${activeThreadId}`;
@@ -398,21 +238,17 @@ export default function ChatWidgetReact({
 
       try {
         leadEmailInFlightRef.current = true;
-        const response = await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          keepalive: true,
-          body: JSON.stringify({
+        const { response, text } = await postLeadEmail({
+          endpoint,
+          payload: {
             threadId: activeThreadId,
             locale,
             user: userId ?? 'anonymous',
             pageUrl: window.location.href,
             reason,
             attribution: getAttributionPayload(),
-          }),
+          },
         });
-
-        const text = await response.text();
         if (!response.ok) {
           if (isDev) console.error('ChatKit lead email error', response.status, text);
           pushLeadDataLayer('lead_chat_lead_error', {
@@ -497,63 +333,12 @@ export default function ChatWidgetReact({
     return () => document.removeEventListener('keydown', onKeyDown);
   }, []);
 
-  const bumpIdleTimer = React.useCallback(() => {
-    if (!hasUserInteractedRef.current) return;
-    if (idleTimerRef.current) window.clearTimeout(idleTimerRef.current);
-    idleTimerRef.current = window.setTimeout(() => {
-      void sendLeadEmail({ reason: 'idle' });
-    }, LEAD_QUIET_SEND_MS);
-  }, [sendLeadEmail]);
-
-  React.useEffect(() => {
-    return () => {
-      if (idleTimerRef.current) window.clearTimeout(idleTimerRef.current);
-    };
-  }, []);
-
-  React.useEffect(() => {
-    if (!open) return;
-    const panel = chatPanelRef.current;
-    if (!panel) return;
-
-    const onActivity = (event) => {
-      if (event?.isTrusted) {
-        hasUserInteractedRef.current = true;
-      }
-      bumpIdleTimer();
-    };
-
-    // Treat in-chat interaction as activity so we don't fire the idle lead send
-    // while the customer is actively typing/clicking in the chat UI.
-    panel.addEventListener('keydown', onActivity, true);
-    panel.addEventListener('pointerdown', onActivity, true);
-    panel.addEventListener('touchstart', onActivity, true);
-    panel.addEventListener('focusin', onActivity, true);
-
-    return () => {
-      panel.removeEventListener('keydown', onActivity, true);
-      panel.removeEventListener('pointerdown', onActivity, true);
-      panel.removeEventListener('touchstart', onActivity, true);
-      panel.removeEventListener('focusin', onActivity, true);
-    };
-  }, [bumpIdleTimer, open]);
-
-  React.useEffect(() => {
-    const sendOnPageHide = () => {
-      void sendLeadEmail({ reason: 'pagehide' });
-    };
-
-    window.addEventListener('pagehide', sendOnPageHide);
-    const onVisibility = () => {
-      if (document.visibilityState === 'hidden') sendOnPageHide();
-    };
-    document.addEventListener('visibilitychange', onVisibility);
-
-    return () => {
-      window.removeEventListener('pagehide', sendOnPageHide);
-      document.removeEventListener('visibilitychange', onVisibility);
-    };
-  }, [sendLeadEmail]);
+  const { bumpIdleTimer } = useLeadTriggers({
+    open,
+    chatPanelRef,
+    sendLeadEmail,
+    hasUserInteractedRef,
+  });
 
   const closeChat = React.useCallback(() => {
     setOpen(false);
@@ -578,48 +363,20 @@ export default function ChatWidgetReact({
 
     const apiConfig = {
       async getClientSecret(current) {
-        let endpoint = resolvedSessionUrl;
-        if (
-          !isDev &&
-          (typeof endpoint !== 'string' || isPlaceholderUrl(endpoint) || endpoint.startsWith('/'))
-        ) {
-          try {
-            const outputsRes = await fetch(AMPLIFY_OUTPUTS_PATH, { cache: 'no-store' });
-            if (outputsRes.ok) {
-              const outputs = await outputsRes.json();
-              const candidate = outputs?.custom?.chatkit_session_url;
-              if (typeof candidate === 'string' && candidate.trim()) {
-                endpoint = candidate.trim();
-                setResolvedSessionUrl(endpoint);
-              }
-              const leadCandidate = outputs?.custom?.chatkit_lead_email_url;
-              if (typeof leadCandidate === 'string' && leadCandidate.trim()) {
-                setResolvedLeadEmailUrl(leadCandidate.trim());
-              }
-            }
-          } catch {
-            // Ignore; we'll fall back to the configured endpoint and surface errors from fetch().
-          }
-        }
-
-        const response = await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            current,
-            locale,
-            user: userId ?? 'anonymous',
-            pageUrl: window.location.href,
-          }),
+        const endpoint = await resolveSessionEndpoint({
+          isDev,
+          endpoint: resolvedSessionUrl,
+          onSessionUrl: setResolvedSessionUrl,
+          onLeadEmailUrl: setResolvedLeadEmailUrl,
         });
-        const text = await response.text();
-        if (!response.ok) {
-          // Surface actionable details in DevTools without showing them to end users.
-          console.error('ChatKit session error', response.status, text);
-          throw new Error(`Chat session request failed (${response.status})`);
-        }
-        const data = text ? JSON.parse(text) : {};
-        return data.client_secret;
+
+        return await requestClientSecret({
+          endpoint,
+          current,
+          locale,
+          userId,
+          pageUrl: window.location.href,
+        });
       },
     };
 

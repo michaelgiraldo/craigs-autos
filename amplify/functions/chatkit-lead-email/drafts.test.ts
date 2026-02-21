@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { buildLeadEmailSubject, buildOutreachDrafts } from './drafts';
+import { buildLeadEmailSubject, buildOutreachDrafts } from './drafts.ts';
 
 const SHOP_NAME = "Craig's Auto Upholstery";
 const SHOP_PHONE_DISPLAY = '(408) 379-3820';
@@ -17,7 +17,10 @@ test('buildLeadEmailSubject prefers vehicle and project context', () => {
     threadTitle: 'Ignored title',
   });
 
-  assert.equal(subject, 'New chat lead: 2021 Tesla Model Y - Full interior reupholstery in real leather');
+  assert.equal(
+    subject,
+    'New chat lead: 2021 Tesla Model Y - Full interior reupholstery in real leather',
+  );
 });
 
 test('buildLeadEmailSubject falls back to thread title', () => {
@@ -48,9 +51,12 @@ test('buildOutreachDrafts creates fallback outreach with signature and address',
 
   assert.equal(
     drafts.emailDraftSubject,
-    "Craig's Auto Upholstery - next steps for 2021 Tesla Model Y - Full interior reupholstery in real leather"
+    "Craig's Auto Upholstery - next steps for 2021 Tesla Model Y - Full interior reupholstery in real leather",
   );
-  assert.match(drafts.smsDraft, /^Hi Michael - thanks for reaching out to Craig's Auto Upholstery about your 2021 Tesla Model Y - Full interior reupholstery in real leather\./);
+  assert.match(
+    drafts.smsDraft,
+    /^Hi Michael - thanks for reaching out to Craig's Auto Upholstery about your 2021 Tesla Model Y - Full interior reupholstery in real leather\./,
+  );
   assert.match(drafts.smsDraft, /\(408\) 379-3820/);
   assert.match(drafts.emailDraftBody, /271 Bestor St, San Jose, CA 95112/);
 });

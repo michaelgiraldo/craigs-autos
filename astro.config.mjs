@@ -56,6 +56,8 @@ export default defineConfig({
 					const pathname = new URL(page).pathname;
 					return (
 						pathname !== '/' &&
+						pathname !== '/message/' &&
+						!pathname.startsWith('/message/') &&
 						pathname !== '/t/' &&
 						!pathname.startsWith('/t/') &&
 						pathname !== '/admin/' &&

@@ -1,4 +1,4 @@
-import { defineFunction, secret } from '@aws-amplify/backend';
+import { defineFunction } from '@aws-amplify/backend';
 
 export const chatkitAttachmentUpload = defineFunction({
   name: 'chatkit-attachment-upload',
@@ -9,4 +9,3 @@ export const chatkitAttachmentUpload = defineFunction({
       'image/jpeg,image/png,image/webp,image/gif,image/heic,image/heif',
   },
 });
-

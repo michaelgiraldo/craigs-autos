@@ -1,21 +1,26 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, ScanCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
-
-const leadAttributionTableName = process.env.LEAD_ATTRIBUTION_TABLE_NAME;
-const leadAttributionDb =
-  leadAttributionTableName && leadAttributionTableName.trim()
-    ? DynamoDBDocumentClient.from(new DynamoDBClient({}))
-    : null;
-
-const adminPassword = process.env.LEADS_ADMIN_PASSWORD ?? '';
+import { z } from 'zod';
+import { decodeBody, emptyResponse, getHttpMethod, jsonResponse } from '../_shared/http.ts';
 
 const MAX_LIMIT = 500;
-
 const corsHeaders = {
   'Access-Control-Allow-Origin': 'https://craigs.autos',
   'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
   'Access-Control-Allow-Headers': 'content-type,authorization',
 };
+
+const adminEnvSchema = z.object({
+  LEAD_ATTRIBUTION_TABLE_NAME: z.string().trim().min(1),
+  LEADS_ADMIN_PASSWORD: z.string().trim().min(1),
+});
+
+const postPayloadSchema = z
+  .object({
+    lead_id: z.unknown().optional(),
+    qualified: z.unknown().optional(),
+  })
+  .passthrough();
 
 type LambdaEvent = {
   headers?: Record<string, string | undefined> | null;
@@ -33,33 +38,34 @@ type LambdaResult = {
   body: string;
 };
 
-type UpdateRequest = {
-  lead_id?: unknown;
-  qualified?: unknown;
+type LeadAdminDeps = {
+  configValid: boolean;
+  adminPassword: string;
+  scanLeads: (args: {
+    limit: number;
+    qualifiedFilter: boolean | null;
+    cursor?: Record<string, any>;
+  }) => Promise<{ items: any[]; lastEvaluatedKey?: Record<string, any> }>;
+  updateLead: (args: { leadId: string; qualified: boolean; qualifiedAt: number }) => Promise<void>;
+  nowEpochSeconds: () => number;
 };
 
 function json(statusCode: number, body: unknown): LambdaResult {
+  return jsonResponse(statusCode, body, corsHeaders);
+}
+
+function unauthorizedResponse(): LambdaResult {
   return {
-    statusCode,
+    statusCode: 401,
     headers: {
-      'Content-Type': 'application/json',
+      'WWW-Authenticate': 'Basic realm="Admin"',
       ...corsHeaders,
     },
-    body: JSON.stringify(body),
+    body: JSON.stringify({ error: 'Unauthorized' }),
   };
 }
 
-function decodeBody(event: LambdaEvent): string | null {
-  const raw = event?.body;
-  if (typeof raw !== 'string' || raw.length === 0) return null;
-  if (event?.isBase64Encoded) {
-    return Buffer.from(raw, 'base64').toString('utf8');
-  }
-  return raw;
-}
-
-function isAuthorized(event: LambdaEvent): boolean {
-  if (!adminPassword) return false;
+function isAuthorized(event: LambdaEvent, adminPassword: string): boolean {
   const header = event?.headers?.authorization ?? event?.headers?.Authorization ?? '';
   if (!header.startsWith('Basic ')) return false;
   const encoded = header.slice('Basic '.length).trim();
@@ -105,36 +111,92 @@ function nowEpochSeconds(): number {
   return Math.floor(Date.now() / 1000);
 }
 
-export const handler = async (event: LambdaEvent): Promise<LambdaResult> => {
-  const method = event?.requestContext?.http?.method ?? event?.httpMethod;
+export function createLeadAdminHandler(deps: LeadAdminDeps) {
+  return async (event: LambdaEvent): Promise<LambdaResult> => {
+    const method = getHttpMethod(event);
 
-  if (method === 'OPTIONS') {
-    return { statusCode: 204, headers: corsHeaders, body: '' };
-  }
+    if (method === 'OPTIONS') {
+      return emptyResponse(204, corsHeaders);
+    }
 
-  if (!leadAttributionDb || !leadAttributionTableName) {
-    return json(500, { error: 'Server missing configuration' });
-  }
+    if (!deps.configValid) {
+      return json(500, { error: 'Server missing configuration' });
+    }
 
-  if (!isAuthorized(event)) {
-    return {
-      statusCode: 401,
-      headers: {
-        'WWW-Authenticate': 'Basic realm="Admin"',
-        ...corsHeaders,
-      },
-      body: JSON.stringify({ error: 'Unauthorized' }),
-    };
-  }
+    if (!isAuthorized(event, deps.adminPassword)) {
+      return unauthorizedResponse();
+    }
 
-  if (method === 'GET') {
-    const qs = event.queryStringParameters ?? {};
-    const limit = parseLimit(qs.limit);
-    const qualifiedFilter = parseBool(qs.qualified);
-    const cursor = decodeCursor(qs.cursor);
+    if (method === 'GET') {
+      const qs = event.queryStringParameters ?? {};
+      const limit = parseLimit(qs.limit);
+      const qualifiedFilter = parseBool(qs.qualified);
+      const cursor = decodeCursor(qs.cursor);
 
+      const result = await deps.scanLeads({
+        limit,
+        qualifiedFilter,
+        cursor,
+      });
+
+      const items = Array.isArray(result.items) ? result.items : [];
+      items.sort((a, b) => (b.created_at || 0) - (a.created_at || 0));
+
+      return json(200, {
+        items,
+        next_cursor: encodeCursor(result.lastEvaluatedKey),
+      });
+    }
+
+    if (method === 'POST') {
+      let parsedPayload: z.infer<typeof postPayloadSchema>;
+      try {
+        const body = decodeBody(event);
+        const parsed = body ? JSON.parse(body) : {};
+        const result = postPayloadSchema.safeParse(parsed);
+        if (!result.success) return json(400, { error: 'Invalid request payload' });
+        parsedPayload = result.data;
+      } catch {
+        return json(400, { error: 'Invalid JSON body' });
+      }
+
+      const leadIdResult = z.string().trim().min(1).safeParse(parsedPayload.lead_id);
+      if (!leadIdResult.success) return json(400, { error: 'Missing lead_id' });
+
+      const qualifiedResult = z.boolean().safeParse(parsedPayload.qualified);
+      if (!qualifiedResult.success) {
+        return json(400, { error: 'Missing qualified boolean' });
+      }
+
+      await deps.updateLead({
+        leadId: leadIdResult.data,
+        qualified: qualifiedResult.data,
+        qualifiedAt: deps.nowEpochSeconds(),
+      });
+
+      return json(200, {
+        ok: true,
+        lead_id: leadIdResult.data,
+        qualified: qualifiedResult.data,
+      });
+    }
+
+    return json(405, { error: 'Method not allowed' });
+  };
+}
+
+const parsedEnv = adminEnvSchema.safeParse(process.env);
+const runtimeTableName = parsedEnv.success ? parsedEnv.data.LEAD_ATTRIBUTION_TABLE_NAME : '';
+const runtimeAdminPassword = parsedEnv.success ? parsedEnv.data.LEADS_ADMIN_PASSWORD : '';
+const runtimeDb = runtimeTableName ? DynamoDBDocumentClient.from(new DynamoDBClient({})) : null;
+
+export const handler = createLeadAdminHandler({
+  configValid: Boolean(parsedEnv.success && runtimeDb && runtimeTableName && runtimeAdminPassword),
+  adminPassword: runtimeAdminPassword,
+  scanLeads: async ({ limit, qualifiedFilter, cursor }) => {
+    if (!runtimeDb || !runtimeTableName) return { items: [] };
     const scanInput: any = {
-      TableName: leadAttributionTableName,
+      TableName: runtimeTableName,
       Limit: limit,
     };
 
@@ -146,38 +208,17 @@ export const handler = async (event: LambdaEvent): Promise<LambdaResult> => {
       scanInput.ExpressionAttributeValues = { ':qualified': qualifiedFilter };
     }
 
-    const result = await leadAttributionDb.send(new ScanCommand(scanInput));
-    const items = Array.isArray(result.Items) ? result.Items : [];
-
-    items.sort((a, b) => (b.created_at || 0) - (a.created_at || 0));
-
-    return json(200, {
-      items,
-      next_cursor: encodeCursor(result.LastEvaluatedKey),
-    });
-  }
-
-  if (method === 'POST') {
-    let payload: UpdateRequest = {};
-    try {
-      const body = decodeBody(event);
-      const parsed = body ? JSON.parse(body) : {};
-      payload = parsed && typeof parsed === 'object' ? (parsed as UpdateRequest) : {};
-    } catch {
-      return json(400, { error: 'Invalid JSON body' });
-    }
-
-    const leadId = typeof payload.lead_id === 'string' ? payload.lead_id.trim() : '';
-    if (!leadId) return json(400, { error: 'Missing lead_id' });
-
-    if (typeof payload.qualified !== 'boolean') {
-      return json(400, { error: 'Missing qualified boolean' });
-    }
-
-    const now = nowEpochSeconds();
-    await leadAttributionDb.send(
+    const result = await runtimeDb.send(new ScanCommand(scanInput));
+    return {
+      items: Array.isArray(result.Items) ? result.Items : [],
+      lastEvaluatedKey: result.LastEvaluatedKey,
+    };
+  },
+  updateLead: async ({ leadId, qualified, qualifiedAt }) => {
+    if (!runtimeDb || !runtimeTableName) return;
+    await runtimeDb.send(
       new UpdateCommand({
-        TableName: leadAttributionTableName,
+        TableName: runtimeTableName,
         Key: { lead_id: leadId },
         UpdateExpression: 'SET #qualified = :qualified, #qualified_at = :qualified_at',
         ExpressionAttributeNames: {
@@ -185,14 +226,11 @@ export const handler = async (event: LambdaEvent): Promise<LambdaResult> => {
           '#qualified_at': 'qualified_at',
         },
         ExpressionAttributeValues: {
-          ':qualified': payload.qualified,
-          ':qualified_at': now,
+          ':qualified': qualified,
+          ':qualified_at': qualifiedAt,
         },
-      })
+      }),
     );
-
-    return json(200, { ok: true, lead_id: leadId, qualified: payload.qualified });
-  }
-
-  return json(405, { error: 'Method not allowed' });
-};
+  },
+  nowEpochSeconds,
+});
