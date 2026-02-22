@@ -1,0 +1,173 @@
+#!/usr/bin/env zsh
+
+# Shared helpers for dependency update scripts.
+
+typeset -ga DEP_UPDATE_RG_EXCLUDES=(
+  '**/.git/**'
+  '**/.hg/**'
+  '**/.svn/**'
+  '**/node_modules/**'
+  '**/dist/**'
+  '**/.astro/**'
+  '**/.amplify/**'
+  '**/cdk.out/**'
+  '**/coverage/**'
+  '**/.tmp/**'
+  '**/tmp/**'
+  '**/temp/**'
+  '**/.npm-cache/**'
+  '**/.cache/**'
+)
+
+require_dep_update_commands() {
+  local cmd
+  for cmd in npx npm; do
+    if ! (( $+commands[$cmd] )); then
+      printf '%s is required but was not found in PATH.\n' "$cmd" >&2
+      return 1
+    fi
+  done
+}
+
+init_dep_update_cache() {
+  local cache_root
+  cache_root=${TMPDIR:-/tmp}
+  NPM_CACHE_DIR="${cache_root%/}/npm-cache"
+  mkdir -p "$NPM_CACHE_DIR"
+}
+
+# Run npm/npx with explicit options and no deprecated production config.
+run_npm() {
+  env -u npm_config_production -u NPM_CONFIG_PRODUCTION \
+    npm_config_cache="$NPM_CACHE_DIR" \
+    npm --include=dev --no-audit --no-fund "$@"
+}
+
+run_npx() {
+  env -u npm_config_production -u NPM_CONFIG_PRODUCTION \
+    npm_config_cache="$NPM_CACHE_DIR" \
+    npx --yes "$@"
+}
+
+dep_update_is_excluded_path() {
+  local rel="$1"
+  case "$rel" in
+    (.git/*|*/.git/*|.hg/*|*/.hg/*|.svn/*|*/.svn/*) return 0 ;;
+    (node_modules/*|*/node_modules/*) return 0 ;;
+    (dist/*|*/dist/*) return 0 ;;
+    (.astro/*|*/.astro/*) return 0 ;;
+    (.amplify/*|*/.amplify/*) return 0 ;;
+    (cdk.out/*|*/cdk.out/*) return 0 ;;
+    (coverage/*|*/coverage/*) return 0 ;;
+    (.tmp/*|*/.tmp/*|tmp/*|*/tmp/*|temp/*|*/temp/*) return 0 ;;
+    (.npm-cache/*|*/.npm-cache/*|.cache/*|*/.cache/*) return 0 ;;
+  esac
+  return 1
+}
+
+find_dep_update_packages() {
+  local -a packages filtered
+  local pkg rel
+
+  if (( $+commands[rg] )); then
+    local -a rg_args
+    local exclude_glob
+    rg_args=(--files -g 'package.json')
+    for exclude_glob in "${DEP_UPDATE_RG_EXCLUDES[@]}"; do
+      rg_args+=(-g "!${exclude_glob}")
+    done
+    rg "${rg_args[@]}"
+    return 0
+  fi
+
+  packages=(**/package.json(.N))
+  for pkg in "${packages[@]}"; do
+    rel=${pkg#./}
+    if dep_update_is_excluded_path "$rel"; then
+      continue
+    fi
+    filtered+=("$pkg")
+  done
+  print -r -l -- "${filtered[@]}"
+}
+
+dep_update_normal_mode() {
+  local dir="$1"
+  run_npx npm-check-updates -u --peer
+  run_npm install --package-lock-only
+  if ! run_npm ci --dry-run; then
+    printf 'npm ci dry-run failed in %s.\n' "$dir" >&2
+    return 1
+  fi
+}
+
+dep_update_clean_mode() {
+  run_npx npm-check-updates -u --peer
+  rm -rf node_modules package-lock.json
+  # Deterministic clean refresh: lockfile first, then install from lock.
+  run_npm install --package-lock-only
+  run_npm ci
+}
+
+update_dep_update_package() {
+  local mode="$1"
+  local dir="$2"
+
+  (
+    cd "$dir"
+    case "$mode" in
+      (normal)
+        dep_update_normal_mode "$dir"
+        ;;
+      (clean)
+        dep_update_clean_mode
+        ;;
+      (*)
+        printf 'Unknown dependency update mode: %s\n' "$mode" >&2
+        return 1
+        ;;
+    esac
+  )
+}
+
+deps_update_main() {
+  local mode="$1"
+  local root_dir="$2"
+
+  if [[ -z "$mode" || -z "$root_dir" ]]; then
+    printf 'Usage: deps_update_main <normal|clean> <root_dir>\n' >&2
+    return 1
+  fi
+
+  case "$mode" in
+    (normal|clean) ;;
+    (*)
+      printf 'Unknown dependency update mode: %s\n' "$mode" >&2
+      return 1
+      ;;
+  esac
+
+  cd "$root_dir"
+  printf 'Scanning for package.json files under repository root: %s\n' "$root_dir"
+
+  require_dep_update_commands
+  export NODE_ENV=development
+  init_dep_update_cache
+
+  local -a packages
+  packages=(${(f)"$(find_dep_update_packages | LC_ALL=C sort -u)"})
+
+  if (( $#packages == 0 )); then
+    printf 'No package.json files found.\n'
+    return 0
+  fi
+
+  local pkg dir
+  for pkg in "${packages[@]}"; do
+    dir=${pkg:h}
+    printf '\n=== Updating dependencies in: %s ===\n' "$dir"
+    update_dep_update_package "$mode" "$dir"
+  done
+
+  printf '\nAll package.json files processed.\n'
+}
