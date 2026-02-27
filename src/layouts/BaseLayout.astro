@@ -226,7 +226,14 @@ const websiteId = new URL(`${LOCALES[locale]?.base ?? LOCALES.en.base}#website`,
 const webpageId = `${canonicalUrl}#webpage`;
 const breadcrumbId = `${canonicalUrl}#breadcrumb`;
 
-const serviceKeys = ['autoUpholstery', 'carSeats', 'headliners', 'convertibleTops', 'classicCars'];
+const serviceKeys = [
+	'autoUpholstery',
+	'carSeats',
+	'headliners',
+	'convertibleTops',
+	'classicCars',
+	'commercialFleet',
+];
 const serviceNodesByKey = Object.fromEntries(
 	serviceKeys.map((key) => [
 		key,
