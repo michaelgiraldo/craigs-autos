@@ -5,7 +5,7 @@ export const DEFAULT_CHATKIT_RUNTIME_URLS = [
 ];
 
 export const CHATKIT_RUNTIME_URLS = (() => {
-  const list = import.meta?.env?.PUBLIC_CHATKIT_RUNTIME_URLS;
+  const list = import.meta.env.PUBLIC_CHATKIT_RUNTIME_URLS;
   if (typeof list === 'string') {
     const urls = list
       .split(',')
@@ -13,7 +13,7 @@ export const CHATKIT_RUNTIME_URLS = (() => {
       .filter(Boolean);
     if (urls.length) return urls;
   }
-  const single = import.meta?.env?.PUBLIC_CHATKIT_RUNTIME_URL;
+  const single = import.meta.env.PUBLIC_CHATKIT_RUNTIME_URL;
   if (typeof single === 'string' && single.trim()) return [single.trim()];
   return DEFAULT_CHATKIT_RUNTIME_URLS;
 })();

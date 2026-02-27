@@ -1,5 +1,15 @@
 #!/usr/bin/env zsh
 
+# Allow explicit `bash tools/deps-update.sh` invocations by
+# re-execing this script under zsh before any zsh-only builtins run.
+if [ -z "${ZSH_VERSION:-}" ]; then
+  if command -v zsh >/dev/null 2>&1; then
+    exec zsh "$0" "$@"
+  fi
+  printf 'This script requires zsh, but zsh is not available in PATH.\n' >&2
+  exit 1
+fi
+
 set -eu
 setopt pipefail
 

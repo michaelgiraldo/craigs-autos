@@ -4,6 +4,16 @@ import react from '@astrojs/react';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 
+const SITEMAP_BLOCKED_SECTIONS = new Set(['message', 'admin']);
+
+const isIndexablePath = (pathname) => {
+	if (pathname === '/') {
+		return false;
+	}
+	const [firstSegment] = pathname.split('/').filter(Boolean);
+	return !SITEMAP_BLOCKED_SECTIONS.has(firstSegment ?? '');
+};
+
 // https://astro.build/config
 export default defineConfig({
 	site: 'https://craigs.autos',
@@ -54,15 +64,7 @@ export default defineConfig({
 			filter: (page) => {
 				try {
 					const pathname = new URL(page).pathname;
-					return (
-						pathname !== '/' &&
-						pathname !== '/message/' &&
-						!pathname.startsWith('/message/') &&
-						pathname !== '/t/' &&
-						!pathname.startsWith('/t/') &&
-						pathname !== '/admin/' &&
-						!pathname.startsWith('/admin/')
-					);
+					return isIndexablePath(pathname);
 				} catch {
 					return true;
 				}

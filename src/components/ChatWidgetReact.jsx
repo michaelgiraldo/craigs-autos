@@ -132,7 +132,7 @@ export default function ChatWidgetReact({
   const seenThreadIdsRef = React.useRef(new Set());
   const leadEmailInFlightRef = React.useRef(false);
   const hasUserInteractedRef = React.useRef(false);
-  const isDev = import.meta.env?.DEV;
+  const isDev = import.meta.env.DEV;
 
   React.useEffect(() => {
     setUserId(getOrCreateUserId());
