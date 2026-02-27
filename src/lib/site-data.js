@@ -1837,6 +1837,7 @@ const COMMERCIAL_FLEET_PAGE_PATHS = {
 	te: '/te/వాణిజ్య-ఫ్లీట్-అప్హోల్స్టరీ/',
 	fr: '/fr/garnissage-flotte-commerciale/',
 	ko: '/ko/상업용-플릿-내장/',
+	hi: '/hi/वाणिज्यिक-फ्लीट-अपहोल्स्ट्री/',
 };
 for (const [locale, mappedPath] of Object.entries(COMMERCIAL_FLEET_PAGE_PATHS)) {
 	PAGE_PATHS.commercialFleet = { ...(PAGE_PATHS.commercialFleet ?? {}), [locale]: mappedPath };
@@ -1852,6 +1853,7 @@ const COMMERCIAL_FLEET_NAV_LABELS = {
 	te: 'వాణిజ్య ఫ్లీట్',
 	fr: 'Flottes commerciales',
 	ko: '상업용 플릿',
+	hi: 'वाणिज्यिक फ्लीट',
 };
 for (const [locale, label] of Object.entries(COMMERCIAL_FLEET_NAV_LABELS)) {
 	NAV_LABELS[locale] = { ...(NAV_LABELS[locale] ?? {}), commercialFleet: label };
