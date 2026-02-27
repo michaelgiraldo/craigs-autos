@@ -4,7 +4,7 @@ import { glob } from 'glob';
 import { LOCALES, LOCALE_ORDER, PAGE_PATHS } from '../src/lib/site-data.js';
 
 // Allow English-first launches for specific pages (translate later).
-const PARTIAL_LOCALE_PAGE_KEYS = new Set();
+const PARTIAL_LOCALE_PAGE_KEYS = new Set(['commercialFleet']);
 
 const errors = [];
 const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

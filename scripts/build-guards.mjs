@@ -41,6 +41,8 @@ const BANNED_TOKEN_RULES = {
   ],
 };
 
+const PARTIAL_LOCALE_PAGE_KEYS = new Set(['commercialFleet']);
+
 const errors = [];
 
 function assertExists(targetPath, label) {
@@ -118,7 +120,8 @@ for (const locale of LOCALE_ORDER) {
 }
 
 for (const [pageKey, localeMap] of Object.entries(PAGE_PATHS)) {
-  for (const locale of LOCALE_ORDER) {
+  const requiredLocales = PARTIAL_LOCALE_PAGE_KEYS.has(pageKey) ? ['en'] : LOCALE_ORDER;
+  for (const locale of requiredLocales) {
     const mappedPath = localeMap?.[locale];
     if (!mappedPath) {
       errors.push(`PAGE_PATHS.${pageKey} missing locale mapping: ${locale}`);

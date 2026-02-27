@@ -310,6 +310,9 @@ export const PAGE_PATHS = {
 		ru: '/ru/классические-авто/',
 		ta: '/ta/கிளாசிக்-கார்கள்/',
 	},
+	commercialFleet: {
+		en: '/en/commercial-fleet-upholstery/',
+	},
 	buickEight: {
 		en: '/en/buick-eight/',
 		es: '/es/buick-eight/',
@@ -572,6 +575,7 @@ export const NAV_LABELS = {
 		headliners: 'Headliners',
 		convertibleTops: 'Convertible Tops',
 		classicCars: 'Classic Cars',
+		commercialFleet: 'Commercial Fleets',
 		gallery: 'See Our Work',
 		reviews: 'Reviews',
 		contact: 'Contact',
