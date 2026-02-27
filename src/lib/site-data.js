@@ -1839,6 +1839,7 @@ const COMMERCIAL_FLEET_PAGE_PATHS = {
 	ko: '/ko/상업용-플릿-내장/',
 	hi: '/hi/वाणिज्यिक-फ्लीट-अपहोल्स्ट्री/',
 	pa: '/pa/ਵਪਾਰਕ-ਫਲੀਟ-ਅਪਹੋਲਸਟਰੀ/',
+	'pt-br': '/pt-br/estofamento-de-frotas-comerciais/',
 };
 for (const [locale, mappedPath] of Object.entries(COMMERCIAL_FLEET_PAGE_PATHS)) {
 	PAGE_PATHS.commercialFleet = { ...(PAGE_PATHS.commercialFleet ?? {}), [locale]: mappedPath };
@@ -1856,6 +1857,7 @@ const COMMERCIAL_FLEET_NAV_LABELS = {
 	ko: '상업용 플릿',
 	hi: 'वाणिज्यिक फ्लीट',
 	pa: 'ਵਪਾਰਕ ਫਲੀਟ',
+	'pt-br': 'Frotas comerciais',
 };
 for (const [locale, label] of Object.entries(COMMERCIAL_FLEET_NAV_LABELS)) {
 	NAV_LABELS[locale] = { ...(NAV_LABELS[locale] ?? {}), commercialFleet: label };
