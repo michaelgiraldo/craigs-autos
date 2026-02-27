@@ -113,7 +113,7 @@ export default function ChatWidgetReact({
 }) {
   const copy = CHAT_COPY[locale] ?? CHAT_COPY.en;
   const chatkitLocale = CHATKIT_LOCALE_MAP[locale] ?? 'en';
-  const dir = locale === 'ar' ? 'rtl' : 'ltr';
+  const dir = locale === 'ar' || locale === 'fa' ? 'rtl' : 'ltr';
 
   const [open, setOpen] = React.useState(false);
   const [openInitialized, setOpenInitialized] = React.useState(false);

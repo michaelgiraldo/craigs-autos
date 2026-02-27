@@ -75,6 +75,15 @@ If the site adds a new locale:
 1) Add it to `src/lib/site-data.js` (LOCALES + CHAT_COPY).
 2) Add it to `CHATKIT_LOCALE_MAP` so ChatKit uses the correct UI localization.
 
+Open gap tracking (ChatKit locale support):
+
+- Verify ChatKit-supported locales at least quarterly (or before each new language rollout)
+  by checking:
+  - `node_modules/@openai/chatkit/types/index.d.ts` (`SupportedLocale`)
+  - official ChatKit docs / changelog.
+- As of **February 27, 2026**, Persian (`fa`) is not listed in ChatKit `SupportedLocale`,
+  so the ChatKit UI falls back while site copy remains localized.
+
 ## Session creation (getClientSecret)
 
 ChatKit requests an ephemeral `client_secret` by calling:

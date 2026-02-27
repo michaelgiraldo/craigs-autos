@@ -81,6 +81,9 @@ const ogLocaleByKey = {
 	'zh-hans': 'zh_CN',
 	tl: 'tl_PH',
 	id: 'id_ID',
+	fa: 'fa_IR',
+	te: 'te_IN',
+	fr: 'fr_FR',
 	ko: 'ko_KR',
 	hi: 'hi_IN',
 	pa: 'pa_IN',
@@ -158,7 +161,7 @@ const buildLanguageLink = (key) => {
 const languageLinks = LOCALE_ORDER.map(buildLanguageLink).filter(Boolean);
 
 const currentLanguageLabel = LOCALES[locale]?.label ?? LOCALES.en.label;
-const textDirection = locale === 'ar' ? 'rtl' : 'ltr';
+const textDirection = locale === 'ar' || locale === 'fa' ? 'rtl' : 'ltr';
 
 const navLabels = NAV_LABELS[locale] ?? NAV_LABELS.en;
 const navItemKeys = [

@@ -94,6 +94,12 @@ export function localeToLanguageLabel(locale: string): string | null {
       return 'Tagalog';
     case 'id':
       return 'Indonesian';
+    case 'fa':
+      return 'Persian';
+    case 'te':
+      return 'Telugu';
+    case 'fr':
+      return 'French';
     case 'ko':
       return 'Korean';
     case 'hi':

@@ -943,3 +943,123 @@ BUICK_EIGHT.images = (BUICK_EIGHT.images ?? []).map((image) => {
 	}
 	return next;
 });
+
+const withWave1LocaleBuick = (value, locale, localized) => ({
+	...(value ?? {}),
+	[locale]: value?.[locale] ?? localized,
+});
+
+const BUICK_EIGHT_WAVE1_COPY = {
+	fa: {
+		title: 'بازسازی داخل Buick Eight',
+		lead: 'پروژه داخل کلاسیک سفارشی با روکش دو رنگ، کف‌پوش، سقف داخل و پرداخت صندوق.',
+		overviewTitle: 'مرور پروژه',
+		overviewBody:
+			'این Buick Eight برای نوسازی کامل داخل خودرو با خروجی تمیز و هماهنگ با سبک دوره خود وارد کارگاه شد. تمرکز ما روی هماهنگی متریال، فیت دقیق پنل‌ها و یکپارچگی کل کابین بود. مالک برای انجام این پروژه بیش از 75 مایل مسیر طی کرد و نتیجه‌ای سفارشی اما وفادار به شخصیت خودرو می‌خواست.',
+		workTitle: 'کارهای انجام‌شده',
+		galleryTitle: 'گالری پروژه',
+		featuredKicker: 'پروژه ویژه',
+		featuredCta: 'مشاهده پروژه Buick Eight',
+		workItems: [
+			'بازروکشی صندلی‌های جلو و نیمکت عقب',
+			'اصلاح پنل‌های در و تریم داخلی',
+			'اجرای سقف داخل و پرداخت دور پنجره‌ها',
+			'ست کف‌پوش سفارشی و تریم کنسول مرکزی',
+			'پنل‌های صندوق و جزئیات روکش هماهنگ',
+		],
+	},
+	te: {
+		title: 'Buick Eight ఇంటీరియర్ పునరుద్ధరణ',
+		lead: 'రెండు టోన్ అప్హోల్స్టరీ, కార్పెట్, హెడ్‌లైనర్, ట్రంక్ ఫినిష్‌తో కస్టమ్ క్లాసిక్ ఇంటీరియర్ నిర్మాణం.',
+		overviewTitle: 'ప్రాజెక్ట్ అవలోకనం',
+		overviewBody:
+			'ఈ Buick Eight కు శుభ్రమైన, కాలానుగుణ శైలిని కాపాడే పూర్తి ఇంటీరియర్ రిఫ్రెష్ చేశాము. మెటీరియల్ ఒకరూపం, ప్యానెల్ ఫిట్‌మెంట్, మరియు మొత్తం కాబిన్ ఒకే సెట్లా కనిపించే ఫలితంపై దృష్టి పెట్టాము. యజమాని ఈ పనికోసం 75 మైళ్లకు పైగా ప్రయాణించి, కస్టమ్ కానీ అసలు కార్ క్యారెక్టర్‌కు నిజంగా ఉండే ఫినిష్ కోరారు.',
+		workTitle: 'పూర్తి చేసిన పని',
+		galleryTitle: 'ప్రాజెక్ట్ గ్యాలరీ',
+		featuredKicker: 'ప్రత్యేక ప్రాజెక్ట్',
+		featuredCta: 'Buick Eight ప్రాజెక్ట్ చూడండి',
+		workItems: [
+			'ఫ్రంట్ బకెట్ సీట్లు మరియు రియర్ బెంచ్ రీ-అప్హోల్స్టరీ',
+			'డోర్ ప్యానెల్స్ మరియు ఇంటీరియర్ ట్రిమ్ పని',
+			'హెడ్‌లైనర్ మరియు విండో సరౌండ్ ఫినిషింగ్',
+			'కస్టమ్ కార్పెట్ సెట్ మరియు సెంటర్ కన్సోల్ ట్రిమ్',
+			'ట్రంక్ ప్యానెల్స్ మరియు మ్యాచింగ్ అప్హోల్స్టరీ డీటైల్స్',
+		],
+	},
+	fr: {
+		title: 'Restauration intérieure Buick Eight',
+		lead: 'Projet intérieur classique sur mesure avec garnissage bicolore, moquette, ciel de toit et finition du coffre.',
+		overviewTitle: 'Aperçu du projet',
+		overviewBody:
+			'Cette Buick Eight est arrivée pour une rénovation complète de l’habitacle avec une finition propre respectant l’esprit d’époque. Nous avons privilégié la cohérence des matériaux, la précision d’ajustement des panneaux et une lecture globale de la cabine comme un ensemble unique. Le propriétaire a parcouru plus de 75 miles pour ce travail et souhaitait un résultat personnalisé mais fidèle à la voiture.',
+		workTitle: 'Travaux réalisés',
+		galleryTitle: 'Galerie du projet',
+		featuredKicker: 'Projet vedette',
+		featuredCta: 'Voir le projet Buick Eight',
+		workItems: [
+			'Réfection des sièges avant et de la banquette arrière',
+			'Reprise des panneaux de porte et des finitions intérieures',
+			'Remplacement du ciel de toit et finitions des encadrements',
+			'Moquette sur mesure et finition de console centrale',
+			'Panneaux de coffre et détails de garnissage assortis',
+		],
+	},
+};
+
+for (const [locale, copy] of Object.entries(BUICK_EIGHT_WAVE1_COPY)) {
+	for (const key of [
+		'title',
+		'lead',
+		'overviewTitle',
+		'overviewBody',
+		'workTitle',
+		'galleryTitle',
+		'featuredKicker',
+		'featuredCta',
+	]) {
+		if (BUICK_EIGHT.copy?.[key]) {
+			BUICK_EIGHT.copy[key] = withWave1LocaleBuick(BUICK_EIGHT.copy[key], locale, copy[key]);
+		}
+	}
+
+	if (BUICK_EIGHT.copy?.workItems) {
+		BUICK_EIGHT.copy.workItems = withWave1LocaleBuick(
+			BUICK_EIGHT.copy.workItems,
+			locale,
+			copy.workItems,
+		);
+	}
+}
+
+const BUICK_EIGHT_WAVE1_IMAGE_TEXT = {
+	fa: {
+		alt: (n) => `تصویر ${n} از پروژه Buick Eight.`,
+		caption: (n) => `جزئیات تصویر ${n} از پروژه Buick Eight.`,
+	},
+	te: {
+		alt: (n) => `Buick Eight ప్రాజెక్ట్ ఫోటో ${n}.`,
+		caption: (n) => `Buick Eight ప్రాజెక్ట్ వివర చిత్రం ${n}.`,
+	},
+	fr: {
+		alt: (n) => `Photo ${n} du projet Buick Eight.`,
+		caption: (n) => `Détail ${n} du projet Buick Eight.`,
+	},
+};
+
+BUICK_EIGHT.images = (BUICK_EIGHT.images ?? []).map((image, index) => {
+	const next = { ...image };
+	const n = index + 1;
+
+	for (const [locale, text] of Object.entries(BUICK_EIGHT_WAVE1_IMAGE_TEXT)) {
+		next.alt = withWave1LocaleBuick(next.alt, locale, text.alt(n));
+		if (next.caption) {
+			next.caption = withWave1LocaleBuick(
+				next.caption,
+				locale,
+				text.caption(n),
+			);
+		}
+	}
+
+	return next;
+});

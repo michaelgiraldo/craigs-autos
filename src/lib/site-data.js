@@ -1484,6 +1484,345 @@ export const CHAT_COPY = {
 	},
 };
 
+const WAVE1_LOCALE_ORDER = ['fa', 'te', 'fr'];
+const wave1InsertAt = LOCALE_ORDER.indexOf('ko');
+for (const locale of WAVE1_LOCALE_ORDER) {
+	if (LOCALE_ORDER.includes(locale)) continue;
+	if (wave1InsertAt >= 0) {
+		LOCALE_ORDER.splice(LOCALE_ORDER.indexOf('ko'), 0, locale);
+	} else {
+		LOCALE_ORDER.push(locale);
+	}
+}
+
+Object.assign(LOCALES, {
+	fa: {
+		label: 'فارسی',
+		nativeLabel: 'فارسی',
+		englishLabel: 'Persian',
+		lang: 'fa',
+		hreflang: 'fa',
+		base: '/fa/',
+	},
+	te: {
+		label: 'తెలుగు',
+		nativeLabel: 'తెలుగు',
+		englishLabel: 'Telugu',
+		lang: 'te',
+		hreflang: 'te',
+		base: '/te/',
+	},
+	fr: {
+		label: 'FR',
+		nativeLabel: 'Français',
+		englishLabel: 'French',
+		lang: 'fr',
+		hreflang: 'fr',
+		base: '/fr/',
+	},
+});
+
+const WAVE1_PAGE_PATHS = {
+	home: { fa: '/fa/', te: '/te/', fr: '/fr/' },
+	autoUpholstery: {
+		fa: '/fa/روکش-خودرو/',
+		te: '/te/ఆటో-అప్హోల్స్టరీ/',
+		fr: '/fr/garnissage-automobile/',
+	},
+	upholsteryGuide: {
+		fa: '/fa/راهنمای-روکش/',
+		te: '/te/అప్హోల్స్టరీ-గైడ్/',
+		fr: '/fr/guide-garnissage/',
+	},
+	carSeats: {
+		fa: '/fa/صندلی-خودرو/',
+		te: '/te/కార్-సీట్లు/',
+		fr: '/fr/sieges-auto/',
+	},
+	motorcycleSeats: {
+		fa: '/fa/زین-موتورسیکلت/',
+		te: '/te/మోటార్‌సైకిల్-సీట్లు/',
+		fr: '/fr/selles-moto/',
+	},
+	headliners: {
+		fa: '/fa/سقف-داخل/',
+		te: '/te/హెడ్‌లైనర్/',
+		fr: '/fr/ciel-de-toit/',
+	},
+	convertibleTops: {
+		fa: '/fa/سقف-کابریولت/',
+		te: '/te/కన్వర్టిబుల్-టాప్/',
+		fr: '/fr/capotes-cabriolet/',
+	},
+	classicCars: {
+		fa: '/fa/خودروهای-کلاسیک/',
+		te: '/te/క్లాసిక్-కార్లు/',
+		fr: '/fr/voitures-classiques/',
+	},
+	buickEight: {
+		fa: '/fa/buick-eight/',
+		te: '/te/buick-eight/',
+		fr: '/fr/buick-eight/',
+	},
+	porscheBoxsterSSeatProject: {
+		fa: '/fa/porsche-boxster-s-seat-project/',
+		te: '/te/porsche-boxster-s-seat-project/',
+		fr: '/fr/porsche-boxster-s-seat-project/',
+	},
+	gallery: {
+		fa: '/fa/گالری/',
+		te: '/te/గ్యాలరీ/',
+		fr: '/fr/galerie/',
+	},
+	reviews: {
+		fa: '/fa/نظرات/',
+		te: '/te/సమీక్షలు/',
+		fr: '/fr/avis/',
+	},
+	contact: {
+		fa: '/fa/تماس/',
+		te: '/te/సంప్రదించండి/',
+		fr: '/fr/contact/',
+	},
+};
+for (const [pageKey, localePaths] of Object.entries(WAVE1_PAGE_PATHS)) {
+	PAGE_PATHS[pageKey] = { ...(PAGE_PATHS[pageKey] ?? {}), ...localePaths };
+}
+
+Object.assign(BUSINESS_COPY, {
+	fa: {
+		name: "Craig's Auto Upholstery",
+		description:
+			'کارگاه خانوادگی روکش خودرو در سن‌خوزه کالیفرنیا برای صندلی، سقف داخلی، سقف کابریولت و خودروهای کلاسیک.',
+		services: [
+			'روکش خودرو',
+			'تعمیر و بازروکشی صندلی',
+			'سقف داخلی و تریم کابین',
+			'سقف کابریولت',
+			'داخل خودروهای کلاسیک',
+		],
+	},
+	te: {
+		name: "Craig's Auto Upholstery",
+		description:
+			'సాన్ హోసే, కాలిఫోర్నియాలో కుటుంబ ఆధారిత ఆటో అప్హోల్స్టరీ షాప్. కార్ సీట్లు, హెడ్‌లైనర్, కన్వర్టిబుల్ టాప్, క్లాసిక్ ఇంటీరియర్స్‌లో ప్రత్యేకత.',
+		services: [
+			'ఆటో అప్హోల్స్టరీ',
+			'సీట్ల మరమ్మత్తు మరియు రీ-అప్హోల్స్టరీ',
+			'హెడ్‌లైనర్ మరియు ఇంటీరియర్ ట్రిమ్',
+			'కన్వర్టిబుల్ టాప్',
+			'క్లాసిక్ కార్ ఇంటీరియర్స్',
+		],
+	},
+	fr: {
+		name: "Craig's Auto Upholstery",
+		description:
+			'Atelier familial de garnissage automobile à San Jose, CA: sièges, ciel de toit, capotes et intérieurs classiques.',
+		services: [
+			'Garnissage automobile',
+			'Réparation et réfection de sièges',
+			'Ciel de toit et finitions intérieures',
+			'Capotes de cabriolet',
+			'Intérieurs de voitures classiques',
+		],
+	},
+});
+
+Object.assign(NAV_LABELS, {
+	fa: {
+		home: 'خانه',
+		services: 'خدمات خودرو',
+		resources: 'نحوه کار',
+		autoUpholstery: 'روکش خودرو',
+		upholsteryGuide: 'راهنمای روکش',
+		carSeats: 'صندلی خودرو',
+		motorcycleSeats: 'زین موتورسیکلت',
+		headliners: 'سقف داخل',
+		convertibleTops: 'سقف کابریولت',
+		classicCars: 'خودروهای کلاسیک',
+		gallery: 'نمونه کارها',
+		reviews: 'نظرات',
+		contact: 'تماس',
+	},
+	te: {
+		home: 'హోమ్',
+		services: 'ఆటో సేవలు',
+		resources: 'ఇది ఎలా పనిచేస్తుంది',
+		autoUpholstery: 'ఆటో అప్హోల్స్టరీ',
+		upholsteryGuide: 'అప్హోల్స్టరీ గైడ్',
+		carSeats: 'కార్ సీట్లు',
+		motorcycleSeats: 'మోటార్‌సైకిల్ సీట్లు',
+		headliners: 'హెడ్‌లైనర్',
+		convertibleTops: 'కన్వర్టిబుల్ టాప్',
+		classicCars: 'క్లాసిక్ కార్లు',
+		gallery: 'మా పని చూడండి',
+		reviews: 'సమీక్షలు',
+		contact: 'సంప్రదించండి',
+	},
+	fr: {
+		home: 'Accueil',
+		services: 'Services auto',
+		resources: 'Comment ça marche',
+		autoUpholstery: 'Garnissage automobile',
+		upholsteryGuide: 'Guide garnissage',
+		carSeats: 'Sièges auto',
+		motorcycleSeats: 'Selles moto',
+		headliners: 'Ciel de toit',
+		convertibleTops: 'Capotes',
+		classicCars: 'Voitures classiques',
+		gallery: 'Nos réalisations',
+		reviews: 'Avis',
+		contact: 'Contact',
+	},
+});
+
+Object.assign(UI_COPY, {
+	fa: {
+		callCta: 'تماس',
+		textCta: 'پیامک',
+		directionsCta: 'مسیر',
+		emailCta: 'ایمیل',
+		menuLabel: 'منو',
+		languageLabel: 'زبان',
+		quickActionsLabel: 'اقدام سریع',
+		hoursLabel: 'ساعات کاری',
+		hoursSummary: 'دوشنبه تا جمعه 8:00 تا 17:00 · شنبه 8:00 تا 14:00 · یکشنبه تعطیل',
+		reviewsLabel: 'نظرات',
+		yelpLabel: 'Yelp',
+		googleLabel: 'Google',
+		appleMapsLabel: 'Apple Maps',
+		trust: ['بیش از 60 سال در سن‌خوزه', 'کسب‌وکار خانوادگی', 'تمرکز کامل روی داخل خودرو'],
+	},
+	te: {
+		callCta: 'కాల్',
+		textCta: 'మెసేజ్',
+		directionsCta: 'దిశలు',
+		emailCta: 'ఇమెయిల్',
+		menuLabel: 'మెను',
+		languageLabel: 'భాష',
+		quickActionsLabel: 'త్వరిత చర్యలు',
+		hoursLabel: 'పని గంటలు',
+		hoursSummary: 'సోమ–శుక్ర 8:00 AM–5:00 PM · శని 8:00 AM–2:00 PM · ఆది మూసివేసి ఉంటుంది',
+		reviewsLabel: 'సమీక్షలు',
+		yelpLabel: 'Yelp',
+		googleLabel: 'Google',
+		appleMapsLabel: 'Apple Maps',
+		trust: ['సాన్ హోసేలో 60+ సంవత్సరాలు', 'కుటుంబ ఆధారిత వ్యాపారం', 'ఆటో ఇంటీరియర్స్‌కు ప్రాధాన్యం'],
+	},
+	fr: {
+		callCta: 'Appeler',
+		textCta: 'SMS',
+		directionsCta: 'Itinéraire',
+		emailCta: 'Email',
+		menuLabel: 'Menu',
+		languageLabel: 'Langue',
+		quickActionsLabel: 'Actions rapides',
+		hoursLabel: 'Horaires',
+		hoursSummary: 'Lun–Ven 8h00–17h00 · Sam 8h00–14h00 · Dim fermé',
+		reviewsLabel: 'Avis',
+		yelpLabel: 'Yelp',
+		googleLabel: 'Google',
+		appleMapsLabel: 'Plans Apple',
+		trust: ['Plus de 60 ans à San Jose', 'Entreprise familiale', 'Spécialistes des intérieurs auto'],
+	},
+});
+
+Object.assign(CHAT_COPY, {
+	fa: {
+		launcherLabel: 'چت',
+		quoteCta: 'درخواست برآورد',
+		recapCta: 'ارسال خلاصه با ایمیل',
+		quoteTitle: 'درخواست برآورد',
+		recapTitle: 'خلاصه ایمیلی',
+		nameLabel: 'نام',
+		emailLabel: 'ایمیل',
+		phoneLabel: 'تلفن (اختیاری)',
+		vehicleLabel: 'خودرو (سال/برند/مدل)',
+		detailsLabel: 'چه بخشی نیاز به کار دارد؟',
+		submitQuote: 'ارسال درخواست',
+		submitRecap: 'ارسال خلاصه',
+		cancelLabel: 'لغو',
+		successTitle: 'ممنون، دریافت شد.',
+		successBody: 'رونوشت گفتگو ایمیل می‌شود و به‌زودی پیگیری می‌کنیم.',
+		errorTitle: 'مشکلی پیش آمد.',
+		errorBody: 'دوباره تلاش کنید یا با ما تماس/پیامک بگیرید.',
+		startGreeting: 'کدام بخش از داخل خودرو را می‌خواهید تعمیر یا بازطراحی کنید؟',
+		startMessage: 'سلام، درباره روکش خودرو سوال دارم.',
+		composerPlaceholder: 'پیام خود را بنویسید...',
+		startPrompts: [
+			{ icon: 'profile-card', label: 'صندلی', prompt: 'تعمیر یا بازروکشی صندلی' },
+			{ icon: 'page-blank', label: 'سقف داخل', prompt: 'افتادگی یا تعویض سقف داخل' },
+			{ icon: 'wreath', label: 'کابریولت', prompt: 'سقف کابریولت' },
+			{ icon: 'sparkle', label: 'داخل کامل', prompt: 'بازسازی کامل داخل' },
+			{ icon: 'circle-question', label: 'مطمئن نیستم', prompt: 'هنوز دقیق نمی‌دانم چه لازم است' },
+		],
+		loadingLabel: 'در حال بارگذاری چت...',
+		sendingLabel: 'در حال ارسال...',
+	},
+	te: {
+		launcherLabel: 'చాట్',
+		quoteCta: 'కోటేషన్ కోరండి',
+		recapCta: 'సారాంశం ఈమెయిల్ చేయండి',
+		quoteTitle: 'కోటేషన్ కోరండి',
+		recapTitle: 'ఈమెయిల్ సారాంశం',
+		nameLabel: 'పేరు',
+		emailLabel: 'ఈమెయిల్',
+		phoneLabel: 'ఫోన్ (ఐచ్ఛికం)',
+		vehicleLabel: 'వాహనం (సంవత్సరం/బ్రాండ్/మోడల్)',
+		detailsLabel: 'ఏ పనికి సహాయం కావాలి?',
+		submitQuote: 'అభ్యర్థన పంపండి',
+		submitRecap: 'సారాంశం పంపండి',
+		cancelLabel: 'రద్దు',
+		successTitle: 'ధన్యవాదాలు, మీ అభ్యర్థన వచ్చింది.',
+		successBody: 'మేము ట్రాన్స్క్రిప్ట్‌ను ఈమెయిల్ చేసి త్వరలో సంప్రదిస్తాము.',
+		errorTitle: 'ఏదో తప్పు జరిగింది.',
+		errorBody: 'దయచేసి మళ్లీ ప్రయత్నించండి లేదా కాల్/మెసేజ్ చేయండి.',
+		startGreeting: 'మీ వాహన ఇంటీరియర్‌లో ఏమి రిపేర్ చేయాలి లేదా మార్చాలి?',
+		startMessage: 'హలో, అప్హోల్స్టరీ గురించి ఒక ప్రశ్న ఉంది.',
+		composerPlaceholder: 'మీ సందేశం టైప్ చేయండి...',
+		startPrompts: [
+			{ icon: 'profile-card', label: 'సీటు', prompt: 'సీటు రిపేర్ / రీ-అప్హోల్స్టరీ' },
+			{ icon: 'page-blank', label: 'హెడ్‌లైనర్', prompt: 'హెడ్‌లైనర్ వదులుగా ఉండటం / మార్పు' },
+			{ icon: 'wreath', label: 'కన్వర్టిబుల్ టాప్', prompt: 'కన్వర్టిబుల్ టాప్' },
+			{ icon: 'sparkle', label: 'పూర్తి ఇంటీరియర్', prompt: 'పూర్తి ఇంటీరియర్ రిఫ్రెష్' },
+			{ icon: 'circle-question', label: 'నిర్ధారించలేదు', prompt: 'నాకు ఇంకా ఖచ్చితంగా తెలియదు' },
+		],
+		loadingLabel: 'చాట్ లోడ్ అవుతోంది...',
+		sendingLabel: 'పంపిస్తోంది...',
+	},
+	fr: {
+		launcherLabel: 'Chat',
+		quoteCta: 'Demander un devis',
+		recapCta: 'Recevoir un récapitulatif par email',
+		quoteTitle: 'Demander un devis',
+		recapTitle: 'Récapitulatif par email',
+		nameLabel: 'Nom',
+		emailLabel: 'Email',
+		phoneLabel: 'Téléphone (optionnel)',
+		vehicleLabel: 'Véhicule (année/marque/modèle)',
+		detailsLabel: 'Quel travail faut-il faire ?',
+		submitQuote: 'Envoyer la demande',
+		submitRecap: 'Envoyer le récapitulatif',
+		cancelLabel: 'Annuler',
+		successTitle: 'Merci, c’est bien reçu.',
+		successBody: 'Nous enverrons la transcription par email et vous recontacterons vite.',
+		errorTitle: 'Une erreur est survenue.',
+		errorBody: 'Réessayez ou appelez/envoyez un SMS.',
+		startGreeting: 'Que souhaitez-vous réparer ou changer dans l’intérieur de votre véhicule ?',
+		startMessage: "Bonjour, j'ai une question sur le garnissage automobile.",
+		composerPlaceholder: 'Écrivez votre message...',
+		startPrompts: [
+			{ icon: 'profile-card', label: 'Sièges', prompt: 'Réparation / réfection de sièges' },
+			{ icon: 'page-blank', label: 'Ciel de toit', prompt: 'Ciel de toit affaissé / remplacement' },
+			{ icon: 'wreath', label: 'Capote', prompt: 'Capote de cabriolet' },
+			{ icon: 'sparkle', label: 'Intérieur complet', prompt: 'Rénovation complète de l’intérieur' },
+			{ icon: 'circle-question', label: 'Je ne sais pas', prompt: "Je ne sais pas encore exactement ce qu'il faut" },
+		],
+		loadingLabel: 'Chargement du chat...',
+		sendingLabel: 'Envoi...',
+	},
+});
+
 export function getTranslations(key) {
 	return PAGE_PATHS[key] ?? PAGE_PATHS.home;
 }

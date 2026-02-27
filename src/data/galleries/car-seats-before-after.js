@@ -161,3 +161,41 @@ export const CAR_SEATS_BEFORE_AFTER = [
 		},
 	},
 ];
+
+const WAVE1_BEFORE_AFTER_COPY = {
+	'a1f3:before': {
+		fa: 'صندلی لامبورگینی قبل از بازروکشی.',
+		te: 'రీ-అప్హోల్స్టరీకి ముందు లాంబోర్ఘిని సీటు.',
+		fr: 'Siège Lamborghini avant réfection.',
+	},
+	'a1f3:after': {
+		fa: 'صندلی لامبورگینی بعد از بازروکشی.',
+		te: 'రీ-అప్హోల్స్టరీ తర్వాత లాంబోర్ఘిని సీటు.',
+		fr: 'Siège Lamborghini après réfection.',
+	},
+	'c7b2:before': {
+		fa: 'صندلی‌های پارچه‌ای باکتی قبل از بازروکشی.',
+		te: 'రీ-అప్హోల్స్టరీకి ముందు క్లాత్ బకెట్ సీట్లు.',
+		fr: 'Sièges baquets en tissu avant réfection.',
+	},
+	'c7b2:after': {
+		fa: 'صندلی‌های چرمی مشکی بعد از بازروکشی.',
+		te: 'రీ-అప్హోల్స్టరీ తర్వాత నలుపు లెదర్ సీట్లు.',
+		fr: 'Sièges en cuir noir après réfection.',
+	},
+};
+
+const withWave1Locales = (value, key) => {
+	const wave1 = WAVE1_BEFORE_AFTER_COPY[key];
+	return wave1 ? { ...(value ?? {}), ...wave1 } : value;
+};
+
+for (const pair of CAR_SEATS_BEFORE_AFTER) {
+	const beforeKey = `${pair.pairId}:before`;
+	const afterKey = `${pair.pairId}:after`;
+
+	if (pair.before?.alt) pair.before.alt = withWave1Locales(pair.before.alt, beforeKey);
+	if (pair.before?.caption) pair.before.caption = withWave1Locales(pair.before.caption, beforeKey);
+	if (pair.after?.alt) pair.after.alt = withWave1Locales(pair.after.alt, afterKey);
+	if (pair.after?.caption) pair.after.caption = withWave1Locales(pair.after.caption, afterKey);
+}

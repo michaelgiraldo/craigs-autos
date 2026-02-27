@@ -691,3 +691,122 @@ PORSCHE_BOXSTER_S_SEAT_PROJECT.images = (PORSCHE_BOXSTER_S_SEAT_PROJECT.images ?
 	}
 	return next;
 });
+
+const withWave1LocalePorsche = (value, locale, localized) => ({
+	...(value ?? {}),
+	[locale]: value?.[locale] ?? localized,
+});
+
+const PORSCHE_WAVE1_COPY = {
+	fa: {
+		title: 'بازروکشی صندلی Porsche Boxster S',
+		lead: 'بازروکشی سفارشی صندلی‌های Boxster S با کناره‌های چرمی رنگ saddle و اینسرت houndstooth هماهنگ با پنل در.',
+		overviewTitle: 'مرور پروژه',
+		overviewBody:
+			'این Boxster S برای بازروکشی صندلی جلو با خروجی تمیز و اسپرت وارد شد. کاور صندلی‌ها با کناره چرمی رنگ saddle و اینسرت houndstooth بازسازی شد و اینسرت پنل در نیز هماهنگ گردید تا کل کابین یک مجموعه منسجم دیده شود.',
+		workTitle: 'کارهای انجام‌شده',
+		galleryTitle: 'گالری پروژه',
+		featuredKicker: 'پروژه صندلی',
+		featuredCta: 'مشاهده پروژه صندلی Boxster S',
+		workItems: [
+			'بازروکشی صندلی‌های جلو با کناره چرمی و اینسرت houndstooth',
+			'بررسی فوم صندلی و فیت نهایی کاور برای فرم دقیق',
+			'هماهنگ‌سازی اینسرت پنل در با الگوی صندلی',
+			'پرداخت نهایی در خطوط دوخت، انحناها و لبه‌ها',
+		],
+	},
+	te: {
+		title: 'Porsche Boxster S సీటు రీ-అప్హోల్స్టరీ',
+		lead: 'సాడిల్ లెదర్ బోల్స్టర్లు మరియు హౌండ్స్‌టూత్ ఇన్సర్ట్లతో Boxster S సీటు రీ-అప్హోల్స్టరీ, డోర్ ప్యానెల్‌కు మ్యాచ్‌గా.',
+		overviewTitle: 'ప్రాజెక్ట్ అవలోకనం',
+		overviewBody:
+			'ఈ Boxster S కు శుభ్రమైన, స్పోర్టీ ఫినిష్‌తో ఫ్రంట్ సీటు రీ-అప్హోల్స్టరీ చేశాము. సాడిల్ టోన్ లెదర్ బోల్స్టర్లు మరియు స్పష్టమైన హౌండ్స్‌టూత్ ఇన్సర్ట్లతో సీటు కవర్లను మళ్లీ నిర్మించి, డోర్ ప్యానెల్ ఇన్సర్ట్‌ను కూడా మ్యాచ్ చేసి కాబిన్ మొత్తం ఒకే సెట్లా కనిపించేలా పూర్తి చేశాము.',
+		workTitle: 'పూర్తి చేసిన పని',
+		galleryTitle: 'ప్రాజెక్ట్ గ్యాలరీ',
+		featuredKicker: 'సీటు ప్రాజెక్ట్',
+		featuredCta: 'Boxster S సీటు ప్రాజెక్ట్ చూడండి',
+		workItems: [
+			'లెదర్ బోల్స్టర్లు మరియు హౌండ్స్‌టూత్ ఇన్సర్ట్లతో ఫ్రంట్ సీటు రీ-అప్హోల్స్టరీ',
+			'సీటు ఫోమ్ తనిఖీ మరియు కవర్ ఫిట్‌మెంట్ మెరుగుదల',
+			'డోర్ ప్యానెల్ ఇన్సర్ట్‌ను సీటు ప్యాటర్న్‌కు మ్యాచ్ చేయడం',
+			'సీమ్‌లు, కాంటూర్‌లు, ఎడ్జ్‌ల వద్ద డీటైల్ ఫినిషింగ్',
+		],
+	},
+	fr: {
+		title: 'Réfection des sièges Porsche Boxster S',
+		lead: 'Réfection sur mesure des sièges Boxster S avec bourrelets cuir ton saddle et inserts pied-de-poule, assortis aux panneaux de porte.',
+		overviewTitle: 'Aperçu du projet',
+		overviewBody:
+			'Cette Boxster S est entrée pour une réfection des sièges avant avec un rendu propre et sportif. Nous avons reconstruit les housses avec des bourrelets cuir ton saddle et des inserts pied-de-poule nets, puis harmonisé l’insert de porte pour que l’habitacle se lise comme un ensemble cohérent.',
+		workTitle: 'Travaux réalisés',
+		galleryTitle: 'Galerie du projet',
+		featuredKicker: 'Projet sièges',
+		featuredCta: 'Voir le projet sièges Boxster S',
+		workItems: [
+			'Réfection des sièges avant avec bourrelets cuir et inserts pied-de-poule',
+			'Contrôle mousse et ajustement des housses pour un profil tendu',
+			'Mise à jour de l’insert de porte pour correspondre au motif des sièges',
+			'Finition de détail sur coutures, contours et arêtes',
+		],
+	},
+};
+
+for (const [locale, copy] of Object.entries(PORSCHE_WAVE1_COPY)) {
+	for (const key of [
+		'title',
+		'lead',
+		'overviewTitle',
+		'overviewBody',
+		'workTitle',
+		'galleryTitle',
+		'featuredKicker',
+		'featuredCta',
+	]) {
+		if (PORSCHE_BOXSTER_S_SEAT_PROJECT.copy?.[key]) {
+			PORSCHE_BOXSTER_S_SEAT_PROJECT.copy[key] = withWave1LocalePorsche(
+				PORSCHE_BOXSTER_S_SEAT_PROJECT.copy[key],
+				locale,
+				copy[key],
+			);
+		}
+	}
+
+	if (PORSCHE_BOXSTER_S_SEAT_PROJECT.copy?.workItems) {
+		PORSCHE_BOXSTER_S_SEAT_PROJECT.copy.workItems = withWave1LocalePorsche(
+			PORSCHE_BOXSTER_S_SEAT_PROJECT.copy.workItems,
+			locale,
+			copy.workItems,
+		);
+	}
+}
+
+const PORSCHE_WAVE1_IMAGE_TEXT = {
+	fa: {
+		alt: (n) => `تصویر ${n} از پروژه صندلی Boxster S.`,
+		caption: (n) => `جزئیات تصویر ${n} از پروژه Boxster S.`,
+	},
+	te: {
+		alt: (n) => `Boxster S సీటు ప్రాజెక్ట్ ఫోటో ${n}.`,
+		caption: (n) => `Boxster S ప్రాజెక్ట్ వివర చిత్రం ${n}.`,
+	},
+	fr: {
+		alt: (n) => `Photo ${n} du projet sièges Boxster S.`,
+		caption: (n) => `Détail ${n} du projet Boxster S.`,
+	},
+};
+
+PORSCHE_BOXSTER_S_SEAT_PROJECT.images = (PORSCHE_BOXSTER_S_SEAT_PROJECT.images ?? []).map(
+	(image, index) => {
+		const next = { ...image };
+		const n = index + 1;
+
+		for (const [locale, text] of Object.entries(PORSCHE_WAVE1_IMAGE_TEXT)) {
+			next.alt = withWave1LocalePorsche(next.alt, locale, text.alt(n));
+			if (next.caption) {
+				next.caption = withWave1LocalePorsche(next.caption, locale, text.caption(n));
+			}
+		}
+
+		return next;
+	},
+);

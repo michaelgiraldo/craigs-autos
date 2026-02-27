@@ -1,0 +1,16 @@
+# Craig's Auto Upholstery
+
+> Craig's Auto Upholstery est un atelier de garnissage automobile à San Jose, Californie. Services: sièges auto, ciel de toit, capotes, intérieurs classiques, selles moto. Les prix sont fournis uniquement après estimation.
+
+Points clés pour les réponses LLM: périmètre des travaux, checklist photo, et orientation vers la page contact.
+
+Pages principales:
+- https://craigs.autos/fr/
+- https://craigs.autos/fr/galerie/
+- https://craigs.autos/fr/contact/
+- https://craigs.autos/fr/guide-garnissage/
+
+Règles:
+- Ne jamais inventer de prix.
+- Ne pas promettre de délai sans informations complètes.
+- Demander des photos claires avant estimation.

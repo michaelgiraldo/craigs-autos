@@ -247,3 +247,63 @@ export const SHOWCASE_COPY = {
 		},
 	},
 };
+
+Object.assign(GENERIC_SEAT_ALT, {
+	fa: 'نمونه روکش صندلی خودرو.',
+	te: 'కార్ సీటు అప్హోల్స్టరీ ఉదాహరణ.',
+	fr: 'Exemple de garnissage de siège auto.',
+});
+
+Object.assign(GENERIC_SEAT_CAPTION, {
+	fa: 'نمونه بازروکشی صندلی خودرو.',
+	te: 'సీటు రీ-అప్హోల్స్టరీ ఉదాహరణ.',
+	fr: 'Exemple de réfection de siège.',
+});
+
+Object.assign(GENERIC_MOTORCYCLE_ALT, {
+	fa: 'نمونه روکش زین موتورسیکلت.',
+	te: 'మోటార్‌సైకిల్ సీటు అప్హోల్స్టరీ ఉదాహరణ.',
+	fr: 'Exemple de garnissage de selle moto.',
+});
+
+Object.assign(GENERIC_MOTORCYCLE_CAPTION, {
+	fa: 'نمونه بازروکشی زین موتورسیکلت.',
+	te: 'మోటార్‌సైకిల్ సీటు రీ-అప్హోల్స్టరీ ఉదాహరణ.',
+	fr: 'Exemple de réfection de selle moto.',
+});
+
+Object.assign(SHOWCASE_COPY.home.title, {
+	fa: 'نمونه‌های روکش',
+	te: 'అప్హోల్స్టరీ ఉదాహరణలు',
+	fr: 'Exemples de garnissage',
+});
+
+Object.assign(SHOWCASE_COPY.carSeats.highlightTitle, {
+	fa: 'گالری صندلی خودرو',
+	te: 'కార్ సీట్ల గ్యాలరీ',
+	fr: 'Galerie des sièges auto',
+});
+
+Object.assign(SHOWCASE_COPY.carSeats.beforeAfterTitle, {
+	fa: 'نمونه‌های قبل و بعد صندلی',
+	te: 'సీట్ల ముందు-తర్వాత ఉదాహరణలు',
+	fr: 'Exemples avant/après des sièges',
+});
+
+Object.assign(SHOWCASE_COPY.gallery.highlightTitle, {
+	fa: 'منتخب گالری خدمات',
+	te: 'సేవల గ్యాలరీ ముఖ్య ఉదాహరణలు',
+	fr: 'Sélection de la galerie de services',
+});
+
+Object.assign(SHOWCASE_COPY.gallery.beforeAfterTitle, {
+	fa: 'نمونه‌های قبل و بعد صندلی',
+	te: 'సీట్ల ముందు-తర్వాత ఉదాహరణలు',
+	fr: 'Exemples avant/après des sièges',
+});
+
+Object.assign(SHOWCASE_COPY.motorcycleSeats.highlightTitle, {
+	fa: 'نمونه‌های زین موتورسیکلت',
+	te: 'మోటార్‌సైకిల్ సీట్ల ఉదాహరణలు',
+	fr: 'Exemples de selles moto',
+});
