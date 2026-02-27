@@ -1,12 +1,418 @@
 ---
-title: "Guide garnissage auto | Craig's Auto Upholstery"
-description: "Guide pratique pour choisir les matériaux, préparer les photos et demander un devis de garnissage auto."
-pageKey: upholsteryGuide
+title: "Guide garnissage | Cadre de décision sellerie auto"
+description: "Guide acheteur sellerie auto : matériaux, périmètre de travaux, prix et process."
+pageKey: "upholsteryGuide"
 ---
-# Guide garnissage
+import LocalizedLink from "../../../components/LocalizedLink.astro";
 
-Un bon devis dépend surtout de photos nettes, de la zone concernée et de votre objectif final.
+import PageHero from "../../../components/PageHero.astro";
+import ServiceCards from "../../../components/ServiceCards.astro";
+import FaqSection from "../../../components/FaqSection.astro";
 
-Indiquez l'année, la marque, le modèle et si vous souhaitez conserver le style d'origine ou personnaliser.
+export const faqs = [
+  {
+    q: "Un ciel de toit qui tombe est-il un problème de tissu ?",
+    a: "Le plus souvent non. Ce sont la mousse de support et la colle qui lâchent en premier. Refixer le tissu ne tient que si le support est encore sain.",
+  },
+  {
+    q: "Pouvez-vous reprendre la mousse de siège sans regarnir ?",
+    a: "Oui. Si la housse est encore en bon état, une reprise mousse peut restaurer le confort sans changer l’aspect visible.",
+  },
+  {
+    q: "Quelles photos aident le plus pour un devis sellerie ?",
+    a: "Année/marque/modèle + une vue large, un gros plan de la zone endommagée, et une vue de profil montrant affaissement ou hauteur d’assise.",
+  },
+  {
+    q: "Combien de temps prennent généralement des travaux de sellerie ?",
+    a: "Les ciels de toit peuvent être rapides une fois les matériaux prêts. Les reprises de sièges et travaux multipanneaux demandent plus de temps pour la pose et les ajustements.",
+  },
+  {
+    q: "Le vinyle est-il toujours moins cher que le cuir ?",
+    a: "Pas forcément. La qualité du matériau et la complexité de main-d’œuvre pèsent plus que l’étiquette. Le vinyle est souvent plus simple d’entretien, mais le prix dépend du périmètre réel.",
+  },
+];
 
-Nous vous orientons vers réparation partielle, réfection complète ou combinaison des deux.
+<PageHero
+  locale="fr"
+  title="Guide garnissage"
+  lead="Guide décision sellerie auto : matériaux, périmètre, prix, et déroulé"
+/>
+
+<ServiceCards locale="fr" />
+
+Commencez par le symptôme que vous voyez. Chaque section explique pourquoi cela arrive, quelle solution tient, et quelles questions poser avant de valider un devis.
+
+---
+
+<h2 id="issues">Identifier votre problème</h2>
+
+<div class="issue-cards">
+  <details id="issue-headliner" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">Ciel de toit affaissé ou cloqué</span>
+      <span class="issue-card__summary-text">Quand la mousse de support cède, les réparations à la colle seule ne tiennent pas à la chaleur.</span>
+    </summary>
+    <div class="issue-card__body">
+      <p class="issue-card__title">Résumé rapide</p>
+      <ul>
+        <li><strong>Symptômes :</strong> tissu qui pend, cloques, affaissement sur le pavillon.</li>
+        <li><strong>Cause probable :</strong> mousse de support qui se dégrade, adhésif qui perd son accroche.</li>
+        <li><strong>Solution durable :</strong> recouvrement complet si l’affaissement est étendu ; réparation locale seulement si support sain.</li>
+        <li><strong>Question à poser :</strong> déposez-vous le panneau, retirez-vous l’ancienne mousse, utilisez-vous une colle haute température ?</li>
+        <li><strong>Photos à envoyer :</strong> vue large du toit, gros plan zone affaissée, gros plan bords/taches.</li>
+      </ul>
+
+      <details class="details-card">
+        <summary>
+          <span>Pourquoi cela arrive</span>
+          <span class="details-card__summary-text">Le support mousse se décompose, donc la colle ne tient plus.</span>
+        </summary>
+        <p>La plupart des ciels de toit sont composés d’un tissu contrecollé sur une fine mousse posée sur un panneau rigide. Sous la chaleur, la mousse poudre et l’adhésif n’a plus de base stable.</p>
+        <p>Spray ou punaises peuvent tenir brièvement, puis échouent quand la mousse continue de se désagréger. Si l’affaissement est large, la solution durable est la dépose, le nettoyage complet du support, puis la pose avec colle haute température.</p>
+      </details>
+
+      <p class="issue-card__links">
+        Aller plus loin : <LocalizedLink locale="fr" pageKey="headliners">Ciels de toit</LocalizedLink> · Prêt pour un devis ?
+        <LocalizedLink locale="fr" pageKey="contact">Contact</LocalizedLink>
+      </p>
+    </div>
+  </details>
+
+  <details id="issue-seat-foam" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">Siège affaissé ou trop bas</span>
+      <span class="issue-card__summary-text">Souvent une défaillance mousse/support sous une housse visuellement encore correcte.</span>
+    </summary>
+    <div class="issue-card__body">
+      <p class="issue-card__title">Résumé rapide</p>
+      <ul>
+        <li><strong>Symptômes :</strong> siège visuellement acceptable mais sensation de creux, d’affaissement, ou d’irrégularité.</li>
+        <li><strong>Cause probable :</strong> mousse/support affaissé sous la housse.</li>
+        <li><strong>Solution durable :</strong> reprise ou remplacement mousse/support ; réutilisation housse si elle est saine.</li>
+        <li><strong>Question à poser :</strong> reprenez-vous la mousse/support, ou seulement la housse ?</li>
+        <li><strong>Photos à envoyer :</strong> vue de profil montrant hauteur, creux, plis.</li>
+      </ul>
+
+      <details class="details-card">
+        <summary>
+          <span>Pourquoi cela arrive</span>
+          <span class="details-card__summary-text">La mousse/support perd sa forme et la position d’assise baisse.</span>
+        </summary>
+        <p>Le confort vient de la densité et de la forme de mousse, plus la couche de support (ressorts, sangles, structures moulées). Avec le temps, surtout côté conducteur, la mousse se tasse et perd son rebond.</p>
+        <p>Une housse neuve ne recrée pas la structure. La reprise mousse restaure souvent le confort sans changer la housse ; si la forme du siège a trop évolué, il faut parfois réparer ou remplacer la housse pour qu’elle retombe correctement.</p>
+      </details>
+
+      <p class="issue-card__links">
+        Aller plus loin : <LocalizedLink locale="fr" pageKey="carSeats">Sièges auto</LocalizedLink> · Prêt pour un devis ?
+        <LocalizedLink locale="fr" pageKey="contact">Contact</LocalizedLink>
+      </p>
+    </div>
+  </details>
+
+  <details id="issue-seat-bolster" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">Le bord de siège craque en premier</span>
+      <span class="issue-card__summary-text">Le bourrelet subit les frottements d’entrée/sortie à chaque trajet.</span>
+    </summary>
+    <div class="issue-card__body">
+      <p class="issue-card__title">Résumé rapide</p>
+      <ul>
+        <li><strong>Symptômes :</strong> bord de siège fissuré, ouvert, ou usé jusqu’à travers.</li>
+        <li><strong>Cause probable :</strong> frottement répété + déformation de mousse.</li>
+        <li><strong>Solution durable :</strong> remplacer le panneau endommagé ; reprendre la mousse si le bord est mou.</li>
+        <li><strong>Question à poser :</strong> remplacez-vous le panneau et renforcez-vous les coutures ? reprenez-vous le bord mousse ?</li>
+        <li><strong>Photos à envoyer :</strong> gros plan fissure + profil du bourrelet.</li>
+      </ul>
+
+      <details class="details-card">
+        <summary>
+          <span>Pourquoi cela arrive</span>
+          <span class="details-card__summary-text">Le frottement d’entrée/sortie détruit d’abord le bourrelet.</span>
+        </summary>
+        <p>Le bord extérieur encaisse glissement et compression chaque fois que vous montez ou descendez du véhicule. C’est la première zone à s’user.</p>
+        <p>Si la mousse est molle, une simple reprise de surface tient mal ; le panneau reste sous contrainte et recasse. La solution durable est de traiter mousse + panneau.</p>
+      </details>
+
+      <p class="issue-card__links">
+        Aller plus loin : <LocalizedLink locale="fr" pageKey="carSeats">Sièges auto</LocalizedLink> · Prêt pour un devis ?
+        <LocalizedLink locale="fr" pageKey="contact">Contact</LocalizedLink>
+      </p>
+    </div>
+  </details>
+
+  <details id="issue-door-panel" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">Panneau de porte qui se décolle ou se déforme</span>
+      <span class="issue-card__summary-text">La chaleur affaiblit la colle et peut déformer le support.</span>
+    </summary>
+    <div class="issue-card__body">
+      <p class="issue-card__title">Résumé rapide</p>
+      <ul>
+        <li><strong>Symptômes :</strong> bord décollé, bulles près de l’accoudoir, panneau ondulé.</li>
+        <li><strong>Cause probable :</strong> colle dégradée par la chaleur, support ramolli/déformé, humidité.</li>
+        <li><strong>Solution durable :</strong> re-peau si support sain ; reprise/remplacement du support si déformé.</li>
+        <li><strong>Question à poser :</strong> le support est-il réutilisable ? remplacez-vous le support avec colle adaptée chaleur ?</li>
+        <li><strong>Photos à envoyer :</strong> vue large + gros plan du décollement/déformation.</li>
+      </ul>
+
+      <details class="details-card">
+        <summary>
+          <span>Pourquoi cela arrive</span>
+          <span class="details-card__summary-text">Chaleur et humidité fragilisent la colle et le support.</span>
+        </summary>
+        <p>Un panneau de porte est une superposition : revêtement, colle, support. La chaleur près des vitrages ramollit les adhésifs ; l’humidité peut déformer le support.</p>
+        <p>Quand le support est déformé, recoller “en force” ne résout pas la géométrie. Une réparation durable restaure d’abord la structure, puis le revêtement.</p>
+      </details>
+
+      <p class="issue-card__links">
+        Aller plus loin : <LocalizedLink locale="fr" pageKey="autoUpholstery">Garnissage auto</LocalizedLink> · Prêt pour un devis ?
+        <LocalizedLink locale="fr" pageKey="contact">Contact</LocalizedLink>
+      </p>
+    </div>
+  </details>
+</div>
+
+<h2 id="reference">Ce qu’il faut savoir avant de décider</h2>
+
+Choisissez un sujet : matériaux, niveau de travaux, prix, et déroulé.
+
+<div class="issue-cards">
+  <details id="ref-materials" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">Des matériaux adaptés à la vraie vie</span>
+      <span class="issue-card__summary-text">Choisir selon confort, nettoyage, chaleur, et niveau d’entretien acceptable.</span>
+    </summary>
+    <div class="issue-card__body">
+      <p>Choisissez selon le comportement réel, pas seulement l’étiquette :</p>
+      <ul>
+        <li><strong>Confort et sensation premium :</strong> plutôt cuir.</li>
+        <li><strong>Nettoyage simple et durabilité :</strong> plutôt vinyle.</li>
+        <li><strong>Sensation thermique neutre :</strong> plutôt tissu.</li>
+        <li><strong>Stationnement extérieur/chaleur :</strong> privilégier matériaux UV + colle haute température.</li>
+        <li><strong>Entretien minimal :</strong> vinyle ou tissu technique.</li>
+      </ul>
+
+      <div class="decision-card">
+        <p class="decision-card__title">Cuir</p>
+        <ul>
+          <li><strong>Idéal pour :</strong> confort, rendu premium, équilibre thermique.</li>
+          <li><strong>À éviter si :</strong> vous voulez zéro entretien ou stationnez toujours en plein soleil.</li>
+          <li><strong>Entretien :</strong> nettoyage + soin régulier pour limiter dessèchement/fissures.</li>
+          <li><strong>Regret fréquent :</strong> fissures en zones d’usure si le cuir chauffe sans entretien.</li>
+        </ul>
+      </div>
+
+      <div class="decision-card">
+        <p class="decision-card__title">Vinyle</p>
+        <ul>
+          <li><strong>Idéal pour :</strong> usage quotidien, enfants/animaux, nettoyage rapide.</li>
+          <li><strong>À éviter si :</strong> vous êtes très sensible à la chaleur ou cherchez une respirabilité maximale.</li>
+          <li><strong>Entretien :</strong> choisir qualité automobile, éviter solvants agressifs.</li>
+          <li><strong>Regret fréquent :</strong> sensation chaude/collante en été en plein soleil.</li>
+        </ul>
+      </div>
+
+      <div class="decision-card">
+        <p class="decision-card__title">Tissu</p>
+        <ul>
+          <li><strong>Idéal pour :</strong> confort quotidien et température plus neutre.</li>
+          <li><strong>À éviter si :</strong> vous anticipez des taches fréquentes sans nettoyage rapide.</li>
+          <li><strong>Entretien :</strong> tissu performant pour usage intensif ; traiter rapidement les liquides.</li>
+          <li><strong>Regret fréquent :</strong> taches et odeurs si les incidents ne sont pas traités vite.</li>
+        </ul>
+      </div>
+
+      <aside class="callout" aria-label="Règle chaleur">
+        <p class="callout__title">Règle chaleur</p>
+        <p>Si la voiture dort dehors, chaleur et UV dominent l’usure. Priorisez matériaux UV + colle haute température, et utilisez ombre/pare-soleil si possible.</p>
+      </aside>
+
+      <p><strong>Bonne nouvelle :</strong> les combinaisons sont fréquentes. Exemple : vinyle robuste sur bords d’usure + inserts tissu pour le confort.</p>
+    </div>
+  </details>
+
+  <details id="ref-scope" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">Choisir le bon niveau de travaux</span>
+      <span class="issue-card__summary-text">Prendre la plus petite solution qui règle vraiment le problème.</span>
+    </summary>
+    <div class="issue-card__body">
+      <p>L’objectif est la solution minimale qui règle durablement le problème.</p>
+
+      <h3>Réparation vs regarnissage vs remplacement</h3>
+      <ul>
+        <li><strong>Réparation localisée :</strong> couture ou petite déchirure ; pertinente si matériau et mousse autour sont sains.</li>
+        <li><strong>Remplacement de panneau :</strong> fréquent sur bourrelets ; le rendu dépend de l’âge et du grain.</li>
+        <li><strong>Regarnissage :</strong> nouvelle housse + structure reprise ; pertinent si plusieurs panneaux lâchent.</li>
+        <li><strong>Housses/kits de remplacement :</strong> amélioration cosmétique, rarement suffisante pour confort/structure.</li>
+      </ul>
+
+      <h3>Raisonnement “mousse d’abord”</h3>
+      <ul>
+        <li>Le confort vient de la mousse/support, pas de la housse seule.</li>
+        <li>Une reprise mousse peut constituer l’essentiel du travail si la housse est saine.</li>
+        <li>Si la mousse modifie la forme, la housse peut devoir être reprise/remplacée.</li>
+      </ul>
+
+      <h3>Un siège seul vs ensemble harmonisé</h3>
+      <ul>
+        <li>Réparer un seul siège peut suffire pour un usage quotidien et un budget contraint.</li>
+        <li>Pour un rendu uniforme, planifiez les étapes : un matériau neuf peut contraster avec un intérieur ancien.</li>
+      </ul>
+    </div>
+  </details>
+
+  <details id="ref-pricing" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">Prix et devis</span>
+      <span class="issue-card__summary-text">Comparer ce qui est inclus, pas seulement le montant.</span>
+    </summary>
+    <div class="issue-card__body">
+      <p>Le prix suit surtout la main-d’œuvre et l’état initial, plus que le matériau seul.</p>
+
+      <details class="details-card">
+        <summary>
+          <span>Ce qui rend un travail sellerie coûteux</span>
+          <span class="details-card__summary-text">Main-d’œuvre, complexité et état initial pèsent plus que l’étiquette matière.</span>
+        </summary>
+        <ul>
+          <li>Temps de dépose/repose (habillages, accès).</li>
+          <li>Complexité des panneaux et coutures.</li>
+          <li>Reprise mousse/support et correction de structure.</li>
+          <li>Niveau de raccord et qualité matière.</li>
+          <li>Dommages cachés liés à d’anciennes interventions.</li>
+        </ul>
+      </details>
+
+      <details class="details-card">
+        <summary>
+          <span>Comment comparer les devis sans deviner</span>
+          <span class="details-card__summary-text">Comparer le périmètre réel et la méthode.</span>
+        </summary>
+        <ul>
+          <li>Demandez à chaque atelier de résumer le plan en une phrase claire.</li>
+          <li>Vérifiez que le contenu est comparable (reprise mousse incluse ou non).</li>
+          <li>Pour ciel de toit : confirmer dépose panneau + retrait mousse ancienne.</li>
+          <li>Pour sièges : confirmer reprise support/mousse vs simple housse.</li>
+        </ul>
+      </details>
+
+      <details class="details-card">
+        <summary>
+          <span>Comment les travaux “pas chers” échouent souvent</span>
+          <span class="details-card__summary-text">Préparation, structure et pose sont les points souvent sacrifiés.</span>
+        </summary>
+        <ul>
+          <li>Colle qui lâche faute de préparation correcte des surfaces.</li>
+          <li>Coutures qui lâchent faute de renfort zones de contrainte.</li>
+          <li>Plis/vagues causés par tension et ajustement précipités.</li>
+          <li>Confort inchangé car la mousse n’a pas été traitée.</li>
+          <li>Fissure qui revient car la contrainte structurelle est restée la même.</li>
+        </ul>
+        <p>Un tarif bas n’est pas automatiquement mauvais, mais un résultat durable exige méthode, préparation, et maîtrise de pose.</p>
+      </details>
+    </div>
+  </details>
+
+  <details id="ref-process" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">Process et attentes</span>
+      <span class="issue-card__summary-text">Quoi envoyer, comment les délais sont fixés, et quoi vérifier à la restitution.</span>
+    </summary>
+    <div class="issue-card__body">
+      <details class="details-card">
+        <summary>
+          <span>Demander un devis facile à traiter</span>
+          <span class="details-card__summary-text">Année/marque/modèle + 3 photos + 1 phrase claire.</span>
+        </summary>
+        <p>Restez court, précis, et appuyé par des photos. Pas besoin de vocabulaire technique.</p>
+        <p>Envoyez :</p>
+        <ul>
+          <li>année / marque / modèle</li>
+          <li>une vue large (siège entier / plafond entier / panneau de porte entier)</li>
+          <li>un gros plan de la zone endommagée</li>
+          <li>une vue de profil (hauteur d’assise / affaissement / déformation)</li>
+          <li>une phrase décrivant le symptôme</li>
+        </ul>
+        <p>Exemples :</p>
+        <ul>
+          <li>“Le tissu du plafond pend sur la majorité du toit.”</li>
+          <li>“Le siège conducteur est plus bas et moins soutenant qu’avant.”</li>
+          <li>“Le bord extérieur du siège est fissuré et la mousse est molle.”</li>
+          <li>“Le panneau de porte se décolle en haut et semble gondolé.”</li>
+        </ul>
+      </details>
+
+      <details class="details-card">
+        <summary>
+          <span>Planification et délais</span>
+          <span class="details-card__summary-text">Le périmètre et les matériaux pilotent le planning.</span>
+        </summary>
+        <p>Les délais varient selon volume de travail et disponibilité matière.</p>
+        <ul>
+          <li>Les ciels de toit peuvent être rapides une fois les matériaux disponibles.</li>
+          <li>Les reprises mousse prennent plus de temps (dépose, façonnage, essais).</li>
+          <li>Les intérieurs complets demandent souvent un phasage.</li>
+        </ul>
+        <p>Les interventions de surface vont plus vite ; les reprises de structure sont plus longues mais plus durables.</p>
+      </details>
+
+      <details class="details-card">
+        <summary>
+          <span>À quoi ressemble un bon travail à la restitution</span>
+          <span class="details-card__summary-text">Pose, coutures et confort doivent être propres et cohérents.</span>
+        </summary>
+        <ul>
+          <li>coutures alignées et symétriques</li>
+          <li>panneaux posés à plat, sans plis incontrôlés ni bulles</li>
+          <li>bords propres, sans bavures de colle ni coupes irrégulières</li>
+          <li>habillages reposés à fleur (pas de jeu, pas de vibration nouvelle)</li>
+          <li>confort retrouvé (pas seulement une amélioration visuelle)</li>
+        </ul>
+        <p>Si quelque chose paraît incorrect immédiatement, mieux vaut le traiter tout de suite.</p>
+      </details>
+
+      <details class="details-card">
+        <summary>
+          <span>Entretien et durabilité</span>
+          <span class="details-card__summary-text">Des gestes simples ralentissent les dégradations prévisibles.</span>
+        </summary>
+        <ul>
+          <li>Une sellerie neuve peut sembler plus ferme au début, surtout après reprise mousse.</li>
+          <li>Certains matériaux se “mettent en place” légèrement ; de gros changements ne sont pas normaux.</li>
+          <li>Un nettoyage régulier limite l’usure accélérée par les huiles et saletés.</li>
+          <li>La chaleur prolongée accélère le vieillissement colle/mousse ; l’ombre aide.</li>
+        </ul>
+        <p>La durée de vie dépend surtout de la méthode, du matériau choisi, et de l’exposition réelle.</p>
+      </details>
+    </div>
+  </details>
+</div>
+
+---
+
+<FaqSection heading="FAQ guide garnissage" faqs={faqs} />
+
+<script
+  is:inline
+  set:html={`
+(() => {
+  const openDetailsFromHash = () => {
+    const hash = window.location.hash;
+    if (!hash) return;
+
+    const target = document.querySelector(hash);
+    if (!target) return;
+
+    const details =
+      target.tagName === 'DETAILS' ? target : target.closest('details');
+    if (!details || details.tagName !== 'DETAILS') return;
+
+    details.open = true;
+  };
+
+  window.addEventListener('DOMContentLoaded', openDetailsFromHash);
+  window.addEventListener('hashchange', openDetailsFromHash);
+})();
+`}
+/>
