@@ -92,6 +92,8 @@ export function localeToLanguageLabel(locale: string): string | null {
       return 'Vietnamese';
     case 'tl':
       return 'Tagalog';
+    case 'id':
+      return 'Indonesian';
     case 'ko':
       return 'Korean';
     case 'hi':

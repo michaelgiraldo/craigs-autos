@@ -829,3 +829,117 @@ export const BUICK_EIGHT = {
 		},
 	],
 };
+
+const withLocaleIdBuick = (value, idValue) => ({
+	...(value ?? {}),
+	id: value?.id ?? idValue,
+});
+
+const BUICK_EIGHT_ID_COPY = {
+	title: 'Restorasi Interior Buick Eight',
+	lead: 'Proyek interior klasik kustom dengan upholstery dua warna, karpet, plafon kabin, dan finishing bagasi.',
+	overviewTitle: 'Ringkasan proyek',
+	overviewBody:
+		'Buick Eight ini dikerjakan untuk peremajaan interior menyeluruh dengan hasil rapi yang tetap menghormati karakter era aslinya. Fokus kami ada pada konsistensi material, presisi pemasangan panel, dan kabin yang terbaca sebagai satu set utuh. Pemilik kendaraan datang dari jarak lebih dari 75 mil dan menginginkan hasil kustom yang tetap terasa autentik untuk mobil ini.',
+	workTitle: 'Pekerjaan yang diselesaikan',
+	galleryTitle: 'Galeri proyek',
+	featuredKicker: 'Proyek unggulan',
+	featuredCta: 'Lihat proyek Buick Eight',
+};
+
+const BUICK_EIGHT_ID_WORK_ITEMS = [
+	'Pelapisan ulang jok bucket depan dan bangku belakang',
+	'Perbaikan panel pintu dan trim interior',
+	'Pengerjaan plafon kabin dan finishing area jendela',
+	'Pemasangan set karpet kustom dan trim konsol tengah',
+	'Penataan panel bagasi dan detail upholstery yang serasi',
+];
+
+const BUICK_EIGHT_ID_IMAGE_COPY = {
+	'dashboard-radio': {
+		alt: 'Dasbor Buick Eight dengan radio krom dan konsol berkarpet warna tan.',
+		caption: 'Detail dasbor hasil restorasi dan upholstery konsol.',
+	},
+	'door-panel': {
+		alt: 'Panel pintu Buick Eight kustom dengan lipatan putih dan trim warna tan.',
+		caption: 'Panel pintu kustom dengan pola dua warna yang konsisten.',
+	},
+	'center-console': {
+		alt: 'Konsol tengah Buick Eight dengan karpet dan finishing trim interior kustom.',
+		caption: 'Konsol tengah yang diselaraskan dengan tema interior proyek.',
+	},
+	'driver-footwell': {
+		alt: 'Area kaki pengemudi Buick Eight dengan karpet dan panel samping baru.',
+		caption: 'Detail area kaki pengemudi setelah penyegaran interior.',
+	},
+	'driver-door-seat': {
+		alt: 'Sudut jok pengemudi dan panel pintu Buick Eight dengan material yang serasi.',
+		caption: 'Kesesuaian material jok pengemudi dan panel pintu.',
+	},
+	'front-seats': {
+		alt: 'Sepasang jok depan Buick Eight setelah pelapisan ulang dua warna.',
+		caption: 'Jok depan dengan pola, jahitan, dan tone yang konsisten.',
+	},
+	headliner: {
+		alt: 'Plafon kabin Buick Eight yang sudah dipasang ulang dengan finishing rapi.',
+		caption: 'Plafon kabin baru dengan ketegangan material yang merata.',
+	},
+	'rear-interior': {
+		alt: 'Area kabin belakang Buick Eight dengan panel dan jok yang selaras.',
+		caption: 'Tampilan interior belakang yang menyatu dengan bagian depan.',
+	},
+	'exterior-front': {
+		alt: 'Tampilan depan Buick Eight restorasi dengan cat merah tua dan grille krom.',
+		caption: 'Eksterior akhir kendaraan sebelum penyerahan.',
+	},
+	'exterior-front-quarter': {
+		alt: 'Sudut depan samping Buick Eight klasik dengan ban whitewall.',
+		caption: 'Finishing eksterior yang dipotret di luar bengkel.',
+	},
+	trunk: {
+		alt: 'Bagasi Buick Eight dengan panel upholstery kustom warna tan dan putih.',
+		caption: 'Area bagasi yang diselaraskan dengan material kabin.',
+	},
+	cockpit: {
+		alt: 'Kokpit Buick Eight dengan konsol, setir, dan dasbor berfinishing kustom.',
+		caption: 'Area pengemudi dengan detail dasbor dan upholstery konsol.',
+	},
+	'seat-closeup': {
+		alt: 'Close-up jok depan Buick Eight dengan detail insert lipit putih.',
+		caption: 'Detail pengerjaan jahitan dan pola insert jok.',
+	},
+	'rear-seat': {
+		alt: 'Bangku belakang Buick Eight dengan upholstery dua warna tan dan putih.',
+		caption: 'Bangku belakang yang disesuaikan dengan jok depan.',
+	},
+	'exterior-street': {
+		alt: 'Buick Eight klasik terparkir setelah restorasi interior kustom selesai.',
+		caption: 'Tampilan kendaraan selesai setelah pekerjaan upholstery.',
+	},
+	'delivery-photo': {
+		alt: 'Pelanggan dan pemilik bengkel berfoto dengan Buick Eight yang telah direstorasi.',
+		caption: 'Foto serah terima kendaraan setelah proyek selesai.',
+	},
+};
+
+for (const [key, text] of Object.entries(BUICK_EIGHT_ID_COPY)) {
+	if (BUICK_EIGHT.copy?.[key]) {
+		BUICK_EIGHT.copy[key] = withLocaleIdBuick(BUICK_EIGHT.copy[key], text);
+	}
+}
+
+if (BUICK_EIGHT.copy?.workItems) {
+	BUICK_EIGHT.copy.workItems = withLocaleIdBuick(BUICK_EIGHT.copy.workItems, BUICK_EIGHT_ID_WORK_ITEMS);
+}
+
+BUICK_EIGHT.images = (BUICK_EIGHT.images ?? []).map((image) => {
+	const localized = BUICK_EIGHT_ID_IMAGE_COPY[image.id] ?? {};
+	const next = {
+		...image,
+		alt: withLocaleIdBuick(image.alt, localized.alt ?? 'Detail proyek Buick Eight.'),
+	};
+	if (image.caption) {
+		next.caption = withLocaleIdBuick(image.caption, localized.caption ?? 'Detail proyek Buick Eight.');
+	}
+	return next;
+});

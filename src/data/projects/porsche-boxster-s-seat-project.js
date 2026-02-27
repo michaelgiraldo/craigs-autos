@@ -593,3 +593,101 @@ export const PORSCHE_BOXSTER_S_SEAT_PROJECT = {
 		},
 	],
 };
+
+const withLocaleIdPorsche = (value, idValue) => ({
+	...(value ?? {}),
+	id: value?.id ?? idValue,
+});
+
+const PORSCHE_ID_COPY = {
+	title: 'Pelapisan Ulang Jok Porsche Boxster S',
+	lead: 'Pelapisan ulang jok Boxster S dengan bolster kulit warna saddle dan insert houndstooth yang diselaraskan dengan panel pintu.',
+	overviewTitle: 'Ringkasan proyek',
+	overviewBody:
+		'Boxster S ini masuk untuk pelapisan ulang jok depan dengan hasil yang bersih dan sporty. Kami membangun ulang cover jok dengan bolster kulit warna saddle serta insert houndstooth yang tegas, lalu menyesuaikan insert panel pintu agar seluruh kabin terlihat sebagai satu set yang sengaja dirancang serasi.',
+	workTitle: 'Pekerjaan yang diselesaikan',
+	galleryTitle: 'Galeri proyek',
+	featuredKicker: 'Proyek jok',
+	featuredCta: 'Lihat proyek jok Boxster S',
+};
+
+const PORSCHE_ID_WORK_ITEMS = [
+	'Pelapisan ulang jok depan dengan bolster kulit dan insert houndstooth',
+	'Pemeriksaan foam jok serta penyesuaian cover agar profil tetap rapat',
+	'Pembaruan insert panel pintu agar sesuai pola jok',
+	'Finishing detail pada jahitan, kontur, dan tepian panel',
+];
+
+const PORSCHE_ID_IMAGE_COPY = {
+	'front-seats-installed': {
+		alt: 'Jok depan Porsche Boxster S terpasang dengan bolster kulit saddle dan insert houndstooth.',
+		caption: 'Jok terpasang dengan kombinasi kulit dan houndstooth yang serasi.',
+	},
+	'front-seats-close': {
+		alt: 'Close-up jok depan Boxster S menampilkan bagian tengah houndstooth dan bolster kulit saddle.',
+		caption: 'Close-up pola jok dan presisi bentuk bolster.',
+	},
+	'seat-detail': {
+		alt: 'Detail jok Boxster S menampilkan insert houndstooth, jahitan, dan kulit warna saddle.',
+		caption: 'Detail jahitan dan tekstur houndstooth.',
+	},
+	'driver-seat-angle': {
+		alt: 'Sudut jok sisi pengemudi Porsche Boxster S setelah pelapisan ulang.',
+		caption: 'Sudut samping yang menunjukkan profil jok sesudah peremajaan.',
+	},
+	'door-panel': {
+		alt: 'Panel pintu Porsche Boxster S dengan insert houndstooth dan trim kulit saddle yang serasi.',
+		caption: 'Insert panel pintu diselaraskan dengan material jok.',
+	},
+	'driver-door': {
+		alt: 'Pintu pengemudi terbuka menampilkan material jok dan panel pintu Boxster S.',
+		caption: 'Kombinasi material jok dan panel pintu dalam satu tampilan.',
+	},
+	'cabin-overview': {
+		alt: 'Tampilan kabin Porsche Boxster S setelah jok hasil pelapisan ulang terpasang.',
+		caption: 'Gambaran kabin sesudah pekerjaan jok selesai.',
+	},
+	'finished-seat': {
+		alt: 'Jok Boxster S yang sudah selesai di meja kerja dengan bolster saddle dan tengah houndstooth.',
+		caption: 'Jok selesai yang siap dipasang ke kendaraan.',
+	},
+	'seat-disassembly': {
+		alt: 'Proses bongkar jok Porsche Boxster S sebelum pelapisan ulang dimulai.',
+		caption: 'Tahap pembongkaran jok sebelum pemasangan cover baru.',
+	},
+	'seat-core': {
+		alt: 'Kerangka jok Porsche Boxster S di meja kerja pada tahap persiapan upholstery.',
+		caption: 'Kerangka jok dan tahap persiapan sebelum perakitan.',
+	},
+};
+
+for (const [key, text] of Object.entries(PORSCHE_ID_COPY)) {
+	if (PORSCHE_BOXSTER_S_SEAT_PROJECT.copy?.[key]) {
+		PORSCHE_BOXSTER_S_SEAT_PROJECT.copy[key] = withLocaleIdPorsche(
+			PORSCHE_BOXSTER_S_SEAT_PROJECT.copy[key],
+			text,
+		);
+	}
+}
+
+if (PORSCHE_BOXSTER_S_SEAT_PROJECT.copy?.workItems) {
+	PORSCHE_BOXSTER_S_SEAT_PROJECT.copy.workItems = withLocaleIdPorsche(
+		PORSCHE_BOXSTER_S_SEAT_PROJECT.copy.workItems,
+		PORSCHE_ID_WORK_ITEMS,
+	);
+}
+
+PORSCHE_BOXSTER_S_SEAT_PROJECT.images = (PORSCHE_BOXSTER_S_SEAT_PROJECT.images ?? []).map((image) => {
+	const localized = PORSCHE_ID_IMAGE_COPY[image.id] ?? {};
+	const next = {
+		...image,
+		alt: withLocaleIdPorsche(image.alt, localized.alt ?? 'Detail proyek jok Boxster S.'),
+	};
+	if (image.caption) {
+		next.caption = withLocaleIdPorsche(
+			image.caption,
+			localized.caption ?? 'Detail proyek jok Boxster S.',
+		);
+	}
+	return next;
+});

@@ -24,6 +24,7 @@ export const CHATKIT_LOCALE_MAP = {
   vi: 'vi',
   'zh-hans': 'zh-CN',
   tl: 'tl',
+  id: 'id',
   ko: 'ko',
   hi: 'hi',
   pa: 'pa',
