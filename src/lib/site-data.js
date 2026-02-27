@@ -1827,6 +1827,20 @@ Object.assign(CHAT_COPY, {
 	},
 });
 
+const COMMERCIAL_FLEET_PAGE_PATHS = {
+	es: '/es/tapiceria-flotas-comerciales/',
+};
+for (const [locale, mappedPath] of Object.entries(COMMERCIAL_FLEET_PAGE_PATHS)) {
+	PAGE_PATHS.commercialFleet = { ...(PAGE_PATHS.commercialFleet ?? {}), [locale]: mappedPath };
+}
+
+const COMMERCIAL_FLEET_NAV_LABELS = {
+	es: 'Flotas comerciales',
+};
+for (const [locale, label] of Object.entries(COMMERCIAL_FLEET_NAV_LABELS)) {
+	NAV_LABELS[locale] = { ...(NAV_LABELS[locale] ?? {}), commercialFleet: label };
+}
+
 export function getTranslations(key) {
 	return PAGE_PATHS[key] ?? PAGE_PATHS.home;
 }
