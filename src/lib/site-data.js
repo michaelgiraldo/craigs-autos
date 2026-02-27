@@ -1842,6 +1842,7 @@ const COMMERCIAL_FLEET_PAGE_PATHS = {
 	'pt-br': '/pt-br/estofamento-de-frotas-comerciais/',
 	'zh-hant': '/zh-hant/商用車隊內飾/',
 	ja: '/ja/商用フリート内装/',
+	ar: '/ar/تنجيد-الأساطيل-التجارية/',
 };
 for (const [locale, mappedPath] of Object.entries(COMMERCIAL_FLEET_PAGE_PATHS)) {
 	PAGE_PATHS.commercialFleet = { ...(PAGE_PATHS.commercialFleet ?? {}), [locale]: mappedPath };
@@ -1862,6 +1863,7 @@ const COMMERCIAL_FLEET_NAV_LABELS = {
 	'pt-br': 'Frotas comerciais',
 	'zh-hant': '商用車隊',
 	ja: '商用フリート',
+	ar: 'الأساطيل التجارية',
 };
 for (const [locale, label] of Object.entries(COMMERCIAL_FLEET_NAV_LABELS)) {
 	NAV_LABELS[locale] = { ...(NAV_LABELS[locale] ?? {}), commercialFleet: label };
