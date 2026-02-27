@@ -1832,6 +1832,7 @@ const COMMERCIAL_FLEET_PAGE_PATHS = {
 	vi: '/vi/boc-noi-that-doi-xe-thuong-mai/',
 	'zh-hans': '/zh-hans/商用车队内饰/',
 	tl: '/tl/tapiseriya-ng-komersyal-na-fleet/',
+	id: '/id/upholstery-armada-komersial/',
 };
 for (const [locale, mappedPath] of Object.entries(COMMERCIAL_FLEET_PAGE_PATHS)) {
 	PAGE_PATHS.commercialFleet = { ...(PAGE_PATHS.commercialFleet ?? {}), [locale]: mappedPath };
@@ -1842,6 +1843,7 @@ const COMMERCIAL_FLEET_NAV_LABELS = {
 	vi: 'Đội xe thương mại',
 	'zh-hans': '商用车队',
 	tl: 'Komersyal na fleet',
+	id: 'Armada komersial',
 };
 for (const [locale, label] of Object.entries(COMMERCIAL_FLEET_NAV_LABELS)) {
 	NAV_LABELS[locale] = { ...(NAV_LABELS[locale] ?? {}), commercialFleet: label };
