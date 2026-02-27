@@ -1834,6 +1834,7 @@ const COMMERCIAL_FLEET_PAGE_PATHS = {
 	tl: '/tl/tapiseriya-ng-komersyal-na-fleet/',
 	id: '/id/upholstery-armada-komersial/',
 	fa: '/fa/روکش-ناوگان-تجاری/',
+	te: '/te/వాణిజ్య-ఫ్లీట్-అప్హోల్స్టరీ/',
 };
 for (const [locale, mappedPath] of Object.entries(COMMERCIAL_FLEET_PAGE_PATHS)) {
 	PAGE_PATHS.commercialFleet = { ...(PAGE_PATHS.commercialFleet ?? {}), [locale]: mappedPath };
@@ -1846,6 +1847,7 @@ const COMMERCIAL_FLEET_NAV_LABELS = {
 	tl: 'Komersyal na fleet',
 	id: 'Armada komersial',
 	fa: 'ناوگان تجاری',
+	te: 'వాణిజ్య ఫ్లీట్',
 };
 for (const [locale, label] of Object.entries(COMMERCIAL_FLEET_NAV_LABELS)) {
 	NAV_LABELS[locale] = { ...(NAV_LABELS[locale] ?? {}), commercialFleet: label };
