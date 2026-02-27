@@ -1829,6 +1829,7 @@ Object.assign(CHAT_COPY, {
 
 const COMMERCIAL_FLEET_PAGE_PATHS = {
 	es: '/es/tapiceria-flotas-comerciales/',
+	vi: '/vi/boc-noi-that-doi-xe-thuong-mai/',
 };
 for (const [locale, mappedPath] of Object.entries(COMMERCIAL_FLEET_PAGE_PATHS)) {
 	PAGE_PATHS.commercialFleet = { ...(PAGE_PATHS.commercialFleet ?? {}), [locale]: mappedPath };
@@ -1836,6 +1837,7 @@ for (const [locale, mappedPath] of Object.entries(COMMERCIAL_FLEET_PAGE_PATHS)) 
 
 const COMMERCIAL_FLEET_NAV_LABELS = {
 	es: 'Flotas comerciales',
+	vi: 'Đội xe thương mại',
 };
 for (const [locale, label] of Object.entries(COMMERCIAL_FLEET_NAV_LABELS)) {
 	NAV_LABELS[locale] = { ...(NAV_LABELS[locale] ?? {}), commercialFleet: label };
