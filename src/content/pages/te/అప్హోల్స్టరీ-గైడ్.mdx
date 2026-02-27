@@ -1,12 +1,277 @@
 ---
-title: "అప్హోల్స్టరీ గైడ్ | Craig's Auto Upholstery"
-description: "కోట్ కోసం అవసరమైన ఫోటోలు, వివరాలు మరియు పని పరిధి నిర్ణయం కోసం గైడ్."
-pageKey: upholsteryGuide
+title: "అప్హోల్స్టరీ గైడ్ | ఆటో ఇంటీరియర్ నిర్ణయ మార్గదర్శకం"
+description: "ఆటో అప్హోల్స్టరీ కొనుగోలుదారుల గైడ్: మెటీరియల్స్, పని పరిధి, ధరలు, మరియు ప్రాసెస్ గురించి స్పష్టమైన మార్గదర్శకం."
+pageKey: "upholsteryGuide"
 ---
-# అప్హోల్స్టరీ గైడ్
+import LocalizedLink from "../../../components/LocalizedLink.astro";
 
-సరైన అంచనా కోసం వాహనం మోడల్, సమస్య ఉన్న భాగం, మరియు ఫినిష్ లక్ష్యం అవసరం.
+import PageHero from "../../../components/PageHero.astro";
+import ServiceCards from "../../../components/ServiceCards.astro";
+import FaqSection from "../../../components/FaqSection.astro";
 
-సంవత్సరం, బ్రాండ్, మోడల్ వివరాలు మరియు పాడైన ప్రాంతం క్లియర్‌గా పంపండి.
+export const faqs = [
+  {
+    q: "స్యాగింగ్ హెడ్‌లైనర్ అంటే ఫ్యాబ్రిక్ సమస్యనా?",
+    a: "చాలా సార్లు కాదు. ప్రధానంగా ఫోమ్ బ్యాకింగ్ మరియు అడ్హేసివ్ ముందుగా ఫెయిల్ అవుతాయి.",
+  },
+  {
+    q: "రీ-అప్హోల్స్టరీ చేయకుండా సీట్ ఫోమ్ రీబిల్డ్ చేయగలరా?",
+    a: "అవును. కవర్ బాగుంటే ఫోమ్ పని ద్వారా కంఫర్ట్ తిరిగి పొందవచ్చు.",
+  },
+  {
+    q: "కోట్ కోసం ఏ ఫోటోలు ఉపయోగపడతాయి?",
+    a: "సంవత్సరం/బ్రాండ్/మోడల్‌తో పాటు wide ఫోటో, డ్యామేజ్ close-up, మరియు side-angle ఫోటో పంపండి.",
+  },
+  {
+    q: "అప్హోల్స్టరీ పనికి సాధారణంగా ఎంత సమయం పడుతుంది?",
+    a: "హెడ్‌లైనర్ పని మెటీరియల్ రెడీ అయితే త్వరగా పూర్తవుతుంది. సీట్ రీబిల్డ్, మల్టీ-ప్యానెల్ పనులు ఎక్కువ సమయం తీసుకోవచ్చు.",
+  },
+  {
+    q: "వినైల్ ఎప్పుడూ లెదర్ కంటే తక్కువ ఖర్చా?",
+    a: "ఎప్పుడూ కాదు. మెటీరియల్ గ్రేడ్ మరియు లేబర్ కాంప్లెక్సిటీ ముఖ్యమైనవి.",
+  },
+];
 
-ఆ వివరాల ఆధారంగా రిపేర్ లేదా పూర్తి రీడూ ఎంపిక సూచిస్తాము.
+<PageHero
+  locale="te"
+  title="అప్హోల్స్టరీ గైడ్"
+  lead="ఆటో అప్హోల్స్టరీ కొనుగోలు నిర్ణయం కోసం: మెటీరియల్స్, స్కోప్, ధరలు, ప్రాసెస్"
+/>
+
+<ServiceCards locale="te" />
+
+ముందుగా మీరు చూస్తున్న సమస్యతో మొదలు పెట్టండి. ప్రతి సెక్షన్‌లో సమస్య ఎందుకు వస్తుంది, ఏ పరిష్కారం ఎక్కువకాలం నిలుస్తుంది, కోట్‌కు ముందు ఏం అడగాలో ఉంటుంది.
+
+---
+
+<h2 id="issues">మీ సమస్యను గుర్తించండి</h2>
+
+<div class="issue-cards">
+  <details id="issue-headliner" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">హెడ్‌లైనర్ స్యాగింగ్ లేదా బబుల్స్</span>
+      <span class="issue-card__summary-text">ఫోమ్ బ్యాకింగ్ degrade అయితే గ్లూ-మాత్రమే ఫిక్స్ వేడిలో నిలవదు.</span>
+    </summary>
+    <div class="issue-card__body">
+      <p class="issue-card__title">త్వరిత సారాంశం</p>
+      <ul>
+        <li><strong>లక్షణాలు:</strong> రూఫ్‌ అంతా ఫ్యాబ్రిక్ వదులుకావడం లేదా బబుల్స్ రావడం.</li>
+        <li><strong>కారణం:</strong> ఫోమ్ బ్యాకింగ్ బ్రేక్‌డౌన్; అడ్హేసివ్ బలం తగ్గిపోవడం.</li>
+        <li><strong>ఎక్కువకాలం ఉండే పరిష్కారం:</strong> పెద్ద ప్రాంతం అయితే పూర్తి రీకవర్; లోకల్ సమస్య అయితే మాత్రమే లోకల్ రిపేర్.</li>
+        <li><strong>అడగాల్సినది:</strong> ప్యానెల్ తొలగింపు, పాత ఫోమ్ స్ట్రిప్పింగ్, హై-టెంప్ అడ్హేసివ్ వాడుతారా?</li>
+        <li><strong>పంపాల్సిన ఫోటోలు:</strong> రూఫ్ wide, స్యాగ్ close-up, edges/stain close-up.</li>
+      </ul>
+
+      <details class="details-card">
+        <summary>
+          <span>ఇది ఎందుకు జరుగుతుంది?</span>
+          <span class="details-card__summary-text">బ్యాకింగ్ ఫెయిల్ అయితే అడ్హేసివ్‌కు పట్టే బేస్ ఉండదు.</span>
+        </summary>
+        <p>హెడ్‌లైనర్‌లో ఫ్యాబ్రిక్ కంటే ముందుగా ఫోమ్ లేయర్ degrade అవుతుంది. అది పౌడర్‌లా విడిపోతే గ్లూ పట్టదు.</p>
+        <p>స్ప్రే గ్లూ/పిన్స్ తాత్కాలికం మాత్రమే. పెద్ద స్యాగింగ్‌లో ప్యానెల్ తీసి శుభ్రం చేసి మళ్లీ సరిగ్గా రీకవర్ చేయడం ఉత్తమం.</p>
+      </details>
+
+      <p class="issue-card__links">
+        మరింత వివరాలు: <LocalizedLink locale="te" pageKey="headliners">హెడ్‌లైనర్</LocalizedLink> · కోట్ కావాలా?
+        <LocalizedLink locale="te" pageKey="contact">సంప్రదించండి</LocalizedLink>
+      </p>
+    </div>
+  </details>
+
+  <details id="issue-seat-foam" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">సీట్ ఫ్లాట్ లేదా లోగా అనిపించడం</span>
+      <span class="issue-card__summary-text">చాలా సందర్భాల్లో సమస్య కవర్ కాదు, ఫోమ్/సపోర్ట్‌లో ఉంటుంది.</span>
+    </summary>
+    <div class="issue-card__body">
+      <p class="issue-card__title">త్వరిత సారాంశం</p>
+      <ul>
+        <li><strong>లక్షణాలు:</strong> సీట్ చూడటానికి బాగుండి కూర్చుంటే దిగిపోయిన ఫీల్.</li>
+        <li><strong>కారణం:</strong> ఫోమ్/సపోర్ట్ కుంగిపోవడం.</li>
+        <li><strong>ఎక్కువకాలం పరిష్కారం:</strong> ఫోమ్ రీబిల్డ్ లేదా రీప్లేస్.</li>
+        <li><strong>అడగాల్సినది:</strong> ఫోమ్/సపోర్ట్ పని చేస్తారా? లేక కవర్ మాత్రమే మార్చుతారా?</li>
+        <li><strong>ఫోటోలు:</strong> side profile, dips/wrinkles కనిపించే కోణం.</li>
+      </ul>
+
+      <details class="details-card">
+        <summary>
+          <span>ఇది ఎందుకు జరుగుతుంది?</span>
+          <span class="details-card__summary-text">కంఫర్ట్ కవర్‌ కంటే ఫోమ్ షేప్/డెన్సిటీపై ఆధారపడి ఉంటుంది.</span>
+        </summary>
+        <p>డ్రైవర్ సీట్‌లో ముఖ్యంగా ఫోమ్ కాలక్రమంలో కంప్రెస్ అవుతుంది. అందుకే కూర్చోవడంలో అసౌకర్యం వస్తుంది.</p>
+        <p>కొత్త కవర్ వేసినా స్ట్రక్చర్ తిరిగి రాదు. అవసరమైతే ఫోమ్ పని + కవర్ ఫిట్ ఇద్దరూ అవసరం.</p>
+      </details>
+
+      <p class="issue-card__links">
+        మరింత వివరాలు: <LocalizedLink locale="te" pageKey="carSeats">కార్ సీట్లు</LocalizedLink> · కోట్ కావాలా?
+        <LocalizedLink locale="te" pageKey="contact">సంప్రదించండి</LocalizedLink>
+      </p>
+    </div>
+  </details>
+
+  <details id="issue-seat-bolster" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">సీట్ అంచు ముందుగా పగిలిపోవడం</span>
+      <span class="issue-card__summary-text">ఎంట్రీ/ఎగ్జిట్ సమయంలో ఎక్కువ ఫ్రిక్షన్ ఈ ప్రాంతానికే వస్తుంది.</span>
+    </summary>
+    <div class="issue-card__body">
+      <p class="issue-card__title">త్వరిత సారాంశం</p>
+      <ul>
+        <li><strong>లక్షణాలు:</strong> బోల్స్టర్ క్రాక్/స్ప్లిట్/రబ్ అయ్యిపోవడం.</li>
+        <li><strong>కారణం:</strong> నిరంతర ఫ్రిక్షన్ + ఫోమ్ డీఫార్మేషన్.</li>
+        <li><strong>ఎక్కువకాలం పరిష్కారం:</strong> ప్యానెల్ మార్పు + ఫోమ్ ఎడ్జ్ రీబిల్డ్.</li>
+        <li><strong>అడగాల్సినది:</strong> ప్యానెల్ మారుస్తారా? సీమ్ రీన్ఫోర్స్ చేస్తారా? ఫోమ్ ఎడ్జ్ రీబిల్డ్ చేస్తారా?</li>
+      </ul>
+
+      <details class="details-card">
+        <summary>
+          <span>ఇది ఎందుకు జరుగుతుంది?</span>
+          <span class="details-card__summary-text">ఎంటర్/ఎగ్జిట్ రిపీటెడ్ మూమెంట్ వల్ల ఈ ప్రాంతం ముందే వేర్ అవుతుంది.</span>
+        </summary>
+        <p>బోల్స్టర్ మీదే ఎక్కువ స్లైడింగ్, ప్రెషర్ వస్తాయి. అందుకే క్రాకింగ్ మొదటి సంకేతం అక్కడే ఉంటుంది.</p>
+      </details>
+
+      <p class="issue-card__links">
+        మరింత వివరాలు: <LocalizedLink locale="te" pageKey="carSeats">కార్ సీట్లు</LocalizedLink> · కోట్ కావాలా?
+        <LocalizedLink locale="te" pageKey="contact">సంప్రదించండి</LocalizedLink>
+      </p>
+    </div>
+  </details>
+
+  <details id="issue-door-panel" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">డోర్ ప్యానెల్ పీలింగ్ లేదా వార్పింగ్</span>
+      <span class="issue-card__summary-text">హీట్ + మాయిశ్చర్ వల్ల అడ్హేసివ్ బలహీనపడి బ్యాకింగ్ డిఫామ్ అవుతుంది.</span>
+    </summary>
+    <div class="issue-card__body">
+      <p class="issue-card__title">త్వరిత సారాంశం</p>
+      <ul>
+        <li><strong>లక్షణాలు:</strong> edge peeling, bubbles, వేవీ ప్యానెల్.</li>
+        <li><strong>కారణం:</strong> heat-affected adhesive, warped backing board.</li>
+        <li><strong>ఎక్కువకాలం పరిష్కారం:</strong> backing బలంగా ఉంటే re-skin; warped అయితే backing rebuild/replace.</li>
+        <li><strong>అడగాల్సినది:</strong> backing తిరిగి వాడదగినదా? heat-rated adhesive వాడుతారా?</li>
+      </ul>
+
+      <p class="issue-card__links">
+        మరింత వివరాలు: <LocalizedLink locale="te" pageKey="autoUpholstery">ఆటో అప్హోల్స్టరీ</LocalizedLink> · కోట్ కావాలా?
+        <LocalizedLink locale="te" pageKey="contact">సంప్రదించండి</LocalizedLink>
+      </p>
+    </div>
+  </details>
+</div>
+
+<h2 id="reference">నిర్ణయం ముందుకు తీసుకునే ముందు తెలుసుకోవాల్సినవి</h2>
+
+<div class="issue-cards">
+  <details id="ref-materials" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">వాస్తవ యూజ్‌కు సరిపోయే మెటీరియల్స్</span>
+      <span class="issue-card__summary-text">కంఫర్ట్, క్లీనింగ్, హీట్, మెయింటెనెన్స్‌పై ఆధారపడి ఎంపిక చేయండి.</span>
+    </summary>
+    <div class="issue-card__body">
+      <ul>
+        <li><strong>ప్రీమియం ఫీల్:</strong> లెదర్ వైపు వెళ్లండి.</li>
+        <li><strong>ఈజీ మెయింటెనెన్స్ + durability:</strong> వినైల్.</li>
+        <li><strong>న్యూట్రల్ టెంపరేచర్ ఫీల్:</strong> ఫ్యాబ్రిక్.</li>
+        <li><strong>బయట నిలిపే వాహనం:</strong> UV-rated మెటీరియల్స్ + high-temp adhesive.</li>
+      </ul>
+
+      <div class="decision-card">
+        <p class="decision-card__title">లెదర్</p>
+        <ul>
+          <li><strong>ఎందుకు:</strong> మంచి ఫీల్ మరియు ప్రీమియం లుక్.</li>
+          <li><strong>జాగ్రత్త:</strong> క్రమం తప్పకుండా కేర్ అవసరం.</li>
+        </ul>
+      </div>
+
+      <div class="decision-card">
+        <p class="decision-card__title">వినైల్</p>
+        <ul>
+          <li><strong>ఎందుకు:</strong> రోజువారీ వాడకానికి బాగుంటుంది.</li>
+          <li><strong>జాగ్రత్త:</strong> హీట్‌లో సర్ఫేస్ వేడి అవుతుంది.</li>
+        </ul>
+      </div>
+
+      <div class="decision-card">
+        <p class="decision-card__title">ఫ్యాబ్రిక్</p>
+        <ul>
+          <li><strong>ఎందుకు:</strong> కంఫర్ట్.</li>
+          <li><strong>జాగ్రత్త:</strong> spills/odors వేగంగా ప్రభావితం చేయవచ్చు.</li>
+        </ul>
+      </div>
+    </div>
+  </details>
+
+  <details id="ref-scope" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">సరైన పని స్థాయి ఎంపిక</span>
+      <span class="issue-card__summary-text">ప్రాబ్లమ్ నిజంగా పరిష్కారమయ్యే కనిష్ట పరిధిని ఎంచుకోండి.</span>
+    </summary>
+    <div class="issue-card__body">
+      <ul>
+        <li><strong>లోకల్ రిపేర్:</strong> చిన్న సమస్యలకు</li>
+        <li><strong>ప్యానెల్ రీప్లేస్‌మెంట్:</strong> బోల్స్టర్ వంటి భాగాలకు</li>
+        <li><strong>రీ-అప్హోల్స్టరీ:</strong> మల్టిపుల్ ప్యానెల్స్ ఫెయిల్ అయితే</li>
+        <li><strong>ఫోమ్-ఫస్ట్ ఆలోచన:</strong> కంఫర్ట్ అసలు ఫోమ్/సపోర్ట్ నుంచి వస్తుంది</li>
+      </ul>
+    </div>
+  </details>
+
+  <details id="ref-pricing" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">ధరలు మరియు కోట్స్</span>
+      <span class="issue-card__summary-text">ధర కంటే “ఏం include అయింది” అన్నది పోల్చండి.</span>
+    </summary>
+    <div class="issue-card__body">
+      <ul>
+        <li>డిస్సెంబ్లీ/అసెంబ్లీ సమయం</li>
+        <li>ప్యానెల్ కాంప్లెక్సిటీ</li>
+        <li>ఫోమ్/సపోర్ట్ పని</li>
+        <li>మెటీరియల్ క్వాలిటీ</li>
+        <li>పాత రిపేర్స్ వల్ల hidden issues</li>
+      </ul>
+    </div>
+  </details>
+
+  <details id="ref-process" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">ప్రాసెస్ & ఎక్స్‌పెక్టేషన్స్</span>
+      <span class="issue-card__summary-text">కోట్‌కు ఏమి పంపాలి, టైమ్‌లైన్ ఎలా నిర్ణయిస్తాం, పికప్ సమయంలో ఏమి చెక్ చేయాలి.</span>
+    </summary>
+    <div class="issue-card__body">
+      <ul>
+        <li>సంవత్సరం/బ్రాండ్/మోడల్ + 3 ఫోటోలు + ఒక స్పష్టమైన వాక్యం</li>
+        <li>టైమ్‌లైన్ పని పరిమాణం/మెటీరియల్స్‌పై ఆధారపడి ఉంటుంది</li>
+        <li>పికప్ సమయంలో seams, fit, edges, comfort అన్నీ చెక్ చేయాలి</li>
+      </ul>
+    </div>
+  </details>
+</div>
+
+---
+
+<FaqSection heading="అప్హోల్స్టరీ గైడ్ FAQ" faqs={faqs} />
+
+<script
+  is:inline
+  set:html={`
+(() => {
+  const openDetailsFromHash = () => {
+    const hash = window.location.hash;
+    if (!hash) return;
+
+    const target = document.querySelector(hash);
+    if (!target) return;
+
+    const details =
+      target.tagName === 'DETAILS' ? target : target.closest('details');
+    if (!details || details.tagName !== 'DETAILS') return;
+
+    details.open = true;
+  };
+
+  window.addEventListener('DOMContentLoaded', openDetailsFromHash);
+  window.addEventListener('hashchange', openDetailsFromHash);
+})();
+`}
+/>
