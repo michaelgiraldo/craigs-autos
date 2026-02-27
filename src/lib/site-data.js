@@ -1844,6 +1844,7 @@ const COMMERCIAL_FLEET_PAGE_PATHS = {
 	ja: '/ja/商用フリート内装/',
 	ar: '/ar/تنجيد-الأساطيل-التجارية/',
 	ru: '/ru/обивка-коммерческого-автопарка/',
+	ta: '/ta/வணிக-படை-உள்வடிவம்/',
 };
 for (const [locale, mappedPath] of Object.entries(COMMERCIAL_FLEET_PAGE_PATHS)) {
 	PAGE_PATHS.commercialFleet = { ...(PAGE_PATHS.commercialFleet ?? {}), [locale]: mappedPath };
@@ -1866,6 +1867,7 @@ const COMMERCIAL_FLEET_NAV_LABELS = {
 	ja: '商用フリート',
 	ar: 'الأساطيل التجارية',
 	ru: 'Коммерческий автопарк',
+	ta: 'வணிக வாகனப் படை',
 };
 for (const [locale, label] of Object.entries(COMMERCIAL_FLEET_NAV_LABELS)) {
 	NAV_LABELS[locale] = { ...(NAV_LABELS[locale] ?? {}), commercialFleet: label };

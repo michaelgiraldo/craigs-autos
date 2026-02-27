@@ -41,7 +41,7 @@ const BANNED_TOKEN_RULES = {
   ],
 };
 
-const PARTIAL_LOCALE_PAGE_KEYS = new Set(['commercialFleet']);
+const PARTIAL_LOCALE_PAGE_KEYS = new Set();
 
 const errors = [];
 
