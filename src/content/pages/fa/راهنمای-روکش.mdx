@@ -11,24 +11,24 @@ import FaqSection from "../../../components/FaqSection.astro";
 
 export const faqs = [
   {
-    q: "افتادگی سقف داخل مشکل پارچه است؟",
-    a: "معمولاً نه. بکینگ فوم و چسب زودتر از خود پارچه خراب می‌شوند.",
+    q: "افتادگی سقف داخل معمولاً مشکل پارچه است؟",
+    a: "معمولاً نه. بیشتر مواقع زیرلایه فوم و چسب زودتر از خود پارچه از بین می‌روند، بنابراین چسباندن ساده پارچه دوام زیادی ندارد.",
   },
   {
     q: "می‌شود بدون بازروکشی کامل، فقط فوم صندلی را اصلاح کرد؟",
-    a: "بله. اگر روکش سالم باشد، بازسازی فوم می‌تواند راحتی را برگرداند.",
+    a: "بله. اگر روکش فعلی سالم باشد، بازسازی فوم می‌تواند راحتی را برگرداند. اگر تغییر فرم زیاد باشد، ممکن است روکش هم نیاز به اصلاح یا تعویض داشته باشد.",
   },
   {
-    q: "برای برآورد، چه عکس‌هایی لازم است؟",
-    a: "سال/برند/مدل + یک عکس کلی، یک کلوزآپ از آسیب، و یک زاویه جانبی.",
+    q: "برای برآورد دقیق چه عکس‌هایی لازم است؟",
+    a: "سال/برند/مدل به‌همراه یک نمای کلی، یک کلوزآپ از آسیب و یک زاویه جانبی. برای سقف داخل و کابریولت، عکس لبه‌ها و درزها هم مهم است.",
   },
   {
     q: "زمان اجرای کار معمولاً چقدر است؟",
-    a: "کار سقف داخل می‌تواند سریع‌تر باشد. بازسازی صندلی و کارهای چندپنلی معمولاً زمان بیشتری می‌گیرند.",
+    a: "به اندازه کار و نوع متریال بستگی دارد. کارهای محدود سریع‌تر انجام می‌شوند، اما بازسازی چندپنلی یا پروژه کامل زمان بیشتری می‌خواهد.",
   },
   {
     q: "وینیل همیشه ارزان‌تر از چرم است؟",
-    a: "نه همیشه. کیفیت متریال و پیچیدگی اجرا تعیین‌کننده‌تر هستند.",
+    a: "نه همیشه. کیفیت متریال، جزئیات دوخت، پیچیدگی قطعات و زمان اجرا می‌تواند قیمت را بیشتر از نام متریال جابه‌جا کند.",
   },
 ];
 
@@ -40,7 +40,8 @@ export const faqs = [
 
 <ServiceCards locale="fa" />
 
-از مشکل مشخصی که می‌بینید شروع کنید. هر بخش توضیح می‌دهد چرا این مشکل ایجاد می‌شود، چه راهکاری ماندگار است و قبل از پرداخت چه سوالی باید بپرسید.
+از همان مشکلی شروع کنید که هر روز می‌بینید. هر بخش توضیح می‌دهد چرا مشکل ایجاد می‌شود، کدام راهکار ماندگار است،
+و قبل از هزینه‌کردن چه پرسش‌هایی باید مطرح کنید.
 
 ---
 
@@ -50,16 +51,30 @@ export const faqs = [
   <details id="issue-headliner" class="issue-card">
     <summary class="issue-card__summary">
       <span class="issue-card__summary-title">افتادگی یا حباب سقف داخل</span>
-      <span class="issue-card__summary-text">وقتی بکینگ فوم از بین می‌رود، چسب‌کاری موضعی دوام ندارد.</span>
+      <span class="issue-card__summary-text">وقتی زیرلایه فوم تخریب می‌شود، چسب‌کاری موضعی معمولاً در گرما دوام ندارد.</span>
     </summary>
     <div class="issue-card__body">
+      <p class="issue-card__title">خلاصه سریع</p>
       <ul>
-        <li><strong>نشانه‌ها:</strong> پارچه سقف آویزان، حباب، افت گسترده.</li>
-        <li><strong>علت محتمل:</strong> تخریب فوم و افت عملکرد چسب.</li>
-        <li><strong>راهکار ماندگار:</strong> در افت گسترده، تعویض کامل؛ در موارد محدود، تعمیر موضعی.</li>
+        <li><strong>نشانه‌ها:</strong> آویزان‌شدن پارچه، موج و حباب، افت گسترده در سقف.</li>
+        <li><strong>علت محتمل:</strong> تخریب فوم زیرلایه و افت چسبندگی.</li>
+        <li><strong>راهکار ماندگار:</strong> در افت گسترده، تعویض کامل؛ در مشکل محدود، بررسی تعمیر موضعی.</li>
+        <li><strong>باید بپرسید:</strong> آیا پنل کامل باز می‌شود، زیرلایه تمیز می‌شود و چسب مقاوم به دما استفاده می‌شود؟</li>
+        <li><strong>عکس مفید:</strong> نمای کلی سقف، کلوزآپ افتادگی، عکس لبه‌ها/لکه‌ها.</li>
       </ul>
+
+      <details class="details-card">
+        <summary>
+          <span>چرا این مشکل رخ می‌دهد؟</span>
+          <span class="details-card__summary-text">بدون زیرلایه سالم، چسب پایدار نمی‌ماند.</span>
+        </summary>
+        <p>در اغلب خودروها پارچه سقف روی یک لایه فوم نازک قرار دارد. با گرما و گذشت زمان، این فوم به پودر تبدیل می‌شود و سطح چسبندگی پایدار از بین می‌رود.</p>
+        <p>اسپری چسب یا پونز ممکن است موقتاً ظاهر را بهتر کند، اما روی زیرلایه تخریب‌شده ماندگار نیست. اگر افتادگی گسترده باشد، تعویض کامل مسیر قابل اتکاتری است.</p>
+      </details>
+
       <p class="issue-card__links">
-        جزئیات: <LocalizedLink locale="fa" pageKey="headliners">سقف داخل</LocalizedLink> · برآورد؟ <LocalizedLink locale="fa" pageKey="contact">تماس</LocalizedLink>
+        جزئیات بیشتر: <LocalizedLink locale="fa" pageKey="headliners">سقف داخل</LocalizedLink> · آماده برآورد؟
+        <LocalizedLink locale="fa" pageKey="contact">تماس</LocalizedLink>
       </p>
     </div>
   </details>
@@ -67,53 +82,94 @@ export const faqs = [
   <details id="issue-seat-foam" class="issue-card">
     <summary class="issue-card__summary">
       <span class="issue-card__summary-title">صندلی خوابیده یا پایین</span>
-      <span class="issue-card__summary-text">اغلب مشکل از فوم/ساپورت است نه از خود روکش.</span>
+      <span class="issue-card__summary-text">اغلب مشکل از فوم و تکیه‌گاه است، نه صرفاً از روکش.</span>
     </summary>
     <div class="issue-card__body">
+      <p class="issue-card__title">خلاصه سریع</p>
       <ul>
-        <li><strong>نشانه‌ها:</strong> ظاهر قابل‌قبول ولی حس نشیمن بد.</li>
-        <li><strong>راهکار:</strong> بازسازی یا تعویض فوم/ساپورت.</li>
+        <li><strong>نشانه‌ها:</strong> ظاهر قابل‌قبول ولی نشیمن کم‌ارتفاع، نامتقارن یا ناراحت.</li>
+        <li><strong>علت محتمل:</strong> افت دانسیته فوم یا ضعف لایه‌های تکیه‌گاه.</li>
+        <li><strong>راهکار ماندگار:</strong> بازسازی یا تعویض فوم/تکیه‌گاه و سپس تنظیم فیت روکش.</li>
+        <li><strong>باید بپرسید:</strong> فقط روکش عوض می‌شود یا فوم و زیرساخت هم اصلاح می‌شود؟</li>
+        <li><strong>عکس مفید:</strong> نمای جانبی صندلی، نقاط فرورفته، چروک‌های ناشی از خواب فوم.</li>
       </ul>
+
+      <details class="details-card">
+        <summary>
+          <span>چرا این مشکل رخ می‌دهد؟</span>
+          <span class="details-card__summary-text">راحتی واقعی از فوم و تکیه‌گاه می‌آید.</span>
+        </summary>
+        <p>صندلی با فشار روزانه مخصوصاً در سمت راننده به‌مرور فرم خود را از دست می‌دهد. تعویض روکش می‌تواند ظاهر را بهتر کند، اما راحتی و فرم بدون اصلاح فوم برنمی‌گردد.</p>
+        <p>اگر بازسازی فوم باعث تغییر فرم شود، ممکن است روکش هم نیازمند اصلاح یا تعویض باشد تا نتیجه نهایی صاف و دقیق بنشیند.</p>
+      </details>
+
       <p class="issue-card__links">
-        جزئیات: <LocalizedLink locale="fa" pageKey="carSeats">صندلی خودرو</LocalizedLink> · برآورد؟ <LocalizedLink locale="fa" pageKey="contact">تماس</LocalizedLink>
+        جزئیات بیشتر: <LocalizedLink locale="fa" pageKey="carSeats">صندلی خودرو</LocalizedLink> · آماده برآورد؟
+        <LocalizedLink locale="fa" pageKey="contact">تماس</LocalizedLink>
       </p>
     </div>
   </details>
 
   <details id="issue-seat-bolster" class="issue-card">
     <summary class="issue-card__summary">
-      <span class="issue-card__summary-title">ترک در لبه صندلی</span>
-      <span class="issue-card__summary-text">به دلیل اصطکاک مکرر در ورود/خروج.</span>
+      <span class="issue-card__summary-title">ترک‌خوردن لبه صندلی</span>
+      <span class="issue-card__summary-text">لبه صندلی در ورود/خروج بیشترین اصطکاک را تحمل می‌کند.</span>
     </summary>
     <div class="issue-card__body">
+      <p class="issue-card__title">خلاصه سریع</p>
       <ul>
-        <li><strong>نشانه‌ها:</strong> ترک یا پارگی لبه صندلی.</li>
-        <li><strong>راهکار:</strong> تعویض پنل + بازسازی لبه فوم.</li>
+        <li><strong>نشانه‌ها:</strong> ترک، پارگی یا سایش شدید در بغل صندلی.</li>
+        <li><strong>علت محتمل:</strong> اصطکاک تکراری و تغییر فرم فوم لبه.</li>
+        <li><strong>راهکار ماندگار:</strong> تعویض پنل آسیب‌دیده همراه با اصلاح فوم لبه.</li>
+        <li><strong>باید بپرسید:</strong> آیا فقط پنل تعویض می‌شود یا فوم لبه هم بازسازی می‌شود؟</li>
       </ul>
+
+      <details class="details-card">
+        <summary>
+          <span>چرا این مشکل تکرار می‌شود؟</span>
+          <span class="details-card__summary-text">بدون اصلاح فرم لبه، پنل جدید هم تحت تنش می‌ماند.</span>
+        </summary>
+        <p>اگر فوم لبه نرم یا فرسوده باشد، پنل جدید هم کشیده می‌شود و زودتر از حد انتظار دوباره آسیب می‌بیند. برای دوام، پنل و فوم باید همزمان اصلاح شوند.</p>
+      </details>
+
       <p class="issue-card__links">
-        جزئیات: <LocalizedLink locale="fa" pageKey="carSeats">صندلی خودرو</LocalizedLink> · برآورد؟ <LocalizedLink locale="fa" pageKey="contact">تماس</LocalizedLink>
+        جزئیات بیشتر: <LocalizedLink locale="fa" pageKey="carSeats">صندلی خودرو</LocalizedLink> · آماده برآورد؟
+        <LocalizedLink locale="fa" pageKey="contact">تماس</LocalizedLink>
       </p>
     </div>
   </details>
 
   <details id="issue-door-panel" class="issue-card">
     <summary class="issue-card__summary">
-      <span class="issue-card__summary-title">پوسته‌شدن یا موج‌دار شدن پنل در</span>
-      <span class="issue-card__summary-text">گرما و رطوبت، چسب و بکینگ را تخریب می‌کند.</span>
+      <span class="issue-card__summary-title">جداشدگی یا موج‌دار شدن پنل در</span>
+      <span class="issue-card__summary-text">گرما و رطوبت می‌توانند هم چسب و هم زیرلایه را تضعیف کنند.</span>
     </summary>
     <div class="issue-card__body">
+      <p class="issue-card__title">خلاصه سریع</p>
       <ul>
-        <li><strong>نشانه‌ها:</strong> جداشدگی لبه، حباب، موج.</li>
-        <li><strong>راهکار:</strong> re-skin در صورت سلامت بکینگ، یا بازسازی/تعویض بکینگ.</li>
+        <li><strong>نشانه‌ها:</strong> جداشدگی لبه‌ها، حباب نزدیک دسته یا موج در سطح پنل.</li>
+        <li><strong>علت محتمل:</strong> ضعف چسب، رطوبت، یا تاب‌برداشتن زیرلایه.</li>
+        <li><strong>راهکار ماندگار:</strong> اگر زیرلایه سالم است بازروکشی؛ اگر تاب دارد بازسازی یا تعویض زیرلایه.</li>
+        <li><strong>باید بپرسید:</strong> آیا زیرلایه قابل استفاده مجدد است یا باید تعویض شود؟</li>
       </ul>
+
+      <details class="details-card">
+        <summary>
+          <span>چرا چسب‌کاری ساده کافی نیست؟</span>
+          <span class="details-card__summary-text">وقتی زیرلایه تاب بردارد، چسب نمی‌تواند شکل را اصلاح کند.</span>
+        </summary>
+        <p>در بسیاری موارد مشکل فقط جداشدن سطح نیست؛ فرم زیرکار هم تغییر می‌کند. در این شرایط، کار درست یعنی اصلاح زیرساخت و سپس بازروکشی دقیق.</p>
+      </details>
+
       <p class="issue-card__links">
-        جزئیات: <LocalizedLink locale="fa" pageKey="autoUpholstery">روکش خودرو</LocalizedLink> · برآورد؟ <LocalizedLink locale="fa" pageKey="contact">تماس</LocalizedLink>
+        جزئیات بیشتر: <LocalizedLink locale="fa" pageKey="autoUpholstery">روکش خودرو</LocalizedLink> · آماده برآورد؟
+        <LocalizedLink locale="fa" pageKey="contact">تماس</LocalizedLink>
       </p>
     </div>
   </details>
 </div>
 
-<h2 id="reference">قبل از تصمیم چه چیزهایی را بدانیم؟</h2>
+<h2 id="reference">پیش از تصمیم نهایی چه چیزهایی را بدانیم؟</h2>
 
 <div class="issue-cards">
   <details id="ref-materials" class="issue-card">
@@ -122,26 +178,73 @@ export const faqs = [
       <span class="issue-card__summary-text">بر اساس راحتی، نگهداری، گرما و نوع استفاده انتخاب کنید.</span>
     </summary>
     <div class="issue-card__body">
+      <p>انتخاب متریال را بر مبنای رفتار واقعی خودرو انجام دهید، نه فقط ظاهر اولیه.</p>
       <ul>
-        <li><strong>حس پریمیوم:</strong> چرم</li>
-        <li><strong>نگهداری ساده و دوام:</strong> وینیل</li>
-        <li><strong>حس دمای متعادل:</strong> پارچه</li>
-        <li><strong>پارک بیرون از ساختمان:</strong> متریال UV-rated + چسب دمای بالا</li>
+        <li><strong>حس پریمیوم و راحتی:</strong> چرم</li>
+        <li><strong>نگهداری ساده و دوام روزانه:</strong> وینیل</li>
+        <li><strong>تعادل حرارتی:</strong> پارچه</li>
+        <li><strong>پارک در فضای باز:</strong> متریال مقاوم به UV و چسب دمای بالا</li>
       </ul>
+
+      <div class="decision-card">
+        <p class="decision-card__title">چرم</p>
+        <ul>
+          <li><strong>مناسب برای:</strong> حس ممتاز و راحتی.</li>
+          <li><strong>نکته:</strong> به نگهداری دوره‌ای نیاز دارد.</li>
+          <li><strong>خطای رایج:</strong> انتخاب پنل جدید با بافت یا براقیت نامتناسب.</li>
+        </ul>
+      </div>
+
+      <div class="decision-card">
+        <p class="decision-card__title">وینیل</p>
+        <ul>
+          <li><strong>مناسب برای:</strong> استفاده روزمره و تمیزکاری سریع.</li>
+          <li><strong>نکته:</strong> کیفیت وینیل بسیار تعیین‌کننده است.</li>
+          <li><strong>خطای رایج:</strong> انتخاب گزینه ضعیف که زیر آفتاب زود خسته می‌شود.</li>
+        </ul>
+      </div>
+
+      <div class="decision-card">
+        <p class="decision-card__title">پارچه</p>
+        <ul>
+          <li><strong>مناسب برای:</strong> حس راحت و دمای متعادل‌تر.</li>
+          <li><strong>نکته:</strong> تطبیق بافت و رنگ در نور روز مهم است.</li>
+          <li><strong>خطای رایج:</strong> نادیده گرفتن حساسیت بیشتر به لکه.</li>
+        </ul>
+      </div>
+
+      <aside class="callout" aria-label="قاعده گرما">
+        <p class="callout__title">قاعده گرما</p>
+        <p>اگر خودرو بیشتر بیرون می‌ماند، گرما و UV مهم‌ترین عامل فرسایش هستند. متریال و چسب مناسب دمای بالا را در اولویت بگذارید.</p>
+      </aside>
     </div>
   </details>
 
   <details id="ref-scope" class="issue-card">
     <summary class="issue-card__summary">
       <span class="issue-card__summary-title">سطح کار مناسب را انتخاب کنید</span>
-      <span class="issue-card__summary-text">کوچک‌ترین کاری را انتخاب کنید که واقعاً مشکل را حل می‌کند.</span>
+      <span class="issue-card__summary-text">کوچک‌ترین کاری را انتخاب کنید که واقعاً مشکل را حل کند.</span>
     </summary>
     <div class="issue-card__body">
+      <h3>تعمیر، تعویض پنل یا بازروکشی؟</h3>
       <ul>
-        <li>تعمیر موضعی</li>
-        <li>تعویض پنل</li>
-        <li>بازروکشی کامل</li>
-        <li>فوم‌محور تصمیم‌گیری برای راحتی</li>
+        <li><strong>تعمیر موضعی:</strong> برای آسیب محدود با زیرساخت سالم.</li>
+        <li><strong>تعویض پنل:</strong> گزینه رایج در سایش بغل صندلی.</li>
+        <li><strong>بازروکشی:</strong> وقتی چند پنل فرسوده‌اند یا فرم کلی تغییر کرده است.</li>
+        <li><strong>کاور آماده:</strong> ظاهر را بهتر می‌کند اما همیشه مشکل راحتی را حل نمی‌کند.</li>
+      </ul>
+
+      <h3>تفکر فوم‌محور</h3>
+      <ul>
+        <li>راحتی از فوم و تکیه‌گاه می‌آید، نه فقط از روکش.</li>
+        <li>گاهی بازسازی فوم تمام چیزی است که لازم دارید.</li>
+        <li>اگر فرم فوم تغییر کند، روکش هم باید متناسب اصلاح شود.</li>
+      </ul>
+
+      <h3>یک صندلی یا ست کامل؟</h3>
+      <ul>
+        <li>برای بودجه محدود، شروع از یک صندلی منطقی است.</li>
+        <li>برای ظاهر یکدست، برنامه مرحله‌ای برای چند قطعه بهتر نتیجه می‌دهد.</li>
       </ul>
     </div>
   </details>
@@ -149,28 +252,67 @@ export const faqs = [
   <details id="ref-pricing" class="issue-card">
     <summary class="issue-card__summary">
       <span class="issue-card__summary-title">قیمت و برآورد</span>
-      <span class="issue-card__summary-text">فقط قیمت را مقایسه نکنید؛ محتوای کار را مقایسه کنید.</span>
+      <span class="issue-card__summary-text">فقط عدد قیمت را مقایسه نکنید؛ محتوای کار را مقایسه کنید.</span>
     </summary>
     <div class="issue-card__body">
-      <ul>
-        <li>زمان باز و بست قطعات</li>
-        <li>پیچیدگی پنل و دوخت</li>
-        <li>بازسازی فوم/ساپورت</li>
-        <li>کیفیت متریال</li>
-      </ul>
+      <p>قیمت بیشتر از نوع متریال، تحت تاثیر زمان کار و وضعیت قطعه است.</p>
+
+      <details class="details-card">
+        <summary>
+          <span>چه چیزهایی واقعاً هزینه را بالا می‌برد؟</span>
+          <span class="details-card__summary-text">پیچیدگی اجرا و وضعیت واقعی قطعه مهم‌تر از نام متریال است.</span>
+        </summary>
+        <ul>
+          <li>زمان باز و بست قطعات داخلی</li>
+          <li>پیچیدگی دوخت و قطعه‌بندی</li>
+          <li>بازسازی فوم و ساختار زیرکار</li>
+          <li>کیفیت متریال و دقت مورد انتظار در هماهنگی</li>
+          <li>آسیب‌های پنهان ناشی از تعمیرات قبلی</li>
+        </ul>
+      </details>
+
+      <details class="details-card">
+        <summary>
+          <span>چطور برآوردها را درست مقایسه کنیم؟</span>
+          <span class="details-card__summary-text">دامنه کار و خروجی نهایی را خط‌به‌خط مقایسه کنید.</span>
+        </summary>
+        <ul>
+          <li>این قیمت برای یک پنل است یا کل قطعه؟</li>
+          <li>بازسازی فوم هم شامل می‌شود؟</li>
+          <li>نوع متریال در هر برآورد یکسان است؟</li>
+          <li>کار شامل پرداخت نهایی و تنظیم فیت نهایی هست؟</li>
+        </ul>
+      </details>
     </div>
   </details>
 
   <details id="ref-process" class="issue-card">
     <summary class="issue-card__summary">
-      <span class="issue-card__summary-title">روند کار و انتظارها</span>
-      <span class="issue-card__summary-text">چه چیزهایی بفرستید، زمان‌بندی چطور تعیین می‌شود، و هنگام تحویل چه چیزهایی را چک کنید.</span>
+      <span class="issue-card__summary-title">روند اجرا و تحویل</span>
+      <span class="issue-card__summary-text">برای برآورد چه بفرستید، زمان‌بندی چطور تعیین می‌شود، و هنگام تحویل چه چیزهایی را چک کنید.</span>
     </summary>
     <div class="issue-card__body">
+      <h3>برای برآورد سریع این موارد را بفرستید</h3>
       <ul>
-        <li>سال/برند/مدل + 3 عکس + توضیح کوتاه</li>
-        <li>زمان‌بندی براساس دامنه کار و متریال</li>
-        <li>چک کیفیت هنگام تحویل: دوخت، فیت، لبه‌ها و راحتی</li>
+        <li>سال / برند / مدل</li>
+        <li>شرح مشکل در یک یا دو جمله</li>
+        <li>2 تا 4 عکس واضح در نور روز</li>
+        <li>عکس بخش سالم مرجع (اگر هماهنگی برایتان مهم است)</li>
+      </ul>
+
+      <h3>زمان‌بندی چطور تعیین می‌شود؟</h3>
+      <ul>
+        <li>اندازه کار و تعداد قطعات درگیر</li>
+        <li>نوع متریال و دسترسی آن</li>
+        <li>نیاز به بازسازی فوم یا زیرساخت</li>
+      </ul>
+
+      <h3>در تحویل نهایی چه چیزهایی را چک کنید؟</h3>
+      <ul>
+        <li>راستای دوخت‌ها و یکنواختی فیت</li>
+        <li>تمیزی لبه‌ها و نقاط برش</li>
+        <li>نبود موج یا کشیدگی غیرطبیعی</li>
+        <li>راحتی نشیمن در پروژه‌های صندلی</li>
       </ul>
     </div>
   </details>
@@ -178,7 +320,33 @@ export const faqs = [
 
 ---
 
-<FaqSection heading="FAQ راهنمای روکش" faqs={faqs} />
+## اشتباه‌های تصمیم‌گیری که بعداً دردسر می‌سازند
+
+حتی وقتی ترجمه دقیق می‌خوانید، در اجرا چند اشتباه رایج وجود دارد که هزینه و زمان را بالا می‌برد:
+
+- تعریف نکردن هدف نهایی پروژه (فقط رفع خرابی یا یکپارچه‌سازی کامل)
+- انتخاب متریال بدون توجه به شرایط واقعی استفاده (گرما، پارک در فضای باز، تردد روزانه)
+- نادیده‌گرفتن وضعیت فوم و تکیه‌گاه در پروژه‌های صندلی
+- تصمیم‌گیری عجولانه صرفاً بر اساس زمان تحویل کوتاه
+
+اگر این موارد را قبل از شروع روشن کنید، کیفیت خروجی قابل پیش‌بینی‌تر می‌شود.
+
+---
+
+## چطور بین چند گزینه، تصمیم عملی بگیرید؟
+
+یک چارچوب ساده برای انتخاب:
+
+1. مسئله اصلی را مشخص کنید: ظاهر، راحتی، یا هر دو.
+2. سطح دقت مورد انتظار را تعیین کنید: «قابل‌قبول» یا «تطبیق نزدیک».
+3. بودجه را به شکل مرحله‌ای یا کامل تعریف کنید.
+4. برای هر گزینه، دامنه کار و خروجی دقیق را خط‌به‌خط مقایسه کنید.
+
+این روش معمولاً از تصمیم‌های احساسی جلوگیری می‌کند و نتیجه نهایی را حرفه‌ای‌تر می‌کند.
+
+---
+
+<FaqSection heading="پرسش‌های متداول راهنمای روکش" faqs={faqs} />
 
 <script
   is:inline
