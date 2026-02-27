@@ -1,12 +1,205 @@
 ---
-title: "راهنمای روکش خودرو | Craig's Auto Upholstery"
-description: "راهنمای درخواست برآورد: چه عکس‌هایی بفرستیم، چه اطلاعاتی لازم است و چطور دامنه کار مشخص می‌شود."
-pageKey: upholsteryGuide
+title: "راهنمای روکش خودرو | چارچوب تصمیم برای خدمات اپهولستری"
+description: "راهنمای تصمیم‌گیری برای روکش خودرو: متریال، دامنه کار، قیمت و روند اجرا."
+pageKey: "upholsteryGuide"
 ---
-# راهنمای روکش
+import LocalizedLink from "../../../components/LocalizedLink.astro";
 
-برآورد دقیق از روی عکس، وضعیت خرابی، نوع خودرو و هدف نهایی شما انجام می‌شود.
+import PageHero from "../../../components/PageHero.astro";
+import ServiceCards from "../../../components/ServiceCards.astro";
+import FaqSection from "../../../components/FaqSection.astro";
 
-سال، برند، مدل خودرو و بخش‌های درگیر را کامل بنویسید.
+export const faqs = [
+  {
+    q: "افتادگی سقف داخل مشکل پارچه است؟",
+    a: "معمولاً نه. بکینگ فوم و چسب زودتر از خود پارچه خراب می‌شوند.",
+  },
+  {
+    q: "می‌شود بدون بازروکشی کامل، فقط فوم صندلی را اصلاح کرد؟",
+    a: "بله. اگر روکش سالم باشد، بازسازی فوم می‌تواند راحتی را برگرداند.",
+  },
+  {
+    q: "برای برآورد، چه عکس‌هایی لازم است؟",
+    a: "سال/برند/مدل + یک عکس کلی، یک کلوزآپ از آسیب، و یک زاویه جانبی.",
+  },
+  {
+    q: "زمان اجرای کار معمولاً چقدر است؟",
+    a: "کار سقف داخل می‌تواند سریع‌تر باشد. بازسازی صندلی و کارهای چندپنلی معمولاً زمان بیشتری می‌گیرند.",
+  },
+  {
+    q: "وینیل همیشه ارزان‌تر از چرم است؟",
+    a: "نه همیشه. کیفیت متریال و پیچیدگی اجرا تعیین‌کننده‌تر هستند.",
+  },
+];
 
-بعد از بررسی، گزینه تعمیر، بازسازی کامل یا ترکیبی پیشنهاد می‌شود.
+<PageHero
+  locale="fa"
+  title="راهنمای روکش"
+  lead="راهنمای تصمیم‌گیری: متریال، دامنه کار، قیمت و فرآیند"
+/>
+
+<ServiceCards locale="fa" />
+
+از مشکل مشخصی که می‌بینید شروع کنید. هر بخش توضیح می‌دهد چرا این مشکل ایجاد می‌شود، چه راهکاری ماندگار است و قبل از پرداخت چه سوالی باید بپرسید.
+
+---
+
+<h2 id="issues">مشکل خود را پیدا کنید</h2>
+
+<div class="issue-cards">
+  <details id="issue-headliner" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">افتادگی یا حباب سقف داخل</span>
+      <span class="issue-card__summary-text">وقتی بکینگ فوم از بین می‌رود، چسب‌کاری موضعی دوام ندارد.</span>
+    </summary>
+    <div class="issue-card__body">
+      <ul>
+        <li><strong>نشانه‌ها:</strong> پارچه سقف آویزان، حباب، افت گسترده.</li>
+        <li><strong>علت محتمل:</strong> تخریب فوم و افت عملکرد چسب.</li>
+        <li><strong>راهکار ماندگار:</strong> در افت گسترده، تعویض کامل؛ در موارد محدود، تعمیر موضعی.</li>
+      </ul>
+      <p class="issue-card__links">
+        جزئیات: <LocalizedLink locale="fa" pageKey="headliners">سقف داخل</LocalizedLink> · برآورد؟ <LocalizedLink locale="fa" pageKey="contact">تماس</LocalizedLink>
+      </p>
+    </div>
+  </details>
+
+  <details id="issue-seat-foam" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">صندلی خوابیده یا پایین</span>
+      <span class="issue-card__summary-text">اغلب مشکل از فوم/ساپورت است نه از خود روکش.</span>
+    </summary>
+    <div class="issue-card__body">
+      <ul>
+        <li><strong>نشانه‌ها:</strong> ظاهر قابل‌قبول ولی حس نشیمن بد.</li>
+        <li><strong>راهکار:</strong> بازسازی یا تعویض فوم/ساپورت.</li>
+      </ul>
+      <p class="issue-card__links">
+        جزئیات: <LocalizedLink locale="fa" pageKey="carSeats">صندلی خودرو</LocalizedLink> · برآورد؟ <LocalizedLink locale="fa" pageKey="contact">تماس</LocalizedLink>
+      </p>
+    </div>
+  </details>
+
+  <details id="issue-seat-bolster" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">ترک در لبه صندلی</span>
+      <span class="issue-card__summary-text">به دلیل اصطکاک مکرر در ورود/خروج.</span>
+    </summary>
+    <div class="issue-card__body">
+      <ul>
+        <li><strong>نشانه‌ها:</strong> ترک یا پارگی لبه صندلی.</li>
+        <li><strong>راهکار:</strong> تعویض پنل + بازسازی لبه فوم.</li>
+      </ul>
+      <p class="issue-card__links">
+        جزئیات: <LocalizedLink locale="fa" pageKey="carSeats">صندلی خودرو</LocalizedLink> · برآورد؟ <LocalizedLink locale="fa" pageKey="contact">تماس</LocalizedLink>
+      </p>
+    </div>
+  </details>
+
+  <details id="issue-door-panel" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">پوسته‌شدن یا موج‌دار شدن پنل در</span>
+      <span class="issue-card__summary-text">گرما و رطوبت، چسب و بکینگ را تخریب می‌کند.</span>
+    </summary>
+    <div class="issue-card__body">
+      <ul>
+        <li><strong>نشانه‌ها:</strong> جداشدگی لبه، حباب، موج.</li>
+        <li><strong>راهکار:</strong> re-skin در صورت سلامت بکینگ، یا بازسازی/تعویض بکینگ.</li>
+      </ul>
+      <p class="issue-card__links">
+        جزئیات: <LocalizedLink locale="fa" pageKey="autoUpholstery">روکش خودرو</LocalizedLink> · برآورد؟ <LocalizedLink locale="fa" pageKey="contact">تماس</LocalizedLink>
+      </p>
+    </div>
+  </details>
+</div>
+
+<h2 id="reference">قبل از تصمیم چه چیزهایی را بدانیم؟</h2>
+
+<div class="issue-cards">
+  <details id="ref-materials" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">متریال مناسب زندگی واقعی</span>
+      <span class="issue-card__summary-text">بر اساس راحتی، نگهداری، گرما و نوع استفاده انتخاب کنید.</span>
+    </summary>
+    <div class="issue-card__body">
+      <ul>
+        <li><strong>حس پریمیوم:</strong> چرم</li>
+        <li><strong>نگهداری ساده و دوام:</strong> وینیل</li>
+        <li><strong>حس دمای متعادل:</strong> پارچه</li>
+        <li><strong>پارک بیرون از ساختمان:</strong> متریال UV-rated + چسب دمای بالا</li>
+      </ul>
+    </div>
+  </details>
+
+  <details id="ref-scope" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">سطح کار مناسب را انتخاب کنید</span>
+      <span class="issue-card__summary-text">کوچک‌ترین کاری را انتخاب کنید که واقعاً مشکل را حل می‌کند.</span>
+    </summary>
+    <div class="issue-card__body">
+      <ul>
+        <li>تعمیر موضعی</li>
+        <li>تعویض پنل</li>
+        <li>بازروکشی کامل</li>
+        <li>فوم‌محور تصمیم‌گیری برای راحتی</li>
+      </ul>
+    </div>
+  </details>
+
+  <details id="ref-pricing" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">قیمت و برآورد</span>
+      <span class="issue-card__summary-text">فقط قیمت را مقایسه نکنید؛ محتوای کار را مقایسه کنید.</span>
+    </summary>
+    <div class="issue-card__body">
+      <ul>
+        <li>زمان باز و بست قطعات</li>
+        <li>پیچیدگی پنل و دوخت</li>
+        <li>بازسازی فوم/ساپورت</li>
+        <li>کیفیت متریال</li>
+      </ul>
+    </div>
+  </details>
+
+  <details id="ref-process" class="issue-card">
+    <summary class="issue-card__summary">
+      <span class="issue-card__summary-title">روند کار و انتظارها</span>
+      <span class="issue-card__summary-text">چه چیزهایی بفرستید، زمان‌بندی چطور تعیین می‌شود، و هنگام تحویل چه چیزهایی را چک کنید.</span>
+    </summary>
+    <div class="issue-card__body">
+      <ul>
+        <li>سال/برند/مدل + 3 عکس + توضیح کوتاه</li>
+        <li>زمان‌بندی براساس دامنه کار و متریال</li>
+        <li>چک کیفیت هنگام تحویل: دوخت، فیت، لبه‌ها و راحتی</li>
+      </ul>
+    </div>
+  </details>
+</div>
+
+---
+
+<FaqSection heading="FAQ راهنمای روکش" faqs={faqs} />
+
+<script
+  is:inline
+  set:html={`
+(() => {
+  const openDetailsFromHash = () => {
+    const hash = window.location.hash;
+    if (!hash) return;
+
+    const target = document.querySelector(hash);
+    if (!target) return;
+
+    const details =
+      target.tagName === 'DETAILS' ? target : target.closest('details');
+    if (!details || details.tagName !== 'DETAILS') return;
+
+    details.open = true;
+  };
+
+  window.addEventListener('DOMContentLoaded', openDetailsFromHash);
+  window.addEventListener('hashchange', openDetailsFromHash);
+})();
+`}
+/>
