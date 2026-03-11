@@ -23,6 +23,14 @@ type AttributionPayload = {
   device_type?: string | null;
 };
 
+type TouchRecord = Record<string, string | null | undefined>;
+type StoredAttributionState = {
+  first_touch?: TouchRecord | null;
+  last_touch?: TouchRecord | null;
+  landing_page?: string | null;
+  referrer?: string | null;
+};
+
 const safeJsonParse = (value: string) => {
   try {
     return JSON.parse(value);
@@ -62,9 +70,9 @@ const readCookie = (name: string): string | null => {
 };
 
 const getAttribution = (): AttributionPayload | null => {
-  const stored = (readStorage() || {}) as Record<string, any>;
-  const first = (stored.first_touch || {}) as Record<string, string | null>;
-  const last = (stored.last_touch || first) as Record<string, string | null>;
+  const stored = (readStorage() || {}) as StoredAttributionState;
+  const first = (stored.first_touch || {}) as TouchRecord;
+  const last = (stored.last_touch || first) as TouchRecord;
   let deviceType: 'mobile' | 'desktop' | null = null;
   try {
     deviceType = window.matchMedia('(max-width: 900px)').matches ? 'mobile' : 'desktop';
@@ -83,8 +91,9 @@ const getAttribution = (): AttributionPayload | null => {
     utm_content: last.utm_content || first.utm_content || null,
     first_touch_ts: first.ts || null,
     last_touch_ts: last.ts || null,
-    landing_page: stored.landing_page || window.location.pathname,
-    referrer: stored.referrer || document.referrer || null,
+    landing_page:
+      (typeof stored.landing_page === 'string' && stored.landing_page) || window.location.pathname,
+    referrer: (typeof stored.referrer === 'string' && stored.referrer) || document.referrer || null,
     device_type: deviceType,
   };
 

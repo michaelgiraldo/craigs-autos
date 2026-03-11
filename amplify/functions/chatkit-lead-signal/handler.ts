@@ -3,6 +3,7 @@ import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { decodeBody, emptyResponse, getHttpMethod, jsonResponse } from '../_shared/http.ts';
+import { asObject } from '../_shared/safe.ts';
 
 const LEAD_ATTRIBUTION_TTL_DAYS = 180;
 
@@ -45,6 +46,33 @@ type LambdaResult = {
 };
 
 type LeadSignalRequest = z.infer<typeof leadSignalPayloadSchema>;
+type LeadSignalAttribution = {
+  gclid: string | null;
+  gbraid: string | null;
+  wbraid: string | null;
+  utm_source: string | null;
+  utm_medium: string | null;
+  utm_campaign: string | null;
+  utm_term: string | null;
+  utm_content: string | null;
+  first_touch_ts: string | null;
+  last_touch_ts: string | null;
+  landing_page: string | null;
+  referrer: string | null;
+  device_type: 'mobile' | 'desktop' | null;
+};
+
+type UrlAttribution = Pick<
+  LeadSignalAttribution,
+  | 'gclid'
+  | 'gbraid'
+  | 'wbraid'
+  | 'utm_source'
+  | 'utm_medium'
+  | 'utm_campaign'
+  | 'utm_term'
+  | 'utm_content'
+>;
 
 type LeadSignalDeps = {
   configValid: boolean;
@@ -68,26 +96,27 @@ function normalizeValue(value: unknown, maxLen = 256): string | null {
   return trimmed.slice(0, maxLen);
 }
 
-function sanitizeAttribution(input: any) {
-  if (!input || typeof input !== 'object') return null;
+function sanitizeAttribution(input: unknown): LeadSignalAttribution | null {
+  const data = asObject(input);
+  if (!data) return null;
   const deviceType =
-    typeof input.device_type === 'string' &&
-    (input.device_type === 'mobile' || input.device_type === 'desktop')
-      ? input.device_type
+    typeof data.device_type === 'string' &&
+    (data.device_type === 'mobile' || data.device_type === 'desktop')
+      ? data.device_type
       : null;
-  const payload = {
-    gclid: normalizeValue(input.gclid, 128),
-    gbraid: normalizeValue(input.gbraid, 128),
-    wbraid: normalizeValue(input.wbraid, 128),
-    utm_source: normalizeValue(input.utm_source, 128),
-    utm_medium: normalizeValue(input.utm_medium, 128),
-    utm_campaign: normalizeValue(input.utm_campaign, 200),
-    utm_term: normalizeValue(input.utm_term, 200),
-    utm_content: normalizeValue(input.utm_content, 200),
-    first_touch_ts: normalizeValue(input.first_touch_ts, 64),
-    last_touch_ts: normalizeValue(input.last_touch_ts, 64),
-    landing_page: normalizeValue(input.landing_page, 300),
-    referrer: normalizeValue(input.referrer, 300),
+  const payload: LeadSignalAttribution = {
+    gclid: normalizeValue(data.gclid, 128),
+    gbraid: normalizeValue(data.gbraid, 128),
+    wbraid: normalizeValue(data.wbraid, 128),
+    utm_source: normalizeValue(data.utm_source, 128),
+    utm_medium: normalizeValue(data.utm_medium, 128),
+    utm_campaign: normalizeValue(data.utm_campaign, 200),
+    utm_term: normalizeValue(data.utm_term, 200),
+    utm_content: normalizeValue(data.utm_content, 200),
+    first_touch_ts: normalizeValue(data.first_touch_ts, 64),
+    last_touch_ts: normalizeValue(data.last_touch_ts, 64),
+    landing_page: normalizeValue(data.landing_page, 300),
+    referrer: normalizeValue(data.referrer, 300),
     device_type: deviceType,
   };
   const hasAny = Object.values(payload).some(
@@ -96,12 +125,12 @@ function sanitizeAttribution(input: any) {
   return hasAny ? payload : null;
 }
 
-function attributionFromUrl(urlValue: unknown) {
+function attributionFromUrl(urlValue: unknown): UrlAttribution | null {
   const raw = normalizeValue(urlValue, 2000);
   if (!raw) return null;
   try {
     const url = new URL(raw, 'https://craigs.autos');
-    const payload = {
+    const payload: UrlAttribution = {
       gclid: normalizeValue(url.searchParams.get('gclid'), 128),
       gbraid: normalizeValue(url.searchParams.get('gbraid'), 128),
       wbraid: normalizeValue(url.searchParams.get('wbraid'), 128),
@@ -124,49 +153,23 @@ function mergedAttribution(inputAttribution: unknown, pageUrl: unknown, clickUrl
   const base = sanitizeAttribution(inputAttribution);
   const fromPage = attributionFromUrl(pageUrl);
   const fromClick = attributionFromUrl(clickUrl);
+  const pickMergedValue = (key: keyof UrlAttribution): string | null =>
+    base?.[key] ?? fromPage?.[key] ?? fromClick?.[key] ?? null;
 
-  const merged = {
-    ...(base || {}),
-    gclid:
-      (base && base.gclid) ||
-      (fromPage && fromPage.gclid) ||
-      (fromClick && fromClick.gclid) ||
-      null,
-    gbraid:
-      (base && base.gbraid) ||
-      (fromPage && fromPage.gbraid) ||
-      (fromClick && fromClick.gbraid) ||
-      null,
-    wbraid:
-      (base && base.wbraid) ||
-      (fromPage && fromPage.wbraid) ||
-      (fromClick && fromClick.wbraid) ||
-      null,
-    utm_source:
-      (base && base.utm_source) ||
-      (fromPage && fromPage.utm_source) ||
-      (fromClick && fromClick.utm_source) ||
-      null,
-    utm_medium:
-      (base && base.utm_medium) ||
-      (fromPage && fromPage.utm_medium) ||
-      (fromClick && fromClick.utm_medium) ||
-      null,
-    utm_campaign:
-      (base && base.utm_campaign) ||
-      (fromPage && fromPage.utm_campaign) ||
-      (fromClick && fromClick.utm_campaign) ||
-      null,
-    utm_term:
-      (base && base.utm_term) ||
-      (fromPage && fromPage.utm_term) ||
-      (fromClick && fromClick.utm_term) ||
-      null,
-    utm_content:
-      (base && base.utm_content) ||
-      (fromPage && fromPage.utm_content) ||
-      (fromClick && fromClick.utm_content) ||
-      null,
+  const merged: LeadSignalAttribution = {
+    gclid: pickMergedValue('gclid'),
+    gbraid: pickMergedValue('gbraid'),
+    wbraid: pickMergedValue('wbraid'),
+    utm_source: pickMergedValue('utm_source'),
+    utm_medium: pickMergedValue('utm_medium'),
+    utm_campaign: pickMergedValue('utm_campaign'),
+    utm_term: pickMergedValue('utm_term'),
+    utm_content: pickMergedValue('utm_content'),
+    first_touch_ts: base?.first_touch_ts ?? null,
+    last_touch_ts: base?.last_touch_ts ?? null,
+    landing_page: base?.landing_page ?? null,
+    referrer: base?.referrer ?? null,
+    device_type: base?.device_type ?? null,
   };
 
   const hasAny = Object.values(merged).some(

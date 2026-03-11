@@ -67,5 +67,5 @@ export function getQueryParam(event: HttpQueryEvent, key: string): string | null
   const rawQueryString = event?.rawQueryString;
   if (!rawQueryString) return null;
   const value = new URLSearchParams(rawQueryString).get(key);
-  return value && value.trim() ? value.trim() : null;
+  return value?.trim() ? value.trim() : null;
 }

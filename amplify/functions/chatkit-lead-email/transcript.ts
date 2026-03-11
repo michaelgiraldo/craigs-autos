@@ -1,6 +1,27 @@
-import OpenAI from 'openai';
+import type OpenAI from 'openai';
 import type { TranscriptLine } from './lead-types';
 import { normalizeWhitespace } from './text-utils';
+
+type ChatKitThread = Awaited<ReturnType<OpenAI['beta']['chatkit']['threads']['retrieve']>>;
+type ChatKitThreadItem = Awaited<
+  ReturnType<OpenAI['beta']['chatkit']['threads']['listItems']>
+>['data'][number];
+
+function joinTextParts(parts: Array<{ text: string }>): string {
+  return parts
+    .map((part) => part.text)
+    .filter(Boolean)
+    .join('\n');
+}
+
+function formatAttachmentLine(attachment: {
+  name: string;
+  mime_type: string;
+  preview_url: string | null;
+}): string {
+  const url = attachment.preview_url ?? '';
+  return `Attachment: ${attachment.name}${attachment.mime_type ? ` (${attachment.mime_type})` : ''}${url ? ` ${url}` : ''}`;
+}
 
 export async function buildTranscript(args: {
   openai: OpenAI;
@@ -16,9 +37,9 @@ export async function buildTranscript(args: {
       ? args.assistantName.trim()
       : 'Assistant';
 
-  const thread = await args.openai.beta.chatkit.threads.retrieve(args.threadId);
+  const thread: ChatKitThread = await args.openai.beta.chatkit.threads.retrieve(args.threadId);
 
-  const items: any[] = [];
+  const items: ChatKitThreadItem[] = [];
   let after: string | undefined;
 
   for (let pageCount = 0; pageCount < 20; pageCount += 1) {
@@ -41,21 +62,8 @@ export async function buildTranscript(args: {
     if (!item || typeof item !== 'object') continue;
 
     if (item.type === 'chatkit.user_message') {
-      const parts = Array.isArray(item.content) ? item.content : [];
-      const text = parts
-        .map((part: any) => (part && typeof part.text === 'string' ? part.text : ''))
-        .filter(Boolean)
-        .join('\n');
-
-      const attachments = Array.isArray(item.attachments) ? item.attachments : [];
-      const attachmentLines = attachments
-        .map((att: any) => {
-          const name = typeof att?.name === 'string' ? att.name : 'attachment';
-          const mime = typeof att?.mime_type === 'string' ? att.mime_type : '';
-          const url = typeof att?.preview_url === 'string' ? att.preview_url : '';
-          return `Attachment: ${name}${mime ? ` (${mime})` : ''}${url ? ` ${url}` : ''}`;
-        })
-        .filter(Boolean);
+      const text = joinTextParts(item.content);
+      const attachmentLines = item.attachments.map(formatAttachmentLine);
 
       const fullText = normalizeWhitespace([text, ...attachmentLines].filter(Boolean).join('\n'));
       if (fullText) {
@@ -69,13 +77,7 @@ export async function buildTranscript(args: {
     }
 
     if (item.type === 'chatkit.assistant_message') {
-      const parts = Array.isArray(item.content) ? item.content : [];
-      const text = parts
-        .map((part: any) => (part && typeof part.text === 'string' ? part.text : ''))
-        .filter(Boolean)
-        .join('\n');
-
-      const fullText = normalizeWhitespace(text);
+      const fullText = normalizeWhitespace(joinTextParts(item.content));
       if (fullText) {
         lines.push({
           created_at: typeof item.created_at === 'number' ? item.created_at : 0,

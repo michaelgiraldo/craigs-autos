@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { extname } from 'node:path';
 import { S3Client, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import { z } from 'zod';
+import { getErrorDetails } from '../_shared/safe.ts';
 
 const attachmentUploadEnvSchema = z.object({
   CHATKIT_ATTACHMENT_BUCKET_NAME: z.string().trim().optional(),
@@ -356,18 +357,19 @@ export const handler = async (event: LambdaEvent): Promise<LambdaResponse> => {
         preview_url: uploaded.preview_url,
       }),
     };
-  } catch (err: any) {
-    if (err?.message === 'Attachment too large') {
+  } catch (err: unknown) {
+    const { message, name } = getErrorDetails(err);
+    if (message === 'Attachment too large') {
       return json(413, { error: 'Attachment exceeds allowed size.' });
     }
-    if (err?.message?.startsWith('Unsupported mime type')) {
+    if (message?.startsWith('Unsupported mime type')) {
       return json(415, { error: 'Unsupported attachment format.' });
     }
-    if (err?.message === 'Attachment storage is not configured') {
+    if (message === 'Attachment storage is not configured') {
       return json(500, { error: 'Attachment storage is not configured.' });
     }
 
-    console.error('Attachment upload failed', err?.name, err?.message);
+    console.error('Attachment upload failed', name, message);
     return json(500, { error: 'Attachment upload failed.' });
   }
 };

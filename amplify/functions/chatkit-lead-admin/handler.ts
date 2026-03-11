@@ -1,7 +1,14 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, ScanCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
+import {
+  DynamoDBDocumentClient,
+  ScanCommand,
+  type ScanCommandInput,
+  UpdateCommand,
+} from '@aws-sdk/lib-dynamodb';
+import type { NativeAttributeValue } from '@aws-sdk/util-dynamodb';
 import { z } from 'zod';
 import { decodeBody, emptyResponse, getHttpMethod, jsonResponse } from '../_shared/http.ts';
+import { asObject } from '../_shared/safe.ts';
 
 const MAX_LIMIT = 500;
 const corsHeaders = {
@@ -38,14 +45,17 @@ type LambdaResult = {
   body: string;
 };
 
+type CursorKey = Record<string, NativeAttributeValue>;
+type LeadAdminItem = Record<string, NativeAttributeValue>;
+
 type LeadAdminDeps = {
   configValid: boolean;
   adminPassword: string;
   scanLeads: (args: {
     limit: number;
     qualifiedFilter: boolean | null;
-    cursor?: Record<string, any>;
-  }) => Promise<{ items: any[]; lastEvaluatedKey?: Record<string, any> }>;
+    cursor?: CursorKey;
+  }) => Promise<{ items: LeadAdminItem[]; lastEvaluatedKey?: CursorKey }>;
   updateLead: (args: { leadId: string; qualified: boolean; qualifiedAt: number }) => Promise<void>;
   nowEpochSeconds: () => number;
 };
@@ -93,18 +103,25 @@ function parseBool(value: string | undefined): boolean | null {
   return null;
 }
 
-function encodeCursor(key: Record<string, any> | undefined): string | null {
+function encodeCursor(key: CursorKey | undefined): string | null {
   if (!key) return null;
   return Buffer.from(JSON.stringify(key)).toString('base64');
 }
 
-function decodeCursor(value: string | undefined): Record<string, any> | undefined {
+function decodeCursor(value: string | undefined): CursorKey | undefined {
   if (!value) return undefined;
   try {
-    return JSON.parse(Buffer.from(value, 'base64').toString('utf8'));
+    const parsed = JSON.parse(Buffer.from(value, 'base64').toString('utf8'));
+    const record = asObject(parsed);
+    return record ? (record as CursorKey) : undefined;
   } catch {
     return undefined;
   }
+}
+
+function getNumericField(item: LeadAdminItem, key: string): number {
+  const value = item[key];
+  return typeof value === 'number' ? value : 0;
 }
 
 function nowEpochSeconds(): number {
@@ -140,7 +157,7 @@ export function createLeadAdminHandler(deps: LeadAdminDeps) {
       });
 
       const items = Array.isArray(result.items) ? result.items : [];
-      items.sort((a, b) => (b.created_at || 0) - (a.created_at || 0));
+      items.sort((a, b) => getNumericField(b, 'created_at') - getNumericField(a, 'created_at'));
 
       return json(200, {
         items,
@@ -195,7 +212,7 @@ export const handler = createLeadAdminHandler({
   adminPassword: runtimeAdminPassword,
   scanLeads: async ({ limit, qualifiedFilter, cursor }) => {
     if (!runtimeDb || !runtimeTableName) return { items: [] };
-    const scanInput: any = {
+    const scanInput: ScanCommandInput = {
       TableName: runtimeTableName,
       Limit: limit,
     };

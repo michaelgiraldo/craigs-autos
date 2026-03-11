@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { PutCommand, type DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
+import { getErrorDetails } from '../_shared/safe.ts';
 
 const PROD_MESSAGE_LINK_BASE_URL = 'https://craigs.autos';
 const LOCAL_DEV_DEFAULT_BASE_URL = 'http://localhost:4321';
@@ -98,8 +99,9 @@ export async function createMessageLinkUrl(args: {
         ExpressionAttributeNames: { '#token': 'token' },
       }),
     );
-  } catch (err: any) {
-    console.error('Failed to write message link token', err?.name, err?.message);
+  } catch (err: unknown) {
+    const { name, message } = getErrorDetails(err);
+    console.error('Failed to write message link token', name, message);
     return null;
   }
 

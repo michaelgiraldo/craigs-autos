@@ -2,6 +2,7 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, GetCommand } from '@aws-sdk/lib-dynamodb';
 import { z } from 'zod';
 import { emptyResponse, getHttpMethod, getQueryParam, jsonResponse } from '../_shared/http.ts';
+import { getErrorDetails } from '../_shared/safe.ts';
 
 const messageLinkEnvSchema = z.object({
   MESSAGE_LINK_TOKEN_TABLE_NAME: z.string().trim().min(1),
@@ -83,8 +84,9 @@ export function createMessageLinkHandler(deps: MessageLinkHandlerDeps) {
       if (!toPhone) return json(500, { ok: false, error: 'bad_record' });
 
       return json(200, { ok: true, to_phone: toPhone, body });
-    } catch (err: any) {
-      console.error('Message link token lookup failed', err?.name, err?.message);
+    } catch (err: unknown) {
+      const { name, message } = getErrorDetails(err);
+      console.error('Message link token lookup failed', name, message);
       return json(500, { ok: false, error: 'server_error' });
     }
   };

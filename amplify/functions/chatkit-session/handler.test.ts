@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createChatkitSessionHandler } from './handler.ts';
+import type { SessionCreateParams } from 'openai/resources/beta/chatkit/sessions';
 
 test('session handler rejects non-POST methods', async () => {
   const handler = createChatkitSessionHandler({
@@ -59,7 +60,7 @@ test('session handler returns 500 when config is invalid', async () => {
 });
 
 test('session handler creates chatkit session on valid payload', async () => {
-  const captured: unknown[] = [];
+  const captured: SessionCreateParams[] = [];
   const handler = createChatkitSessionHandler({
     hasValidConfig: true,
     workflowId: 'wf_test',
@@ -89,7 +90,8 @@ test('session handler creates chatkit session on valid payload', async () => {
 
   assert.equal(result.statusCode, 200);
   assert.equal(captured.length, 1);
-  const createInput = captured[0] as any;
+  const createInput = captured[0];
+  assert.ok(createInput.workflow.state_variables);
   assert.equal(createInput.workflow.id, 'wf_test');
   assert.equal(createInput.workflow.state_variables.locale, 'es');
   assert.equal(createInput.workflow.state_variables.page_url, 'https://craigs.autos/es/contact/');

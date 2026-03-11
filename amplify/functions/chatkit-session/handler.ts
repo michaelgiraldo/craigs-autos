@@ -1,7 +1,9 @@
 import OpenAI from 'openai';
+import type { SessionCreateParams } from 'openai/resources/beta/chatkit/sessions';
 import { z } from 'zod';
 import { computeShopState } from '../../../shared/shop-hours.js';
 import { decodeBody, emptyResponse, getHttpMethod, jsonResponse } from '../_shared/http.ts';
+import { getErrorDetails } from '../_shared/safe.ts';
 
 const SHOP_TIMEZONE = 'America/Los_Angeles';
 const CHATKIT_UPLOAD_MAX_FILE_SIZE_MB = 12;
@@ -47,7 +49,7 @@ type SessionClient = {
   beta: {
     chatkit: {
       sessions: {
-        create: (args: unknown) => Promise<SessionCreateResponse>;
+        create: (args: SessionCreateParams) => Promise<SessionCreateResponse>;
       };
     };
   };
@@ -118,8 +120,9 @@ export function createChatkitSessionHandler(deps: SessionHandlerDeps) {
       });
 
       return jsonResponse(200, { client_secret: session.client_secret });
-    } catch (err: any) {
-      console.error('ChatKit session create failed', err?.status, err?.message);
+    } catch (err: unknown) {
+      const { status, message } = getErrorDetails(err);
+      console.error('ChatKit session create failed', status, message);
       return jsonResponse(500, { error: 'Failed to create ChatKit session' });
     }
   };

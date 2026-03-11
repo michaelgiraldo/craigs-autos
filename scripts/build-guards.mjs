@@ -128,7 +128,8 @@ for (const [pageKey, localeMap] of Object.entries(PAGE_PATHS)) {
       continue;
     }
 
-    const slug = mappedPath === `/${locale}/` ? 'index' : mappedPath.split('/').filter(Boolean).at(-1);
+    const slug =
+      mappedPath === `/${locale}/` ? 'index' : mappedPath.split('/').filter(Boolean).at(-1);
     const contentPath = path.join(CONTENT_ROOT, locale, `${slug}.mdx`);
     const ogPath = path.join(OG_ROOT, locale, `${pageKey}.jpg`);
 

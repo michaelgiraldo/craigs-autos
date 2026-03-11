@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { SESv2Client, SendEmailCommand } from '@aws-sdk/client-sesv2';
+import { type SESv2Client, SendEmailCommand } from '@aws-sdk/client-sesv2';
 import type { InlineAttachment } from './attachments';
 import { extractAttachments, fetchInlineAttachment } from './attachments';
 import { buildLeadEmailSubject, buildOutreachDrafts } from './drafts';

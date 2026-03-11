@@ -1,43 +1,47 @@
-import OpenAI from 'openai';
+import type OpenAI from 'openai';
+import { asObject, getErrorDetails } from '../_shared/safe.ts';
 import type { LeadSummary, TranscriptLine } from './lead-types';
 import { isPlausibleEmail, isPlausiblePhone, trimTranscriptForModel } from './text-utils';
 
-function sanitizeLeadSummary(input: any): LeadSummary | null {
-  if (!input || typeof input !== 'object') return null;
+function sanitizeLeadSummary(input: unknown): LeadSummary | null {
+  const data = asObject(input);
+  if (!data) return null;
 
-  const pickStringOrNull = (value: any): string | null =>
+  const pickStringOrNull = (value: unknown): string | null =>
     typeof value === 'string' && value.trim() ? value.trim() : null;
 
-  const pickStringArray = (value: any): string[] =>
+  const pickStringArray = (value: unknown): string[] =>
     Array.isArray(value)
-      ? value.map((item) => (typeof item === 'string' ? item.trim() : '')).filter(Boolean)
+      ? value
+          .map((item) => (typeof item === 'string' ? item.trim() : ''))
+          .filter((item): item is string => Boolean(item))
       : [];
 
-  const summaryText = typeof input.summary === 'string' ? input.summary.trim() : '';
+  const summaryText = typeof data.summary === 'string' ? data.summary.trim() : '';
   if (!summaryText) return null;
 
-  const customerEmail = pickStringOrNull(input.customer_email);
-  const customerPhone = pickStringOrNull(input.customer_phone);
-  const handoffReady = typeof input.handoff_ready === 'boolean' ? input.handoff_ready : false;
-  const handoffReason = typeof input.handoff_reason === 'string' ? input.handoff_reason.trim() : '';
+  const customerEmail = pickStringOrNull(data.customer_email);
+  const customerPhone = pickStringOrNull(data.customer_phone);
+  const handoffReady = typeof data.handoff_ready === 'boolean' ? data.handoff_ready : false;
+  const handoffReason = typeof data.handoff_reason === 'string' ? data.handoff_reason.trim() : '';
 
   return {
-    customer_name: pickStringOrNull(input.customer_name),
+    customer_name: pickStringOrNull(data.customer_name),
     customer_phone: customerPhone && isPlausiblePhone(customerPhone) ? customerPhone : null,
     customer_email: customerEmail && isPlausibleEmail(customerEmail) ? customerEmail : null,
-    customer_location: pickStringOrNull(input.customer_location),
-    customer_language: pickStringOrNull(input.customer_language),
-    vehicle: pickStringOrNull(input.vehicle),
-    project: pickStringOrNull(input.project),
-    timeline: pickStringOrNull(input.timeline),
+    customer_location: pickStringOrNull(data.customer_location),
+    customer_language: pickStringOrNull(data.customer_language),
+    vehicle: pickStringOrNull(data.vehicle),
+    project: pickStringOrNull(data.project),
+    timeline: pickStringOrNull(data.timeline),
     handoff_ready: handoffReady,
     handoff_reason: handoffReason || (handoffReady ? 'handoff_ready' : 'not_ready'),
     summary: summaryText,
-    next_steps: pickStringArray(input.next_steps).slice(0, 6),
-    follow_up_questions: pickStringArray(input.follow_up_questions).slice(0, 6),
-    call_script_prompts: pickStringArray(input.call_script_prompts).slice(0, 3),
-    outreach_message: pickStringOrNull(input.outreach_message),
-    missing_info: pickStringArray(input.missing_info).slice(0, 8),
+    next_steps: pickStringArray(data.next_steps).slice(0, 6),
+    follow_up_questions: pickStringArray(data.follow_up_questions).slice(0, 6),
+    call_script_prompts: pickStringArray(data.call_script_prompts).slice(0, 3),
+    outreach_message: pickStringOrNull(data.outreach_message),
+    missing_info: pickStringArray(data.missing_info).slice(0, 8),
   };
 }
 
@@ -144,8 +148,9 @@ export async function generateLeadSummary(args: {
     });
 
     return sanitizeLeadSummary(response.output_parsed);
-  } catch (err: any) {
-    console.error('Lead summary generation failed', err?.name, err?.message);
+  } catch (err: unknown) {
+    const { name, message } = getErrorDetails(err);
+    console.error('Lead summary generation failed', name, message);
     return null;
   }
 }

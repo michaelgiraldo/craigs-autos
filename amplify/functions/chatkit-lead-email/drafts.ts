@@ -71,8 +71,7 @@ export function buildLeadEmailSubject(args: BuildLeadSubjectArgs): string {
     ' - ',
   );
   if (subjectContext) return `New chat lead: ${subjectContext}`;
-  if (args.threadTitle && args.threadTitle.trim())
-    return `New chat lead: ${args.threadTitle.trim()}`;
+  if (args.threadTitle?.trim()) return `New chat lead: ${args.threadTitle.trim()}`;
   return 'New chat lead';
 }
 

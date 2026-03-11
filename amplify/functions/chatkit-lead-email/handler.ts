@@ -16,6 +16,7 @@ import { randomUUID } from 'node:crypto';
 import OpenAI from 'openai';
 import { z } from 'zod';
 import { decodeBody, emptyResponse, getHttpMethod, jsonResponse } from '../_shared/http.ts';
+import { asObject, getErrorDetails } from '../_shared/safe.ts';
 import { sendTranscriptEmail } from './email-delivery';
 import { generateLeadSummary } from './lead-summary';
 import type {
@@ -52,22 +53,19 @@ const apiKey = parsedLeadEmailEnv.success ? parsedLeadEmailEnv.data.OPENAI_API_K
 const openai = apiKey ? new OpenAI({ apiKey }) : null;
 
 const leadDedupeTableName = process.env.LEAD_DEDUPE_TABLE_NAME;
-const leadDedupeDb =
-  leadDedupeTableName && leadDedupeTableName.trim()
-    ? DynamoDBDocumentClient.from(new DynamoDBClient({}))
-    : null;
+const leadDedupeDb = leadDedupeTableName?.trim()
+  ? DynamoDBDocumentClient.from(new DynamoDBClient({}))
+  : null;
 
 const leadAttributionTableName = process.env.LEAD_ATTRIBUTION_TABLE_NAME;
-const leadAttributionDb =
-  leadAttributionTableName && leadAttributionTableName.trim()
-    ? DynamoDBDocumentClient.from(new DynamoDBClient({}))
-    : null;
+const leadAttributionDb = leadAttributionTableName?.trim()
+  ? DynamoDBDocumentClient.from(new DynamoDBClient({}))
+  : null;
 
 const messageLinkTokenTableName = process.env.MESSAGE_LINK_TOKEN_TABLE_NAME;
-const messageLinkDb =
-  messageLinkTokenTableName && messageLinkTokenTableName.trim()
-    ? DynamoDBDocumentClient.from(new DynamoDBClient({}))
-    : null;
+const messageLinkDb = messageLinkTokenTableName?.trim()
+  ? DynamoDBDocumentClient.from(new DynamoDBClient({}))
+  : null;
 
 const leadToEmail = process.env.LEAD_TO_EMAIL ?? 'leads@craigs.autos';
 const leadFromEmail = process.env.LEAD_FROM_EMAIL ?? 'leads@craigs.autos';
@@ -159,9 +157,10 @@ async function upsertLeadRetrySchedule(args: {
   try {
     await scheduler.send(new CreateScheduleCommand(scheduleRequest));
     return true;
-  } catch (err: any) {
-    if (err?.name !== 'ConflictException') {
-      console.error('Lead retry schedule create failed', err?.name, err?.message);
+  } catch (err: unknown) {
+    const { name, message } = getErrorDetails(err);
+    if (name !== 'ConflictException') {
+      console.error('Lead retry schedule create failed', name, message);
       return false;
     }
   }
@@ -174,8 +173,9 @@ async function upsertLeadRetrySchedule(args: {
       }),
     );
     return true;
-  } catch (err: any) {
-    console.error('Lead retry schedule update failed', err?.name, err?.message);
+  } catch (err: unknown) {
+    const { name, message } = getErrorDetails(err);
+    console.error('Lead retry schedule update failed', name, message);
     return false;
   }
 }
@@ -190,19 +190,21 @@ async function deleteLeadRetrySchedule(threadId: string): Promise<void> {
         GroupName: leadRetryScheduleGroupName,
       }),
     );
-  } catch (err: any) {
-    if (err?.name === 'ResourceNotFoundException') return;
-    console.error('Lead retry schedule delete failed', err?.name, err?.message);
+  } catch (err: unknown) {
+    const { name, message } = getErrorDetails(err);
+    if (name === 'ResourceNotFoundException') return;
+    console.error('Lead retry schedule delete failed', name, message);
   }
 }
 
-function sanitizeLeadDedupeRecord(item: any): LeadDedupeRecord | null {
-  if (!item || typeof item !== 'object') return null;
-  const thread_id = typeof item.thread_id === 'string' ? item.thread_id : '';
-  const status = item.status as LeadDedupeStatus;
+function sanitizeLeadDedupeRecord(item: unknown): LeadDedupeRecord | null {
+  const record = asObject(item);
+  if (!record) return null;
+  const thread_id = typeof record.thread_id === 'string' ? record.thread_id : '';
+  const status = record.status as LeadDedupeStatus;
   if (!thread_id) return null;
   if (status !== 'sending' && status !== 'sent' && status !== 'error') return null;
-  return item as LeadDedupeRecord;
+  return record as LeadDedupeRecord;
 }
 
 async function getLeadDedupeRecord(threadId: string): Promise<LeadDedupeRecord | null> {
@@ -264,8 +266,9 @@ async function acquireLeadSendLease(args: {
       }),
     );
     return { acquired: true, leaseId };
-  } catch (err: any) {
-    if (err?.name === 'ConditionalCheckFailedException') {
+  } catch (err: unknown) {
+    const { name } = getErrorDetails(err);
+    if (name === 'ConditionalCheckFailedException') {
       const record = await getLeadDedupeRecord(args.threadId);
       return { acquired: false, record };
     }
@@ -411,22 +414,23 @@ function normalizeDeviceType(value: unknown): 'mobile' | 'desktop' | null {
   return null;
 }
 
-function sanitizeAttribution(input: any): LeadAttributionPayload | null {
-  if (!input || typeof input !== 'object') return null;
+function sanitizeAttribution(input: unknown): LeadAttributionPayload | null {
+  const data = asObject(input);
+  if (!data) return null;
   const payload: LeadAttributionPayload = {
-    gclid: normalizeAttributionValue(input.gclid, 128),
-    gbraid: normalizeAttributionValue(input.gbraid, 128),
-    wbraid: normalizeAttributionValue(input.wbraid, 128),
-    utm_source: normalizeAttributionValue(input.utm_source, 128),
-    utm_medium: normalizeAttributionValue(input.utm_medium, 128),
-    utm_campaign: normalizeAttributionValue(input.utm_campaign, 200),
-    utm_term: normalizeAttributionValue(input.utm_term, 200),
-    utm_content: normalizeAttributionValue(input.utm_content, 200),
-    first_touch_ts: normalizeAttributionValue(input.first_touch_ts, 64),
-    last_touch_ts: normalizeAttributionValue(input.last_touch_ts, 64),
-    landing_page: normalizeAttributionValue(input.landing_page, 300),
-    referrer: normalizeAttributionValue(input.referrer, 300),
-    device_type: normalizeDeviceType(input.device_type),
+    gclid: normalizeAttributionValue(data.gclid, 128),
+    gbraid: normalizeAttributionValue(data.gbraid, 128),
+    wbraid: normalizeAttributionValue(data.wbraid, 128),
+    utm_source: normalizeAttributionValue(data.utm_source, 128),
+    utm_medium: normalizeAttributionValue(data.utm_medium, 128),
+    utm_campaign: normalizeAttributionValue(data.utm_campaign, 200),
+    utm_term: normalizeAttributionValue(data.utm_term, 200),
+    utm_content: normalizeAttributionValue(data.utm_content, 200),
+    first_touch_ts: normalizeAttributionValue(data.first_touch_ts, 64),
+    last_touch_ts: normalizeAttributionValue(data.last_touch_ts, 64),
+    landing_page: normalizeAttributionValue(data.landing_page, 300),
+    referrer: normalizeAttributionValue(data.referrer, 300),
+    device_type: normalizeDeviceType(data.device_type),
   };
 
   const hasAny = Object.values(payload).some(
@@ -488,7 +492,7 @@ export const handler = async (
   const pageUrl = typeof payload.pageUrl === 'string' ? payload.pageUrl : '';
   const chatUser = typeof payload.user === 'string' ? payload.user : 'anonymous';
   const reason = typeof payload.reason === 'string' ? payload.reason : 'auto';
-  const attribution = sanitizeAttribution((payload as any)?.attribution);
+  const attribution = sanitizeAttribution(payload.attribution);
   const functionArn =
     typeof context?.invokedFunctionArn === 'string' ? context.invokedFunctionArn : '';
 
@@ -514,8 +518,9 @@ export const handler = async (
         if (record?.status === 'error' && lockExpiresAt > now) {
           return jsonResponse(200, { ok: true, sent: false, reason: 'cooldown' });
         }
-      } catch (err: any) {
-        console.error('Lead dedupe read failed', err?.name, err?.message);
+      } catch (err: unknown) {
+        const { name, message } = getErrorDetails(err);
+        console.error('Lead dedupe read failed', name, message);
       }
     }
 
@@ -658,8 +663,9 @@ export const handler = async (
       });
       try {
         await markLeadSent({ threadId, leaseId: lease.leaseId, messageId });
-      } catch (err: any) {
-        console.error('Lead dedupe mark sent failed', err?.name, err?.message);
+      } catch (err: unknown) {
+        const { name, message } = getErrorDetails(err);
+        console.error('Lead dedupe mark sent failed', name, message);
       }
 
       try {
@@ -676,27 +682,31 @@ export const handler = async (
           customerPhone,
           customerEmail,
         });
-      } catch (err: any) {
-        console.error('Lead attribution write failed', err?.name, err?.message);
+      } catch (err: unknown) {
+        const { name, message } = getErrorDetails(err);
+        console.error('Lead attribution write failed', name, message);
       }
 
       await deleteLeadRetrySchedule(threadId);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const { message } = getErrorDetails(err);
       try {
         await markLeadError({
           threadId,
           leaseId: lease.leaseId,
-          errorMessage: String(err?.message ?? err ?? 'Failed to send lead email'),
+          errorMessage: message ?? 'Failed to send lead email',
         });
-      } catch (markErr: any) {
-        console.error('Lead dedupe mark error failed', markErr?.name, markErr?.message);
+      } catch (markErr: unknown) {
+        const { name, message: markMessage } = getErrorDetails(markErr);
+        console.error('Lead dedupe mark error failed', name, markMessage);
       }
       throw err;
     }
 
     return jsonResponse(200, { ok: true, sent: true, reason });
-  } catch (err: any) {
-    console.error('Lead email failed', err?.name, err?.message);
+  } catch (err: unknown) {
+    const { name, message } = getErrorDetails(err);
+    console.error('Lead email failed', name, message);
     return jsonResponse(500, { error: 'Failed to send lead email' });
   }
 };
