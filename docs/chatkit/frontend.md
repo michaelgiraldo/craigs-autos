@@ -224,8 +224,27 @@ If you change layout/styling:
 1) Edit `CHAT_COPY` in `src/lib/site-data.js`.
 2) Keep the same keys across locales (missing keys fall back to English).
 3) Run `npm run build` to ensure MDX + i18n checks pass.
-4) Smoke test at least:
+4) Run `npm run smoke:chatkit` if the chat UI or attribution path changed.
+5) Smoke test at least:
    - `en`, `es`, `zh-hans`, `ar` (RTL)
+
+### Run the browser smoke harness
+
+Use the repo-local Playwright smoke runner when you touch ChatKit UI, session
+bootstrapping, or attribution tracking.
+
+- Local stack (starts `npm run dev:local` automatically):
+  - `npm run smoke:chatkit`
+- Existing preview/prod URL:
+  - `npm run smoke:chatkit -- --url https://your-branch.example.com`
+
+What it checks:
+
+- `en`, `es`, `zh-hans`, `ar` render and mount the chat iframe
+- the local/session endpoint returns `200`
+- one quick-action chat round-trip succeeds
+- paid landing attribution reaches storage + `dataLayer`
+- click-to-call still emits `lead_click_to_call`
 
 ### Change the start prompt buttons
 

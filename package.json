@@ -16,6 +16,7 @@
     "prebuild": "node scripts/validate-i18n.mjs && npm run generate:og && npm run guard:build",
     "predeploy": "npm run verify:backend && npm run lint && npm run format:check",
     "build": "rm -rf dist && astro build",
+    "smoke:chatkit": "node scripts/smoke-chatkit.mjs",
     "indexnow:submit": "node scripts/indexnow-submit.mjs",
     "preview": "astro preview",
     "astro": "astro"
@@ -49,6 +50,7 @@
     "constructs": "^10.5.1",
     "esbuild": "^0.27.3",
     "glob": "^13.0.6",
+    "playwright": "^1.58.2",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   }
