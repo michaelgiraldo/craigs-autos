@@ -1,148 +1,14 @@
 ---
 title: "Convertible Top Repair & Replacement in San Jose | Craig's"
-description: "Convertible top repair and replacement for Porsche, Ferrari, Mercedes, Jaguar, BMW, and more, with clear repair-vs-replacement guidance in San Jose."
+description: "Convertible top repair and replacement for Porsche, Ferrari, Jaguar, Mercedes, BMW, Volkswagen, and more in San Jose, with clear repair-vs-replacement guidance."
 pageKey: "convertibleTops"
 ---
 import LocalizedLink from "../../../components/LocalizedLink.astro";
-import StructuredDataScript from "../../../components/StructuredDataScript.astro";
+import ConvertibleTopMarqueAtlas from "../../../components/ConvertibleTopMarqueAtlas.astro";
 
 import PageHero from "../../../components/PageHero.astro";
 import ServiceCards from "../../../components/ServiceCards.astro";
 import FaqSection from "../../../components/FaqSection.astro";
-import { SITE } from "../../../lib/site-data.js";
-
-export const marqueFamilies = [
-  {
-    label: "European",
-    brands: [
-      "Alfa Romeo",
-      "Audi",
-      "BMW",
-      "Ferrari",
-      "Fiat",
-      "Karmann Ghia",
-      "Lancia",
-      "Maserati",
-      "Mercedes",
-      "Opel",
-      "Peugeot",
-      "Porsche",
-      "Renault",
-      "Saab",
-      "Volkswagen",
-      "Volvo",
-    ],
-  },
-  {
-    label: "British",
-    brands: [
-      "Aston Martin",
-      "Austin Healey",
-      "Bentley",
-      "Cobra-AC",
-      "Hillman",
-      "Jaguar",
-      "Jensen",
-      "Land Rover",
-      "Lotus",
-      "MG",
-      "Mini Cooper",
-      "Morris",
-      "Rolls Royce",
-      "Rover",
-      "Singer",
-      "Sunbeam",
-      "Triumph",
-    ],
-  },
-  {
-    label: "American",
-    brands: [
-      "AMC",
-      "Buick",
-      "Cadillac",
-      "Chevrolet",
-      "Chrysler",
-      "Clenet",
-      "Ford",
-      "GM",
-      "Lincoln",
-      "Mercury",
-      "Nash",
-      "Oldsmobile",
-      "Pontiac",
-    ],
-  },
-  {
-    label: "Japanese",
-    brands: [
-      "Datsun",
-      "Honda",
-      "Isuzu",
-      "Mazda",
-      "Mitsubishi",
-      "Nissan",
-      "Suzuki",
-      "Toyota",
-    ],
-  },
-];
-
-export const featuredBrands = ["Porsche", "Ferrari", "Jaguar", "Mercedes", "BMW", "Volkswagen", "MG", "Triumph"];
-
-export const supportedBrands = marqueFamilies.flatMap((family) => family.brands);
-
-export const sortedSupportedBrands = [...supportedBrands].sort((left, right) =>
-  left.localeCompare(right, "en", { sensitivity: "base" }),
-);
-
-export const brandSlug = (name) =>
-  name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-export const serviceUrl = new URL("/en/convertible-tops/", SITE.url).toString();
-export const businessId = new URL("#business", SITE.url).toString();
-export const brandListId = `${serviceUrl}#supported-brands`;
-export const brandNodes = sortedSupportedBrands.map((name) => ({
-  "@type": "Brand",
-  "@id": `${serviceUrl}#brand-${brandSlug(name)}`,
-  name,
-}));
-export const convertibleTopStructuredData = {
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "Service",
-      "@id": `${serviceUrl}#service`,
-      name: "Convertible top repair and replacement",
-      alternateName: "Car top repair and replacement",
-      serviceType: [
-        "Convertible top repair",
-        "Convertible top replacement",
-        "Car top repair",
-        "Car top replacement",
-      ],
-      provider: { "@id": businessId },
-      areaServed: "San Jose, CA",
-      brand: brandNodes.map((brand) => ({ "@id": brand["@id"] })),
-      isRelatedTo: { "@id": brandListId },
-    },
-    {
-      "@type": "ItemList",
-      "@id": brandListId,
-      name: "Supported convertible top brands",
-      numberOfItems: brandNodes.length,
-      itemListOrder: "https://schema.org/ItemListOrderAscending",
-      itemListElement: brandNodes.map((brand, index) => ({
-        "@type": "ListItem",
-        position: index + 1,
-        item: { "@id": brand["@id"] },
-      })),
-    },
-    ...brandNodes,
-  ],
-};
 
 export const faqs = [
   {
@@ -171,35 +37,7 @@ A convertible top problem shows up fast: water on the seat, wind noise on the fr
 that just looks tired. We’ll look at the material, seams, and how the top sits when closed—then
 tell you what makes sense: a repair, or a full replacement.
 
-<section class="marque-atlas" aria-labelledby="supported-brands">
-  <p class="marque-atlas__eyebrow">Supported marques</p>
-  <h2 id="supported-brands">From Porsche roadsters to classic Triumphs.</h2>
-  <p class="marque-atlas__lead">
-    Leaks, loose fit, tired material, seams giving up, whatever is making the top feel wrong, we
-    fix it. We repair and replace convertible tops across a wide range of makes with one goal:
-    <strong>make the car feel right again.</strong> We inspect fit, seams, seals, and material wear across
-    <strong>Porsche</strong>, <strong>Ferrari</strong>, <strong>Jaguar</strong>,
-    <strong>Mercedes</strong>, <strong>BMW</strong>, <strong>Volkswagen</strong>, and the other
-    makes below.
-  </p>
-  <dl class="marque-atlas__list">
-    {marqueFamilies.map((family) => (
-      <div class="marque-atlas__row">
-        <dt class="marque-atlas__label">{family.label}</dt>
-        <dd class="marque-atlas__brands">
-          {family.brands.map((brand, index) => (
-            <span class={featuredBrands.includes(brand) ? "marque-atlas__brand marque-atlas__brand--featured" : "marque-atlas__brand"}>
-              {brand}
-              {index < family.brands.length - 1 ? <span class="marque-atlas__dot" aria-hidden="true">•</span> : null}
-            </span>
-          ))}
-        </dd>
-      </div>
-    ))}
-  </dl>
-</section>
-
-<StructuredDataScript data={convertibleTopStructuredData} />
+<ConvertibleTopMarqueAtlas locale="en" />
 
 <aside class="callout" aria-label="Upholstery guide">
   <p class="callout__title">Want to know what to expect?</p>

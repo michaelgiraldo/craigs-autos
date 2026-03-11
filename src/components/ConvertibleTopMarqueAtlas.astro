@@ -1,0 +1,96 @@
+---
+import StructuredDataScript from './StructuredDataScript.astro';
+import { PAGE_PATHS, SITE } from '../lib/site-data.js';
+import {
+	CONVERTIBLE_TOP_FEATURED_BRANDS,
+	CONVERTIBLE_TOP_MARQUE_COPY,
+	CONVERTIBLE_TOP_MARQUE_FAMILIES,
+} from '../data/convertible-top-marque-atlas.js';
+
+const { locale = 'en' } = Astro.props;
+
+const copy = CONVERTIBLE_TOP_MARQUE_COPY[locale] ?? CONVERTIBLE_TOP_MARQUE_COPY.en;
+const servicePath = PAGE_PATHS.convertibleTops?.[locale] ?? PAGE_PATHS.convertibleTops.en;
+const serviceUrl = new URL(servicePath, SITE.url).toString();
+const brandListId = `${serviceUrl}#supported-brands`;
+
+const marqueFamilies = CONVERTIBLE_TOP_MARQUE_FAMILIES.map((family) => ({
+	label: copy.familyLabels?.[family.key] ?? CONVERTIBLE_TOP_MARQUE_COPY.en.familyLabels[family.key],
+	brands: family.brands,
+}));
+
+const supportedBrands = marqueFamilies.flatMap((family) => family.brands);
+const sortedSupportedBrands = [...supportedBrands].sort((left, right) =>
+	left.localeCompare(right, 'en', { sensitivity: 'base' }),
+);
+
+const brandSlug = (name) =>
+	name
+		.toLowerCase()
+		.replace(/[^a-z0-9]+/g, '-')
+		.replace(/^-+|-+$/g, '');
+
+const brandNodes = sortedSupportedBrands.map((name) => ({
+	'@type': 'Brand',
+	'@id': `${serviceUrl}#brand-${brandSlug(name)}`,
+	name,
+}));
+
+const structuredData = {
+	'@context': 'https://schema.org',
+	'@graph': [
+		{
+			'@type': 'Service',
+			'@id': `${serviceUrl}#service`,
+			brand: brandNodes.map((brand) => ({ '@id': brand['@id'] })),
+			isRelatedTo: { '@id': brandListId },
+		},
+		{
+			'@type': 'ItemList',
+			'@id': brandListId,
+			name: copy.itemListName,
+			numberOfItems: brandNodes.length,
+			itemListOrder: 'https://schema.org/ItemListOrderAscending',
+			itemListElement: brandNodes.map((brand, index) => ({
+				'@type': 'ListItem',
+				position: index + 1,
+				item: { '@id': brand['@id'] },
+			})),
+		},
+		...brandNodes,
+	],
+};
+---
+
+<section class="marque-atlas" aria-labelledby="supported-brands">
+	<p class="marque-atlas__eyebrow">{copy.eyebrow}</p>
+	<h2 id="supported-brands">{copy.heading}</h2>
+	<p class="marque-atlas__lead" set:html={copy.leadHtml} />
+	<dl class="marque-atlas__list">
+		{marqueFamilies.map((family) => (
+			<div class="marque-atlas__row">
+				<dt class="marque-atlas__label">{family.label}</dt>
+				<dd class="marque-atlas__brands">
+					{family.brands.map((brand, index) => (
+						<span
+							class={
+								CONVERTIBLE_TOP_FEATURED_BRANDS.includes(brand)
+									? 'marque-atlas__brand marque-atlas__brand--featured'
+									: 'marque-atlas__brand'
+							}
+						>
+							{brand}
+							{index < family.brands.length - 1 ? (
+								<span class="marque-atlas__dot" aria-hidden="true">
+									•
+								</span>
+							) : null}
+						</span>
+					))}
+				</dd>
+			</div>
+		))}
+	</dl>
+</section>
+
+<StructuredDataScript data={structuredData} />

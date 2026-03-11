@@ -1327,7 +1327,7 @@ a.chip:hover {
 
 .marque-atlas__lead {
 	margin: 0.85rem 0 0;
-	max-width: 64ch;
+	max-width: 72ch;
 	font-size: 1.02rem;
 	color: var(--color-text);
 }
