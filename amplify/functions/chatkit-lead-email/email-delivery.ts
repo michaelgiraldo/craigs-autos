@@ -265,6 +265,9 @@ export async function sendTranscriptEmail(args: {
   const diagnosticRows: Array<{ label: string; value: string; href?: string | null }> = [];
   if (locale) diagnosticRows.push({ label: 'Locale', value: locale });
   if (customerLanguage) diagnosticRows.push({ label: 'Language', value: customerLanguage });
+  if (attribution?.device_type) {
+    diagnosticRows.push({ label: 'Device', value: attribution.device_type });
+  }
   if (pageHref) diagnosticRows.push({ label: 'Page', value: pageHref, href: pageHref });
   diagnosticRows.push({ label: 'Thread', value: threadId, href: threadHref });
   if (reason) diagnosticRows.push({ label: 'Trigger', value: reason });
