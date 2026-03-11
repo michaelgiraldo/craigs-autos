@@ -16,7 +16,7 @@ setopt pipefail
 # Standard dependency refresh:
 # - bump package.json ranges with npm-check-updates
 # - refresh lockfiles
-# - verify npm ci can succeed (dry-run)
+# - verify npm ci can succeed with a real clean install
 
 readonly SCRIPT_PATH=${(%):-%N}
 readonly SCRIPT_DIR=${SCRIPT_PATH:A:h}

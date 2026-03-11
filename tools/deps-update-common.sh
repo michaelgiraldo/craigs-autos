@@ -91,22 +91,30 @@ find_dep_update_packages() {
   print -r -l -- "${filtered[@]}"
 }
 
-dep_update_normal_mode() {
+refresh_dep_update_install_state() {
   local dir="$1"
-  run_npx npm-check-updates -u --peer
-  run_npm install --package-lock-only
-  if ! run_npm ci --dry-run; then
-    printf 'npm ci dry-run failed in %s.\n' "$dir" >&2
+  # `npm install --package-lock-only` plus `npm ci --dry-run` can miss
+  # transitive lockfile entries that a real clean install later requires.
+  # Refresh the lockfile with a full install, then validate it with `npm ci`,
+  # which matches the clean-install path used by Amplify.
+  run_npm install
+  if ! run_npm ci; then
+    printf 'npm ci failed in %s.\n' "$dir" >&2
     return 1
   fi
 }
 
+dep_update_normal_mode() {
+  local dir="$1"
+  run_npx npm-check-updates -u --peer
+  refresh_dep_update_install_state "$dir"
+}
+
 dep_update_clean_mode() {
+  local dir="$1"
   run_npx npm-check-updates -u --peer
   rm -rf node_modules package-lock.json
-  # Deterministic clean refresh: lockfile first, then install from lock.
-  run_npm install --package-lock-only
-  run_npm ci
+  refresh_dep_update_install_state "$dir"
 }
 
 update_dep_update_package() {
@@ -120,7 +128,7 @@ update_dep_update_package() {
         dep_update_normal_mode "$dir"
         ;;
       (clean)
-        dep_update_clean_mode
+        dep_update_clean_mode "$dir"
         ;;
       (*)
         printf 'Unknown dependency update mode: %s\n' "$mode" >&2
