@@ -36,6 +36,53 @@ init_dep_update_cache() {
   mkdir -p "$NPM_CACHE_DIR"
 }
 
+package_json_signature() {
+  if [[ ! -f package.json ]]; then
+    print -r -- ''
+    return 0
+  fi
+  cksum package.json | awk '{print $1 ":" $2}'
+}
+
+create_dep_update_backup() {
+  local source_path="$1"
+  local backup_path=''
+  if [[ -f "$source_path" ]]; then
+    backup_path=$(mktemp "${TMPDIR:-/tmp}/$(basename "$source_path").XXXXXX")
+    cp "$source_path" "$backup_path"
+  fi
+  print -r -- "$backup_path"
+}
+
+cleanup_dep_update_backups() {
+  local backup_path
+  for backup_path in "$@"; do
+    if [[ -n "$backup_path" ]]; then
+      rm -f "$backup_path"
+    fi
+  done
+}
+
+restore_dep_update_state() {
+  local dir="$1"
+  local package_backup="$2"
+  local lock_backup="$3"
+
+  if [[ -n "$package_backup" && -f "$package_backup" ]]; then
+    cp "$package_backup" package.json
+  fi
+
+  if [[ -n "$lock_backup" && -f "$lock_backup" ]]; then
+    cp "$lock_backup" package-lock.json
+  fi
+
+  printf 'Restored previous package manifest state in %s.\n' "$dir" >&2
+  if ! run_npm ci; then
+    printf 'npm ci still failed after restoring previous state in %s.\n' "$dir" >&2
+    return 1
+  fi
+}
+
 # Run npm/npx with explicit options and no deprecated production config.
 run_npm() {
   env -u npm_config_production -u NPM_CONFIG_PRODUCTION \
@@ -106,15 +153,65 @@ refresh_dep_update_install_state() {
 
 dep_update_normal_mode() {
   local dir="$1"
-  run_npx npm-check-updates -u --peer
-  refresh_dep_update_install_state "$dir"
+  local before_signature after_signature
+  local package_backup lock_backup
+
+  package_backup=$(create_dep_update_backup package.json)
+  lock_backup=$(create_dep_update_backup package-lock.json)
+  before_signature=$(package_json_signature)
+  run_npx npm-check-updates -u
+  after_signature=$(package_json_signature)
+
+  if [[ "$before_signature" == "$after_signature" ]]; then
+    printf 'package.json unchanged in %s; validating current lockfile with npm ci.\n' "$dir"
+    if ! run_npm ci; then
+      restore_dep_update_state "$dir" "$package_backup" "$lock_backup" || true
+      cleanup_dep_update_backups "$package_backup" "$lock_backup"
+      return 1
+    fi
+    cleanup_dep_update_backups "$package_backup" "$lock_backup"
+    return 0
+  fi
+
+  if ! refresh_dep_update_install_state "$dir"; then
+    restore_dep_update_state "$dir" "$package_backup" "$lock_backup" || true
+    cleanup_dep_update_backups "$package_backup" "$lock_backup"
+    return 1
+  fi
+
+  cleanup_dep_update_backups "$package_backup" "$lock_backup"
 }
 
 dep_update_clean_mode() {
   local dir="$1"
-  run_npx npm-check-updates -u --peer
+  local before_signature after_signature
+  local package_backup lock_backup
+
+  package_backup=$(create_dep_update_backup package.json)
+  lock_backup=$(create_dep_update_backup package-lock.json)
+  before_signature=$(package_json_signature)
+  run_npx npm-check-updates -u
+  after_signature=$(package_json_signature)
+
+  if [[ "$before_signature" == "$after_signature" ]]; then
+    printf 'package.json unchanged in %s; preserving current lockfile and running npm ci.\n' "$dir"
+    if ! run_npm ci; then
+      restore_dep_update_state "$dir" "$package_backup" "$lock_backup" || true
+      cleanup_dep_update_backups "$package_backup" "$lock_backup"
+      return 1
+    fi
+    cleanup_dep_update_backups "$package_backup" "$lock_backup"
+    return 0
+  fi
+
   rm -rf node_modules package-lock.json
-  refresh_dep_update_install_state "$dir"
+  if ! refresh_dep_update_install_state "$dir"; then
+    restore_dep_update_state "$dir" "$package_backup" "$lock_backup" || true
+    cleanup_dep_update_backups "$package_backup" "$lock_backup"
+    return 1
+  fi
+
+  cleanup_dep_update_backups "$package_backup" "$lock_backup"
 }
 
 update_dep_update_package() {
