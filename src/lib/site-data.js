@@ -7,6 +7,7 @@ export {
 	getLocaleMeta,
 	getPageLabel,
 	getPagePath,
+	getPageTranslation,
 	getTranslations,
 	resolveLocaleKey,
 } from './site-data/page-registry.js';

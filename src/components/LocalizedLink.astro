@@ -1,10 +1,9 @@
 ---
-import { LOCALES, PAGE_PATHS } from '../lib/site-data.js';
+import { getPagePath, resolveLocaleKey } from '../lib/site-data/page-registry.js';
 
 const { pageKey, locale = 'en', href, hash, ...rest } = Astro.props;
-const resolvedLocale = LOCALES[locale] ? locale : 'en';
-let resolvedHref =
-	href ?? PAGE_PATHS[pageKey]?.[resolvedLocale] ?? LOCALES[resolvedLocale]?.base ?? LOCALES.en.base;
+const resolvedLocale = resolveLocaleKey(locale);
+let resolvedHref = href ?? getPagePath(pageKey, resolvedLocale);
 
 if (typeof hash === 'string' && hash.length > 0) {
 	const normalizedHash = hash.startsWith('#') ? hash : `#${hash}`;

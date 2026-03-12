@@ -14,10 +14,15 @@ export function getTranslations(pageKey) {
 	return PAGE_PATHS[pageKey] ?? PAGE_PATHS.home;
 }
 
-export function getPagePath(pageKey, locale) {
+export function getPageTranslation(pageKey, locale) {
 	const resolvedLocale = resolveLocaleKey(locale);
 	const translations = getTranslations(pageKey);
-	return translations[resolvedLocale] ?? translations.en ?? LOCALES.en.base;
+	return translations[resolvedLocale] ?? null;
+}
+
+export function getPagePath(pageKey, locale) {
+	const resolvedLocale = resolveLocaleKey(locale);
+	return getPageTranslation(pageKey, resolvedLocale) ?? LOCALES[resolvedLocale]?.base ?? LOCALES.en.base;
 }
 
 export function getPageLabel(pageKey, locale) {

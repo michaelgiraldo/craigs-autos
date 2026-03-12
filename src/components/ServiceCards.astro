@@ -1,8 +1,12 @@
 ---
-import { NAV_LABELS, PAGE_PATHS } from '../lib/site-data.js';
+import {
+	getPageLabel,
+	getPageTranslation,
+	resolveLocaleKey,
+} from '../lib/site-data/page-registry.js';
 
 const { locale = 'en', currentKey } = Astro.props;
-const labels = NAV_LABELS[locale] ?? NAV_LABELS.en;
+const resolvedLocale = resolveLocaleKey(locale);
 
 const descriptions = {
 	en: {
@@ -217,22 +221,21 @@ const itemKeys = [
 	'reviews',
 	'contact',
 ];
-const fallbackLabels = NAV_LABELS.en ?? {};
 const items = itemKeys
 	.map((key) => {
-		const href = PAGE_PATHS[key]?.[locale];
+		const href = getPageTranslation(key, resolvedLocale);
 		if (!href) {
 			return null;
 		}
 		return {
 			key,
 			href,
-			label: labels[key] ?? fallbackLabels[key] ?? key,
+			label: getPageLabel(key, resolvedLocale) ?? key,
 		};
 	})
 	.filter(Boolean);
 
-const localeDescriptions = descriptions[locale] ?? null;
+const localeDescriptions = descriptions[resolvedLocale] ?? null;
 ---
 
 <section class="service-cards full-bleed" aria-label="Services">
