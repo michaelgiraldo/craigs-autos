@@ -1,4 +1,17 @@
 ---
+import type { NavItem, SiteData, UiCopy, LocaleKey } from '../../types/site';
+
+interface Props {
+	brandName: string;
+	emailHref: string;
+	locale?: LocaleKey;
+	mapsHref: string;
+	navItems?: NavItem[];
+	site: SiteData;
+	smsHref: string;
+	ui?: UiCopy;
+}
+
 const {
 	brandName,
 	emailHref,
@@ -7,8 +20,8 @@ const {
 	navItems = [],
 	site,
 	smsHref,
-	ui = {},
-} = Astro.props;
+	ui = {} as UiCopy,
+} = Astro.props as Props;
 ---
 
 <footer class="site-footer">
@@ -61,7 +74,7 @@ const {
 		</div>
 		<div>
 			<ul class="site-footer__links">
-				{navItems.map((item) => (
+				{navItems.map((item: NavItem) => (
 					<li>
 						<a href={item.href}>{item.label}</a>
 					</li>

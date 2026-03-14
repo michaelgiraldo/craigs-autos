@@ -1,5 +1,13 @@
 ---
-const { faqs = [], heading = 'FAQs', id = 'faqs' } = Astro.props;
+import type { PageFaqItem } from '../types/site';
+
+interface Props {
+	faqs?: PageFaqItem[];
+	heading?: string;
+	id?: string;
+}
+
+const { faqs = [], heading = 'FAQs', id = 'faqs' } = Astro.props as Props;
 
 // SEO note: FAQPage JSON-LD must match the visible questions/answers.
 const faqStructuredData =
@@ -7,7 +15,7 @@ const faqStructuredData =
 		? {
 				'@context': 'https://schema.org',
 				'@type': 'FAQPage',
-				mainEntity: faqs.map((item) => ({
+				mainEntity: faqs.map((item: PageFaqItem) => ({
 					'@type': 'Question',
 					name: item.q,
 					acceptedAnswer: {
@@ -20,10 +28,10 @@ const faqStructuredData =
 ---
 
 {faqs.length > 0 ? (
-	<section class="faq" aria-labelledby={id}>
+		<section class="faq" aria-labelledby={id}>
 		<h2 id={id}>{heading}</h2>
 		<div class="faq__list">
-			{faqs.map((item) => (
+			{faqs.map((item: PageFaqItem) => (
 				<details class="faq__item">
 					<summary class="faq__question">{item.q}</summary>
 					<div class="faq__answer">
@@ -32,6 +40,6 @@ const faqStructuredData =
 				</details>
 			))}
 			</div>
-			<script type="application/ld+json" set:html={JSON.stringify(faqStructuredData)} />
+			<script is:inline type="application/ld+json" set:html={JSON.stringify(faqStructuredData)} />
 		</section>
 	) : null}

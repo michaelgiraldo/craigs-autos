@@ -1,3 +1,5 @@
+export {};
+
 const OUTPUTS_PATH = '/amplify_outputs.json';
 const FETCH_TIMEOUT_MS = 8_000;
 const STORAGE_KEY = 'craigs_attribution_v1';

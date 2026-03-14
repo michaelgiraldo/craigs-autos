@@ -1,3 +1,6 @@
+/** @typedef {{ services: string, resources: string }} NavLabelsEntry */
+
+/** @type {Record<string, NavLabelsEntry>} */
 export const NAV_LABELS = {
 	en: {
 		services: 'Auto Services',

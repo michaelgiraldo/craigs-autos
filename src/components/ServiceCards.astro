@@ -1,12 +1,18 @@
 ---
+import type { LocaleKey, NavItem } from '../types/site';
 import {
 	getPageLabel,
 	getPageTranslation,
 	resolveLocaleKey,
 } from '../lib/site-data/page-registry.js';
 
-const { locale = 'en', currentKey } = Astro.props;
-const resolvedLocale = resolveLocaleKey(locale);
+interface Props {
+	locale?: LocaleKey;
+	currentKey?: string;
+}
+
+const { locale = 'en', currentKey } = Astro.props as Props;
+const resolvedLocale = resolveLocaleKey(locale) as LocaleKey;
 
 const descriptions = {
 	en: {
@@ -221,27 +227,25 @@ const itemKeys = [
 	'reviews',
 	'contact',
 ];
-const items = itemKeys
-	.map((key) => {
+const items: NavItem[] = itemKeys.flatMap((key) => {
 		const href = getPageTranslation(key, resolvedLocale);
 		if (!href) {
-			return null;
+			return [];
 		}
-		return {
+		return [{
 			key,
 			href,
 			label: getPageLabel(key, resolvedLocale) ?? key,
-		};
-	})
-	.filter(Boolean);
+		}];
+	});
 
-const localeDescriptions = descriptions[resolvedLocale] ?? null;
+const localeDescriptions = (descriptions[resolvedLocale] ?? descriptions.en) as Record<string, string>;
 ---
 
 <section class="service-cards full-bleed" aria-label="Services">
 	<div class="container">
 		<div class="service-cards__grid">
-			{items.map((item) => (
+			{items.map((item: NavItem) => (
 				<a class="card" href={item.href} aria-current={item.key === currentKey ? 'page' : undefined}>
 					<p class="card__title">{item.label}</p>
 					{localeDescriptions?.[item.key] ? (

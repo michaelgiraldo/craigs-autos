@@ -1,13 +1,17 @@
 ---
+import type { LocaleKey } from '../types/site';
 import { UI_COPY } from '../lib/site-data.js';
 
-const { locale = 'en' } = Astro.props;
+interface Props {
+	locale?: LocaleKey;
+}
+
+const { locale = 'en' } = Astro.props as Props;
 const ui = UI_COPY[locale] ?? UI_COPY.en;
 ---
 
 <div class="chip-row" aria-label="Trust signals">
-	{ui.trust.map((item) => (
+	{ui.trust.map((item: string) => (
 		<span class="chip">{item}</span>
 	))}
 </div>
-

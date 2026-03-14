@@ -1,4 +1,5 @@
 ---
+import type { LocaleKey, LocalizedText } from '../types/site';
 import LightboxGallery from './LightboxGallery.astro';
 import BeforeAfterPairGrid from './BeforeAfterPairGrid.astro';
 import {
@@ -10,9 +11,22 @@ import {
 	getServiceGalleryHighlightImages,
 } from '../data/galleries/page-showcase.js';
 
-const { locale = 'en', pageKey = 'home' } = Astro.props;
-const resolveCopy = (value) => value?.[locale] ?? value?.en ?? '';
-const copy = SHOWCASE_COPY[pageKey] ?? {};
+type ShowcasePageKey = keyof typeof SHOWCASE_COPY;
+
+type ShowcaseCopy = {
+	title?: LocalizedText;
+	highlightTitle?: LocalizedText;
+	beforeAfterTitle?: LocalizedText;
+};
+
+interface Props {
+	locale?: LocaleKey;
+	pageKey?: string;
+}
+
+const { locale = 'en', pageKey = 'home' } = Astro.props as Props;
+const resolveCopy = (value?: LocalizedText) => value?.[locale] ?? value?.en ?? '';
+const copy = (SHOWCASE_COPY[pageKey as ShowcasePageKey] ?? SHOWCASE_COPY.home) as ShowcaseCopy;
 const homeShowcaseImages = pageKey === 'home' ? await getHomeShowcaseImages() : [];
 const carSeatsAllImages = pageKey === 'carSeats' ? await getCarSeatsAllImages() : [];
 const serviceGalleryHighlightImages =

@@ -1,8 +1,17 @@
 ---
+import type { LocaleKey } from '../types/site';
 import TrustBar from './TrustBar.astro';
 import { BRAND_NAME, SITE, UI_COPY } from '../lib/site-data.js';
 
-const { title, lead, locale = 'en', kicker, showTrust = true } = Astro.props;
+interface Props {
+	title: string;
+	lead?: string;
+	locale?: LocaleKey;
+	kicker?: string;
+	showTrust?: boolean;
+}
+
+const { title, lead, locale = 'en', kicker, showTrust = true } = Astro.props as Props;
 const ui = UI_COPY[locale] ?? UI_COPY.en;
 
 const mapsQuery = encodeURIComponent(

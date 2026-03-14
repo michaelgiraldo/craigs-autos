@@ -1,4 +1,5 @@
 ---
+import type { LocaleKey } from '../types/site';
 import StructuredDataScript from './StructuredDataScript.astro';
 import { SITE } from '../lib/site-data.js';
 import { getPagePath } from '../lib/site-data/page-registry.js';
@@ -8,24 +9,33 @@ import {
 	CONVERTIBLE_TOP_MARQUE_FAMILIES,
 } from '../data/convertible-top-marque-atlas.js';
 
-const { locale = 'en' } = Astro.props;
+interface Props {
+	locale?: LocaleKey;
+}
+
+type FamilyKey = keyof typeof CONVERTIBLE_TOP_MARQUE_COPY.en.familyLabels;
+
+const { locale = 'en' } = Astro.props as Props;
 
 const copy = CONVERTIBLE_TOP_MARQUE_COPY[locale] ?? CONVERTIBLE_TOP_MARQUE_COPY.en;
 const servicePath = getPagePath('convertibleTops', locale);
 const serviceUrl = new URL(servicePath, SITE.url).toString();
 const brandListId = `${serviceUrl}#supported-brands`;
 
-const marqueFamilies = CONVERTIBLE_TOP_MARQUE_FAMILIES.map((family) => ({
-	label: copy.familyLabels?.[family.key] ?? CONVERTIBLE_TOP_MARQUE_COPY.en.familyLabels[family.key],
+const marqueFamilies = CONVERTIBLE_TOP_MARQUE_FAMILIES.map((family) => {
+	const familyKey = family.key as FamilyKey;
+	return {
+		label: copy.familyLabels?.[familyKey] ?? CONVERTIBLE_TOP_MARQUE_COPY.en.familyLabels[familyKey],
 	brands: family.brands,
-}));
+	};
+});
 
 const supportedBrands = marqueFamilies.flatMap((family) => family.brands);
 const sortedSupportedBrands = [...supportedBrands].sort((left, right) =>
 	left.localeCompare(right, 'en', { sensitivity: 'base' }),
 );
 
-const brandSlug = (name) =>
+const brandSlug = (name: string) =>
 	name
 		.toLowerCase()
 		.replace(/[^a-z0-9]+/g, '-')

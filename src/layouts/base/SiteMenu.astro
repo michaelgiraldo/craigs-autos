@@ -1,5 +1,21 @@
 ---
-const { canonicalPath = '', emailHref, navItems = [], siteEmail = '', ui = {} } = Astro.props;
+import type { NavItem, UiCopy } from '../../types/site';
+
+interface Props {
+	canonicalPath?: string;
+	emailHref: string;
+	navItems?: NavItem[];
+	siteEmail?: string;
+	ui?: UiCopy;
+}
+
+const {
+	canonicalPath = '',
+	emailHref,
+	navItems = [],
+	siteEmail = '',
+	ui = {} as UiCopy,
+} = Astro.props as Props;
 ---
 
 <div class="site-menu__overlay" data-site-menu-overlay hidden>
@@ -20,7 +36,7 @@ const { canonicalPath = '', emailHref, navItems = [], siteEmail = '', ui = {} } 
 		</div>
 		<nav class="site-menu__nav" aria-label={ui.menuLabel ?? 'Menu'}>
 			<ul class="site-menu__list">
-				{navItems.map((item) => (
+				{navItems.map((item: NavItem) => (
 					<li>
 						<a
 							class="site-menu__link"

@@ -1,11 +1,21 @@
 ---
+import type { LanguageLink } from '../types/site';
+
+interface Props {
+	links: LanguageLink[];
+	currentLabel?: string;
+	ariaLabel?: string;
+	id?: string;
+	mode?: 'panel' | 'toggle';
+}
+
 const {
 	links,
 	currentLabel = 'EN',
 	ariaLabel = 'Language',
 	id = 'lang-switcher',
 	mode = 'toggle',
-} = Astro.props;
+} = Astro.props as Props;
 const panelId = `${id}-panel`;
 ---
 
@@ -42,7 +52,7 @@ const panelId = `${id}-panel`;
 				/>
 			</div>
 			<ul class="lang-switcher__menu" aria-label={ariaLabel} data-lang-switcher-list>
-				{links.map((link) => (
+				{links.map((link: LanguageLink) => (
 					<li data-lang-switcher-item data-search={link.searchLabel ?? link.menuLabel ?? link.label}>
 						<a class="lang-switcher__menu-link" href={link.href}>
 							{link.menuLabel ?? link.label}

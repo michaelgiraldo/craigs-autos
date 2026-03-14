@@ -1,16 +1,22 @@
 ---
+import type { LocaleKey, LocalizedText, ProjectData } from '../types/site';
 import PageHero from './PageHero.astro';
 import ProjectGallery from './ProjectGallery.astro';
 import { getProject } from '../data/projects/index.js';
 
-const { projectId, locale = 'en' } = Astro.props;
-const project = await getProject(projectId);
+interface Props {
+	projectId: string;
+	locale?: LocaleKey;
+}
+
+const { projectId, locale = 'en' } = Astro.props as Props;
+const project = (await getProject(projectId)) as ProjectData | undefined;
 
 if (!project) {
 	throw new Error(`Project not found: ${projectId}`);
 }
 
-const resolveCopy = (value) => value?.[locale] ?? value?.en ?? '';
+const resolveCopy = (value?: LocalizedText) => value?.[locale] ?? value?.en ?? '';
 const workItems = project.copy?.workItems?.[locale] ?? project.copy?.workItems?.en ?? [];
 ---
 
@@ -31,7 +37,7 @@ const workItems = project.copy?.workItems?.[locale] ?? project.copy?.workItems?.
 	<div class="container">
 		<h2>{resolveCopy(project.copy?.workTitle)}</h2>
 		<ul class="project-list">
-			{workItems.map((item) => (
+			{workItems.map((item: string) => (
 				<li>{item}</li>
 			))}
 		</ul>

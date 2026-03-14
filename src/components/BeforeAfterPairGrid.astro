@@ -1,10 +1,17 @@
 ---
 import { Image } from 'astro:assets';
+import type { BeforeAfterPair, LocaleKey, LocalizedText } from '../types/site';
 
-const { pairs = [], locale = 'en', label = '' } = Astro.props;
-const resolveCopy = (value) => value?.[locale] ?? value?.en ?? '';
+interface Props {
+	pairs?: BeforeAfterPair[];
+	locale?: LocaleKey;
+	label?: string;
+}
 
-const BEFORE_LABELS = {
+const { pairs = [], locale = 'en', label = '' } = Astro.props as Props;
+const resolveCopy = (value?: LocalizedText) => value?.[locale] ?? value?.en ?? '';
+
+const BEFORE_LABELS: Record<LocaleKey, string> = {
 	en: 'Before',
 	es: 'Antes',
 	vi: 'Truoc',
@@ -25,7 +32,7 @@ const BEFORE_LABELS = {
 	ta: 'முன்',
 };
 
-const AFTER_LABELS = {
+const AFTER_LABELS: Record<LocaleKey, string> = {
 	en: 'After',
 	es: 'Despues',
 	vi: 'Sau',
@@ -53,7 +60,7 @@ const afterLabel = AFTER_LABELS[locale] ?? AFTER_LABELS.en;
 <section class="before-after" aria-label={label || 'Before and after'}>
 	{label ? <h2>{label}</h2> : null}
 	<div class="before-after__grid">
-		{pairs.map((pair) => (
+		{pairs.map((pair: BeforeAfterPair) => (
 			<article class="before-after__card" data-pair-id={pair.pairId || pair.id}>
 				<div class="before-after__cell">
 					<p class="before-after__label">{beforeLabel}</p>

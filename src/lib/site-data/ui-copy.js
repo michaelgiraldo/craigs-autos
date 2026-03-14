@@ -1,3 +1,6 @@
+/** @typedef {{ callCta: string, textCta: string, directionsCta: string, menuLabel: string, languageLabel: string, quickActionsLabel: string, hoursLabel: string, hoursSummary: string, reviewsLabel: string, yelpLabel: string, googleLabel: string, appleMapsLabel: string, trust: string[] }} UiCopyEntry */
+
+/** @type {Record<string, UiCopyEntry>} */
 export const UI_COPY = {
 		en: {
 			callCta: 'Call',

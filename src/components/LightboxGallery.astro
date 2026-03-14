@@ -1,13 +1,19 @@
 ---
 import { Image } from 'astro:assets';
+import type { GalleryImage, LocaleKey, LocalizedText } from '../types/site';
 
-const { images = [], locale = 'en' } = Astro.props;
-const resolveCopy = (value) => value?.[locale] ?? value?.en ?? '';
+interface Props {
+	images?: GalleryImage[];
+	locale?: LocaleKey;
+}
+
+const { images = [], locale = 'en' } = Astro.props as Props;
+const resolveCopy = (value?: LocalizedText) => value?.[locale] ?? value?.en ?? '';
 ---
 
 <div class="lightbox-gallery" data-lightbox-root>
 	<div class="lightbox-gallery__grid">
-		{images.map((image, index) => (
+		{images.map((image: GalleryImage, index: number) => (
 			<figure class="lightbox-gallery__item">
 				<button
 					class="lightbox-gallery__button"

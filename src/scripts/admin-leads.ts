@@ -1,3 +1,5 @@
+export {};
+
 const STORAGE_KEY = 'craigs_admin_auth';
 const OUTPUTS_PATH = '/amplify_outputs.json';
 const FETCH_TIMEOUT_MS = 8_000;
@@ -59,7 +61,13 @@ if (app instanceof HTMLElement) {
     return null;
   };
 
-  const authHeader = () => (state.auth ? { Authorization: state.auth } : {});
+  const jsonHeaders = () => {
+    const headers = new Headers({ 'Content-Type': 'application/json' });
+    if (state.auth) {
+      headers.set('Authorization', state.auth);
+    }
+    return headers;
+  };
 
   const fetchLeads = async (reset: boolean) => {
     if (!state.auth) return;
@@ -84,7 +92,7 @@ if (app instanceof HTMLElement) {
         url.toString(),
         withFetchTimeout({
           method: 'GET',
-          headers: { 'Content-Type': 'application/json', ...authHeader() },
+          headers: jsonHeaders(),
         }),
       );
 
@@ -117,7 +125,7 @@ if (app instanceof HTMLElement) {
         endpoint,
         withFetchTimeout({
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', ...authHeader() },
+          headers: jsonHeaders(),
           body: JSON.stringify({ lead_id: leadId, qualified }),
         }),
       );

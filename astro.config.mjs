@@ -6,6 +6,9 @@ import sitemap from '@astrojs/sitemap';
 
 const SITEMAP_BLOCKED_SECTIONS = new Set(['message', 'admin']);
 
+/**
+ * @param {string} pathname
+ */
 const isIndexablePath = (pathname) => {
 	if (pathname === '/') {
 		return false;
@@ -19,6 +22,7 @@ export default defineConfig({
 	site: 'https://craigs.autos',
 	trailingSlash: 'always',
 	devToolbar: {
+		enabled: true,
 		placement: 'bottom-left',
 	},
 	image: {

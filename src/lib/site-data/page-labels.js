@@ -1,3 +1,4 @@
+/** @type {Record<string, Record<string, string>>} */
 export const PAGE_LABELS = {
   "en": {
     "home": "Home",

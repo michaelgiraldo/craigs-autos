@@ -1,18 +1,25 @@
 ---
 import { Image } from 'astro:assets';
+import type { LocaleKey, LocalizedText, ProjectData, ProjectImage } from '../types/site';
 import LocalizedLink from './LocalizedLink.astro';
 import { getProject } from '../data/projects/index.js';
 
-const { projectId, locale = 'en' } = Astro.props;
-const project = await getProject(projectId);
+interface Props {
+	projectId: string;
+	locale?: LocaleKey;
+}
+
+const { projectId, locale = 'en' } = Astro.props as Props;
+const project = (await getProject(projectId)) as ProjectData | undefined;
 
 if (!project) {
 	throw new Error(`Project not found: ${projectId}`);
 }
 
-const resolveCopy = (value) => value?.[locale] ?? value?.en ?? '';
+const resolveCopy = (value?: LocalizedText) => value?.[locale] ?? value?.en ?? '';
 const featuredImageId = project.featuredImageId ?? project.images?.[0]?.id;
-const featuredImage = project.images?.find((image) => image.id === featuredImageId) ?? project.images?.[0];
+const featuredImage =
+	project.images?.find((image: ProjectImage) => image.id === featuredImageId) ?? project.images?.[0];
 const featuredKicker = resolveCopy(project.copy?.featuredKicker) || 'Featured project';
 const featuredTitle = resolveCopy(project.copy?.title) || 'Project';
 const featuredSummary = resolveCopy(project.copy?.lead) || '';

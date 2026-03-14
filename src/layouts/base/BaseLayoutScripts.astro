@@ -2,16 +2,17 @@
 	import { initBaseLayoutBehaviors } from '../../scripts/base-layout.js';
 
 	const PAGE_LOAD_HANDLER_KEY = '__craigsBaseLayoutPageLoadHandler';
+	const layoutWindow = window as unknown as Window & Record<string, (() => void) | undefined>;
 	const runBaseLayoutBehaviors = () => {
 		initBaseLayoutBehaviors();
 	};
 
-	const existingHandler = window[PAGE_LOAD_HANDLER_KEY];
+	const existingHandler = layoutWindow[PAGE_LOAD_HANDLER_KEY];
 	if (typeof existingHandler === 'function') {
 		document.removeEventListener('astro:page-load', existingHandler);
 	}
 
-	window[PAGE_LOAD_HANDLER_KEY] = runBaseLayoutBehaviors;
+	layoutWindow[PAGE_LOAD_HANDLER_KEY] = runBaseLayoutBehaviors;
 	runBaseLayoutBehaviors();
 	document.addEventListener('astro:page-load', runBaseLayoutBehaviors);
 </script>

@@ -1,3 +1,5 @@
+/** @typedef {{ label: string, nativeLabel: string, englishLabel: string, lang: string, hreflang: string, base: string }} LocaleMeta */
+
 export const BRAND_NAME = "Craig's Auto Upholstery";
 
 export const SITE = {
@@ -32,6 +34,7 @@ export const SITE = {
 	],
 };
 
+/** @type {string[]} */
 export const LOCALE_ORDER = [
 	'en',
 	'es',
@@ -39,6 +42,9 @@ export const LOCALE_ORDER = [
 	'zh-hans',
 	'tl',
 	'id',
+	'fa',
+	'te',
+	'fr',
 	'ko',
 	'hi',
 	'pa',
@@ -50,6 +56,7 @@ export const LOCALE_ORDER = [
 	'ta',
 ];
 
+/** @type {Record<string, LocaleMeta>} */
 export const LOCALES = {
 	en: {
 		label: 'EN',
@@ -98,6 +105,30 @@ export const LOCALES = {
 		lang: 'id',
 		hreflang: 'id',
 		base: '/id/',
+	},
+	fa: {
+		label: 'فارسی',
+		nativeLabel: 'فارسی',
+		englishLabel: 'Persian',
+		lang: 'fa',
+		hreflang: 'fa',
+		base: '/fa/',
+	},
+	te: {
+		label: 'తెలుగు',
+		nativeLabel: 'తెలుగు',
+		englishLabel: 'Telugu',
+		lang: 'te',
+		hreflang: 'te',
+		base: '/te/',
+	},
+	fr: {
+		label: 'FR',
+		nativeLabel: 'Français',
+		englishLabel: 'French',
+		lang: 'fr',
+		hreflang: 'fr',
+		base: '/fr/',
 	},
 	ko: {
 		label: '한국어',
@@ -172,41 +203,3 @@ export const LOCALES = {
 		base: '/ta/',
 	},
 };
-
-const WAVE1_LOCALE_ORDER = ['fa', 'te', 'fr'];
-const wave1InsertAt = LOCALE_ORDER.indexOf('ko');
-for (const locale of WAVE1_LOCALE_ORDER) {
-	if (LOCALE_ORDER.includes(locale)) continue;
-	if (wave1InsertAt >= 0) {
-		LOCALE_ORDER.splice(LOCALE_ORDER.indexOf('ko'), 0, locale);
-	} else {
-		LOCALE_ORDER.push(locale);
-	}
-}
-
-Object.assign(LOCALES, {
-	fa: {
-		label: 'فارسی',
-		nativeLabel: 'فارسی',
-		englishLabel: 'Persian',
-		lang: 'fa',
-		hreflang: 'fa',
-		base: '/fa/',
-	},
-	te: {
-		label: 'తెలుగు',
-		nativeLabel: 'తెలుగు',
-		englishLabel: 'Telugu',
-		lang: 'te',
-		hreflang: 'te',
-		base: '/te/',
-	},
-	fr: {
-		label: 'FR',
-		nativeLabel: 'Français',
-		englishLabel: 'French',
-		lang: 'fr',
-		hreflang: 'fr',
-		base: '/fr/',
-	},
-});

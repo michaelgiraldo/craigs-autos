@@ -1,4 +1,26 @@
 ---
+import type { HreflangLink } from '../../types/site';
+
+interface Props {
+	generator: string;
+	title: string;
+	pageDescription: string;
+	noindex?: boolean;
+	canonicalUrl: string;
+	brandName: string;
+	socialTitle?: string;
+	socialDescription?: string;
+	ogLocale: string;
+	ogLocaleAlternates?: string[];
+	ogImageUrl: string;
+	ogImageWidth?: string;
+	ogImageHeight?: string;
+	ogImageAlt: string;
+	hreflangLinks?: HreflangLink[];
+	xDefaultHref: string;
+	structuredData: Record<string, unknown>;
+}
+
 const {
   generator,
   title,
@@ -17,7 +39,7 @@ const {
   hreflangLinks = [],
   xDefaultHref,
   structuredData,
-} = Astro.props;
+} = Astro.props as Props;
 ---
 
 <meta name="generator" content={generator} />
@@ -41,7 +63,7 @@ const {
 <meta property="og:title" content={socialTitle || title} />
 <meta property="og:description" content={socialDescription || pageDescription} />
 <meta property="og:locale" content={ogLocale} />
-{ogLocaleAlternates.map((alternateLocale) => (
+{ogLocaleAlternates.map((alternateLocale: string) => (
   <meta property="og:locale:alternate" content={alternateLocale} />
 ))}
 <meta property="og:url" content={canonicalUrl} />
@@ -55,8 +77,8 @@ const {
 <meta name="twitter:description" content={socialDescription || pageDescription} />
 <meta name="twitter:image" content={ogImageUrl} />
 <meta name="twitter:image:alt" content={ogImageAlt} />
-{hreflangLinks.map((link) => (
+{hreflangLinks.map((link: HreflangLink) => (
   <link rel="alternate" hreflang={link.hreflang} href={link.href} />
 ))}
 <link rel="alternate" hreflang="x-default" href={xDefaultHref} />
-<script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+<script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData)} />

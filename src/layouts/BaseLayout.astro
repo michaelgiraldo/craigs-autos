@@ -1,4 +1,5 @@
 ---
+import type { HreflangLink, LanguageLink, LocaleKey, LocaleMap, NavItem } from '../types/site';
 import ChatWidget from '../components/ChatWidget.astro';
 import AnalyticsBody from './base/AnalyticsBody.astro';
 import AnalyticsHead from './base/AnalyticsHead.astro';
@@ -33,6 +34,25 @@ import {
 	getTranslations,
 } from '../lib/site-data/page-registry.js';
 
+interface LayoutProps {
+	title: string;
+	description?: string;
+	canonicalPath?: string;
+	locale?: LocaleKey;
+	lang?: string;
+	translations?: LocaleMap<string>;
+	pageKey?: string;
+	noindex?: boolean;
+}
+
+type ServiceNode = {
+	'@type': 'Service';
+	'@id': string;
+	name: string;
+	url: string;
+	provider: { '@id': string };
+};
+
 // Astro MDX layouts may pass frontmatter under `Astro.props.frontmatter` (vs directly on props).
 const frontmatter = Astro.props?.frontmatter ?? Astro.props ?? {};
 
@@ -45,13 +65,13 @@ const {
 	translations,
 	pageKey,
 	noindex = false,
-} = frontmatter;
+} = frontmatter as LayoutProps;
 const pageDescription =
 	typeof description === 'string' && description.trim().length > 0
 		? description.trim()
 		: (BUSINESS_COPY[locale] ?? BUSINESS_COPY.en).description;
 const socialBusiness = BUSINESS_COPY[locale] ?? BUSINESS_COPY.en;
-const truncateSocialText = (value, maxChars) => {
+const truncateSocialText = (value: string | null | undefined, maxChars: number) => {
 	const text = String(value ?? '').replace(/\s+/g, ' ').trim();
 	if (!text || text.length <= maxChars) {
 		return text;
@@ -72,7 +92,8 @@ const socialDescription = truncateSocialText(
 	180,
 );
 const site = Astro.site ?? new URL(SITE.url);
-const pageTranslations = translations ?? getTranslations(pageKey ?? 'home');
+const localeKeys = LOCALE_ORDER as LocaleKey[];
+const pageTranslations: LocaleMap<string> = translations ?? getTranslations(pageKey ?? 'home');
 const canonicalPath = canonicalPathProp ?? pageTranslations[locale] ?? LOCALES.en.base;
 const canonicalUrl = new URL(canonicalPath, site).toString();
 const homePath = getPagePath('home', locale);
@@ -100,7 +121,7 @@ const ogImageAlt = ogImageAltBase.toLowerCase().includes(BRAND_NAME.toLowerCase(
 	: `${ogImageAltBase} | ${BRAND_NAME}`;
 const ogImageWidth = '1200';
 const ogImageHeight = '630';
-const ogLocaleByKey = {
+const ogLocaleByKey: Partial<Record<LocaleKey, string>> = {
 	en: 'en_US',
 	es: 'es_ES',
 	vi: 'vi_VN',
@@ -142,18 +163,18 @@ const appleMapsHref = SITE.appleMapsUrl;
 const smsHref = `sms:${SITE.phone}`;
 const emailHref = `mailto:${SITE.email}`;
 
-const resolvedTranslations = {};
-for (const key of LOCALE_ORDER) {
+const resolvedTranslations: LocaleMap<string> = {};
+for (const key of localeKeys) {
 	resolvedTranslations[key] = pageTranslations?.[key] ?? LOCALES[key].base;
 }
 
 // Only emit hreflang for locales that actually have this page translated.
-const hreflangLocaleKeys = LOCALE_ORDER.filter((key) => Boolean(pageTranslations?.[key]));
+const hreflangLocaleKeys = localeKeys.filter((key) => Boolean(pageTranslations?.[key]));
 const xDefaultHref = new URL(pageTranslations?.en ?? canonicalPath ?? LOCALES.en.base, site).toString();
 
-const hreflangLinks = hreflangLocaleKeys.map((key) => ({
+const hreflangLinks: HreflangLink[] = hreflangLocaleKeys.map((key) => ({
 	hreflang: LOCALES[key].hreflang,
-	href: new URL(pageTranslations[key], site).toString(),
+	href: new URL(pageTranslations[key] ?? LOCALES[key].base, site).toString(),
 }));
 const ogLocale = ogLocaleByKey[locale] ?? 'en_US';
 const ogLocaleAlternates = Array.from(
@@ -161,15 +182,12 @@ const ogLocaleAlternates = Array.from(
 		hreflangLocaleKeys
 			.filter((key) => key !== locale)
 			.map((key) => ogLocaleByKey[key])
-			.filter(Boolean),
+			.filter((value): value is string => Boolean(value)),
 	),
 );
 
-const buildLanguageLink = (key) => {
+const buildLanguageLink = (key: LocaleKey): LanguageLink => {
 	const localeMeta = LOCALES[key];
-	if (!localeMeta) {
-		return null;
-	}
 	const nativeLabel = localeMeta.nativeLabel ?? localeMeta.label;
 	const englishLabel = localeMeta.englishLabel ?? nativeLabel;
 	const menuLabel =
@@ -180,11 +198,11 @@ const buildLanguageLink = (key) => {
 		label: localeMeta.label,
 		menuLabel,
 		searchLabel,
-		href: resolvedTranslations[key],
+		href: resolvedTranslations[key] ?? LOCALES[key]?.base ?? LOCALES.en.base,
 	};
 };
 
-const languageLinks = LOCALE_ORDER.map(buildLanguageLink).filter(Boolean);
+const languageLinks = localeKeys.map(buildLanguageLink);
 
 const currentLanguageLabel = LOCALES[locale]?.label ?? LOCALES.en.label;
 const textDirection = locale === 'ar' || locale === 'fa' ? 'rtl' : 'ltr';
@@ -204,21 +222,21 @@ const navItemKeys = [
 	'contact',
 ];
 const fallbackNavLabels = NAV_LABELS.en ?? {};
-const navItems = navItemKeys
-	.map((key) => {
+const navItems: NavItem[] = navItemKeys.flatMap((key) => {
 		const href = getPageTranslation(key, locale);
 		if (!href) {
-			return null;
+			return [];
 		}
-		return {
+		return [{
 			key,
 			href,
 			label: getPageLabel(key, locale) ?? key,
-		};
-	})
-	.filter(Boolean);
+		}];
+	});
 
-const navItemsByKey = Object.fromEntries(navItems.map((item) => [item.key, item]));
+const navItemsByKey: Partial<Record<string, NavItem>> = Object.fromEntries(
+	navItems.map((item) => [item.key, item]),
+);
 const servicesLabel = navLabels.services ?? fallbackNavLabels.services ?? 'Services';
 const servicesNav = [
 	'autoUpholstery',
@@ -229,10 +247,10 @@ const servicesNav = [
 	'commercialFleet',
 ]
 	.map((key) => navItemsByKey[key])
-	.filter(Boolean);
+	.filter((item): item is NavItem => Boolean(item));
 const mobilePrimaryNav = ['autoUpholstery', 'carSeats', 'headliners', 'convertibleTops']
 	.map((key) => navItemsByKey[key])
-	.filter(Boolean);
+	.filter((item): item is NavItem => Boolean(item));
 const mobileSecondaryNav = [
 	'classicCars',
 	'commercialFleet',
@@ -243,7 +261,7 @@ const mobileSecondaryNav = [
 	'contact',
 ]
 	.map((key) => navItemsByKey[key])
-	.filter(Boolean);
+	.filter((item): item is NavItem => Boolean(item));
 
 const business = BUSINESS_COPY[locale] ?? BUSINESS_COPY.en;
 const businessId = new URL('#business', site).toString();
@@ -260,14 +278,13 @@ const serviceKeys = [
 	'classicCars',
 	'commercialFleet',
 ];
-const serviceNodesByKey = Object.fromEntries(
-	serviceKeys
-		.map((key) => {
+const serviceNodesByKey: Partial<Record<string, ServiceNode>> = Object.fromEntries(
+	serviceKeys.flatMap((key) => {
 			const href = getPageTranslation(key, locale);
 			if (!href) {
-				return null;
+				return [];
 			}
-			return [
+			return [[
 				key,
 				{
 					'@type': 'Service',
@@ -276,9 +293,8 @@ const serviceNodesByKey = Object.fromEntries(
 					url: new URL(href, site).toString(),
 					provider: { '@id': businessId },
 				},
-			];
-		})
-		.filter(Boolean),
+			]];
+		}),
 );
 
 const mainEntityId =
@@ -407,7 +423,11 @@ const structuredData = {
 				structuredData={structuredData}
 			/>
 			<!-- ChatKit web component runtime (renders the full chat UI; our code only wraps it). -->
-			<script src="https://cdn.platform.openai.com/deployments/chatkit/chatkit.js" defer></script>
+			<script
+				is:inline
+				src="https://cdn.platform.openai.com/deployments/chatkit/chatkit.js"
+				defer
+			></script>
 		</head>
 		<body>
 			<AnalyticsBody gtmAllowedOnPage={gtmAllowedOnPage} gtmId={gtmId} />

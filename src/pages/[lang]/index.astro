@@ -1,12 +1,13 @@
 ---
 import { getCollection } from 'astro:content';
+import type { PageEntry, LocaleKey } from '../../types/site';
 import LocalizedPageContent from '../../components/LocalizedPageContent.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { LOCALES } from '../../lib/site-data.js';
-import { getTranslations } from '../../lib/site-data/page-registry.js';
+import { getTranslations, resolveLocaleKey } from '../../lib/site-data/page-registry.js';
 
 export async function getStaticPaths() {
-	const parseEntryPath = (entryId) => entryId.replace(/\.mdx?$/, '').split('/');
+	const parseEntryPath = (entryId: string) => entryId.replace(/\.mdx?$/, '').split('/');
 	const entries = await getCollection('pages');
 	const indexEntries = entries.filter((entry) => {
 		const [, ...slugParts] = parseEntryPath(entry.id);
@@ -24,8 +25,13 @@ export async function getStaticPaths() {
 	});
 }
 
-const { entry } = Astro.props;
-const [locale] = entry.id.replace(/\.mdx?$/, '').split('/');
+interface Props {
+	entry: PageEntry;
+}
+
+const { entry } = Astro.props as Props;
+const [entryLocale] = entry.id.replace(/\.mdx?$/, '').split('/');
+const locale = resolveLocaleKey(entryLocale) as LocaleKey;
 const pageKey = entry.data.pageKey;
 const translations = getTranslations(pageKey);
 const canonicalPath = translations?.[locale] ?? `/${locale}/`;

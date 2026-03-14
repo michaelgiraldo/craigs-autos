@@ -1,5 +1,6 @@
 ---
 import { render } from 'astro:content';
+import type { PageEntry, PageModule, LocaleKey } from '../types/site';
 import ConvertibleTopMarqueAtlas from './ConvertibleTopMarqueAtlas.astro';
 import FaqSection from './FaqSection.astro';
 import FeaturedProject from './FeaturedProject.astro';
@@ -9,7 +10,12 @@ import PageShowcaseSections from './PageShowcaseSections.astro';
 import ProjectPage from './ProjectPage.astro';
 import ServiceCards from './ServiceCards.astro';
 
-const { entry, locale } = Astro.props;
+interface Props {
+	entry: PageEntry;
+	locale: LocaleKey;
+}
+
+const { entry, locale } = Astro.props as Props;
 
 if (!entry) {
 	throw new Error('LocalizedPageContent requires a content entry.');
@@ -21,7 +27,6 @@ const usesStructuredTemplate = template === 'project' || Boolean(entry.data.hero
 const rendered = template === 'project' ? null : await render(entry);
 const RenderedContent = rendered?.Content ?? null;
 const contentComponents = {
-	...(rendered?.components ?? {}),
 	ConvertibleTopMarqueAtlas,
 	FaqSection,
 	FeaturedProject,
@@ -31,7 +36,7 @@ const contentComponents = {
 	ProjectPage,
 	ServiceCards,
 };
-const pageModules = entry.data.pageModules ?? [];
+const pageModules = (entry.data.pageModules ?? []) as PageModule[];
 ---
 
 {template === 'project' && entry.data.projectId ? (
@@ -50,7 +55,7 @@ const pageModules = entry.data.pageModules ?? [];
 		{entry.data.showServiceCards !== false ? (
 			<ServiceCards locale={locale} currentKey={entry.data.serviceCardsCurrentKey} />
 		) : null}
-		{pageModules.map((module) => {
+		{pageModules.map((module: PageModule) => {
 			if (module.type === 'featuredProject') {
 				return <FeaturedProject projectId={module.projectId} locale={locale} />;
 			}

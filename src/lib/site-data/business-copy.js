@@ -1,5 +1,8 @@
 import { BRAND_NAME } from './core.js';
 
+/** @typedef {{ name: string, description: string, services: string[] }} BusinessCopyEntry */
+
+/** @type {Record<string, BusinessCopyEntry>} */
 export const BUSINESS_COPY = {
 	en: {
 		name: BRAND_NAME,
