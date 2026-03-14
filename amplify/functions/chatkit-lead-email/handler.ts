@@ -37,16 +37,14 @@ const leadEmailEnvSchema = z.object({
   OPENAI_API_KEY: z.string().trim().min(1),
 });
 
-const leadEmailPayloadSchema = z
-  .object({
-    threadId: z.string().optional(),
-    locale: z.string().optional(),
-    pageUrl: z.string().optional(),
-    user: z.string().optional(),
-    reason: z.string().optional(),
-    attribution: z.unknown().optional(),
-  })
-  .passthrough();
+const leadEmailPayloadSchema = z.looseObject({
+  threadId: z.string().optional(),
+  locale: z.string().optional(),
+  pageUrl: z.string().optional(),
+  user: z.string().optional(),
+  reason: z.string().optional(),
+  attribution: z.unknown().optional(),
+});
 
 const parsedLeadEmailEnv = leadEmailEnvSchema.safeParse(process.env);
 const apiKey = parsedLeadEmailEnv.success ? parsedLeadEmailEnv.data.OPENAI_API_KEY : '';

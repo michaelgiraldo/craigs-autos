@@ -19,17 +19,15 @@ const allowedEventSchema = z.enum([
   'lead_click_directions',
 ]);
 
-const leadSignalPayloadSchema = z
-  .object({
-    event: z.string(),
-    pageUrl: z.string().optional(),
-    user: z.string().optional(),
-    locale: z.string().optional(),
-    clickUrl: z.string().optional(),
-    provider: z.string().optional(),
-    attribution: z.unknown().optional(),
-  })
-  .passthrough();
+const leadSignalPayloadSchema = z.looseObject({
+  event: z.string(),
+  pageUrl: z.string().optional(),
+  user: z.string().optional(),
+  locale: z.string().optional(),
+  clickUrl: z.string().optional(),
+  provider: z.string().optional(),
+  attribution: z.unknown().optional(),
+});
 
 type LambdaEvent = {
   headers?: Record<string, string | undefined> | null;

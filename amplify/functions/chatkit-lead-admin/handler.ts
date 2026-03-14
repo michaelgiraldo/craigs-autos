@@ -22,12 +22,10 @@ const adminEnvSchema = z.object({
   LEADS_ADMIN_PASSWORD: z.string().trim().min(1),
 });
 
-const postPayloadSchema = z
-  .object({
-    lead_id: z.unknown().optional(),
-    qualified: z.unknown().optional(),
-  })
-  .passthrough();
+const postPayloadSchema = z.looseObject({
+  lead_id: z.unknown().optional(),
+  qualified: z.unknown().optional(),
+});
 
 type LambdaEvent = {
   headers?: Record<string, string | undefined> | null;

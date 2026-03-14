@@ -14,14 +14,12 @@ const sessionEnvSchema = z.object({
   OPENAI_API_KEY: z.string().trim().min(1),
 });
 
-const sessionPayloadSchema = z
-  .object({
-    current: z.unknown().optional(),
-    locale: z.string().optional(),
-    pageUrl: z.string().optional(),
-    user: z.string().optional(),
-  })
-  .passthrough();
+const sessionPayloadSchema = z.looseObject({
+  current: z.unknown().optional(),
+  locale: z.string().optional(),
+  pageUrl: z.string().optional(),
+  user: z.string().optional(),
+});
 
 type LambdaHeaders = Record<string, string | undefined>;
 

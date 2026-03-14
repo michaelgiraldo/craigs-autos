@@ -8,7 +8,7 @@ const messageLinkEnvSchema = z.object({
   MESSAGE_LINK_TOKEN_TABLE_NAME: z.string().trim().min(1),
 });
 
-const tokenSchema = z.string().uuid();
+const tokenSchema = z.uuid();
 
 type LambdaEvent = {
   headers?: Record<string, string | undefined> | null;
