@@ -1,6 +1,7 @@
 ---
 import StructuredDataScript from './StructuredDataScript.astro';
-import { PAGE_PATHS, SITE } from '../lib/site-data.js';
+import { SITE } from '../lib/site-data.js';
+import { getPagePath } from '../lib/site-data/page-registry.js';
 import {
 	CONVERTIBLE_TOP_FEATURED_BRANDS,
 	CONVERTIBLE_TOP_MARQUE_COPY,
@@ -10,7 +11,7 @@ import {
 const { locale = 'en' } = Astro.props;
 
 const copy = CONVERTIBLE_TOP_MARQUE_COPY[locale] ?? CONVERTIBLE_TOP_MARQUE_COPY.en;
-const servicePath = PAGE_PATHS.convertibleTops?.[locale] ?? PAGE_PATHS.convertibleTops.en;
+const servicePath = getPagePath('convertibleTops', locale);
 const serviceUrl = new URL(servicePath, SITE.url).toString();
 const brandListId = `${serviceUrl}#supported-brands`;
 

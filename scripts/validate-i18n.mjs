@@ -1,11 +1,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { glob } from 'glob';
-import { LOCALES, LOCALE_ORDER, PAGE_PATHS } from '../src/lib/site-data.js';
+import { LOCALES, LOCALE_ORDER } from '../src/lib/site-data.js';
+import { getPageKeys, getTranslations } from '../src/lib/site-data/page-registry.js';
 
 // Allow English-first launches for specific pages (translate later).
 const PARTIAL_LOCALE_PAGE_KEYS = new Set();
-
 const errors = [];
 const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
@@ -33,26 +33,28 @@ for (const locale of LOCALE_ORDER) {
   }
 }
 
-for (const [pageKey, localeMap] of Object.entries(PAGE_PATHS)) {
+const pageKeys = getPageKeys();
+
+for (const pageKey of pageKeys) {
+  const translations = getTranslations(pageKey);
   if (PARTIAL_LOCALE_PAGE_KEYS.has(pageKey)) {
-    if (!localeMap?.en) {
-      errors.push(`PAGE_PATHS.${pageKey} must include an en path`);
+    if (!translations?.en) {
+      errors.push(`Page manifest for ${pageKey} must include an en path`);
     }
     continue;
   }
   for (const locale of LOCALE_ORDER) {
-    if (!localeMap?.[locale]) {
-      errors.push(`PAGE_PATHS.${pageKey} missing locale ${locale}`);
+    if (!translations?.[locale]) {
+      errors.push(`Page manifest for ${pageKey} missing locale ${locale}`);
     }
   }
 }
 
-const files = await glob('src/content/pages/*/*.mdx');
+const files = await glob('src/content/pages/*/*.{md,mdx}');
 const pagesByKey = new Map();
 
 for (const file of files) {
   const locale = path.basename(path.dirname(file));
-  const slug = path.basename(file, '.mdx');
   const content = fs.readFileSync(file, 'utf-8');
 
   if (locale !== 'en') {
@@ -93,19 +95,6 @@ for (const file of files) {
     continue;
   }
 
-  if (!PAGE_PATHS[pageKey]) {
-    errors.push(`Unknown pageKey "${pageKey}" in ${file}`);
-    continue;
-  }
-
-  const expectedPath = slug === 'index' ? `/${locale}/` : `/${locale}/${slug}/`;
-  const mappedPath = PAGE_PATHS[pageKey][locale];
-  if (mappedPath !== expectedPath) {
-    errors.push(
-      `Path mismatch for ${file}: expected ${expectedPath}, PAGE_PATHS has ${mappedPath}`,
-    );
-  }
-
   if (!pagesByKey.has(pageKey)) {
     pagesByKey.set(pageKey, new Set());
   }
@@ -126,7 +115,7 @@ for (const [pageKey, localeSet] of pagesByKey.entries()) {
   }
 }
 
-for (const pageKey of Object.keys(PAGE_PATHS)) {
+for (const pageKey of pageKeys) {
   if (!pagesByKey.has(pageKey)) {
     errors.push(`No content entries found for pageKey ${pageKey}`);
   }

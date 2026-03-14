@@ -1,7 +1,8 @@
 ---
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { LOCALES, PAGE_PATHS } from '../../lib/site-data.js';
+import { LOCALES } from '../../lib/site-data.js';
+import { getTranslations } from '../../lib/site-data/page-registry.js';
 
 export async function getStaticPaths() {
 	const parseEntryPath = (entryId) => entryId.replace(/\.mdx?$/, '').split('/');
@@ -30,7 +31,7 @@ const { entry } = Astro.props;
 const [locale, ...slugParts] = entry.id.replace(/\.mdx?$/, '').split('/');
 const slug = slugParts.join('/');
 const pageKey = entry.data.pageKey;
-const translations = PAGE_PATHS[pageKey] ?? PAGE_PATHS.home;
+const translations = getTranslations(pageKey);
 const canonicalPath = translations?.[locale] ?? `/${locale}/${slug}/`;
 const lang = LOCALES[locale]?.lang ?? LOCALES.en.lang;
 const noindex = entry.data.noindex ?? false;

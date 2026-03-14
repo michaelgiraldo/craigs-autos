@@ -1,7 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { LOCALE_ORDER, LOCALES, PAGE_PATHS } from '../src/lib/site-data.js';
+import { LOCALE_ORDER, LOCALES } from '../src/lib/site-data.js';
+import { getPageKeys, getTranslations } from '../src/lib/site-data/page-registry.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -42,6 +43,7 @@ const BANNED_TOKEN_RULES = {
 };
 
 const PARTIAL_LOCALE_PAGE_KEYS = new Set();
+const PAGE_FILE_PATTERN = /\.(md|mdx)$/u;
 
 const errors = [];
 
@@ -73,7 +75,7 @@ function buildLocalePageIndex(locale) {
   const map = new Map();
   const files = fs
     .readdirSync(localeDir)
-    .filter((entry) => entry.endsWith('.mdx'))
+    .filter((entry) => PAGE_FILE_PATTERN.test(entry))
     .map((entry) => path.join(localeDir, entry));
 
   for (const filePath of files) {
@@ -84,6 +86,20 @@ function buildLocalePageIndex(locale) {
   }
 
   return map;
+}
+
+function resolveContentPath(locale, slug) {
+  const localeDir = path.join(CONTENT_ROOT, locale);
+  const candidates = [`${slug}.mdx`, `${slug}.md`];
+
+  for (const candidate of candidates) {
+    const candidatePath = path.join(localeDir, candidate);
+    if (fs.existsSync(candidatePath)) {
+      return candidatePath;
+    }
+  }
+
+  return path.join(localeDir, `${slug}.mdx`);
 }
 
 function contentSignalLength(content) {
@@ -119,18 +135,21 @@ for (const locale of LOCALE_ORDER) {
   assertExists(path.join(PUBLIC_ROOT, locale, 'llms.txt'), 'Locale llms.txt');
 }
 
-for (const [pageKey, localeMap] of Object.entries(PAGE_PATHS)) {
+const pageKeys = getPageKeys();
+
+for (const pageKey of pageKeys) {
+  const translations = getTranslations(pageKey);
   const requiredLocales = PARTIAL_LOCALE_PAGE_KEYS.has(pageKey) ? ['en'] : LOCALE_ORDER;
   for (const locale of requiredLocales) {
-    const mappedPath = localeMap?.[locale];
+    const mappedPath = translations?.[locale];
     if (!mappedPath) {
-      errors.push(`PAGE_PATHS.${pageKey} missing locale mapping: ${locale}`);
+      errors.push(`Page manifest for ${pageKey} missing locale mapping: ${locale}`);
       continue;
     }
 
     const slug =
       mappedPath === `/${locale}/` ? 'index' : mappedPath.split('/').filter(Boolean).at(-1);
-    const contentPath = path.join(CONTENT_ROOT, locale, `${slug}.mdx`);
+    const contentPath = resolveContentPath(locale, slug);
     const ogPath = path.join(OG_ROOT, locale, `${pageKey}.jpg`);
 
     assertExists(contentPath, `Content page for ${pageKey} (${locale})`);
@@ -184,7 +203,7 @@ for (const [locale, tokenRules] of Object.entries(BANNED_TOKEN_RULES)) {
   }
   const files = fs
     .readdirSync(localeDir)
-    .filter((entry) => entry.endsWith('.mdx'))
+    .filter((entry) => PAGE_FILE_PATTERN.test(entry))
     .map((entry) => path.join(localeDir, entry));
 
   for (const filePath of files) {
@@ -208,5 +227,5 @@ if (errors.length > 0) {
 }
 
 console.log(
-  `Build guards passed: ${LOCALE_ORDER.length} locales, ${Object.keys(PAGE_PATHS).length} page keys, OG/content parity verified.`,
+  `Build guards passed: ${LOCALE_ORDER.length} locales, ${pageKeys.length} page keys, OG/content parity verified.`,
 );

@@ -3,7 +3,13 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
 import { Resvg } from '@resvg/resvg-js';
-import { LOCALES, NAV_LABELS, BUSINESS_COPY, BRAND_NAME } from '../src/lib/site-data.js';
+import {
+  LOCALES,
+  NAV_LABELS,
+  PAGE_LABELS,
+  BUSINESS_COPY,
+  BRAND_NAME,
+} from '../src/lib/site-data.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -48,11 +54,14 @@ function normalizeOgTitle(value) {
 
 function buildCardCopy(entry) {
   const nav = NAV_LABELS[entry.locale] ?? NAV_LABELS.en;
+  const pageLabels = PAGE_LABELS[entry.locale] ?? PAGE_LABELS.en;
   const business = BUSINESS_COPY[entry.locale] ?? BUSINESS_COPY.en;
   const pageLabel =
     entry.pageKey === 'home'
-      ? normalizeText(nav?.services) || normalizeText(nav?.home) || normalizeOgTitle(entry.title)
-      : normalizeText(nav?.[entry.pageKey]) || normalizeOgTitle(entry.title);
+      ? normalizeText(nav?.services) ||
+        normalizeText(pageLabels?.home) ||
+        normalizeOgTitle(entry.title)
+      : normalizeText(pageLabels?.[entry.pageKey]) || normalizeOgTitle(entry.title);
 
   return {
     brandHeadline: normalizeText(business?.name) || BRAND_NAME,

@@ -1,6 +1,11 @@
 import { LOCALES } from './core.js';
-import { NAV_LABELS } from './nav-labels.js';
-import { PAGE_PATHS } from './page-paths.js';
+import { PAGE_LABELS } from './page-labels.js';
+import {
+	getPageEntry,
+	getManifestPageKeys,
+	getPagePathFromManifest,
+	getPageTranslations,
+} from './page-manifest.js';
 
 export function resolveLocaleKey(locale) {
 	return LOCALES[locale] ? locale : 'en';
@@ -11,13 +16,12 @@ export function getLocaleMeta(locale) {
 }
 
 export function getTranslations(pageKey) {
-	return PAGE_PATHS[pageKey] ?? PAGE_PATHS.home;
+	return getPageTranslations(pageKey) ?? getPageTranslations('home') ?? {};
 }
 
 export function getPageTranslation(pageKey, locale) {
 	const resolvedLocale = resolveLocaleKey(locale);
-	const translations = getTranslations(pageKey);
-	return translations[resolvedLocale] ?? null;
+	return getPagePathFromManifest(pageKey, resolvedLocale) ?? null;
 }
 
 export function getPagePath(pageKey, locale) {
@@ -27,7 +31,11 @@ export function getPagePath(pageKey, locale) {
 
 export function getPageLabel(pageKey, locale) {
 	const resolvedLocale = resolveLocaleKey(locale);
-	const labels = NAV_LABELS[resolvedLocale] ?? NAV_LABELS.en ?? {};
-	const fallbackLabels = NAV_LABELS.en ?? {};
-	return labels[pageKey] ?? fallbackLabels[pageKey] ?? null;
+	const labels = PAGE_LABELS[resolvedLocale] ?? PAGE_LABELS.en ?? {};
+	const fallbackLabels = PAGE_LABELS.en ?? {};
+	return labels[pageKey] ?? fallbackLabels[pageKey] ?? getPageEntry(pageKey, resolvedLocale)?.title ?? null;
+}
+
+export function getPageKeys() {
+	return getManifestPageKeys();
 }
