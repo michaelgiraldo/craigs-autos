@@ -3,36 +3,42 @@ import LightboxGallery from './LightboxGallery.astro';
 import BeforeAfterPairGrid from './BeforeAfterPairGrid.astro';
 import {
 	BEFORE_AFTER_SHOWCASE_PAIRS,
-	CAR_SEATS_ALL_IMAGES,
-	HOME_SHOWCASE_IMAGES,
-	MOTORCYCLE_SEAT_HIGHLIGHT_IMAGES,
-	SERVICE_GALLERY_HIGHLIGHT_IMAGES,
 	SHOWCASE_COPY,
+	getCarSeatsAllImages,
+	getHomeShowcaseImages,
+	getMotorcycleSeatHighlightImages,
+	getServiceGalleryHighlightImages,
 } from '../data/galleries/page-showcase.js';
 
 const { locale = 'en', pageKey = 'home' } = Astro.props;
 const resolveCopy = (value) => value?.[locale] ?? value?.en ?? '';
 const copy = SHOWCASE_COPY[pageKey] ?? {};
+const homeShowcaseImages = pageKey === 'home' ? await getHomeShowcaseImages() : [];
+const carSeatsAllImages = pageKey === 'carSeats' ? await getCarSeatsAllImages() : [];
+const serviceGalleryHighlightImages =
+	pageKey === 'gallery' ? await getServiceGalleryHighlightImages() : [];
+const motorcycleSeatHighlightImages =
+	pageKey === 'motorcycleSeats' ? await getMotorcycleSeatHighlightImages() : [];
 ---
 
 {pageKey === 'home' ? (
 	<section class="page-showcase" aria-label={resolveCopy(copy.title)}>
 		<h2>{resolveCopy(copy.title)}</h2>
-		<LightboxGallery images={HOME_SHOWCASE_IMAGES} locale={locale} />
+		<LightboxGallery images={homeShowcaseImages} locale={locale} />
 	</section>
 ) : null}
 
 {pageKey === 'carSeats' ? (
 	<section class="page-showcase" aria-label={resolveCopy(copy.highlightTitle)}>
 		<h2>{resolveCopy(copy.highlightTitle)}</h2>
-		<LightboxGallery images={CAR_SEATS_ALL_IMAGES} locale={locale} />
+		<LightboxGallery images={carSeatsAllImages} locale={locale} />
 	</section>
 ) : null}
 
 {pageKey === 'gallery' ? (
 	<section class="page-showcase" aria-label={resolveCopy(copy.highlightTitle)}>
 		<h2>{resolveCopy(copy.highlightTitle)}</h2>
-		<LightboxGallery images={SERVICE_GALLERY_HIGHLIGHT_IMAGES} locale={locale} />
+		<LightboxGallery images={serviceGalleryHighlightImages} locale={locale} />
 	</section>
 ) : null}
 
@@ -55,7 +61,7 @@ const copy = SHOWCASE_COPY[pageKey] ?? {};
 {pageKey === 'motorcycleSeats' ? (
 	<section class="page-showcase" aria-label={resolveCopy(copy.highlightTitle)}>
 		<h2>{resolveCopy(copy.highlightTitle)}</h2>
-		<LightboxGallery images={MOTORCYCLE_SEAT_HIGHLIGHT_IMAGES} locale={locale} />
+		<LightboxGallery images={motorcycleSeatHighlightImages} locale={locale} />
 	</section>
 ) : null}
 

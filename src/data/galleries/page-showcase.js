@@ -1,11 +1,9 @@
-import { BUICK_EIGHT } from '../projects/buick-eight.js';
-import { PORSCHE_BOXSTER_S_SEAT_PROJECT } from '../projects/porsche-boxster-s-seat-project.js';
+import { getProjectImage } from '../projects/index.js';
 import { CAR_SEATS_GALLERY } from './car-seats.js';
 import { CAR_SEATS_BEFORE_AFTER } from './car-seats-before-after.js';
 import { MOTORCYCLE_SEATS_GALLERY } from './motorcycle-seats.js';
 
 const findById = (items, id) => items.find((item) => item.id === id);
-const findProjectImage = (project, id) => project.images?.find((image) => image.id === id);
 
 const GENERIC_SEAT_ALT = {
 	en: 'Car seat upholstery example.',
@@ -93,47 +91,82 @@ const withMotorcycleCopy = (item) =>
 		? {
 				...item,
 				alt: { ...GENERIC_MOTORCYCLE_ALT, en: item.alt?.en ?? GENERIC_MOTORCYCLE_ALT.en },
-				caption: { ...GENERIC_MOTORCYCLE_CAPTION, en: item.caption?.en ?? GENERIC_MOTORCYCLE_CAPTION.en },
+				caption: {
+					...GENERIC_MOTORCYCLE_CAPTION,
+					en: item.caption?.en ?? GENERIC_MOTORCYCLE_CAPTION.en,
+				},
 			}
 		: null;
 
+const CAR_SEATS_ALL_IMAGES = [...CAR_SEATS_GALLERY.map(withSeatCopy)].filter(Boolean);
 
-export const HOME_SHOWCASE_IMAGES = [
-	findProjectImage(PORSCHE_BOXSTER_S_SEAT_PROJECT, 'door-panel'),
-	findProjectImage(BUICK_EIGHT, 'headliner'),
-	withSeatCopy(findById(CAR_SEATS_GALLERY, 'custom-seat-set-two-tone-upholstery')),
-	withSeatCopy(findById(CAR_SEATS_GALLERY, 'classic-rear-bench-seat-upholstery')),
-	withSeatCopy(findById(CAR_SEATS_GALLERY, 'classic-red-bench-seat-detail')),
-	withSeatCopy(findById(CAR_SEATS_GALLERY, 'suv-diamond-stitched-seat-interior')),
-	withSeatCopy(findById(CAR_SEATS_GALLERY, 'red-black-classic-front-seats-interior')),
-	withSeatCopy(findById(CAR_SEATS_GALLERY, 'recaro-classic-bucket-seat-front-view')),
-	withSeatCopy(findById(CAR_SEATS_GALLERY, 'rv-captain-seat-upholstery-installed')),
-	withSeatCopy(findById(CAR_SEATS_GALLERY, 'boat-seat-black-vinyl-upholstery')),
-	withMotorcycleCopy(findById(MOTORCYCLE_SEATS_GALLERY, 'motorcycle-seat-upholstery-green-finish')),
-	withMotorcycleCopy(findById(MOTORCYCLE_SEATS_GALLERY, 'ktm-orange-motorcycle-seat-top-view')),
-].filter(Boolean);
-
-export const CAR_SEATS_ALL_IMAGES = [
-	...CAR_SEATS_GALLERY.map(withSeatCopy),
-].filter(Boolean);
-
-export const SERVICE_GALLERY_HIGHLIGHT_IMAGES = [
-	withSeatCopy(findById(CAR_SEATS_GALLERY, 'sedan-front-seats-reupholstery-installed')),
-	withSeatCopy(findById(CAR_SEATS_GALLERY, 'custom-seat-set-two-tone-upholstery')),
-	withSeatCopy(findById(CAR_SEATS_GALLERY, 'recaro-classic-bucket-seat-front-view')),
-	withSeatCopy(findById(CAR_SEATS_GALLERY, 'red-black-classic-front-seats-interior')),
-	withMotorcycleCopy(findById(MOTORCYCLE_SEATS_GALLERY, 'motorcycle-seat-upholstery-green-finish')),
-	withMotorcycleCopy(findById(MOTORCYCLE_SEATS_GALLERY, 'ktm-orange-motorcycle-seat-top-view')),
-	findProjectImage(PORSCHE_BOXSTER_S_SEAT_PROJECT, 'front-seats-installed'),
-	findProjectImage(BUICK_EIGHT, 'front-seats'),
-].filter(Boolean);
-
-export const MOTORCYCLE_SEAT_HIGHLIGHT_IMAGES = [
+const MOTORCYCLE_SEAT_HIGHLIGHT_IMAGES = [
 	withMotorcycleCopy(findById(MOTORCYCLE_SEATS_GALLERY, 'motorcycle-seat-upholstery-green-finish')),
 	withMotorcycleCopy(findById(MOTORCYCLE_SEATS_GALLERY, 'ktm-orange-motorcycle-seat-top-view')),
 ].filter(Boolean);
 
 export const BEFORE_AFTER_SHOWCASE_PAIRS = CAR_SEATS_BEFORE_AFTER;
+
+let homeShowcaseImagesPromise;
+let serviceGalleryHighlightImagesPromise;
+
+export const getHomeShowcaseImages = async () => {
+	if (!homeShowcaseImagesPromise) {
+		homeShowcaseImagesPromise = Promise.all([
+			getProjectImage('porsche-boxster-s-seat-project', 'door-panel'),
+			getProjectImage('buick-eight', 'headliner'),
+		]).then((projectImages) =>
+			[
+				...projectImages,
+				withSeatCopy(findById(CAR_SEATS_GALLERY, 'custom-seat-set-two-tone-upholstery')),
+				withSeatCopy(findById(CAR_SEATS_GALLERY, 'classic-rear-bench-seat-upholstery')),
+				withSeatCopy(findById(CAR_SEATS_GALLERY, 'classic-red-bench-seat-detail')),
+				withSeatCopy(findById(CAR_SEATS_GALLERY, 'suv-diamond-stitched-seat-interior')),
+				withSeatCopy(findById(CAR_SEATS_GALLERY, 'red-black-classic-front-seats-interior')),
+				withSeatCopy(findById(CAR_SEATS_GALLERY, 'recaro-classic-bucket-seat-front-view')),
+				withSeatCopy(findById(CAR_SEATS_GALLERY, 'rv-captain-seat-upholstery-installed')),
+				withSeatCopy(findById(CAR_SEATS_GALLERY, 'boat-seat-black-vinyl-upholstery')),
+				withMotorcycleCopy(
+					findById(MOTORCYCLE_SEATS_GALLERY, 'motorcycle-seat-upholstery-green-finish'),
+				),
+				withMotorcycleCopy(
+					findById(MOTORCYCLE_SEATS_GALLERY, 'ktm-orange-motorcycle-seat-top-view'),
+				),
+			].filter(Boolean),
+		);
+	}
+
+	return homeShowcaseImagesPromise;
+};
+
+export const getCarSeatsAllImages = async () => CAR_SEATS_ALL_IMAGES;
+
+export const getServiceGalleryHighlightImages = async () => {
+	if (!serviceGalleryHighlightImagesPromise) {
+		serviceGalleryHighlightImagesPromise = Promise.all([
+			getProjectImage('porsche-boxster-s-seat-project', 'front-seats-installed'),
+			getProjectImage('buick-eight', 'front-seats'),
+		]).then((projectImages) =>
+			[
+				withSeatCopy(findById(CAR_SEATS_GALLERY, 'sedan-front-seats-reupholstery-installed')),
+				withSeatCopy(findById(CAR_SEATS_GALLERY, 'custom-seat-set-two-tone-upholstery')),
+				withSeatCopy(findById(CAR_SEATS_GALLERY, 'recaro-classic-bucket-seat-front-view')),
+				withSeatCopy(findById(CAR_SEATS_GALLERY, 'red-black-classic-front-seats-interior')),
+				withMotorcycleCopy(
+					findById(MOTORCYCLE_SEATS_GALLERY, 'motorcycle-seat-upholstery-green-finish'),
+				),
+				withMotorcycleCopy(
+					findById(MOTORCYCLE_SEATS_GALLERY, 'ktm-orange-motorcycle-seat-top-view'),
+				),
+				...projectImages,
+			].filter(Boolean),
+		);
+	}
+
+	return serviceGalleryHighlightImagesPromise;
+};
+
+export const getMotorcycleSeatHighlightImages = async () => MOTORCYCLE_SEAT_HIGHLIGHT_IMAGES;
 
 export const SHOWCASE_COPY = {
 	home: {

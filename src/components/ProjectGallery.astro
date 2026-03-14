@@ -4,7 +4,7 @@ import { NAV_LABELS } from '../lib/site-data.js';
 import LightboxGallery from './LightboxGallery.astro';
 
 const { projectId, locale = 'en' } = Astro.props;
-const project = getProject(projectId);
+const project = await getProject(projectId);
 
 if (!project) {
 	throw new Error(`Project not found: ${projectId}`);

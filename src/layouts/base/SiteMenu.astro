@@ -1,0 +1,48 @@
+---
+const { canonicalPath = '', emailHref, navItems = [], siteEmail = '', ui = {} } = Astro.props;
+---
+
+<div class="site-menu__overlay" data-site-menu-overlay hidden>
+	<div
+		class="site-menu__panel"
+		role="dialog"
+		aria-modal="true"
+		aria-label={ui.menuLabel ?? 'Menu'}
+		id="site-menu-panel"
+		tabindex="-1"
+		data-site-menu-panel
+	>
+		<div class="site-menu__panel-header">
+			<span class="site-menu__panel-title">{ui.menuLabel ?? 'Menu'}</span>
+			<button class="site-menu__close" type="button" aria-label="Close" data-site-menu-close>
+				<span aria-hidden="true">×</span>
+			</button>
+		</div>
+		<nav class="site-menu__nav" aria-label={ui.menuLabel ?? 'Menu'}>
+			<ul class="site-menu__list">
+				{navItems.map((item) => (
+					<li>
+						<a
+							class="site-menu__link"
+							href={item.href}
+							aria-current={item.href === canonicalPath ? 'page' : undefined}
+							data-site-menu-link
+						>
+							{item.label}
+						</a>
+					</li>
+				))}
+				<li>
+					<a
+						class="site-menu__link"
+						href={emailHref}
+						aria-label={`Email ${siteEmail}`}
+						data-site-menu-link
+					>
+						<span dir="ltr">{siteEmail}</span>
+					</a>
+				</li>
+			</ul>
+		</nav>
+	</div>
+</div>

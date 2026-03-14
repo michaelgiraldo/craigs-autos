@@ -1,10 +1,14 @@
 ---
-import { Image } from 'astro:assets';
-import LanguageSwitcher from '../components/LanguageSwitcher.astro';
 import ChatWidget from '../components/ChatWidget.astro';
 import AnalyticsBody from './base/AnalyticsBody.astro';
 import AnalyticsHead from './base/AnalyticsHead.astro';
+import BaseLayoutScripts from './base/BaseLayoutScripts.astro';
 import SeoMetaHead from './base/SeoMetaHead.astro';
+import SiteFooter from './base/SiteFooter.astro';
+import SiteHeader from './base/SiteHeader.astro';
+import SiteMenu from './base/SiteMenu.astro';
+import StickyCta from './base/StickyCta.astro';
+import LanguageSwitcher from '../components/LanguageSwitcher.astro';
 import '../styles/global.css';
 import brandLogo from '../assets/brand/craigs-auto-upholstery-logo.png';
 import buickFrontSeats from '../assets/images/projects/buick-eight/buick-eight-classic-car-upholstery-front-seats.jpg';
@@ -69,6 +73,7 @@ const site = Astro.site ?? new URL(SITE.url);
 const pageTranslations = translations ?? getTranslations(pageKey ?? 'home');
 const canonicalPath = canonicalPathProp ?? pageTranslations[locale] ?? LOCALES.en.base;
 const canonicalUrl = new URL(canonicalPath, site).toString();
+const localeBaseHref = LOCALES[locale]?.base ?? LOCALES.en.base;
 const logoUrl = new URL('/brand/logo-512.png', site).toString();
 const businessImages = Array.from(
 	new Set(
@@ -395,616 +400,53 @@ const structuredData = {
 		</head>
 		<body>
 			<AnalyticsBody gtmAllowedOnPage={gtmAllowedOnPage} gtmId={gtmId} />
-		<a class="skip-link" href="#main-content">Skip to content</a>
-		<header class="site-header">
-				<div class="container site-header__mobile">
-					<div class="site-header__mobile-top">
-						<a class="brand" href={LOCALES[locale]?.base ?? LOCALES.en.base}>
-							<span class="brand__logo">
-								<Image
-									src={brandLogo}
-									alt={BRAND_NAME}
-									width={56}
-									height={56}
-									loading="eager"
-									decoding="async"
-								/>
-							</span>
-							{BRAND_NAME}
-						</a>
-						<div class="site-header__mobile-actions">
-							<button
-								class="site-menu-toggle"
-								type="button"
-								aria-haspopup="dialog"
-								aria-expanded="false"
-								aria-controls="site-menu-panel"
-								aria-label={ui.menuLabel ?? 'Menu'}
-								title={ui.menuLabel ?? 'Menu'}
-								data-site-menu-toggle
-							>
-								<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-									<path d="M4 6h16" />
-									<path d="M4 12h16" />
-									<path d="M4 18h16" />
-								</svg>
-							</button>
-							<LanguageSwitcher
-								links={languageLinks}
-								currentLabel={currentLanguageLabel}
-								ariaLabel={ui.languageLabel ?? 'Language'}
-								id="lang-switcher"
-								mode="toggle"
-							/>
-						</div>
-					</div>
-				</div>
-			<div class="container site-header__inner">
-				<div class="brand-block">
-					<a class="brand" href={LOCALES[locale]?.base ?? LOCALES.en.base}>
-						<span class="brand__logo">
-							<Image
-								src={brandLogo}
-								alt={BRAND_NAME}
-								width={64}
-								height={64}
-								loading="eager"
-								decoding="async"
-							/>
-						</span>
-						{BRAND_NAME}
-						</a>
-						<a class="brand__sub" href={mapsHref}>
-							<span dir="ltr">
-								{SITE.address.street}, {SITE.address.city}, {SITE.address.region} {SITE.address.postalCode}
-							</span>
-						</a>
-					</div>
-				<div class="site-header__right">
-					<div class="header-contact">
-						<div class="header-contact__row">
-							<a class="header-phone" href={`tel:${SITE.phone}`}>
-								<span dir="ltr">{SITE.displayPhone}</span>
-							</a>
-							<a class="header-text" href={smsHref}>
-								<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-									<path
-										d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
-									/>
-								</svg>
-								{ui.textCta ?? 'Text'}
-							</a>
-						</div>
-						<div class="header-contact__row header-contact__row--secondary">
-							<a class="header-email" href={emailHref} aria-label={`Email ${SITE.email}`}>
-								<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-									<path d="M4 6h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z" />
-									<path d="m22 8-10 6L2 8" />
-								</svg>
-								<span class="header-email__label">Email</span>
-								<span class="header-email__value" dir="ltr">{SITE.email}</span>
-							</a>
-						</div>
-					</div>
-					<LanguageSwitcher
-						links={languageLinks}
-						currentLabel={currentLanguageLabel}
-						ariaLabel={ui.languageLabel ?? 'Language'}
-						id="lang-switcher"
-						mode="toggle"
-					/>
-				</div>
-				</div>
-				<nav class="site-nav" aria-label="Primary">
-					<div class="container">
-						<ul class="site-nav__list site-nav__list--mobile site-nav__list--mobile-primary">
-							{mobilePrimaryNav.map((item) => (
-								<li>
-									<a
-										class="site-nav__link"
-										href={item.href}
-										aria-current={item.href === canonicalPath ? 'page' : undefined}
-									>
-										{item.label}
-									</a>
-								</li>
-							))}
-						</ul>
-						<ul class="site-nav__list site-nav__list--mobile site-nav__list--mobile-secondary">
-							{mobileSecondaryNav.map((item) => (
-								<li>
-									<a
-										class="site-nav__link"
-										href={item.href}
-										aria-current={item.href === canonicalPath ? 'page' : undefined}
-									>
-										{item.label}
-									</a>
-								</li>
-							))}
-						</ul>
-						<ul class="site-nav__list site-nav__list--desktop">
-							{servicesNav.length > 0 && (
-								<li class="site-nav__item site-nav__item--panel">
-									<details class="site-nav__panel" data-nav-panel>
-										<summary class="site-nav__link site-nav__link--trigger" aria-haspopup="true">
-											<span>{servicesLabel}</span>
-										</summary>
-										<div class="site-nav__panel-body">
-											<div class="site-nav__panel-grid">
-												<div class="site-nav__panel-column">
-													<ul class="site-nav__panel-list">
-														{servicesNav.map((item) => (
-															<li>
-																<a
-																	class="site-nav__panel-link"
-																	href={item.href}
-																	aria-current={item.href === canonicalPath ? 'page' : undefined}
-																>
-																	{item.label}
-																</a>
-															</li>
-														))}
-													</ul>
-												</div>
-											</div>
-										</div>
-									</details>
-								</li>
-							)}
-							{navItemsByKey.motorcycleSeats && (
-								<li>
-									<a
-										class="site-nav__link"
-										href={navItemsByKey.motorcycleSeats.href}
-										aria-current={
-											navItemsByKey.motorcycleSeats.href === canonicalPath ? 'page' : undefined
-										}
-									>
-										{navItemsByKey.motorcycleSeats.label}
-									</a>
-								</li>
-							)}
-							{navItemsByKey.gallery && (
-								<li>
-									<a
-										class="site-nav__link"
-										href={navItemsByKey.gallery.href}
-										aria-current={navItemsByKey.gallery.href === canonicalPath ? 'page' : undefined}
-									>
-										{navItemsByKey.gallery.label}
-									</a>
-								</li>
-							)}
-							{navItemsByKey.upholsteryGuide && (
-								<li>
-									<a
-										class="site-nav__link"
-										href={navItemsByKey.upholsteryGuide.href}
-										aria-current={
-											navItemsByKey.upholsteryGuide.href === canonicalPath ? 'page' : undefined
-										}
-									>
-										{navItemsByKey.upholsteryGuide.label}
-									</a>
-								</li>
-							)}
-							{navItemsByKey.reviews && (
-								<li>
-									<a
-										class="site-nav__link"
-										href={navItemsByKey.reviews.href}
-										aria-current={navItemsByKey.reviews.href === canonicalPath ? 'page' : undefined}
-									>
-										{navItemsByKey.reviews.label}
-									</a>
-								</li>
-							)}
-							{navItemsByKey.contact && (
-								<li>
-									<a
-										class="site-nav__link site-nav__link--cta"
-										href={navItemsByKey.contact.href}
-										aria-current={navItemsByKey.contact.href === canonicalPath ? 'page' : undefined}
-									>
-										{navItemsByKey.contact.label}
-									</a>
-								</li>
-							)}
-					</ul>
-				</div>
-			</nav>
-		</header>
+			<a class="skip-link" href="#main-content">Skip to content</a>
+			<SiteHeader
+				brandLogo={brandLogo}
+				brandName={BRAND_NAME}
+				canonicalPath={canonicalPath}
+				currentLanguageLabel={currentLanguageLabel}
+				emailHref={emailHref}
+				languageLinks={languageLinks}
+				localeBaseHref={localeBaseHref}
+				mapsHref={mapsHref}
+				mobilePrimaryNav={mobilePrimaryNav}
+				mobileSecondaryNav={mobileSecondaryNav}
+				navItemsByKey={navItemsByKey}
+				servicesLabel={servicesLabel}
+				servicesNav={servicesNav}
+				site={SITE}
+				smsHref={smsHref}
+				ui={ui}
+			/>
 		<main id="main-content" class="page">
 			<slot />
 		</main>
-		<footer class="site-footer">
-			<div class="container site-footer__grid">
-				<div>
-					<p class="site-footer__brand">{BRAND_NAME}</p>
-					<p>
-						<span dir="ltr">
-							{SITE.address.street}, {SITE.address.city}, {SITE.address.region} {SITE.address.postalCode}
-						</span>
-					</p>
-					<p>
-						<strong>{ui.hoursLabel}:</strong>{' '}
-						{locale === 'ar' ? (
-							<>
-								الاثنين–الجمعة <span dir="ltr">8:00–17:00</span> · السبت{' '}
-								<span dir="ltr">8:00–14:00</span> · الأحد مغلق
-							</>
-						) : (
-							ui.hoursSummary
-						)}
-					</p>
-					<ul class="site-footer__links">
-						<li>
-							<a href={`tel:${SITE.phone}`}>
-								<span dir="ltr">{SITE.displayPhone}</span>
-							</a>
-						</li>
-						<li>
-							<a href={smsHref}>{ui.textCta ?? 'Text'}</a>
-						</li>
-						<li>
-							<a href={emailHref}>
-								<span dir="ltr">{SITE.email}</span>
-							</a>
-						</li>
-						<li>
-							<a href={mapsHref}>{ui.directionsCta}</a>
-						</li>
-						<li>
-							<a href={appleMapsHref}>{ui.appleMapsLabel}</a>
-						</li>
-						<li>
-							<a href={SITE.sameAs[0]}>{ui.yelpLabel}</a>
-						</li>
-						<li>
-							<a href={SITE.sameAs[1]}>{ui.googleLabel}</a>
-						</li>
-					</ul>
-				</div>
-				<div>
-					<ul class="site-footer__links">
-						{navItems.map((item) => (
-							<li>
-								<a href={item.href}>{item.label}</a>
-							</li>
-						))}
-					</ul>
-				</div>
-			</div>
-		</footer>
-		<ChatWidget locale={locale} />
-			<div class="sticky-cta" role="region" aria-label={ui.quickActionsLabel}>
-				<div class="sticky-cta__inner">
-				<a class="sticky-cta__call" href={`tel:${SITE.phone}`}>
-					<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-						<path
-							d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
-						/>
-					</svg>
-					<span>{ui.callCta}</span>
-					<span class="sticky-cta__number" dir="ltr">
-						{SITE.displayPhone}
-					</span>
-				</a>
-				<a class="sticky-cta__text" href={smsHref}>
-					<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-						<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-					</svg>
-					{ui.textCta ?? 'Text'}
-				</a>
-				<a class="sticky-cta__dir" href={mapsHref}>
-					<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-						<path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z" />
-						<circle cx="12" cy="10" r="3" />
-					</svg>
-					{ui.directionsCta}
-				</a>
-				<a class="sticky-cta__email" href={emailHref}>
-					<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-						<path d="M4 6h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z" />
-						<path d="m22 8-10 6L2 8" />
-					</svg>
-					{ui.emailCta ?? 'Email'}
-				</a>
-				</div>
-			</div>
-			<div class="site-menu__overlay" data-site-menu-overlay hidden>
-				<div
-					class="site-menu__panel"
-					role="dialog"
-					aria-modal="true"
-					aria-label={ui.menuLabel ?? 'Menu'}
-					id="site-menu-panel"
-					tabindex="-1"
-					data-site-menu-panel
-				>
-					<div class="site-menu__panel-header">
-						<span class="site-menu__panel-title">{ui.menuLabel ?? 'Menu'}</span>
-						<button
-							class="site-menu__close"
-							type="button"
-							aria-label="Close"
-							data-site-menu-close
-						>
-							<span aria-hidden="true">×</span>
-						</button>
-					</div>
-					<nav class="site-menu__nav" aria-label={ui.menuLabel ?? 'Menu'}>
-						<ul class="site-menu__list">
-							{navItems.map((item) => (
-								<li>
-									<a
-										class="site-menu__link"
-										href={item.href}
-										aria-current={item.href === canonicalPath ? 'page' : undefined}
-										data-site-menu-link
-									>
-										{item.label}
-									</a>
-								</li>
-							))}
-							<li>
-								<a
-									class="site-menu__link"
-									href={emailHref}
-									aria-label={`Email ${SITE.email}`}
-									data-site-menu-link
-								>
-									<span dir="ltr">{SITE.email}</span>
-								</a>
-							</li>
-						</ul>
-					</nav>
-				</div>
-			</div>
+			<SiteFooter
+				brandName={BRAND_NAME}
+				emailHref={emailHref}
+				locale={locale}
+				mapsHref={mapsHref}
+				navItems={navItems}
+				site={SITE}
+				smsHref={smsHref}
+				ui={ui}
+			/>
+			<ChatWidget locale={locale} />
+			<StickyCta emailHref={emailHref} mapsHref={mapsHref} site={SITE} smsHref={smsHref} ui={ui} />
+			<SiteMenu
+				canonicalPath={canonicalPath}
+				emailHref={emailHref}
+				navItems={navItems}
+				siteEmail={SITE.email}
+				ui={ui}
+			/>
 			<LanguageSwitcher
 				links={languageLinks}
 				ariaLabel={ui.languageLabel ?? 'Language'}
 				id="lang-switcher"
-			mode="panel"
-		/>
-			<script type="module" is:inline>
-				(() => {
-					const toggles = Array.from(document.querySelectorAll('[data-lang-switcher-toggle]'));
-					const overlay = document.querySelector('[data-lang-switcher-overlay]');
-				const panel = overlay?.querySelector('[data-lang-switcher-panel]');
-				const input = overlay?.querySelector('[data-lang-switcher-search]');
-				const items = Array.from(overlay?.querySelectorAll('[data-lang-switcher-item]') ?? []);
-				const closeButton = overlay?.querySelector('[data-lang-switcher-close]');
-				let activeToggle = null;
-
-				document.documentElement.classList.add('lang-switcher--js');
-
-				if (!overlay || !panel || toggles.length === 0) {
-					return;
-				}
-
-				const isMobile = () => window.matchMedia('(max-width: 859px)').matches;
-
-				const lockBodyScroll = () => {
-					const scrollY = window.scrollY || document.documentElement.scrollTop;
-					document.body.dataset.scrollY = String(scrollY);
-					document.body.style.position = 'fixed';
-					document.body.style.top = `-${scrollY}px`;
-					document.body.style.left = '0';
-					document.body.style.right = '0';
-					document.body.style.width = '100%';
-				};
-
-				const unlockBodyScroll = () => {
-					const scrollY = parseInt(document.body.dataset.scrollY || '0', 10);
-					document.body.style.position = '';
-					document.body.style.top = '';
-					document.body.style.left = '';
-					document.body.style.right = '';
-					document.body.style.width = '';
-					delete document.body.dataset.scrollY;
-					window.scrollTo(0, scrollY);
-				};
-
-				const applyFilter = () => {
-					if (!input) {
-						return;
-					}
-					const query = input.value.trim().toLowerCase();
-					items.forEach((item) => {
-						const search = (item.dataset.search || '').toLowerCase();
-						item.hidden = query.length > 0 && !search.includes(query);
-					});
-				};
-
-				const setToggleState = (toggle) => {
-					toggles.forEach((btn) => {
-						btn.setAttribute('aria-expanded', btn === toggle ? 'true' : 'false');
-					});
-				};
-
-				const setOverlayPosition = (toggle) => {
-					if (isMobile()) {
-						overlay.style.removeProperty('--lang-switcher-top');
-						overlay.style.removeProperty('--lang-switcher-right');
-						return;
-					}
-					const rect = toggle.getBoundingClientRect();
-					const top = Math.round(rect.bottom + 8);
-					const right = Math.max(12, Math.round(window.innerWidth - rect.right));
-					overlay.style.setProperty('--lang-switcher-top', `${top}px`);
-					overlay.style.setProperty('--lang-switcher-right', `${right}px`);
-				};
-
-				const openPanel = (toggle) => {
-					activeToggle = toggle;
-					setOverlayPosition(toggle);
-					overlay.hidden = false;
-					setToggleState(toggle);
-					if (isMobile()) {
-						lockBodyScroll();
-					}
-					if (input) {
-						input.value = '';
-						applyFilter();
-						input.focus({ preventScroll: true });
-					} else {
-						panel.focus({ preventScroll: true });
-					}
-				};
-
-				const closePanel = () => {
-					overlay.hidden = true;
-					setToggleState(null);
-					if (isMobile()) {
-						unlockBodyScroll();
-					}
-					activeToggle?.focus({ preventScroll: true });
-					activeToggle = null;
-				};
-
-				toggles.forEach((toggle) => {
-					toggle.addEventListener('click', () => {
-						if (overlay.hidden) {
-							openPanel(toggle);
-						} else if (activeToggle === toggle) {
-							closePanel();
-						} else {
-							openPanel(toggle);
-						}
-					});
-				});
-
-				window.addEventListener('resize', () => {
-					if (activeToggle) {
-						setOverlayPosition(activeToggle);
-					}
-				});
-
-				document.addEventListener('keydown', (event) => {
-					if (event.key === 'Escape' && !overlay.hidden) {
-						event.preventDefault();
-						closePanel();
-					}
-				});
-
-				overlay.addEventListener('click', (event) => {
-					if (event.target === overlay) {
-						closePanel();
-					}
-				});
-
-				input?.addEventListener('input', applyFilter);
-				closeButton?.addEventListener('click', closePanel);
-				items.forEach((item) => {
-					item.querySelector('a')?.addEventListener('click', closePanel);
-				});
-				})();
-			</script>
-			<script type="module" is:inline>
-				(() => {
-					const toggle = document.querySelector('[data-site-menu-toggle]');
-					const overlay = document.querySelector('[data-site-menu-overlay]');
-					const panel = overlay?.querySelector('[data-site-menu-panel]');
-					const closeButton = overlay?.querySelector('[data-site-menu-close]');
-					const links = Array.from(overlay?.querySelectorAll('[data-site-menu-link]') ?? []);
-
-					if (!toggle || !overlay || !panel || !closeButton) {
-						return;
-					}
-
-					document.documentElement.classList.add('site-menu--js');
-
-					const lockBodyScroll = () => {
-						const scrollY = window.scrollY || document.documentElement.scrollTop;
-						document.body.dataset.menuScrollY = String(scrollY);
-						document.body.style.position = 'fixed';
-						document.body.style.top = `-${scrollY}px`;
-						document.body.style.left = '0';
-						document.body.style.right = '0';
-						document.body.style.width = '100%';
-					};
-
-					const unlockBodyScroll = () => {
-						const scrollY = parseInt(document.body.dataset.menuScrollY || '0', 10);
-						document.body.style.position = '';
-						document.body.style.top = '';
-						document.body.style.left = '';
-						document.body.style.right = '';
-						document.body.style.width = '';
-						delete document.body.dataset.menuScrollY;
-						window.scrollTo(0, scrollY);
-					};
-
-					const openMenu = () => {
-						overlay.hidden = false;
-						toggle.setAttribute('aria-expanded', 'true');
-						lockBodyScroll();
-						panel.focus({ preventScroll: true });
-					};
-
-					const closeMenu = () => {
-						overlay.hidden = true;
-						toggle.setAttribute('aria-expanded', 'false');
-						unlockBodyScroll();
-						toggle.focus({ preventScroll: true });
-					};
-
-					toggle.addEventListener('click', () => {
-						if (overlay.hidden) {
-							openMenu();
-						} else {
-							closeMenu();
-						}
-					});
-
-					closeButton.addEventListener('click', closeMenu);
-					links.forEach((link) => link.addEventListener('click', closeMenu));
-
-					document.addEventListener('keydown', (event) => {
-						if (event.key === 'Escape' && !overlay.hidden) {
-							event.preventDefault();
-							closeMenu();
-						}
-					});
-				})();
-			</script>
-			<script type="module" is:inline>
-				(() => {
-					const panels = Array.from(document.querySelectorAll('[data-nav-panel]'));
-					if (panels.length === 0) {
-						return;
-					}
-
-					const closeAll = (except = null) => {
-						panels.forEach((panel) => {
-							if (panel !== except) {
-								panel.removeAttribute('open');
-							}
-						});
-					};
-
-					panels.forEach((panel) => {
-						panel.addEventListener('toggle', () => {
-							if (panel.open) {
-								closeAll(panel);
-							}
-						});
-					});
-
-					document.addEventListener('click', (event) => {
-						if (!panels.some((panel) => panel.contains(event.target))) {
-							closeAll();
-						}
-					});
-
-					document.addEventListener('keydown', (event) => {
-						if (event.key === 'Escape') {
-							closeAll();
-						}
-					});
-				})();
-			</script>
+				mode="panel"
+			/>
+			<BaseLayoutScripts />
 		</body>
 	</html>

@@ -1,0 +1,72 @@
+---
+const {
+	brandName,
+	emailHref,
+	locale = 'en',
+	mapsHref,
+	navItems = [],
+	site,
+	smsHref,
+	ui = {},
+} = Astro.props;
+---
+
+<footer class="site-footer">
+	<div class="container site-footer__grid">
+		<div>
+			<p class="site-footer__brand">{brandName}</p>
+			<p>
+				<span dir="ltr">
+					{site.address.street}, {site.address.city}, {site.address.region} {site.address.postalCode}
+				</span>
+			</p>
+			<p>
+				<strong>{ui.hoursLabel}:</strong>{' '}
+				{locale === 'ar' ? (
+					<>
+						الاثنين–الجمعة <span dir="ltr">8:00–17:00</span> · السبت{' '}
+						<span dir="ltr">8:00–14:00</span> · الأحد مغلق
+					</>
+				) : (
+					ui.hoursSummary
+				)}
+			</p>
+			<ul class="site-footer__links">
+				<li>
+					<a href={`tel:${site.phone}`}>
+						<span dir="ltr">{site.displayPhone}</span>
+					</a>
+				</li>
+				<li>
+					<a href={smsHref}>{ui.textCta ?? 'Text'}</a>
+				</li>
+				<li>
+					<a href={emailHref}>
+						<span dir="ltr">{site.email}</span>
+					</a>
+				</li>
+				<li>
+					<a href={mapsHref}>{ui.directionsCta}</a>
+				</li>
+				<li>
+					<a href={site.appleMapsUrl}>{ui.appleMapsLabel}</a>
+				</li>
+				<li>
+					<a href={site.sameAs[0]}>{ui.yelpLabel}</a>
+				</li>
+				<li>
+					<a href={site.sameAs[1]}>{ui.googleLabel}</a>
+				</li>
+			</ul>
+		</div>
+		<div>
+			<ul class="site-footer__links">
+				{navItems.map((item) => (
+					<li>
+						<a href={item.href}>{item.label}</a>
+					</li>
+				))}
+			</ul>
+		</div>
+	</div>
+</footer>

@@ -4,7 +4,7 @@ import LocalizedLink from './LocalizedLink.astro';
 import { getProject } from '../data/projects/index.js';
 
 const { projectId, locale = 'en' } = Astro.props;
-const project = getProject(projectId);
+const project = await getProject(projectId);
 
 if (!project) {
 	throw new Error(`Project not found: ${projectId}`);

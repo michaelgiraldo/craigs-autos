@@ -1,0 +1,17 @@
+<script>
+	import { initBaseLayoutBehaviors } from '../../scripts/base-layout.js';
+
+	const PAGE_LOAD_HANDLER_KEY = '__craigsBaseLayoutPageLoadHandler';
+	const runBaseLayoutBehaviors = () => {
+		initBaseLayoutBehaviors();
+	};
+
+	const existingHandler = window[PAGE_LOAD_HANDLER_KEY];
+	if (typeof existingHandler === 'function') {
+		document.removeEventListener('astro:page-load', existingHandler);
+	}
+
+	window[PAGE_LOAD_HANDLER_KEY] = runBaseLayoutBehaviors;
+	runBaseLayoutBehaviors();
+	document.addEventListener('astro:page-load', runBaseLayoutBehaviors);
+</script>

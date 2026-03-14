@@ -1,0 +1,241 @@
+---
+import { Image } from 'astro:assets';
+import LanguageSwitcher from '../../components/LanguageSwitcher.astro';
+
+const {
+	brandLogo,
+	brandName,
+	canonicalPath = '',
+	currentLanguageLabel = 'EN',
+	emailHref,
+	languageLinks = [],
+	localeBaseHref = '/en/',
+	mapsHref,
+	mobilePrimaryNav = [],
+	mobileSecondaryNav = [],
+	navItemsByKey = {},
+	servicesLabel = 'Services',
+	servicesNav = [],
+	site,
+	smsHref,
+	ui = {},
+} = Astro.props;
+---
+
+<header class="site-header">
+	<div class="container site-header__mobile">
+		<div class="site-header__mobile-top">
+			<a class="brand" href={localeBaseHref}>
+				<span class="brand__logo">
+					<Image
+						src={brandLogo}
+						alt={brandName}
+						width={56}
+						height={56}
+						loading="eager"
+						decoding="async"
+					/>
+				</span>
+				{brandName}
+			</a>
+			<div class="site-header__mobile-actions">
+				<button
+					class="site-menu-toggle"
+					type="button"
+					aria-haspopup="dialog"
+					aria-expanded="false"
+					aria-controls="site-menu-panel"
+					aria-label={ui.menuLabel ?? 'Menu'}
+					title={ui.menuLabel ?? 'Menu'}
+					data-site-menu-toggle
+				>
+					<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+						<path d="M4 6h16" />
+						<path d="M4 12h16" />
+						<path d="M4 18h16" />
+					</svg>
+				</button>
+				<LanguageSwitcher
+					links={languageLinks}
+					currentLabel={currentLanguageLabel}
+					ariaLabel={ui.languageLabel ?? 'Language'}
+					id="lang-switcher"
+					mode="toggle"
+				/>
+			</div>
+		</div>
+	</div>
+	<div class="container site-header__inner">
+		<div class="brand-block">
+			<a class="brand" href={localeBaseHref}>
+				<span class="brand__logo">
+					<Image
+						src={brandLogo}
+						alt={brandName}
+						width={64}
+						height={64}
+						loading="eager"
+						decoding="async"
+					/>
+				</span>
+				{brandName}
+			</a>
+			<a class="brand__sub" href={mapsHref}>
+				<span dir="ltr">
+					{site.address.street}, {site.address.city}, {site.address.region} {site.address.postalCode}
+				</span>
+			</a>
+		</div>
+		<div class="site-header__right">
+			<div class="header-contact">
+				<div class="header-contact__row">
+					<a class="header-phone" href={`tel:${site.phone}`}>
+						<span dir="ltr">{site.displayPhone}</span>
+					</a>
+					<a class="header-text" href={smsHref}>
+						<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+							<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+						</svg>
+						{ui.textCta ?? 'Text'}
+					</a>
+				</div>
+				<div class="header-contact__row header-contact__row--secondary">
+					<a class="header-email" href={emailHref} aria-label={`Email ${site.email}`}>
+						<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+							<path d="M4 6h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z" />
+							<path d="m22 8-10 6L2 8" />
+						</svg>
+						<span class="header-email__label">Email</span>
+						<span class="header-email__value" dir="ltr">{site.email}</span>
+					</a>
+				</div>
+			</div>
+			<LanguageSwitcher
+				links={languageLinks}
+				currentLabel={currentLanguageLabel}
+				ariaLabel={ui.languageLabel ?? 'Language'}
+				id="lang-switcher"
+				mode="toggle"
+			/>
+		</div>
+	</div>
+	<nav class="site-nav" aria-label="Primary">
+		<div class="container">
+			<ul class="site-nav__list site-nav__list--mobile site-nav__list--mobile-primary">
+				{mobilePrimaryNav.map((item) => (
+					<li>
+						<a
+							class="site-nav__link"
+							href={item.href}
+							aria-current={item.href === canonicalPath ? 'page' : undefined}
+						>
+							{item.label}
+						</a>
+					</li>
+				))}
+			</ul>
+			<ul class="site-nav__list site-nav__list--mobile site-nav__list--mobile-secondary">
+				{mobileSecondaryNav.map((item) => (
+					<li>
+						<a
+							class="site-nav__link"
+							href={item.href}
+							aria-current={item.href === canonicalPath ? 'page' : undefined}
+						>
+							{item.label}
+						</a>
+					</li>
+				))}
+			</ul>
+			<ul class="site-nav__list site-nav__list--desktop">
+				{servicesNav.length > 0 && (
+					<li class="site-nav__item site-nav__item--panel">
+						<details class="site-nav__panel" data-nav-panel>
+							<summary class="site-nav__link site-nav__link--trigger" aria-haspopup="true">
+								<span>{servicesLabel}</span>
+							</summary>
+							<div class="site-nav__panel-body">
+								<div class="site-nav__panel-grid">
+									<div class="site-nav__panel-column">
+										<ul class="site-nav__panel-list">
+											{servicesNav.map((item) => (
+												<li>
+													<a
+														class="site-nav__panel-link"
+														href={item.href}
+														aria-current={item.href === canonicalPath ? 'page' : undefined}
+													>
+														{item.label}
+													</a>
+												</li>
+											))}
+										</ul>
+									</div>
+								</div>
+							</div>
+						</details>
+					</li>
+				)}
+				{navItemsByKey.motorcycleSeats && (
+					<li>
+						<a
+							class="site-nav__link"
+							href={navItemsByKey.motorcycleSeats.href}
+							aria-current={
+								navItemsByKey.motorcycleSeats.href === canonicalPath ? 'page' : undefined
+							}
+						>
+							{navItemsByKey.motorcycleSeats.label}
+						</a>
+					</li>
+				)}
+				{navItemsByKey.gallery && (
+					<li>
+						<a
+							class="site-nav__link"
+							href={navItemsByKey.gallery.href}
+							aria-current={navItemsByKey.gallery.href === canonicalPath ? 'page' : undefined}
+						>
+							{navItemsByKey.gallery.label}
+						</a>
+					</li>
+				)}
+				{navItemsByKey.upholsteryGuide && (
+					<li>
+						<a
+							class="site-nav__link"
+							href={navItemsByKey.upholsteryGuide.href}
+							aria-current={
+								navItemsByKey.upholsteryGuide.href === canonicalPath ? 'page' : undefined
+							}
+						>
+							{navItemsByKey.upholsteryGuide.label}
+						</a>
+					</li>
+				)}
+				{navItemsByKey.reviews && (
+					<li>
+						<a
+							class="site-nav__link"
+							href={navItemsByKey.reviews.href}
+							aria-current={navItemsByKey.reviews.href === canonicalPath ? 'page' : undefined}
+						>
+							{navItemsByKey.reviews.label}
+						</a>
+					</li>
+				)}
+				{navItemsByKey.contact && (
+					<li>
+						<a
+							class="site-nav__link site-nav__link--cta"
+							href={navItemsByKey.contact.href}
+							aria-current={navItemsByKey.contact.href === canonicalPath ? 'page' : undefined}
+						>
+							{navItemsByKey.contact.label}
+						</a>
+					</li>
+				)}
+			</ul>
+		</div>
+	</nav>
+</header>

@@ -1,0 +1,39 @@
+---
+const { emailHref, mapsHref, site, smsHref, ui = {} } = Astro.props;
+---
+
+<div class="sticky-cta" role="region" aria-label={ui.quickActionsLabel}>
+	<div class="sticky-cta__inner">
+		<a class="sticky-cta__call" href={`tel:${site.phone}`}>
+			<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+				<path
+					d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
+				/>
+			</svg>
+			<span>{ui.callCta}</span>
+			<span class="sticky-cta__number" dir="ltr">
+				{site.displayPhone}
+			</span>
+		</a>
+		<a class="sticky-cta__text" href={smsHref}>
+			<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+				<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+			</svg>
+			{ui.textCta ?? 'Text'}
+		</a>
+		<a class="sticky-cta__dir" href={mapsHref}>
+			<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+				<path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z" />
+				<circle cx="12" cy="10" r="3" />
+			</svg>
+			{ui.directionsCta}
+		</a>
+		<a class="sticky-cta__email" href={emailHref}>
+			<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+				<path d="M4 6h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z" />
+				<path d="m22 8-10 6L2 8" />
+			</svg>
+			{ui.emailCta ?? 'Email'}
+		</a>
+	</div>
+</div>
