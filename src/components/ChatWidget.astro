@@ -7,8 +7,10 @@ const sessionUrl = import.meta.env.PUBLIC_CHATKIT_SESSION_URL ?? '/api/chatkit/s
 const leadEmailUrl = import.meta.env.PUBLIC_CHATKIT_LEAD_EMAIL_URL ?? '/api/chatkit/lead/';
 ---
 
+<!-- Defer the React + ChatKit island until the page is idle to reduce
+initial page-load work, while still forcing hydration within 1s. -->
 <ChatWidgetReact
-  client:load
+  client:idle={{ timeout: 1000 }}
   locale={locale}
   sessionUrl={sessionUrl}
   leadEmailUrl={leadEmailUrl}
