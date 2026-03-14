@@ -2,38 +2,24 @@
 title: "داخلية السيارات الكلاسيكية في سان خوسيه | Craig's"
 description: "ترميم داخلي دقيق للسيارات الكلاسيكية مع ألواح متناسقة وخياطة نظيفة تحافظ على الطابع الأصلي دون مبالغة."
 pageKey: "classicCars"
+template: "standard"
+hero:
+  title: "داخلية السيارات الكلاسيكية في سان خوسيه"
+  lead: "ترميم داخلي كلاسيكي بتناسق واضح وتفاصيل مناسبة للعصر."
+serviceCardsCurrentKey: "classicCars"
+pageModules:
+  - type: "featuredProject"
+    projectId: "buick-eight"
+faq:
+  heading: "أسئلة الداخلية الكلاسيكية"
+  items:
+    - q: "هل يمكن العمل على مراحل؟"
+      a: "نعم. كثير من مشاريع الكلاسيك تتم على مراحل مع الحفاظ على التناسق."
+    - q: "هل يجب إعادة الداخلية بالكامل؟"
+      a: "ليس بالضرورة. يمكن الإصلاح الموضعي أو التخطيط لتجديد كامل حسب الحاجة."
+    - q: "كم يستغرق المشروع؟"
+      a: "يعتمد على نطاق العمل والخامة. بعد المعاينة نحدد خطة واضحة."
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-import FeaturedProject from "../../../components/FeaturedProject.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "هل يمكن العمل على مراحل؟",
-    a: "نعم. كثير من مشاريع الكلاسيك تتم على مراحل مع الحفاظ على التناسق.",
-  },
-  {
-    q: "هل يجب إعادة الداخلية بالكامل؟",
-    a: "ليس بالضرورة. يمكن الإصلاح الموضعي أو التخطيط لتجديد كامل حسب الحاجة.",
-  },
-  {
-    q: "كم يستغرق المشروع؟",
-    a: "يعتمد على نطاق العمل والخامة. بعد المعاينة نحدد خطة واضحة.",
-  },
-];
-
-<PageHero
-  locale="ar"
-  title="داخلية السيارات الكلاسيكية في سان خوسيه"
-  lead="ترميم داخلي كلاسيكي بتناسق واضح وتفاصيل مناسبة للعصر."
-/>
-
-<ServiceCards locale="ar" currentKey="classicCars" />
-
-<FeaturedProject projectId="buick-eight" locale="ar" />
 
 في السيارات الكلاسيكية، الداخلية جزء أساسي من قيمة السيارة. أي اختلاف في الألواح أو المقاعد يقلل الإحساس بالاكتمال.
 
@@ -90,11 +76,6 @@ export const faqs = [
 اتصل: [<span dir="ltr">(408) 379-3820</span>](tel:+14083793820)  
 رسالة نصية: [رسالة نصية <span dir="ltr">(408) 379-3820</span>](sms:+14083793820)  
 قائمة الصور: <LocalizedLink locale="ar" pageKey="contact">اتصل بنا</LocalizedLink>
-
----
-
-<FaqSection heading="أسئلة الداخلية الكلاسيكية" faqs={faqs} />
-
 ---
 
 صفحات ذات صلة:

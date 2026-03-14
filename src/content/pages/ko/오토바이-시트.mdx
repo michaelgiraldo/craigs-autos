@@ -2,49 +2,30 @@
 title: "샌호세 오토바이 시트 업홀스터리 | 수리, 폼, 커버 | Craig's"
 description: "샌호세 오토바이 시트 수리 및 재커버, 폼 성형과 내후성 소재로 일상 주행에 강한 마감 제공합니다."
 pageKey: "motorcycleSeats"
+template: "standard"
+hero:
+  title: "샌호세 오토바이 시트 업홀스터리"
+  lead: "시트는 무시할 수 없는 부분입니다. 샌호세에서 오토바이 시트를 수리, 재커버, 재구성해 가까이서 봐도 깔끔하고 주행 시 편안하도록 만듭니다."
+serviceCardsCurrentKey: "motorcycleSeats"
+pageModules:
+  - type: "showcase"
+    pageKey: "motorcycleSeats"
+faq:
+  heading: "오토바이 시트 업홀스터리 자주 묻는 질문"
+  items:
+    - q: "라이더 시트만(뒤 좌석 제외) 작업할 수 있나요?"
+      a: "가능합니다. 많은 작업이 라이더 시트부터 시작되는 이유는 매 순간 몸이 닿는 부분이기 때문입니다."
+    - q: "오토바이 전체를 가져와야 하나요?"
+      a: "항상 그렇진 않습니다. 대부분은 시트만 가져와도 됩니다. 맞춤이나 정렬이 문제라면 바이크를 가져오면 도움이 됩니다."
+    - q: "외관뿐 아니라 착좌감도 개선할 수 있나요?"
+      a: "가능합니다. 편안함 문제는 보통 폼/지지력 문제입니다. 폼을 재구성하거나 성형해 다시 지지감을 살릴 수 있습니다."
+    - q: "현재 스타일을 맞출 수 있나요, 아니면 커스텀이 필요한가요?"
+      a: "둘 다 가능합니다. 공장 스타일로 깔끔하게 리셋을 원하는 분도 있고, 스티치/텍스처/프로파일을 커스텀하는 분도 있습니다. 시작 전에 방향을 확인합니다."
+    - q: "재질이 야외 환경에 견딜 수 있나요?"
+      a: "실제 사용 환경(햇빛, 비, 열, 야외 보관 여부)에 맞춰 소재를 추천합니다."
+    - q: "견적은 어떻게 받나요?"
+      a: "연식/제조사/모델과 주간 사진(전체 + 근접)을 문자나 전화로 보내 주세요. 착좌감이 문제라면 장거리 주행 시 느낌을 알려 주세요."
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import PageShowcaseSections from "../../../components/PageShowcaseSections.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "라이더 시트만(뒤 좌석 제외) 작업할 수 있나요?",
-    a: "가능합니다. 많은 작업이 라이더 시트부터 시작되는 이유는 매 순간 몸이 닿는 부분이기 때문입니다.",
-  },
-  {
-    q: "오토바이 전체를 가져와야 하나요?",
-    a: "항상 그렇진 않습니다. 대부분은 시트만 가져와도 됩니다. 맞춤이나 정렬이 문제라면 바이크를 가져오면 도움이 됩니다.",
-  },
-  {
-    q: "외관뿐 아니라 착좌감도 개선할 수 있나요?",
-    a: "가능합니다. 편안함 문제는 보통 폼/지지력 문제입니다. 폼을 재구성하거나 성형해 다시 지지감을 살릴 수 있습니다.",
-  },
-  {
-    q: "현재 스타일을 맞출 수 있나요, 아니면 커스텀이 필요한가요?",
-    a: "둘 다 가능합니다. 공장 스타일로 깔끔하게 리셋을 원하는 분도 있고, 스티치/텍스처/프로파일을 커스텀하는 분도 있습니다. 시작 전에 방향을 확인합니다.",
-  },
-  {
-    q: "재질이 야외 환경에 견딜 수 있나요?",
-    a: "실제 사용 환경(햇빛, 비, 열, 야외 보관 여부)에 맞춰 소재를 추천합니다.",
-  },
-  {
-    q: "견적은 어떻게 받나요?",
-    a: "연식/제조사/모델과 주간 사진(전체 + 근접)을 문자나 전화로 보내 주세요. 착좌감이 문제라면 장거리 주행 시 느낌을 알려 주세요.",
-  },
-];
-
-<PageHero
-  locale="ko"
-  title="샌호세 오토바이 시트 업홀스터리"
-  lead="시트는 무시할 수 없는 부분입니다. 샌호세에서 오토바이 시트를 수리, 재커버, 재구성해 가까이서 봐도 깔끔하고 주행 시 편안하도록 만듭니다."
-/>
-
-<ServiceCards locale="ko" currentKey="motorcycleSeats" />
-<PageShowcaseSections locale="ko" pageKey="motorcycleSeats" />
 
 오토바이 시트는 ‘실내 트림’이 아닙니다. 바이크와의 접점입니다.
 
@@ -203,5 +184,3 @@ export const faqs = [
 주소: 271 Bestor St, San Jose, CA 95112
 
 자세히: <LocalizedLink locale="ko" pageKey="contact">연락 및 견적</LocalizedLink>
-
-<FaqSection heading="오토바이 시트 업홀스터리 자주 묻는 질문" faqs={faqs} />

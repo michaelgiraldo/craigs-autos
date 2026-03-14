@@ -2,39 +2,23 @@
 title: "Tapicería automotriz en San José | Reparación y restauración | Craig's"
 description: "Reparación y restauración de interiores automotrices en San José con ajuste preciso, combinación de materiales y recomendaciones prácticas."
 pageKey: "autoUpholstery"
+template: "standard"
+hero:
+  title: "Tapicería automotriz en San José"
+  lead: "Asientos, techos interiores, molduras y capotas—taller familiar en San José, enfocado en trabajos que se ven bien de cerca y aguantan el uso diario."
+serviceCardsCurrentKey: "autoUpholstery"
+faq:
+  heading: "Preguntas frecuentes de tapicería"
+  items:
+    - q: "¿Pueden arreglar solo una zona sin rehacer todo el interior?"
+      a: "Sí. Muchos comienzan con el problema que ven diario (un panel roto, un techo caído, un apoyabrazos gastado). Recomendamos el arreglo más pequeño que se vea limpio y dure."
+    - q: "¿Puede quedar integrado con el resto del interior?"
+      a: "Ese es el estándar. Un buen match no es solo color: también textura/grano, líneas de costura y cómo asienta el panel."
+    - q: "¿También trabajan molduras y paneles interiores?"
+      a: "Sí. La tapicería automotriz incluye asientos, techos interiores y muchas piezas de moldura que se gastan o dejan de combinar con el tiempo."
+    - q: "¿Cómo pido una cotización?"
+      a: "Llámanos o envía un texto con año/marca/modelo y un par de fotos en luz natural. Si el match importa, incluye una foto del área “buena” con la que debe empatar."
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "¿Pueden arreglar solo una zona sin rehacer todo el interior?",
-    a: "Sí. Muchos comienzan con el problema que ven diario (un panel roto, un techo caído, un apoyabrazos gastado). Recomendamos el arreglo más pequeño que se vea limpio y dure.",
-  },
-  {
-    q: "¿Puede quedar integrado con el resto del interior?",
-    a: "Ese es el estándar. Un buen match no es solo color: también textura/grano, líneas de costura y cómo asienta el panel.",
-  },
-  {
-    q: "¿También trabajan molduras y paneles interiores?",
-    a: "Sí. La tapicería automotriz incluye asientos, techos interiores y muchas piezas de moldura que se gastan o dejan de combinar con el tiempo.",
-  },
-  {
-    q: "¿Cómo pido una cotización?",
-    a: "Llámanos o envía un texto con año/marca/modelo y un par de fotos en luz natural. Si el match importa, incluye una foto del área “buena” con la que debe empatar.",
-  },
-];
-
-<PageHero
-  locale="es"
-  title="Tapicería automotriz en San José"
-  lead="Asientos, techos interiores, molduras y capotas—taller familiar en San José, enfocado en trabajos que se ven bien de cerca y aguantan el uso diario."
-/>
-
-<ServiceCards locale="es" currentKey="autoUpholstery" />
 
 La tapicería automotriz devuelve el interior a un “terminado” real: un asiento que no se ve
 parchado, un techo que queda liso y tenso, paneles que combinan y detalles que no parecen de
@@ -165,5 +149,3 @@ Texto: [Texto (408) 379-3820](sms:+14083793820)
 Direcciones: 271 Bestor St, San Jose, CA 95112
 
 Más detalle: <LocalizedLink locale="es" pageKey="contact">Contacto y cotizaciones</LocalizedLink>
-
-<FaqSection heading="Preguntas frecuentes de tapicería" faqs={faqs} />

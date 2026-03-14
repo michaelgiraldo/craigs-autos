@@ -1,5 +1,6 @@
 ---
-import { getCollection, render } from 'astro:content';
+import { getCollection } from 'astro:content';
+import LocalizedPageContent from '../../components/LocalizedPageContent.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { LOCALES } from '../../lib/site-data.js';
 import { getTranslations } from '../../lib/site-data/page-registry.js';
@@ -35,8 +36,6 @@ const translations = getTranslations(pageKey);
 const canonicalPath = translations?.[locale] ?? `/${locale}/${slug}/`;
 const lang = LOCALES[locale]?.lang ?? LOCALES.en.lang;
 const noindex = entry.data.noindex ?? false;
-
-const { Content } = await render(entry);
 ---
 
 <BaseLayout
@@ -49,5 +48,5 @@ const { Content } = await render(entry);
 	translations={translations}
 	noindex={noindex}
 >
-	<Content />
+	<LocalizedPageContent entry={entry} locale={locale} />
 </BaseLayout>

@@ -2,25 +2,19 @@
 title: "Ver nuestro trabajo | Tapicería automotriz en San José | Craig's"
 description: "Explora ejemplos de tapicería automotriz en San José: asientos, techos, capotas e interiores clásicos con acabados detallados y ajuste impecable."
 pageKey: "gallery"
+template: "standard"
+hero:
+  title: "Ver nuestro trabajo"
+  lead: "Qué buscar en fotos de tapicería y cómo pedir ejemplos similares a tu auto."
+serviceCardsCurrentKey: "gallery"
+pageModules:
+  - type: "featuredProject"
+    projectId: "buick-eight"
+  - type: "featuredProject"
+    projectId: "porsche-boxster-s-seat-project"
+  - type: "showcase"
+    pageKey: "gallery"
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-import FeaturedProject from "../../../components/FeaturedProject.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import PageShowcaseSections from "../../../components/PageShowcaseSections.astro";
-
-<PageHero
-  locale="es"
-  title="Ver nuestro trabajo"
-  lead="Qué buscar en fotos de tapicería y cómo pedir ejemplos similares a tu auto."
-/>
-
-<ServiceCards locale="es" currentKey="gallery" />
-<FeaturedProject projectId="buick-eight" locale="es" />
-<FeaturedProject projectId="porsche-boxster-s-seat-project" locale="es" />
-
-<PageShowcaseSections locale="es" pageKey="gallery" />
 
 Las fotos son cómo la mayoría decide si llamar. Esta página es una guía rápida de qué mirar en
 asientos, techos interiores, capotas convertibles e interiores clásicos, y cómo obtener ejemplos

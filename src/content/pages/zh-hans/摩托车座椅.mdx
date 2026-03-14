@@ -2,49 +2,30 @@
 title: "圣何塞摩托车座椅包覆 | 修复、泡棉、定制套 | Craig's"
 description: "圣何塞摩托车座椅修复与包覆，泡棉塑形耐候材料，确保日常使用持久舒适。"
 pageKey: "motorcycleSeats"
+template: "standard"
+hero:
+  title: "圣何塞摩托车座椅包覆"
+  lead: "座椅是你无法忽视的部分。我们在圣何塞修复、重包并重建摩托车座椅，让它近看干净、骑起来舒服。"
+serviceCardsCurrentKey: "motorcycleSeats"
+pageModules:
+  - type: "showcase"
+    pageKey: "motorcycleSeats"
+faq:
+  heading: "摩托车座椅包覆常见问题"
+  items:
+    - q: "只重包骑士座椅（不做后座）可以吗？"
+      a: "可以。很多项目从骑士座椅开始，因为它是你每一公里都在接触的部分。"
+    - q: "需要把整车带来吗？"
+      a: "不一定。很多情况下只带座椅即可。如果涉及贴合或对位问题，带整车会更好。"
+    - q: "能改善舒适度，不只是外观吗？"
+      a: "可以。舒适问题通常来自泡棉/支撑。我们可以重建或塑形，让座椅重新好坐。"
+    - q: "能做成现有风格，还是一定要定制？"
+      a: "两种都可以。有些车主想要干净的原厂风格重置；有些想要定制的走线、材质或造型。开始前会确认方向。"
+    - q: "材料能否经受户外环境？"
+      a: "我们会根据真实使用情况推荐材料：日晒、雨淋、温度，以及车辆是否常年在外。"
+    - q: "如何获取报价？"
+      a: "电话或短信提供年份/品牌/车型和几张日光照片（远景 + 特写）。如果在意舒适度，请说明长途骑行的感受。"
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import PageShowcaseSections from "../../../components/PageShowcaseSections.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "只重包骑士座椅（不做后座）可以吗？",
-    a: "可以。很多项目从骑士座椅开始，因为它是你每一公里都在接触的部分。",
-  },
-  {
-    q: "需要把整车带来吗？",
-    a: "不一定。很多情况下只带座椅即可。如果涉及贴合或对位问题，带整车会更好。",
-  },
-  {
-    q: "能改善舒适度，不只是外观吗？",
-    a: "可以。舒适问题通常来自泡棉/支撑。我们可以重建或塑形，让座椅重新好坐。",
-  },
-  {
-    q: "能做成现有风格，还是一定要定制？",
-    a: "两种都可以。有些车主想要干净的原厂风格重置；有些想要定制的走线、材质或造型。开始前会确认方向。",
-  },
-  {
-    q: "材料能否经受户外环境？",
-    a: "我们会根据真实使用情况推荐材料：日晒、雨淋、温度，以及车辆是否常年在外。",
-  },
-  {
-    q: "如何获取报价？",
-    a: "电话或短信提供年份/品牌/车型和几张日光照片（远景 + 特写）。如果在意舒适度，请说明长途骑行的感受。",
-  },
-];
-
-<PageHero
-  locale="zh-hans"
-  title="圣何塞摩托车座椅包覆"
-  lead="座椅是你无法忽视的部分。我们在圣何塞修复、重包并重建摩托车座椅，让它近看干净、骑起来舒服。"
-/>
-
-<ServiceCards locale="zh-hans" currentKey="motorcycleSeats" />
-<PageShowcaseSections locale="zh-hans" pageKey="motorcycleSeats" />
 
 摩托车座椅不是“内饰饰条”。它是你与车的接触面。
 
@@ -200,5 +181,3 @@ export const faqs = [
 地址：271 Bestor St, San Jose, CA 95112
 
 更多信息：<LocalizedLink locale="zh-hans" pageKey="contact">联系与报价</LocalizedLink>
-
-<FaqSection heading="摩托车座椅包覆常见问题" faqs={faqs} />

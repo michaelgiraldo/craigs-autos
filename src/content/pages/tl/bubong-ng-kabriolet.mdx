@@ -2,36 +2,21 @@
 title: "Bubong ng kabriolet sa San Jose | Ayos at Palit | Craig's"
 description: "Pag-aayos at pagpapalit ng convertible tops para sa Porsche, Ferrari, Jaguar, Mercedes, BMW, Volkswagen at iba pang brand sa San Jose, na may malinaw na payo kung ayos o palit."
 pageKey: "convertibleTops"
+template: "standard"
+hero:
+  title: "Bubong ng kabriolet sa San Jose"
+  lead: "Tagas, ingay ng hangin, kupas na materyal, o hindi maayos ang fit—malinaw na payo matapos ang inspeksyon."
+serviceCardsCurrentKey: "convertibleTops"
+faq:
+  heading: "Mga madalas itanong sa convertible top"
+  items:
+    - q: "Puwede bang ayusin ang tumutulong convertible top?"
+      a: "Minsan. Puwedeng galing sa pagod na materyal, tahi, seals, o fit kapag nakasara. Iinspeksyunin at ibibigay ang tamang ayos."
+    - q: "Paano malaman kung kailangan palitan?"
+      a: "Kung marupok, bitak, o maraming tahi ang sira, kadalasan mas maayos ang palit kaysa paulit-ulit na patch."
+    - q: "Mas ok ba ang tela kaysa vinyl?"
+      a: "Depende sa style at gusto mo. Titingnan namin ang best option para sa itsura at tibay."
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-import ConvertibleTopMarqueAtlas from "../../../components/ConvertibleTopMarqueAtlas.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "Puwede bang ayusin ang tumutulong convertible top?",
-    a: "Minsan. Puwedeng galing sa pagod na materyal, tahi, seals, o fit kapag nakasara. Iinspeksyunin at ibibigay ang tamang ayos.",
-  },
-  {
-    q: "Paano malaman kung kailangan palitan?",
-    a: "Kung marupok, bitak, o maraming tahi ang sira, kadalasan mas maayos ang palit kaysa paulit-ulit na patch.",
-  },
-  {
-    q: "Mas ok ba ang tela kaysa vinyl?",
-    a: "Depende sa style at gusto mo. Titingnan namin ang best option para sa itsura at tibay.",
-  },
-];
-
-<PageHero
-  locale="tl"
-  title="Bubong ng kabriolet sa San Jose"
-  lead="Tagas, ingay ng hangin, kupas na materyal, o hindi maayos ang fit—malinaw na payo matapos ang inspeksyon."
-/>
-
-<ServiceCards locale="tl" currentKey="convertibleTops" />
 
 Kapag may problema ang convertible top, halata agad: basang upuan, ingay sa freeway, o mukhang pagod ang bubong. Titingnan namin ang materyal, tahi, at fit kapag nakasara—para malaman kung ayos o palit ang tamang sagot.
 
@@ -153,11 +138,6 @@ I-SMS:
 Tumawag: [(408) 379-3820](tel:+14083793820)  
 SMS: [SMS (408) 379-3820](sms:+14083793820)  
 Checklist: <LocalizedLink locale="tl" pageKey="contact">Ugnayan at Tantiya</LocalizedLink>
-
----
-
-<FaqSection heading="Mga madalas itanong sa convertible top" faqs={faqs} />
-
 ---
 
 Kaugnay:

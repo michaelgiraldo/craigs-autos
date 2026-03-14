@@ -2,39 +2,23 @@
 title: "Garnissage automobile à San Jose | Réparation et restauration d’intérieur | Craig's"
 description: "Réparation et restauration d’intérieur auto à San Jose : sièges, panneaux, ciels de toit avec finitions soignées et matériaux assortis pour un rendu impeccable."
 pageKey: "autoUpholstery"
+template: "standard"
+hero:
+  title: "Garnissage automobile à San Jose"
+  lead: "Sièges, ciels de toit, habillages et capotes — atelier familial à San Jose, orienté résultat propre et durable."
+serviceCardsCurrentKey: "autoUpholstery"
+faq:
+  heading: "Questions fréquentes garnissage auto"
+  items:
+    - q: "Pouvez-vous réparer une seule zone sans refaire tout l’intérieur ?"
+      a: "Oui. Beaucoup de clients commencent par le problème qu’ils voient chaque jour (panneau de siège déchiré, ciel de toit affaissé, accoudoir usé). Nous recommandons la solution la plus ciblée qui reste propre et durable."
+    - q: "Pouvez-vous faire en sorte que la réparation se fonde avec le reste ?"
+      a: "C’est notre standard. Un bon raccord ne dépend pas seulement de la couleur : grain/texture, alignement des coutures et tension des panneaux sont décisifs."
+    - q: "Travaillez-vous aussi les habillages et panneaux intérieurs ?"
+      a: "Oui. Le garnissage auto inclut sièges, ciels de toit, et de nombreux éléments d’habillage qui s’usent, se décollent, ou ne correspondent plus avec le temps."
+    - q: "Comment obtenir un devis ?"
+      a: "Appelez ou envoyez votre année/marque/modèle et quelques photos en plein jour. Si le raccord est important, ajoutez une photo de la zone “saine” à imiter."
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "Pouvez-vous réparer une seule zone sans refaire tout l’intérieur ?",
-    a: "Oui. Beaucoup de clients commencent par le problème qu’ils voient chaque jour (panneau de siège déchiré, ciel de toit affaissé, accoudoir usé). Nous recommandons la solution la plus ciblée qui reste propre et durable.",
-  },
-  {
-    q: "Pouvez-vous faire en sorte que la réparation se fonde avec le reste ?",
-    a: "C’est notre standard. Un bon raccord ne dépend pas seulement de la couleur : grain/texture, alignement des coutures et tension des panneaux sont décisifs.",
-  },
-  {
-    q: "Travaillez-vous aussi les habillages et panneaux intérieurs ?",
-    a: "Oui. Le garnissage auto inclut sièges, ciels de toit, et de nombreux éléments d’habillage qui s’usent, se décollent, ou ne correspondent plus avec le temps.",
-  },
-  {
-    q: "Comment obtenir un devis ?",
-    a: "Appelez ou envoyez votre année/marque/modèle et quelques photos en plein jour. Si le raccord est important, ajoutez une photo de la zone “saine” à imiter.",
-  },
-];
-
-<PageHero
-  locale="fr"
-  title="Garnissage automobile à San Jose"
-  lead="Sièges, ciels de toit, habillages et capotes — atelier familial à San Jose, orienté résultat propre et durable."
-/>
-
-<ServiceCards locale="fr" currentKey="autoUpholstery" />
 
 Le garnissage auto, c’est ce qui redonne un intérieur “fini” : un siège qui ne paraît pas patché, un ciel de toit
 qui redevient lisse et tendu, des éléments d’habillage cohérents, et des détails qui ne ressemblent pas à un compromis.
@@ -171,5 +155,3 @@ SMS : [SMS (408) 379-3820](sms:+14083793820)
 Adresse : 271 Bestor St, San Jose, CA 95112
 
 Plus de détails : <LocalizedLink locale="fr" pageKey="contact">Contact et devis</LocalizedLink>
-
-<FaqSection heading="Questions fréquentes garnissage auto" faqs={faqs} />

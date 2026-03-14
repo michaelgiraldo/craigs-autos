@@ -2,41 +2,26 @@
 title: "Auto Upholstery in San Jose | Seats, Headliners, Tops | Craig's"
 description: "Seat tears, sagging headliners, and worn interiors repaired with clean matching, solid foam support, and durable materials for daily use."
 pageKey: "home"
+template: "standard"
+hero:
+  title: "Auto Interior Repair Shop in San Jose"
+  lead: "Seats, headliners, convertible tops, and classic interiors—family-owned in San Jose, focused on clean fit and a match that looks right up close."
+serviceCardsCurrentKey: "home"
+pageModules:
+  - type: "showcase"
+    pageKey: "home"
+faq:
+  heading: "FAQs"
+  items:
+    - q: "Do you serve San Jose and the South Bay?"
+      a: "Yes. We’re in San Jose, and most customers come from San Jose and nearby South Bay cities. If you can bring the vehicle (or the relevant parts) to our shop, we can help."
+    - q: "How much does auto upholstery cost?"
+      a: "Cost depends on what you want done, materials, and the condition of what’s already there. The fastest way to get an accurate quote is to define the job clearly: one panel, one seat, or a full interior."
+    - q: "Can you make it match?"
+      a: "Matching is the point. Color is one part—texture/grain and clean seam alignment are what make the repair blend instead of standing out."
+    - q: "Is it better to repair or replace?"
+      a: "If the material is brittle or the damage is spread across multiple panels, replacement often produces a cleaner, longer-lasting result. If the issue is localized, a targeted repair can make sense."
 ---
-
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-import PageShowcaseSections from "../../../components/PageShowcaseSections.astro";
-
-export const faqs = [
-  {
-    q: "Do you serve San Jose and the South Bay?",
-    a: "Yes. We’re in San Jose, and most customers come from San Jose and nearby South Bay cities. If you can bring the vehicle (or the relevant parts) to our shop, we can help.",
-  },
-  {
-    q: "How much does auto upholstery cost?",
-    a: "Cost depends on what you want done, materials, and the condition of what’s already there. The fastest way to get an accurate quote is to define the job clearly: one panel, one seat, or a full interior.",
-  },
-  {
-    q: "Can you make it match?",
-    a: "Matching is the point. Color is one part—texture/grain and clean seam alignment are what make the repair blend instead of standing out.",
-  },
-  {
-    q: "Is it better to repair or replace?",
-    a: "If the material is brittle or the damage is spread across multiple panels, replacement often produces a cleaner, longer-lasting result. If the issue is localized, a targeted repair can make sense.",
-  },
-];
-
-<PageHero
-  locale="en"
-  title="Auto Interior Repair Shop in San Jose"
-  lead="Seats, headliners, convertible tops, and classic interiors—family-owned in San Jose, focused on clean fit and a match that looks right up close."
-/>
-
-<ServiceCards locale="en" currentKey="home" />
-<PageShowcaseSections locale="en" pageKey="home" />
 
 <aside class="callout" aria-label="More seat and motorcycle examples">
   <p class="callout__title">Want more examples?</p>
@@ -182,11 +167,6 @@ Full photo checklist: <LocalizedLink pageKey="contact">Contact & Estimates</Loca
 - **Family-owned** and built on local trust
 - **60+ years** of upholstery craftsmanship in the San Jose area
 - **Automotive interiors first**, so details and matching are the priority
-
----
-
-<FaqSection heading="FAQs" faqs={faqs} />
-
 ---
 
 ## Visit Craig's Auto Upholstery

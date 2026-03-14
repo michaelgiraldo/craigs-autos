@@ -2,41 +2,26 @@
 title: "Conserto de bancos em San Jose | Espuma, laterais, reestofamento | Craig's"
 description: "Reparos precisos em bancos automotivos com costuras, laterais e espuma, ajudando a decidir entre conserto ou reestofamento."
 pageKey: "carSeats"
+template: "standard"
+hero:
+  title: "Conserto de bancos em San Jose"
+  lead: "Costuras, laterais e espuma—devolvemos o visual e o suporte certo ao banco."
+serviceCardsCurrentKey: "carSeats"
+pageModules:
+  - type: "showcase"
+    pageKey: "carSeats"
+faq:
+  heading: "Perguntas frequentes de bancos"
+  items:
+    - q: "Dá para arrumar só o banco do motorista?"
+      a: "Sim. Normalmente é o primeiro a precisar de reparo."
+    - q: "Fica combinando com os outros bancos?"
+      a: "Esse é o objetivo. Cor, textura/veios e costura precisam bater."
+    - q: "Rasgo pequeno exige reestofamento?"
+      a: "Nem sempre. Se o dano é local e o material ao redor está firme, o reparo resolve."
+    - q: "Por que o banco afunda?"
+      a: "Geralmente é espuma. Trocar o couro muda o visual, mas o conforto depende da espuma."
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import PageShowcaseSections from "../../../components/PageShowcaseSections.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "Dá para arrumar só o banco do motorista?",
-    a: "Sim. Normalmente é o primeiro a precisar de reparo.",
-  },
-  {
-    q: "Fica combinando com os outros bancos?",
-    a: "Esse é o objetivo. Cor, textura/veios e costura precisam bater.",
-  },
-  {
-    q: "Rasgo pequeno exige reestofamento?",
-    a: "Nem sempre. Se o dano é local e o material ao redor está firme, o reparo resolve.",
-  },
-  {
-    q: "Por que o banco afunda?",
-    a: "Geralmente é espuma. Trocar o couro muda o visual, mas o conforto depende da espuma.",
-  },
-];
-
-<PageHero
-  locale="pt-br"
-  title="Conserto de bancos em San Jose"
-  lead="Costuras, laterais e espuma—devolvemos o visual e o suporte certo ao banco."
-/>
-
-<ServiceCards locale="pt-br" currentKey="carSeats" />
-<PageShowcaseSections locale="pt-br" pageKey="carSeats" />
 
 <aside class="callout" aria-label="Guia de estofamento">
   <p class="callout__title">Não sabe qual nível de serviço precisa?</p>
@@ -133,11 +118,6 @@ SMS: [SMS (408) 379-3820](sms:+14083793820)
 Checklist: <LocalizedLink locale="pt-br" pageKey="contact">Contato e orçamentos</LocalizedLink>
 
 Precisa de banco de moto? Veja <LocalizedLink locale="pt-br" pageKey="motorcycleSeats">Estofamento de banco de moto</LocalizedLink>.
-
----
-
-<FaqSection heading="Perguntas frequentes de bancos" faqs={faqs} />
-
 ---
 
 Relacionado:

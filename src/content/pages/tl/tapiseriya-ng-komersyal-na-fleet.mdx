@@ -2,39 +2,22 @@
 title: "Tapiseriya ng komersyal na fleet sa San Jose | Truck at school bus | Craig's"
 description: "In-shop na tapiseriya para sa komersyal na fleet sa San Jose, kabilang ang pag-ayos ng upuan, foam rebuild, at panel recovery para sa malalaking truck at school bus."
 pageKey: "commercialFleet"
+template: "standard"
+hero:
+  title: "Tapiseriya ng komersyal na fleet sa San Jose"
+  lead: "In-shop na trabaho para sa komersyal na truck at school bus: malinaw na saklaw, maayos na fit, at praktikal na iskedyul."
+faq:
+  heading: "Mga tanong sa komersyal na fleet"
+  items:
+    - q: "Tumatanggap ba kayo ng fleet account o isang unit lang?"
+      a: "Pareho. Maaari kaming gumawa ng isang unit o naka-batch na schedule para sa maraming sasakyan para mabawasan ang downtime."
+    - q: "Gumagawa ba kayo ng school bus seats?"
+      a: "Oo. Inaayos at nire-recover namin ang upuan ng school bus sa shop, kabilang ang punit na vinyl, bukas na tahi, at lumubog na foam."
+    - q: "Anong uri ng komersyal na truck ang ginagawa ninyo?"
+      a: "Kasama rito ang semi truck cab, box truck, work truck, at shuttle o school bus interiors."
+    - q: "Kaya bang pantayin ang itsura sa maraming unit?"
+      a: "Iyan ang target namin. Tinutugma namin ang materyal, grain, at tahi. Ang eksaktong match ay nakadepende sa edad at kupas ng kasalukuyang interior."
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "Tumatanggap ba kayo ng fleet account o isang unit lang?",
-    a: "Pareho. Maaari kaming gumawa ng isang unit o naka-batch na schedule para sa maraming sasakyan para mabawasan ang downtime.",
-  },
-  {
-    q: "Gumagawa ba kayo ng school bus seats?",
-    a: "Oo. Inaayos at nire-recover namin ang upuan ng school bus sa shop, kabilang ang punit na vinyl, bukas na tahi, at lumubog na foam.",
-  },
-  {
-    q: "Anong uri ng komersyal na truck ang ginagawa ninyo?",
-    a: "Kasama rito ang semi truck cab, box truck, work truck, at shuttle o school bus interiors.",
-  },
-  {
-    q: "Kaya bang pantayin ang itsura sa maraming unit?",
-    a: "Iyan ang target namin. Tinutugma namin ang materyal, grain, at tahi. Ang eksaktong match ay nakadepende sa edad at kupas ng kasalukuyang interior.",
-  },
-];
-
-<PageHero
-  locale="tl"
-  title="Tapiseriya ng komersyal na fleet sa San Jose"
-  lead="In-shop na trabaho para sa komersyal na truck at school bus: malinaw na saklaw, maayos na fit, at praktikal na iskedyul."
-/>
-
-<ServiceCards locale="tl" />
 
 Kapag fleet ang pinamamahalaan mo, ang sira sa interior ay operational issue na agad. Kapag punit
 ang upuan ng driver, bagsak ang foam, o bitak ang vinyl, ramdam ito araw-araw. Sa Craig’s, in-shop
@@ -112,5 +95,3 @@ Mag-text: [Text (408) 379-3820](sms:+14083793820)
 Lokasyon: 271 Bestor St, San Jose, CA 95112
 
 Para sa estimate checklist, tingnan ang <LocalizedLink locale="tl" pageKey="contact">Ugnayan</LocalizedLink>.
-
-<FaqSection heading="Mga tanong sa komersyal na fleet" faqs={faqs} />

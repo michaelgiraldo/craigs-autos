@@ -2,49 +2,30 @@
 title: "Garnissage de selle moto à San Jose | Réparation, mousse, housses sur mesure | Craig's"
 description: "Sellerie moto à San Jose : réparation, remodelage mousse et housses sur mesure résistantes aux intempéries pour un confort durable en toutes saisons."
 pageKey: "motorcycleSeats"
+template: "standard"
+hero:
+  title: "Garnissage de selle moto à San Jose"
+  lead: "La selle est votre point de contact principal avec la moto. Nous réparons, regarnissons et reprenons la mousse pour un résultat propre et confortable en roulage."
+serviceCardsCurrentKey: "motorcycleSeats"
+pageModules:
+  - type: "showcase"
+    pageKey: "motorcycleSeats"
+faq:
+  heading: "Questions fréquentes garnissage selle moto"
+  items:
+    - q: "Pouvez-vous regarnir seulement la selle pilote ?"
+      a: "Oui. Beaucoup de projets commencent par la selle pilote, car c’est celle qui impacte le plus le confort."
+    - q: "Faut-il amener toute la moto ?"
+      a: "Pas toujours. Souvent, la selle seule suffit. Si l’ajustement est en cause, apporter la moto peut aider."
+    - q: "Pouvez-vous améliorer le confort, pas seulement l’apparence ?"
+      a: "Oui. Les problèmes de confort viennent souvent de la mousse/support. Nous pouvons refaire ou remodeler la mousse."
+    - q: "Pouvez-vous garder le style actuel ou faut-il passer en custom ?"
+      a: "Les deux sont possibles. Certains veulent un rendu type origine, d’autres une couture/texture/profil personnalisé. Nous validons la direction avant travaux."
+    - q: "Le matériau tiendra-t-il en extérieur ?"
+      a: "Nous recommandons selon votre usage réel : soleil, pluie, chaleur, et fréquence d’exposition extérieure."
+    - q: "Comment obtenir un devis ?"
+      a: "Appelez ou envoyez année/marque/modèle + quelques photos en plein jour (large + gros plan). Si le confort est concerné, précisez ce que vous ressentez sur trajet."
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import PageShowcaseSections from "../../../components/PageShowcaseSections.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "Pouvez-vous regarnir seulement la selle pilote ?",
-    a: "Oui. Beaucoup de projets commencent par la selle pilote, car c’est celle qui impacte le plus le confort.",
-  },
-  {
-    q: "Faut-il amener toute la moto ?",
-    a: "Pas toujours. Souvent, la selle seule suffit. Si l’ajustement est en cause, apporter la moto peut aider.",
-  },
-  {
-    q: "Pouvez-vous améliorer le confort, pas seulement l’apparence ?",
-    a: "Oui. Les problèmes de confort viennent souvent de la mousse/support. Nous pouvons refaire ou remodeler la mousse.",
-  },
-  {
-    q: "Pouvez-vous garder le style actuel ou faut-il passer en custom ?",
-    a: "Les deux sont possibles. Certains veulent un rendu type origine, d’autres une couture/texture/profil personnalisé. Nous validons la direction avant travaux.",
-  },
-  {
-    q: "Le matériau tiendra-t-il en extérieur ?",
-    a: "Nous recommandons selon votre usage réel : soleil, pluie, chaleur, et fréquence d’exposition extérieure.",
-  },
-  {
-    q: "Comment obtenir un devis ?",
-    a: "Appelez ou envoyez année/marque/modèle + quelques photos en plein jour (large + gros plan). Si le confort est concerné, précisez ce que vous ressentez sur trajet.",
-  },
-];
-
-<PageHero
-  locale="fr"
-  title="Garnissage de selle moto à San Jose"
-  lead="La selle est votre point de contact principal avec la moto. Nous réparons, regarnissons et reprenons la mousse pour un résultat propre et confortable en roulage."
-/>
-
-<ServiceCards locale="fr" currentKey="motorcycleSeats" />
-<PageShowcaseSections locale="fr" pageKey="motorcycleSeats" />
 
 Une selle moto n’est pas un simple élément esthétique. C’est l’interface avec la machine.
 
@@ -197,5 +178,3 @@ SMS : [SMS (408) 379-3820](sms:+14083793820)
 Adresse : 271 Bestor St, San Jose, CA 95112
 
 Plus de détails : <LocalizedLink locale="fr" pageKey="contact">Contact et devis</LocalizedLink>
-
-<FaqSection heading="Questions fréquentes garnissage selle moto" faqs={faqs} />

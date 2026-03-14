@@ -2,39 +2,22 @@
 title: "Tapicería para flotas comerciales en San José | Camiones y buses escolares | Craig's"
 description: "Tapicería para flotas comerciales en San José: reparación y reconstrucción de asientos, espuma y paneles para camiones y buses escolares."
 pageKey: "commercialFleet"
+template: "standard"
+hero:
+  title: "Tapicería para flotas comerciales en San José"
+  lead: "Trabajo en taller para camiones comerciales y buses escolares: alcance claro, buen acabado y programación realista."
+faq:
+  heading: "Preguntas frecuentes de flotas comerciales"
+  items:
+    - q: "¿Trabajan por flota o solo vehículo por vehículo?"
+      a: "Hacemos ambos. Podemos atender una sola unidad o programar trabajo por etapas para varias unidades y así reducir tiempo fuera de servicio."
+    - q: "¿Reparan asientos de bus escolar?"
+      a: "Sí. Hacemos reparación y retapizado en taller para buses escolares: vinilo roto, costuras abiertas y problemas de espuma o soporte."
+    - q: "¿Qué tipos de camiones comerciales atienden?"
+      a: "Atendemos interiores de camiones pesados y medianos, incluyendo tractocamiones, camiones tipo caja, camiones de trabajo y buses tipo shuttle."
+    - q: "¿Pueden mantener consistencia de materiales entre unidades?"
+      a: "Ese es el objetivo. Buscamos continuidad en material, grano y costura. La coincidencia exacta depende del desgaste y de la exposición al sol."
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "¿Trabajan por flota o solo vehículo por vehículo?",
-    a: "Hacemos ambos. Podemos atender una sola unidad o programar trabajo por etapas para varias unidades y así reducir tiempo fuera de servicio.",
-  },
-  {
-    q: "¿Reparan asientos de bus escolar?",
-    a: "Sí. Hacemos reparación y retapizado en taller para buses escolares: vinilo roto, costuras abiertas y problemas de espuma o soporte.",
-  },
-  {
-    q: "¿Qué tipos de camiones comerciales atienden?",
-    a: "Atendemos interiores de camiones pesados y medianos, incluyendo tractocamiones, camiones tipo caja, camiones de trabajo y buses tipo shuttle.",
-  },
-  {
-    q: "¿Pueden mantener consistencia de materiales entre unidades?",
-    a: "Ese es el objetivo. Buscamos continuidad en material, grano y costura. La coincidencia exacta depende del desgaste y de la exposición al sol.",
-  },
-];
-
-<PageHero
-  locale="es"
-  title="Tapicería para flotas comerciales en San José"
-  lead="Trabajo en taller para camiones comerciales y buses escolares: alcance claro, buen acabado y programación realista."
-/>
-
-<ServiceCards locale="es" />
 
 Cuando gestionas una flota, el desgaste interior deja de ser solo estética y se vuelve un problema
 operativo. Un asiento roto, espuma vencida o vinilo abierto afecta uso diario, imagen y comodidad
@@ -113,5 +96,3 @@ Texto: [Texto (408) 379-3820](sms:+14083793820)
 Ubicación: 271 Bestor St, San Jose, CA 95112
 
 Checklist de fotos y estimaciones: <LocalizedLink locale="es" pageKey="contact">Contacto</LocalizedLink>.
-
-<FaqSection heading="Preguntas frecuentes de flotas comerciales" faqs={faqs} />

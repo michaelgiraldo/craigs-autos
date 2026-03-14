@@ -2,43 +2,24 @@
 title: "Guia de estofamento | Como decidir (interior automotivo)"
 description: "Guia completo para escolher entre reparo e reestofamento, comparando materiais e entendendo preços antes do orçamento."
 pageKey: "upholsteryGuide"
+template: "standard"
+hero:
+  title: "Guia de estofamento"
+  lead: "Guia do comprador de estofamento automotivo: materiais, escopo, preço e processo"
+faq:
+  heading: "Perguntas frequentes do guia"
+  items:
+    - q: "Forro do teto caindo é problema do tecido?"
+      a: "Geralmente não. A base de espuma e a cola são o que falham primeiro, então colar o tecido de novo só dura se a base ainda estiver firme."
+    - q: "Dá para refazer a espuma do banco sem reestofar?"
+      a: "Sim. Se a capa ainda estiver em bom estado, refazer a espuma pode recuperar o conforto sem trocar o material visível."
+    - q: "Quais fotos ajudam a orçar estofamento?"
+      a: "Ano/marca/modelo + uma foto aberta, um close do dano e uma foto lateral mostrando queda ou altura do banco."
+    - q: "Quanto tempo costuma levar um serviço de estofamento?"
+      a: "Forro do teto pode ter retorno rápido quando o material está pronto. Bancos com espuma e trabalhos com muitos painéis costumam levar mais tempo por causa de ajuste e testes."
+    - q: "Vinil é sempre mais barato que couro?"
+      a: "Nem sempre. Qualidade do material e complexidade de mão de obra importam mais que a etiqueta. Vinil costuma exigir menos manutenção, mas o preço depende do que será feito e do grau do material."
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "Forro do teto caindo é problema do tecido?",
-    a: "Geralmente não. A base de espuma e a cola são o que falham primeiro, então colar o tecido de novo só dura se a base ainda estiver firme.",
-  },
-  {
-    q: "Dá para refazer a espuma do banco sem reestofar?",
-    a: "Sim. Se a capa ainda estiver em bom estado, refazer a espuma pode recuperar o conforto sem trocar o material visível.",
-  },
-  {
-    q: "Quais fotos ajudam a orçar estofamento?",
-    a: "Ano/marca/modelo + uma foto aberta, um close do dano e uma foto lateral mostrando queda ou altura do banco.",
-  },
-  {
-    q: "Quanto tempo costuma levar um serviço de estofamento?",
-    a: "Forro do teto pode ter retorno rápido quando o material está pronto. Bancos com espuma e trabalhos com muitos painéis costumam levar mais tempo por causa de ajuste e testes.",
-  },
-  {
-    q: "Vinil é sempre mais barato que couro?",
-    a: "Nem sempre. Qualidade do material e complexidade de mão de obra importam mais que a etiqueta. Vinil costuma exigir menos manutenção, mas o preço depende do que será feito e do grau do material.",
-  },
-];
-
-<PageHero
-  locale="pt-br"
-  title="Guia de estofamento"
-  lead="Guia do comprador de estofamento automotivo: materiais, escopo, preço e processo"
-/>
-
-<ServiceCards locale="pt-br" />
 
 Comece pelo problema que você vê. Cada seção explica por que acontece, o que costuma durar e o que perguntar antes de pagar.
 
@@ -388,11 +369,6 @@ Escolha um tema: materiais, quanto trabalho você precisa, preço e o que espera
     </div>
   </details>
 </div>
-
----
-
-<FaqSection heading="Perguntas frequentes do guia" faqs={faqs} />
-
 <script
   is:inline
   set:html={`

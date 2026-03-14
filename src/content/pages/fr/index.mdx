@@ -2,41 +2,26 @@
 title: "Garnissage auto à San Jose | Sièges, ciel de toit, capotes | Craig's"
 description: "Atelier familial à San Jose avec 60 ans d’expérience en garnissage auto : réparation de sièges, ciels de toit, capotes et intérieurs classiques avec savoir-faire durable."
 pageKey: "home"
+template: "standard"
+hero:
+  title: "Atelier de réparation d’intérieur auto à San Jose"
+  lead: "Sièges, ciels de toit, capotes de cabriolet et intérieurs classiques — atelier familial à San Jose, avec un objectif simple : un rendu propre de près et une tenue durable."
+serviceCardsCurrentKey: "home"
+pageModules:
+  - type: "showcase"
+    pageKey: "home"
+faq:
+  heading: "Questions fréquentes"
+  items:
+    - q: "Intervenez-vous à San Jose et dans le South Bay ?"
+      a: "Oui. Nous sommes à San Jose, et la plupart de nos clients viennent de San Jose et des villes voisines du South Bay. Si vous pouvez amener le véhicule (ou les pièces concernées) à l’atelier, nous pouvons vous aider."
+    - q: "Combien coûte un travail de garnissage auto ?"
+      a: "Le prix dépend du travail demandé, des matériaux, et de l’état actuel de l’intérieur. Le plus rapide pour obtenir un devis précis est de définir clairement le périmètre : un panneau, un siège, ou l’habitacle complet."
+    - q: "Pouvez-vous faire une correspondance visuelle propre ?"
+      a: "C’est précisément l’objectif. La couleur est une partie du résultat, mais le grain/texture et l’alignement des coutures sont ce qui permet au travail de se fondre au lieu d’attirer l’œil."
+    - q: "Vaut-il mieux réparer ou remplacer ?"
+      a: "Si le matériau est cassant ou si les dégâts sont répartis sur plusieurs panneaux, le remplacement donne souvent un résultat plus propre et durable. Si le problème est localisé, une réparation ciblée peut suffire."
 ---
-
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-import PageShowcaseSections from "../../../components/PageShowcaseSections.astro";
-
-export const faqs = [
-  {
-    q: "Intervenez-vous à San Jose et dans le South Bay ?",
-    a: "Oui. Nous sommes à San Jose, et la plupart de nos clients viennent de San Jose et des villes voisines du South Bay. Si vous pouvez amener le véhicule (ou les pièces concernées) à l’atelier, nous pouvons vous aider.",
-  },
-  {
-    q: "Combien coûte un travail de garnissage auto ?",
-    a: "Le prix dépend du travail demandé, des matériaux, et de l’état actuel de l’intérieur. Le plus rapide pour obtenir un devis précis est de définir clairement le périmètre : un panneau, un siège, ou l’habitacle complet.",
-  },
-  {
-    q: "Pouvez-vous faire une correspondance visuelle propre ?",
-    a: "C’est précisément l’objectif. La couleur est une partie du résultat, mais le grain/texture et l’alignement des coutures sont ce qui permet au travail de se fondre au lieu d’attirer l’œil.",
-  },
-  {
-    q: "Vaut-il mieux réparer ou remplacer ?",
-    a: "Si le matériau est cassant ou si les dégâts sont répartis sur plusieurs panneaux, le remplacement donne souvent un résultat plus propre et durable. Si le problème est localisé, une réparation ciblée peut suffire.",
-  },
-];
-
-<PageHero
-  locale="fr"
-  title="Atelier de réparation d’intérieur auto à San Jose"
-  lead="Sièges, ciels de toit, capotes de cabriolet et intérieurs classiques — atelier familial à San Jose, avec un objectif simple : un rendu propre de près et une tenue durable."
-/>
-
-<ServiceCards locale="fr" currentKey="home" />
-<PageShowcaseSections locale="fr" pageKey="home" />
 
 <aside class="callout" aria-label="Plus d'exemples sièges et moto">
   <p class="callout__title">Vous voulez plus d’exemples ?</p>
@@ -179,11 +164,6 @@ Checklist photo complète : <LocalizedLink locale="fr" pageKey="contact">Contact
 - **Atelier familial** ancré localement
 - **60+ ans** de savoir-faire en sellerie dans la région de San Jose
 - **Spécialiste intérieur auto**, avec priorité à la cohérence visuelle et à la finition
-
----
-
-<FaqSection heading="Questions fréquentes" faqs={faqs} />
-
 ---
 
 ## Visiter Craig’s Auto Upholstery

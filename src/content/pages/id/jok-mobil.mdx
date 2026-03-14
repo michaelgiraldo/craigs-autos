@@ -2,41 +2,26 @@
 title: "Perbaikan Jok Mobil di San Jose | Foam, Bolster, Upholstery | Craig's"
 description: "Perbaikan jok mobil di San Jose untuk jahitan robek, bolster pecah, dan foam kempis dengan hasil nyaman dan panduan perbaikan atau pelapisan ulang."
 pageKey: "carSeats"
+template: "standard"
+hero:
+  title: "Perbaikan Jok Mobil di San Jose"
+  lead: "Jahitan robek, bolster aus, dan dudukan kempis kami tangani dengan fokus pada hasil rapi, matching, dan kenyamanan berkendara."
+serviceCardsCurrentKey: "carSeats"
+pageModules:
+  - type: "showcase"
+    pageKey: "carSeats"
+faq:
+  heading: "Pertanyaan umum Perbaikan Jok Mobil"
+  items:
+    - q: "Apakah bisa hanya jok pengemudi saja?"
+      a: "Bisa. Banyak pekerjaan dimulai dari jok pengemudi karena area ini paling cepat aus."
+    - q: "Bisakah disamakan dengan jok lain?"
+      a: "Bisa. Kami menyesuaikan warna, tekstur, dan detail jahitan agar hasilnya menyatu."
+    - q: "Kalau sobeknya kecil, harus ganti cover penuh?"
+      a: "Tidak selalu. Jika kerusakan lokal dan material sekitar masih bagus, perbaikan titik bisa cukup."
+    - q: "Kalau jok terasa kempis, cukup ganti cover?"
+      a: "Sering kali tidak. Kenyamanan biasanya dipengaruhi kondisi foam dan bentuk jok."
 ---
-
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-import PageShowcaseSections from "../../../components/PageShowcaseSections.astro";
-
-export const faqs = [
-  {
-    q: "Apakah bisa hanya jok pengemudi saja?",
-    a: "Bisa. Banyak pekerjaan dimulai dari jok pengemudi karena area ini paling cepat aus.",
-  },
-  {
-    q: "Bisakah disamakan dengan jok lain?",
-    a: "Bisa. Kami menyesuaikan warna, tekstur, dan detail jahitan agar hasilnya menyatu.",
-  },
-  {
-    q: "Kalau sobeknya kecil, harus ganti cover penuh?",
-    a: "Tidak selalu. Jika kerusakan lokal dan material sekitar masih bagus, perbaikan titik bisa cukup.",
-  },
-  {
-    q: "Kalau jok terasa kempis, cukup ganti cover?",
-    a: "Sering kali tidak. Kenyamanan biasanya dipengaruhi kondisi foam dan bentuk jok.",
-  },
-];
-
-<PageHero
-  locale="id"
-  title="Perbaikan Jok Mobil di San Jose"
-  lead="Jahitan robek, bolster aus, dan dudukan kempis kami tangani dengan fokus pada hasil rapi, matching, dan kenyamanan berkendara."
-/>
-
-<ServiceCards locale="id" currentKey="carSeats" />
-<PageShowcaseSections locale="id" pageKey="carSeats" />
 
 Jok adalah bagian interior yang paling sering dipakai. Saat jahitan mulai lepas atau dudukan terasa turun, seluruh kabin langsung terasa usang. Kami bantu mengembalikan tampilan sekaligus rasa duduk yang proper.
 
@@ -88,5 +73,3 @@ Kirim melalui SMS:
 **SMS:** [(408) 379-3820](sms:+14083793820)
 
 Lihat juga: <LocalizedLink locale="id" pageKey="motorcycleSeats">Jok Motor</LocalizedLink>.
-
-<FaqSection heading="Pertanyaan umum Perbaikan Jok Mobil" faqs={faqs} />

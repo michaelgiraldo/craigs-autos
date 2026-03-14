@@ -2,49 +2,30 @@
 title: "Estofamento de banco de moto em San Jose | Reparo, espuma, capa | Craig's"
 description: "Estofamento de bancos de moto com moldagem de espuma e materiais resistentes ao sol e chuva para uso diário em San Jose."
 pageKey: "motorcycleSeats"
+template: "standard"
+hero:
+  title: "Estofamento de banco de moto em San Jose"
+  lead: "O banco é a parte que você não pode ignorar. Em San Jose, reparamos, reencapamos e reconstruímos bancos de moto para que fiquem limpos de perto e confortáveis na pilotagem."
+serviceCardsCurrentKey: "motorcycleSeats"
+pageModules:
+  - type: "showcase"
+    pageKey: "motorcycleSeats"
+faq:
+  heading: "Perguntas frequentes sobre estofamento de banco de moto"
+  items:
+    - q: "Dá para reencapar só o banco do piloto (não o do passageiro)?"
+      a: "Sim. Muitos trabalhos começam pelo banco do piloto porque é o que você sente em cada quilômetro."
+    - q: "Preciso levar a moto inteira?"
+      a: "Nem sempre. Em muitos casos dá para levar só o banco. Se a questão for ajuste ou alinhamento, levar a moto ajuda."
+    - q: "Dá para melhorar o conforto, não só a aparência?"
+      a: "Sim. Problemas de conforto quase sempre são de espuma e suporte. Podemos reconstruir ou remodelar a espuma para o banco voltar a ficar firme."
+    - q: "Vocês conseguem manter o visual atual ou preciso fazer algo custom?"
+      a: "As duas opções são possíveis. Alguns querem um reset limpo, tipo original. Outros preferem costuras, textura ou perfil customizado. Definimos a direção antes de começar."
+    - q: "O material aguenta ficar ao ar livre?"
+      a: "Recomendamos materiais conforme o uso real: sol, chuva, calor e quanto tempo a moto fica do lado de fora."
+    - q: "Como faço para pedir orçamento?"
+      a: "Ligue ou mande o ano/marca/modelo e algumas fotos em luz do dia (geral + detalhe). Se o conforto é parte do problema, conte como se sente em viagens mais longas."
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import PageShowcaseSections from "../../../components/PageShowcaseSections.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "Dá para reencapar só o banco do piloto (não o do passageiro)?",
-    a: "Sim. Muitos trabalhos começam pelo banco do piloto porque é o que você sente em cada quilômetro.",
-  },
-  {
-    q: "Preciso levar a moto inteira?",
-    a: "Nem sempre. Em muitos casos dá para levar só o banco. Se a questão for ajuste ou alinhamento, levar a moto ajuda.",
-  },
-  {
-    q: "Dá para melhorar o conforto, não só a aparência?",
-    a: "Sim. Problemas de conforto quase sempre são de espuma e suporte. Podemos reconstruir ou remodelar a espuma para o banco voltar a ficar firme.",
-  },
-  {
-    q: "Vocês conseguem manter o visual atual ou preciso fazer algo custom?",
-    a: "As duas opções são possíveis. Alguns querem um reset limpo, tipo original. Outros preferem costuras, textura ou perfil customizado. Definimos a direção antes de começar.",
-  },
-  {
-    q: "O material aguenta ficar ao ar livre?",
-    a: "Recomendamos materiais conforme o uso real: sol, chuva, calor e quanto tempo a moto fica do lado de fora.",
-  },
-  {
-    q: "Como faço para pedir orçamento?",
-    a: "Ligue ou mande o ano/marca/modelo e algumas fotos em luz do dia (geral + detalhe). Se o conforto é parte do problema, conte como se sente em viagens mais longas.",
-  },
-];
-
-<PageHero
-  locale="pt-br"
-  title="Estofamento de banco de moto em San Jose"
-  lead="O banco é a parte que você não pode ignorar. Em San Jose, reparamos, reencapamos e reconstruímos bancos de moto para que fiquem limpos de perto e confortáveis na pilotagem."
-/>
-
-<ServiceCards locale="pt-br" currentKey="motorcycleSeats" />
-<PageShowcaseSections locale="pt-br" pageKey="motorcycleSeats" />
 
 Banco de moto não é “acabamento interno”. É o seu ponto de contato com a moto.
 
@@ -204,5 +185,3 @@ Texto: [Texto (408) 379-3820](sms:+14083793820)
 Endereço: 271 Bestor St, San Jose, CA 95112
 
 Mais detalhes: <LocalizedLink locale="pt-br" pageKey="contact">Contato e orçamento</LocalizedLink>
-
-<FaqSection heading="Perguntas frequentes sobre estofamento de banco de moto" faqs={faqs} />

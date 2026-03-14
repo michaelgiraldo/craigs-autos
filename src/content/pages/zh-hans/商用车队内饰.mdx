@@ -2,39 +2,22 @@
 title: "圣何塞商用车队内饰修复 | 卡车与校车 | Craig's"
 description: "圣何塞商用车队内饰专业修复，涵盖重型卡车与校车座椅、泡棉及面板，合理安排施工时间。"
 pageKey: "commercialFleet"
+template: "standard"
+hero:
+  title: "圣何塞商用车队内饰服务"
+  lead: "面向商用卡车和校车的门店内饰施工：范围明确、工期可沟通、成品耐用。"
+faq:
+  heading: "商用车队常见问题"
+  items:
+    - q: "你们只接单台车辆，还是能做整队车辆？"
+      a: "两种都可以。我们既可以处理单台车辆，也可以按批次安排多台车进厂，尽量减少停运时间。"
+    - q: "你们做校车座椅修复吗？"
+      a: "做。我们在门店处理校车座椅修复与重新包覆，包括乙烯基开裂、缝线开口和泡棉支撑问题。"
+    - q: "你们服务哪些商用车辆？"
+      a: "常见项目包括重卡、箱式卡车、工作卡车，以及班车/校车等商用车型。"
+    - q: "多台车辆之间能保持一致吗？"
+      a: "我们会尽量在材质、纹理和缝线观感上保持一致。是否能做到“完全一致”，取决于原车老化和日晒程度。"
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "你们只接单台车辆，还是能做整队车辆？",
-    a: "两种都可以。我们既可以处理单台车辆，也可以按批次安排多台车进厂，尽量减少停运时间。",
-  },
-  {
-    q: "你们做校车座椅修复吗？",
-    a: "做。我们在门店处理校车座椅修复与重新包覆，包括乙烯基开裂、缝线开口和泡棉支撑问题。",
-  },
-  {
-    q: "你们服务哪些商用车辆？",
-    a: "常见项目包括重卡、箱式卡车、工作卡车，以及班车/校车等商用车型。",
-  },
-  {
-    q: "多台车辆之间能保持一致吗？",
-    a: "我们会尽量在材质、纹理和缝线观感上保持一致。是否能做到“完全一致”，取决于原车老化和日晒程度。",
-  },
-];
-
-<PageHero
-  locale="zh-hans"
-  title="圣何塞商用车队内饰服务"
-  lead="面向商用卡车和校车的门店内饰施工：范围明确、工期可沟通、成品耐用。"
-/>
-
-<ServiceCards locale="zh-hans" />
 
 对车队运营来说，内饰损耗不是“小问题”。驾驶座破损、泡棉塌陷、乙烯基开裂，会直接影响日常使用感受与车辆形象。Craig’s 在圣何塞门店提供商用车队内饰服务，从第一台车开始就给出清晰方案。
 
@@ -109,5 +92,3 @@ export const faqs = [
 地址：271 Bestor St, San Jose, CA 95112
 
 报价照片清单见 <LocalizedLink locale="zh-hans" pageKey="contact">联系</LocalizedLink>。
-
-<FaqSection heading="商用车队常见问题" faqs={faqs} />

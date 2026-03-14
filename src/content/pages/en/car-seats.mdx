@@ -2,41 +2,26 @@
 title: "Car Seat Repair in San Jose | Foam, Bolsters, Reupholstery | Craig's"
 description: "Car seat repair for torn seams, cracked bolsters, and collapsed foam, with repair-vs-reupholstery guidance based on real seat condition."
 pageKey: "carSeats"
+template: "standard"
+hero:
+  title: "Car Seat Repair in San Jose"
+  lead: "Seat repair in San Jose: torn seams, worn bolsters, and foam rebuilds—so it looks clean and feels supportive again."
+serviceCardsCurrentKey: "carSeats"
+pageModules:
+  - type: "showcase"
+    pageKey: "carSeats"
+faq:
+  heading: "Seat Repair FAQs"
+  items:
+    - q: "Can you repair just the driver’s seat?"
+      a: "Yes. Many projects start with the driver’s seat because it wears first."
+    - q: "Can you match the other seats?"
+      a: "That’s what we aim for. A good blend is more than color—it’s texture/grain, stitching lines, and how tight the panel sits once the seat is back together."
+    - q: "Do I need reupholstery if the tear is small?"
+      a: "Not always. If the damage is localized and the surrounding material is still strong, a targeted repair can be a good option. If the material is brittle or failing across multiple panels, recovering the seat is usually the cleaner reset."
+    - q: "If the seat feels collapsed, is it just the cover?"
+      a: "Often it’s foam. A cover-only fix can improve appearance, but foam work is what restores comfort and seat shape."
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-import PageShowcaseSections from "../../../components/PageShowcaseSections.astro";
-
-export const faqs = [
-  {
-    q: "Can you repair just the driver’s seat?",
-    a: "Yes. Many projects start with the driver’s seat because it wears first.",
-  },
-  {
-    q: "Can you match the other seats?",
-    a: "That’s what we aim for. A good blend is more than color—it’s texture/grain, stitching lines, and how tight the panel sits once the seat is back together.",
-  },
-  {
-    q: "Do I need reupholstery if the tear is small?",
-    a: "Not always. If the damage is localized and the surrounding material is still strong, a targeted repair can be a good option. If the material is brittle or failing across multiple panels, recovering the seat is usually the cleaner reset.",
-  },
-  {
-    q: "If the seat feels collapsed, is it just the cover?",
-    a: "Often it’s foam. A cover-only fix can improve appearance, but foam work is what restores comfort and seat shape.",
-  },
-];
-
-<PageHero
-  locale="en"
-  title="Car Seat Repair in San Jose"
-  lead="Seat repair in San Jose: torn seams, worn bolsters, and foam rebuilds—so it looks clean and feels supportive again."
-/>
-
-<ServiceCards locale="en" currentKey="carSeats" />
-<PageShowcaseSections locale="en" pageKey="carSeats" />
 
 Your seat is the part of the interior you touch every day. When a seam splits, a panel tears, or
 the cushion goes flat, it makes the whole car feel worn—fast.
@@ -176,7 +161,3 @@ For a quick quote, send:
 Call: [(408) 379-3820](tel:+14083793820)  
 Text: [Text (408) 379-3820](sms:+14083793820)  
 Photo checklist: <LocalizedLink pageKey="contact">Contact & Estimates</LocalizedLink>
-
----
-
-<FaqSection heading="Seat Repair FAQs" faqs={faqs} />

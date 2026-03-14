@@ -2,37 +2,24 @@
 title: "Interior Mobil Klasik di San Jose | Restorasi Upholstery | Craig's"
 description: "Restorasi interior mobil klasik di San Jose dengan pola panel akurat, jahitan rapi, dan finishing yang menjaga karakter asli tanpa berlebihan."
 pageKey: "classicCars"
+template: "standard"
+hero:
+  title: "Interior Mobil Klasik di San Jose"
+  lead: "Restorasi interior klasik dengan fokus pada konsistensi material, proporsi detail, dan hasil akhir yang terasa satu paket."
+serviceCardsCurrentKey: "classicCars"
+pageModules:
+  - type: "featuredProject"
+    projectId: "buick-eight"
+faq:
+  heading: "Pertanyaan umum Interior Mobil Klasik"
+  items:
+    - q: "Apakah bisa bantu menentukan prioritas restorasi interior?"
+      a: "Bisa. Kami bantu menyusun urutan kerja agar hasil tetap konsisten, terutama jika dikerjakan bertahap."
+    - q: "Apakah harus langsung interior penuh?"
+      a: "Tidak. Kami bisa mulai dari area paling kritis, lalu lanjut bertahap sesuai rencana dan anggaran."
+    - q: "Berapa lama restorasi interior klasik?"
+      a: "Tergantung lingkup kerja dan material yang dipilih. Setelah inspeksi, kami berikan jadwal yang realistis."
 ---
-
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-import FeaturedProject from "../../../components/FeaturedProject.astro";
-
-export const faqs = [
-  {
-    q: "Apakah bisa bantu menentukan prioritas restorasi interior?",
-    a: "Bisa. Kami bantu menyusun urutan kerja agar hasil tetap konsisten, terutama jika dikerjakan bertahap.",
-  },
-  {
-    q: "Apakah harus langsung interior penuh?",
-    a: "Tidak. Kami bisa mulai dari area paling kritis, lalu lanjut bertahap sesuai rencana dan anggaran.",
-  },
-  {
-    q: "Berapa lama restorasi interior klasik?",
-    a: "Tergantung lingkup kerja dan material yang dipilih. Setelah inspeksi, kami berikan jadwal yang realistis.",
-  },
-];
-
-<PageHero
-  locale="id"
-  title="Interior Mobil Klasik di San Jose"
-  lead="Restorasi interior klasik dengan fokus pada konsistensi material, proporsi detail, dan hasil akhir yang terasa satu paket."
-/>
-
-<ServiceCards locale="id" currentKey="classicCars" />
-<FeaturedProject projectId="buick-eight" locale="id" />
 
 Pada mobil klasik, interior menentukan kesan keseluruhan kendaraan. Satu panel yang tidak serasi bisa langsung mengganggu tampilan kabin. Karena itu, kami menekankan rencana kerja yang konsisten dari awal.
 
@@ -83,5 +70,3 @@ Kirim:
 
 **Telepon:** [(408) 379-3820](tel:+14083793820)  
 **SMS:** [(408) 379-3820](sms:+14083793820)
-
-<FaqSection heading="Pertanyaan umum Interior Mobil Klasik" faqs={faqs} />

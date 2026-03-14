@@ -2,42 +2,26 @@
 title: "聖荷西汽車內飾維修 | Craig's"
 description: "聖荷西專業汽車內飾維修，修補座椅破損與車頂下垂，採用耐用材料與精準工藝，延長內裝壽命。"
 pageKey: "home"
+template: "standard"
+hero:
+  title: "聖荷西汽車內飾維修"
+  lead: "座椅、頂棚、敞篷車頂與經典內飾—家族經營，重視貼合與細節。"
+serviceCardsCurrentKey: "home"
+pageModules:
+  - type: "showcase"
+    pageKey: "home"
+faq:
+  heading: "常見問題"
+  items:
+    - q: "你們服務聖荷西和 南灣 嗎？"
+      a: "是的。我們在聖荷西，客戶多來自周邊地區。只要能把車或零件送到店裡，我們就能協助。"
+    - q: "汽車內飾費用怎麼算？"
+      a: "費用取決於工作範圍、材質與現況。要準確報價，需要先確認是單片修復、單座椅，或整體內飾。"
+    - q: "能做到自然匹配嗎？"
+      a: "這是我們的標準。除了顏色，還要看紋理、光澤與縫線貼合。"
+    - q: "該修補還是整個換？"
+      a: "若材料脆化或多處破損，重新包覆通常更乾淨、耐用。若是局部問題，修補就夠了。"
 ---
-
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import PageShowcaseSections from "../../../components/PageShowcaseSections.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "你們服務聖荷西和 南灣 嗎？",
-    a: "是的。我們在聖荷西，客戶多來自周邊地區。只要能把車或零件送到店裡，我們就能協助。",
-  },
-  {
-    q: "汽車內飾費用怎麼算？",
-    a: "費用取決於工作範圍、材質與現況。要準確報價，需要先確認是單片修復、單座椅，或整體內飾。",
-  },
-  {
-    q: "能做到自然匹配嗎？",
-    a: "這是我們的標準。除了顏色，還要看紋理、光澤與縫線貼合。",
-  },
-  {
-    q: "該修補還是整個換？",
-    a: "若材料脆化或多處破損，重新包覆通常更乾淨、耐用。若是局部問題，修補就夠了。",
-  },
-];
-
-<PageHero
-  locale="zh-hant"
-  title="聖荷西汽車內飾維修"
-  lead="座椅、頂棚、敞篷車頂與經典內飾—家族經營，重視貼合與細節。"
-/>
-
-<ServiceCards locale="zh-hant" currentKey="home" />
-<PageShowcaseSections locale="zh-hant" pageKey="home" />
 
 內飾問題每天都看得到：駕駛座破損、頂棚下垂、日曬造成龜裂。聯絡 Craig's Auto Upholstery（聖荷西），我們會清楚說明哪裡能修、哪裡該重新包覆，以及需要哪些資訊才能準確報價。
 
@@ -124,11 +108,6 @@ export const faqs = [
 - **家族經營**
 - **聖荷西在地 60+ 年**
 - **汽車內飾為主**
-
----
-
-<FaqSection heading="常見問題" faqs={faqs} />
-
 ---
 
 ## Craig's Auto Upholstery 地址

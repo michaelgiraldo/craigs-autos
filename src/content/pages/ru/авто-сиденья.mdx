@@ -2,41 +2,26 @@
 title: "Ремонт сидений в Сан-Хосе | Пена, боковины, перетяжка | Craig's"
 description: "Ремонт автомобильных сидений в Сан-Хосе: восстановление швов, боковин и пены с рекомендациями по ремонту или перетяжке."
 pageKey: "carSeats"
+template: "standard"
+hero:
+  title: "Ремонт сидений в Сан-Хосе"
+  lead: "Разрывы, швы, боковины и пена—возвращаем форму и поддержку."
+serviceCardsCurrentKey: "carSeats"
+pageModules:
+  - type: "showcase"
+    pageKey: "carSeats"
+faq:
+  heading: "Часто задаваемые вопросы по сиденьям"
+  items:
+    - q: "Можно отремонтировать только водительское сиденье?"
+      a: "Да. Часто начинают именно с него."
+    - q: "Сможете подобрать под остальные сиденья?"
+      a: "Это наш стандарт: совпадение цвета, фактуры и швов."
+    - q: "Небольшой разрыв — нужна перетяжка?"
+      a: "Не всегда. При локальном повреждении ремонт достаточен."
+    - q: "Почему сиденье проваливается?"
+      a: "Чаще всего из-за пены. Обивка улучшает вид, но комфорт зависит от пены."
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import PageShowcaseSections from "../../../components/PageShowcaseSections.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "Можно отремонтировать только водительское сиденье?",
-    a: "Да. Часто начинают именно с него.",
-  },
-  {
-    q: "Сможете подобрать под остальные сиденья?",
-    a: "Это наш стандарт: совпадение цвета, фактуры и швов.",
-  },
-  {
-    q: "Небольшой разрыв — нужна перетяжка?",
-    a: "Не всегда. При локальном повреждении ремонт достаточен.",
-  },
-  {
-    q: "Почему сиденье проваливается?",
-    a: "Чаще всего из-за пены. Обивка улучшает вид, но комфорт зависит от пены.",
-  },
-];
-
-<PageHero
-  locale="ru"
-  title="Ремонт сидений в Сан-Хосе"
-  lead="Разрывы, швы, боковины и пена—возвращаем форму и поддержку."
-/>
-
-<ServiceCards locale="ru" currentKey="carSeats" />
-<PageShowcaseSections locale="ru" pageKey="carSeats" />
 
 <aside class="callout" aria-label="Руководство по обивке">
   <p class="callout__title">Быстро выбрать правильный вариант</p>
@@ -130,11 +115,6 @@ export const faqs = [
 СМС: [(408) 379-3820](sms:+14083793820)  
 Нужно сиденье для мотоцикла? Смотрите <LocalizedLink locale="ru" pageKey="motorcycleSeats">Перетяжка сидений мотоциклов</LocalizedLink>.
 Чек‑лист: <LocalizedLink locale="ru" pageKey="contact">Контакты</LocalizedLink>
-
----
-
-<FaqSection heading="Часто задаваемые вопросы по сиденьям" faqs={faqs} />
-
 ---
 
 Связанные страницы:

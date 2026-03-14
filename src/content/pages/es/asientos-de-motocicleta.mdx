@@ -2,49 +2,30 @@
 title: "Tapicería de asientos de motocicleta en San José | Reparación, espuma, fundas | Craig's"
 description: "Especialistas en tapicería de asientos de motocicleta en San José con reparación, moldeado de espuma y materiales resistentes al sol y la lluvia."
 pageKey: "motorcycleSeats"
+template: "standard"
+hero:
+  title: "Tapicería de asientos de motocicleta en San José"
+  lead: "Tu asiento es la parte que no puedes ignorar. Reparamos, retapizamos y reconstruimos asientos de moto en San José para que se vean limpios de cerca y se sientan bien al rodar."
+serviceCardsCurrentKey: "motorcycleSeats"
+pageModules:
+  - type: "showcase"
+    pageKey: "motorcycleSeats"
+faq:
+  heading: "Preguntas frecuentes sobre tapicería de asientos de moto"
+  items:
+    - q: "¿Pueden retapizar solo el asiento del piloto (no el del pasajero)?"
+      a: "Sí. Muchos trabajos empiezan por el asiento del piloto porque es el que sientes en cada kilómetro."
+    - q: "¿Necesito traer toda la motocicleta?"
+      a: "No siempre. En muchos casos puedes traer solo el asiento. Si el ajuste o la alineación es parte del problema, traer la moto ayuda."
+    - q: "¿Pueden mejorar la comodidad, no solo la apariencia?"
+      a: "Sí. Los problemas de comodidad suelen ser de espuma y soporte. Podemos reconstruir o dar forma a la espuma para que el asiento vuelva a sentirse firme."
+    - q: "¿Pueden igualar el look actual o tengo que ir a algo personalizado?"
+      a: "Puedes hacer cualquiera. Algunos quieren un reinicio limpio tipo fábrica. Otros quieren costuras, textura o un perfil distinto. Confirmamos la dirección antes de empezar."
+    - q: "¿El material aguanta a la intemperie?"
+      a: "Recomendamos materiales según el uso real: sol, lluvia, calor y cuánto tiempo vive afuera."
+    - q: "¿Cómo obtengo un presupuesto?"
+      a: "Llama o escribe el año/marca/modelo y un par de fotos con luz de día (general + detalle). Si la comodidad es parte del problema, dinos cómo se siente en trayectos largos."
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import PageShowcaseSections from "../../../components/PageShowcaseSections.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "¿Pueden retapizar solo el asiento del piloto (no el del pasajero)?",
-    a: "Sí. Muchos trabajos empiezan por el asiento del piloto porque es el que sientes en cada kilómetro.",
-  },
-  {
-    q: "¿Necesito traer toda la motocicleta?",
-    a: "No siempre. En muchos casos puedes traer solo el asiento. Si el ajuste o la alineación es parte del problema, traer la moto ayuda.",
-  },
-  {
-    q: "¿Pueden mejorar la comodidad, no solo la apariencia?",
-    a: "Sí. Los problemas de comodidad suelen ser de espuma y soporte. Podemos reconstruir o dar forma a la espuma para que el asiento vuelva a sentirse firme.",
-  },
-  {
-    q: "¿Pueden igualar el look actual o tengo que ir a algo personalizado?",
-    a: "Puedes hacer cualquiera. Algunos quieren un reinicio limpio tipo fábrica. Otros quieren costuras, textura o un perfil distinto. Confirmamos la dirección antes de empezar.",
-  },
-  {
-    q: "¿El material aguanta a la intemperie?",
-    a: "Recomendamos materiales según el uso real: sol, lluvia, calor y cuánto tiempo vive afuera.",
-  },
-  {
-    q: "¿Cómo obtengo un presupuesto?",
-    a: "Llama o escribe el año/marca/modelo y un par de fotos con luz de día (general + detalle). Si la comodidad es parte del problema, dinos cómo se siente en trayectos largos.",
-  },
-];
-
-<PageHero
-  locale="es"
-  title="Tapicería de asientos de motocicleta en San José"
-  lead="Tu asiento es la parte que no puedes ignorar. Reparamos, retapizamos y reconstruimos asientos de moto en San José para que se vean limpios de cerca y se sientan bien al rodar."
-/>
-
-<ServiceCards locale="es" currentKey="motorcycleSeats" />
-<PageShowcaseSections locale="es" pageKey="motorcycleSeats" />
 
 Un asiento de moto no es “tapicería interior”. Es tu interfaz con la moto.
 
@@ -206,5 +187,3 @@ Texto: [Texto (408) 379-3820](sms:+14083793820)
 Direcciones: 271 Bestor St, San Jose, CA 95112
 
 Más detalle: <LocalizedLink locale="es" pageKey="contact">Contacto y cotizaciones</LocalizedLink>
-
-<FaqSection heading="Preguntas frecuentes sobre tapicería de asientos de moto" faqs={faqs} />

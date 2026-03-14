@@ -2,41 +2,26 @@
 title: "إصلاح مقاعد السيارات في سان خوسيه | فوم وجوانب وإعادة تنجيد | Craig's"
 description: "إصلاح شامل لمقاعد السيارات من خياطة وتمزقات وجوانب وفوم مع نصائح مهنية بين الإصلاح وإعادة التنجيد حسب الحالة."
 pageKey: "carSeats"
+template: "standard"
+hero:
+  title: "إصلاح مقاعد السيارات في سان خوسيه"
+  lead: "تمزقات، خياطة، جوانب وفوم—نعيد الشكل والدعم للمقعد."
+serviceCardsCurrentKey: "carSeats"
+pageModules:
+  - type: "showcase"
+    pageKey: "carSeats"
+faq:
+  heading: "أسئلة مقاعد السيارات"
+  items:
+    - q: "هل يمكن إصلاح مقعد السائق فقط؟"
+      a: "نعم. غالبًا نبدأ بالمقعد الأكثر استخدامًا."
+    - q: "هل يمكن مطابقة باقي المقاعد؟"
+      a: "هذا هو الهدف. نطابق اللون والملمس وخط الخياطة."
+    - q: "هل التمزق الصغير يحتاج إعادة تنجيد؟"
+      a: "ليس دائمًا. إذا كان التلف موضعيًا والخامة قوية، يكفي الإصلاح."
+    - q: "لماذا المقعد يهبط؟"
+      a: "غالبًا بسبب الفوم. المظهر قد يتحسن بتغيير الغطاء لكن الراحة تعتمد على الفوم."
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import PageShowcaseSections from "../../../components/PageShowcaseSections.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "هل يمكن إصلاح مقعد السائق فقط؟",
-    a: "نعم. غالبًا نبدأ بالمقعد الأكثر استخدامًا.",
-  },
-  {
-    q: "هل يمكن مطابقة باقي المقاعد؟",
-    a: "هذا هو الهدف. نطابق اللون والملمس وخط الخياطة.",
-  },
-  {
-    q: "هل التمزق الصغير يحتاج إعادة تنجيد؟",
-    a: "ليس دائمًا. إذا كان التلف موضعيًا والخامة قوية، يكفي الإصلاح.",
-  },
-  {
-    q: "لماذا المقعد يهبط؟",
-    a: "غالبًا بسبب الفوم. المظهر قد يتحسن بتغيير الغطاء لكن الراحة تعتمد على الفوم.",
-  },
-];
-
-<PageHero
-  locale="ar"
-  title="إصلاح مقاعد السيارات في سان خوسيه"
-  lead="تمزقات، خياطة، جوانب وفوم—نعيد الشكل والدعم للمقعد."
-/>
-
-<ServiceCards locale="ar" currentKey="carSeats" />
-<PageShowcaseSections locale="ar" pageKey="carSeats" />
 
 <aside class="callout" aria-label="دليل التنجيد">
   <p class="callout__title">لا تعرف ما الذي يحتاجه المقعد؟</p>
@@ -130,11 +115,6 @@ export const faqs = [
 رسالة نصية: [رسالة نصية <span dir="ltr">(408) 379-3820</span>](sms:+14083793820)  
 تحتاج مقعد دراجة نارية؟ شاهد <LocalizedLink locale="ar" pageKey="motorcycleSeats">تنجيد مقاعد الدراجات النارية</LocalizedLink>.
 قائمة الصور: <LocalizedLink locale="ar" pageKey="contact">اتصل بنا</LocalizedLink>
-
----
-
-<FaqSection heading="أسئلة مقاعد السيارات" faqs={faqs} />
-
 ---
 
 صفحات ذات صلة:

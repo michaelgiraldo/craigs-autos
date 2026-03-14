@@ -2,39 +2,22 @@
 title: "Estofamento de frotas comerciais em San Jose | Caminhões e ônibus escolares | Craig's"
 description: "Estofamento especializado para frotas comerciais, incluindo caminhões e ônibus escolares, com foco em durabilidade e eficiência."
 pageKey: "commercialFleet"
+template: "standard"
+hero:
+  title: "Estofamento de frotas comerciais em San Jose"
+  lead: "Trabalho em oficina para caminhões comerciais e ônibus escolares: escopo claro, acabamento limpo e cronograma realista."
+faq:
+  heading: "Perguntas frequentes de frota comercial"
+  items:
+    - q: "Vocês atendem contas de frota ou apenas veículo individual?"
+      a: "Atendemos os dois formatos. Podemos fazer uma unidade única ou organizar atendimento por lotes para reduzir tempo parado."
+    - q: "Vocês fazem bancos de ônibus escolar?"
+      a: "Sim. Fazemos reparo e reestofamento em oficina para bancos de ônibus escolar, incluindo vinil rasgado, costura aberta e espuma afundada."
+    - q: "Que tipos de veículos comerciais vocês atendem?"
+      a: "Trabalhamos com cabine de caminhão pesado, box truck, caminhão de serviço, shuttle e ônibus escolar."
+    - q: "É possível manter padrão visual entre várias unidades?"
+      a: "Esse é o objetivo. Buscamos consistência de material, textura e costura. O nível de match depende do desgaste e do envelhecimento de cada veículo."
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "Vocês atendem contas de frota ou apenas veículo individual?",
-    a: "Atendemos os dois formatos. Podemos fazer uma unidade única ou organizar atendimento por lotes para reduzir tempo parado.",
-  },
-  {
-    q: "Vocês fazem bancos de ônibus escolar?",
-    a: "Sim. Fazemos reparo e reestofamento em oficina para bancos de ônibus escolar, incluindo vinil rasgado, costura aberta e espuma afundada.",
-  },
-  {
-    q: "Que tipos de veículos comerciais vocês atendem?",
-    a: "Trabalhamos com cabine de caminhão pesado, box truck, caminhão de serviço, shuttle e ônibus escolar.",
-  },
-  {
-    q: "É possível manter padrão visual entre várias unidades?",
-    a: "Esse é o objetivo. Buscamos consistência de material, textura e costura. O nível de match depende do desgaste e do envelhecimento de cada veículo.",
-  },
-];
-
-<PageHero
-  locale="pt-br"
-  title="Estofamento de frotas comerciais em San Jose"
-  lead="Trabalho em oficina para caminhões comerciais e ônibus escolares: escopo claro, acabamento limpo e cronograma realista."
-/>
-
-<ServiceCards locale="pt-br" />
 
 Quando você gerencia frota, desgaste interno não é só estética. Banco do motorista rasgado, espuma
 cedida e vinil trincado viram problema operacional no dia a dia. Na Craig’s, o estofamento de
@@ -112,5 +95,3 @@ Mensagem: [Mensagem (408) 379-3820](sms:+14083793820)
 Endereço: 271 Bestor St, San Jose, CA 95112
 
 Checklist de fotos e orçamento: <LocalizedLink locale="pt-br" pageKey="contact">Contato</LocalizedLink>.
-
-<FaqSection heading="Perguntas frequentes de frota comercial" faqs={faqs} />

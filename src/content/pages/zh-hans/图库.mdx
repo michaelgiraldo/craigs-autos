@@ -2,25 +2,19 @@
 title: "查看我们的作品 | 圣何塞汽车内饰案例 | Craig's"
 description: "浏览圣何塞汽车内饰案例，展示座椅、顶棚及经典内饰的精湛工艺与材质匹配。"
 pageKey: "gallery"
+template: "standard"
+hero:
+  title: "查看我们的作品"
+  lead: "看照片时该关注什么，以及如何拿到与你车型相近的案例。"
+serviceCardsCurrentKey: "gallery"
+pageModules:
+  - type: "featuredProject"
+    projectId: "buick-eight"
+  - type: "featuredProject"
+    projectId: "porsche-boxster-s-seat-project"
+  - type: "showcase"
+    pageKey: "gallery"
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-import FeaturedProject from "../../../components/FeaturedProject.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import PageShowcaseSections from "../../../components/PageShowcaseSections.astro";
-
-<PageHero
-  locale="zh-hans"
-  title="查看我们的作品"
-  lead="看照片时该关注什么，以及如何拿到与你车型相近的案例。"
-/>
-
-<ServiceCards locale="zh-hans" currentKey="gallery" />
-<FeaturedProject projectId="buick-eight" locale="zh-hans" />
-<FeaturedProject projectId="porsche-boxster-s-seat-project" locale="zh-hans" />
-
-<PageShowcaseSections locale="zh-hans" pageKey="gallery" />
 
 照片通常决定你是否愿意打电话。本页是一个快速参考：在座椅、顶棚、敞篷车顶和
 经典车内饰的照片中，应该看哪些细节，以及怎样获得与你车型相关的案例。

@@ -2,43 +2,24 @@
 title: "Gabay sa tapiseriya | Paano magpasya (auto interior)"
 description: "Alamin kung kailan ayusin o ipalit ang tapiseriya, paghahambing ng leather, vinyl, at tela, pati na ang mga salik sa presyo bago humingi ng estimate."
 pageKey: "upholsteryGuide"
+template: "standard"
+hero:
+  title: "Gabay sa tapiseriya"
+  lead: "Gabay ng mamimili sa tapiseriya ng sasakyan: materyales, saklaw, presyo, proseso"
+faq:
+  heading: "Mga madalas itanong sa Gabay sa tapiseriya"
+  items:
+    - q: "Tela ba ang problema kapag bagsak ang kisame?"
+      a: "Kadalasan hindi. Mas unang bumibigay ang foam backing at adhesive, kaya ang “dikit lang” ay tumatagal lang kung solid pa ang backing."
+    - q: "Puwede bang i-rebuild ang foam ng upuan nang hindi muling binabalot?"
+      a: "Oo. Kung ok pa ang cover, puwedeng foam rebuild lang ang kailangan para bumalik ang comfort nang hindi pinapalitan ang nakikitang materyal."
+    - q: "Anong mga larawan ang nakakatulong para sa quote?"
+      a: "Taon/make/model + isang wide shot, isang close-up ng sira, at isang side-angle photo na nagpapakita ng bagsak o taas ng upuan."
+    - q: "Gaano katagal ang karaniwang upholstery work?"
+      a: "Ang kisame (headliner) ay puwedeng mabilis kapag handa na ang materyal. Ang seat rebuild at multi-panel work ay mas tumatagal dahil may fitting at test fitting."
+    - q: "Lagi bang mas mura ang vinyl kaysa leather?"
+      a: "Hindi palagi. Mas mahalaga ang grade ng materyal at labor complexity kaysa label. Mas low-maintenance ang vinyl, pero depende pa rin ang presyo sa scope at kalidad ng materyal."
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "Tela ba ang problema kapag bagsak ang kisame?",
-    a: "Kadalasan hindi. Mas unang bumibigay ang foam backing at adhesive, kaya ang “dikit lang” ay tumatagal lang kung solid pa ang backing.",
-  },
-  {
-    q: "Puwede bang i-rebuild ang foam ng upuan nang hindi muling binabalot?",
-    a: "Oo. Kung ok pa ang cover, puwedeng foam rebuild lang ang kailangan para bumalik ang comfort nang hindi pinapalitan ang nakikitang materyal.",
-  },
-  {
-    q: "Anong mga larawan ang nakakatulong para sa quote?",
-    a: "Taon/make/model + isang wide shot, isang close-up ng sira, at isang side-angle photo na nagpapakita ng bagsak o taas ng upuan.",
-  },
-  {
-    q: "Gaano katagal ang karaniwang upholstery work?",
-    a: "Ang kisame (headliner) ay puwedeng mabilis kapag handa na ang materyal. Ang seat rebuild at multi-panel work ay mas tumatagal dahil may fitting at test fitting.",
-  },
-  {
-    q: "Lagi bang mas mura ang vinyl kaysa leather?",
-    a: "Hindi palagi. Mas mahalaga ang grade ng materyal at labor complexity kaysa label. Mas low-maintenance ang vinyl, pero depende pa rin ang presyo sa scope at kalidad ng materyal.",
-  },
-];
-
-<PageHero
-  locale="tl"
-  title="Gabay sa tapiseriya"
-  lead="Gabay ng mamimili sa tapiseriya ng sasakyan: materyales, saklaw, presyo, proseso"
-/>
-
-<ServiceCards locale="tl" />
 
 Magsimula sa problemang nakikita mo. Bawat seksyon ay magpapaliwanag kung bakit nangyayari, ano ang tumatagal, at ano ang dapat itanong bago magbayad.
 
@@ -388,11 +369,6 @@ Pumili ng paksa: materyales, gaano kalaking trabaho ang kailangan, presyo, at an
     </div>
   </details>
 </div>
-
----
-
-<FaqSection heading="Mga madalas itanong sa Gabay sa tapiseriya" faqs={faqs} />
-
 <script
   is:inline
   set:html={`

@@ -2,41 +2,26 @@
 title: "サンノゼの自動車内装修理 | Craig's"
 description: "サンノゼの家族経営店がシート破れやヘッドライナーのたるみを耐久性ある素材で美しく修復します。"
 pageKey: "home"
+template: "standard"
+hero:
+  title: "サンノゼの自動車内装修理"
+  lead: "シート、天井内張り、コンバーチブルトップ、クラシック内装—家族経営で仕上がりを重視。"
+serviceCardsCurrentKey: "home"
+pageModules:
+  - type: "showcase"
+    pageKey: "home"
+faq:
+  heading: "よくある質問"
+  items:
+    - q: "サンノゼやサウスベイに対応していますか？"
+      a: "はい。サンノゼに拠点があり、近隣からのご依頼が多いです。車両または部品を持ち込めれば対応できます。"
+    - q: "料金はどのくらいですか？"
+      a: "作業範囲、素材、現状で変わります。正確な見積もりには、パネル単位かシート単位か、全体かの確認が必要です。"
+    - q: "自然に馴染ませられますか？"
+      a: "それが基準です。色だけでなく、質感や艶、縫製ラインも合わせます。"
+    - q: "修理と張り替え、どちらが良いですか？"
+      a: "素材が劣化している場合は張り替えの方が長持ちします。局所的な損傷なら修理で十分です。"
 ---
-
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import PageShowcaseSections from "../../../components/PageShowcaseSections.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "サンノゼやサウスベイに対応していますか？",
-    a: "はい。サンノゼに拠点があり、近隣からのご依頼が多いです。車両または部品を持ち込めれば対応できます。",
-  },
-  {
-    q: "料金はどのくらいですか？",
-    a: "作業範囲、素材、現状で変わります。正確な見積もりには、パネル単位かシート単位か、全体かの確認が必要です。",
-  },
-  {
-    q: "自然に馴染ませられますか？",
-    a: "それが基準です。色だけでなく、質感や艶、縫製ラインも合わせます。",
-  },
-  {
-    q: "修理と張り替え、どちらが良いですか？",
-    a: "素材が劣化している場合は張り替えの方が長持ちします。局所的な損傷なら修理で十分です。",
-  },
-];
-
-<PageHero
-  locale="ja"
-  title="サンノゼの自動車内装修理"
-  lead="シート、天井内張り、コンバーチブルトップ、クラシック内装—家族経営で仕上がりを重視。"
-/>
-
-<ServiceCards locale="ja" currentKey="home" />
-<PageShowcaseSections locale="ja" pageKey="home" />
 
 内装の不具合は毎日目に入ります。運転席の破れ、天井内張りのたるみ、日焼けのひび割れ。Craig's Auto Upholstery（サンノゼ）へ電話またはSMSでご相談ください。修理で済むか張り替えが必要か、見積もりに必要な情報をわかりやすくお伝えします。
 
@@ -123,11 +108,6 @@ export const faqs = [
 - **家族経営**
 - **サンノゼで60年以上の実績**
 - **自動車内装が中心**
-
----
-
-<FaqSection heading="よくある質問" faqs={faqs} />
-
 ---
 
 ## Craig's Auto Upholstery 所在地

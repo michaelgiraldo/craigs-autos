@@ -2,41 +2,26 @@
 title: "Sửa ghế xe ở San Jose | Mút, gờ đỡ, bọc lại | Craig's"
 description: "Sửa ghế xe tại San Jose với xử lý bung chỉ, rách tấm, mòn gờ đỡ và làm mới mút, tư vấn bọc lại phù hợp thực tế."
 pageKey: "carSeats"
+template: "standard"
+hero:
+  title: "Sửa ghế xe ở San Jose"
+  lead: "Bung chỉ, mòn gờ đỡ và làm lại mút—để ghế nhìn sạch và ngồi chắc hơn."
+serviceCardsCurrentKey: "carSeats"
+pageModules:
+  - type: "showcase"
+    pageKey: "carSeats"
+faq:
+  heading: "Câu hỏi về ghế xe"
+  items:
+    - q: "Có thể chỉ sửa ghế lái không?"
+      a: "Có. Nhiều dự án bắt đầu với ghế lái vì nó mòn trước."
+    - q: "Có thể khớp với các ghế còn lại không?"
+      a: "Đó là mục tiêu. Khớp không chỉ là màu — còn là vân/nhám, đường chỉ, và độ ôm khi lắp lại."
+    - q: "Nếu vết rách nhỏ, có cần bọc lại không?"
+      a: "Không phải lúc nào. Nếu hư cục bộ và vật liệu quanh đó còn chắc, sửa cục bộ có thể tốt. Nếu vật liệu giòn hoặc hỏng nhiều tấm, bọc lại thường sạch và bền hơn."
+    - q: "Ghế bị xẹp là do bọc ngoài?"
+      a: "Thường là do mút. Bọc mới giúp đẹp hơn, nhưng làm mút mới là thứ khôi phục cảm giác ngồi."
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import PageShowcaseSections from "../../../components/PageShowcaseSections.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "Có thể chỉ sửa ghế lái không?",
-    a: "Có. Nhiều dự án bắt đầu với ghế lái vì nó mòn trước.",
-  },
-  {
-    q: "Có thể khớp với các ghế còn lại không?",
-    a: "Đó là mục tiêu. Khớp không chỉ là màu — còn là vân/nhám, đường chỉ, và độ ôm khi lắp lại.",
-  },
-  {
-    q: "Nếu vết rách nhỏ, có cần bọc lại không?",
-    a: "Không phải lúc nào. Nếu hư cục bộ và vật liệu quanh đó còn chắc, sửa cục bộ có thể tốt. Nếu vật liệu giòn hoặc hỏng nhiều tấm, bọc lại thường sạch và bền hơn.",
-  },
-  {
-    q: "Ghế bị xẹp là do bọc ngoài?",
-    a: "Thường là do mút. Bọc mới giúp đẹp hơn, nhưng làm mút mới là thứ khôi phục cảm giác ngồi.",
-  },
-];
-
-<PageHero
-  locale="vi"
-  title="Sửa ghế xe ở San Jose"
-  lead="Bung chỉ, mòn gờ đỡ và làm lại mút—để ghế nhìn sạch và ngồi chắc hơn."
-/>
-
-<ServiceCards locale="vi" currentKey="carSeats" />
-<PageShowcaseSections locale="vi" pageKey="carSeats" />
 
 Ghế là phần nội thất bạn dùng mỗi ngày. Khi bung chỉ, rách tấm hoặc mút xẹp, cả chiếc xe trông
 cũ đi rất nhanh.
@@ -159,11 +144,6 @@ Chúng tôi sẽ báo giá và lịch thực tế sau khi xem ghế.
 Gọi: [(408) 379-3820](tel:+14083793820)  
 Nhắn: [Nhắn (408) 379-3820](sms:+14083793820)  
 Checklist ảnh: <LocalizedLink locale="vi" pageKey="contact">Liên hệ & báo giá</LocalizedLink>
-
----
-
-<FaqSection heading="Câu hỏi về ghế xe" faqs={faqs} />
-
 ---
 
 Liên quan:

@@ -2,39 +2,23 @@
 title: "圣何塞汽车内饰 | 修复与包覆 | Craig's"
 description: "圣何塞汽车内饰修复与包覆，精准贴合座椅、面板及车顶，注重材质匹配与实用性。"
 pageKey: "autoUpholstery"
+template: "standard"
+hero:
+  title: "圣何塞汽车内饰"
+  lead: "座椅、顶棚、饰板与敞篷顶——圣何塞家族经营，重视近看也自然的贴合与细节。"
+serviceCardsCurrentKey: "autoUpholstery"
+faq:
+  heading: "汽车内饰常见问题"
+  items:
+    - q: "可以只修一个位置，不做整套内饰吗？"
+      a: "可以。很多客户先处理每天都看到的问题（座椅破损、顶棚下垂、扶手磨损）。我们会推荐最小且看起来干净的修复方式。"
+    - q: "能做出与原内饰融合的效果吗？"
+      a: "这正是我们的标准。匹配不仅是颜色，还包括纹理/颗粒、缝线与面板贴合度。"
+    - q: "你们也做内饰饰板和面板吗？"
+      a: "是的。汽车内饰包含座椅、顶棚以及会磨损、松动或不再一致的内饰饰板。"
+    - q: "如何获取报价？"
+      a: "电话或短信提供年份/品牌/车型和几张日光照片。若需精准匹配，请附“完好区域”的照片。"
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "可以只修一个位置，不做整套内饰吗？",
-    a: "可以。很多客户先处理每天都看到的问题（座椅破损、顶棚下垂、扶手磨损）。我们会推荐最小且看起来干净的修复方式。",
-  },
-  {
-    q: "能做出与原内饰融合的效果吗？",
-    a: "这正是我们的标准。匹配不仅是颜色，还包括纹理/颗粒、缝线与面板贴合度。",
-  },
-  {
-    q: "你们也做内饰饰板和面板吗？",
-    a: "是的。汽车内饰包含座椅、顶棚以及会磨损、松动或不再一致的内饰饰板。",
-  },
-  {
-    q: "如何获取报价？",
-    a: "电话或短信提供年份/品牌/车型和几张日光照片。若需精准匹配，请附“完好区域”的照片。",
-  },
-];
-
-<PageHero
-  locale="zh-hans"
-  title="圣何塞汽车内饰"
-  lead="座椅、顶棚、饰板与敞篷顶——圣何塞家族经营，重视近看也自然的贴合与细节。"
-/>
-
-<ServiceCards locale="zh-hans" currentKey="autoUpholstery" />
 
 汽车内饰的目标是让车厢重新“完整”：座椅不显补丁、顶棚平整、饰板匹配、细节
 自然。
@@ -163,5 +147,3 @@ export const faqs = [
 地址：271 Bestor St, San Jose, CA 95112
 
 照片清单与联系：<LocalizedLink locale="zh-hans" pageKey="contact">联系与报价</LocalizedLink>
-
-<FaqSection heading="汽车内饰常见问题" faqs={faqs} />

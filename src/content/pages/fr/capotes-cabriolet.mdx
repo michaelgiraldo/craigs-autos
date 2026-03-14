@@ -2,36 +2,21 @@
 title: "Réparation et remplacement de capote à San Jose | Craig's"
 description: "Réparation et remplacement de capotes pour Porsche, Ferrari, Jaguar, Mercedes, BMW, Volkswagen et d'autres marques à San Jose, avec un avis clair entre réparation et remplacement."
 pageKey: "convertibleTops"
+template: "standard"
+hero:
+  title: "Capotes de cabriolet à San Jose : réparation ou remplacement"
+  lead: "Fuite, bruit d’air, matériau usé, capote mal positionnée — obtenez une recommandation claire après inspection."
+serviceCardsCurrentKey: "convertibleTops"
+faq:
+  heading: "Questions fréquentes capotes de cabriolet"
+  items:
+    - q: "Pouvez-vous réparer une capote qui fuit ?"
+      a: "Parfois oui. Les fuites peuvent venir du matériau, des coutures, des joints, ou de la façon dont la capote se positionne fermée. Nous inspectons et recommandons la solution la plus durable."
+    - q: "Comment savoir si un remplacement est nécessaire ?"
+      a: "Si le matériau est cassant/fissuré ou si plusieurs coutures lâchent, le remplacement est souvent plus fiable que des réparations ponctuelles répétées."
+    - q: "Tissu ou vinyle : lequel choisir ?"
+      a: "Cela dépend du style d’origine et de vos priorités. Après inspection, nous vous orientons vers l’option la plus cohérente en apparence et durabilité."
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-import ConvertibleTopMarqueAtlas from "../../../components/ConvertibleTopMarqueAtlas.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "Pouvez-vous réparer une capote qui fuit ?",
-    a: "Parfois oui. Les fuites peuvent venir du matériau, des coutures, des joints, ou de la façon dont la capote se positionne fermée. Nous inspectons et recommandons la solution la plus durable.",
-  },
-  {
-    q: "Comment savoir si un remplacement est nécessaire ?",
-    a: "Si le matériau est cassant/fissuré ou si plusieurs coutures lâchent, le remplacement est souvent plus fiable que des réparations ponctuelles répétées.",
-  },
-  {
-    q: "Tissu ou vinyle : lequel choisir ?",
-    a: "Cela dépend du style d’origine et de vos priorités. Après inspection, nous vous orientons vers l’option la plus cohérente en apparence et durabilité.",
-  },
-];
-
-<PageHero
-  locale="fr"
-  title="Capotes de cabriolet à San Jose : réparation ou remplacement"
-  lead="Fuite, bruit d’air, matériau usé, capote mal positionnée — obtenez une recommandation claire après inspection."
-/>
-
-<ServiceCards locale="fr" currentKey="convertibleTops" />
 
 Un problème de capote se voit vite : eau dans l’habitacle, bruit d’air sur autoroute, ou aspect fatigué.
 Nous regardons le matériau, les coutures, et la position de la capote fermée — puis nous vous indiquons
@@ -177,7 +162,3 @@ Pour accélérer l’estimation, envoyez :
 Appel : [(408) 379-3820](tel:+14083793820)  
 SMS : [SMS (408) 379-3820](sms:+14083793820)  
 Checklist photo : <LocalizedLink locale="fr" pageKey="contact">Contact et devis</LocalizedLink>
-
----
-
-<FaqSection heading="Questions fréquentes capotes de cabriolet" faqs={faqs} />

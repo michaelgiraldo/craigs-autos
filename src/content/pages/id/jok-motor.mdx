@@ -2,41 +2,26 @@
 title: "Upholstery Jok Motor di San Jose | Perbaikan, Foam, Cover | Craig's"
 description: "Upholstery jok motor di San Jose dengan perbaikan cover, pembentukan foam, dan bahan tahan cuaca agar tetap rapi dipakai sehari-hari."
 pageKey: "motorcycleSeats"
+template: "standard"
+hero:
+  title: "Upholstery Jok Motor di San Jose"
+  lead: "Perbaikan cover, pembentukan foam, dan pelapisan ulang jok motor agar tetap nyaman dipakai harian dan terlihat rapi."
+serviceCardsCurrentKey: "motorcycleSeats"
+pageModules:
+  - type: "showcase"
+    pageKey: "motorcycleSeats"
+faq:
+  heading: "Pertanyaan umum Jok Motor"
+  items:
+    - q: "Apakah bisa hanya jok rider saja?"
+      a: "Bisa. Banyak pekerjaan dimulai dari jok rider karena paling sering dipakai."
+    - q: "Harus bawa motor lengkap atau cukup jok?"
+      a: "Untuk banyak kasus cukup bawa jok. Jika masalah fitment, membawa motor lengkap bisa lebih tepat."
+    - q: "Apakah bisa memperbaiki kenyamanan, bukan tampilan saja?"
+      a: "Bisa. Kami juga menangani foam dan bentuk dudukan agar lebih suportif."
+    - q: "Materialnya tahan panas dan hujan?"
+      a: "Kami rekomendasikan material sesuai pola pemakaian dan paparan cuaca motor Anda."
 ---
-
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-import PageShowcaseSections from "../../../components/PageShowcaseSections.astro";
-
-export const faqs = [
-  {
-    q: "Apakah bisa hanya jok rider saja?",
-    a: "Bisa. Banyak pekerjaan dimulai dari jok rider karena paling sering dipakai.",
-  },
-  {
-    q: "Harus bawa motor lengkap atau cukup jok?",
-    a: "Untuk banyak kasus cukup bawa jok. Jika masalah fitment, membawa motor lengkap bisa lebih tepat.",
-  },
-  {
-    q: "Apakah bisa memperbaiki kenyamanan, bukan tampilan saja?",
-    a: "Bisa. Kami juga menangani foam dan bentuk dudukan agar lebih suportif.",
-  },
-  {
-    q: "Materialnya tahan panas dan hujan?",
-    a: "Kami rekomendasikan material sesuai pola pemakaian dan paparan cuaca motor Anda.",
-  },
-];
-
-<PageHero
-  locale="id"
-  title="Upholstery Jok Motor di San Jose"
-  lead="Perbaikan cover, pembentukan foam, dan pelapisan ulang jok motor agar tetap nyaman dipakai harian dan terlihat rapi."
-/>
-
-<ServiceCards locale="id" currentKey="motorcycleSeats" />
-<PageShowcaseSections locale="id" pageKey="motorcycleSeats" />
 
 Jok motor bukan sekadar aksesori. Saat cover retak atau foam amblas, efeknya langsung terasa di kenyamanan, kontrol, dan durasi berkendara.
 
@@ -80,5 +65,3 @@ Kirim:
 **SMS:** [(408) 379-3820](sms:+14083793820)
 
 Butuh format lengkap? Lihat <LocalizedLink locale="id" pageKey="contact">Kontak</LocalizedLink>.
-
-<FaqSection heading="Pertanyaan umum Jok Motor" faqs={faqs} />

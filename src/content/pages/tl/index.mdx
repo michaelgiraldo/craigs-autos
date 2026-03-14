@@ -2,42 +2,26 @@
 title: "Pagawaan ng interior ng sasakyan sa San Jose | Craig's"
 description: "Pamilya sa San Jose na nag-aayos ng upuan, kisame, bubong ng kabriolet, at klasikong interior gamit ang matibay at maayos na materyales para sa araw-araw na gamit."
 pageKey: "home"
+template: "standard"
+hero:
+  title: "Pagawaan ng interior ng sasakyan sa San Jose"
+  lead: "Mga upuan, kisame, bubong ng kabriolet, at klasikong interior—pamilyang shop sa San Jose, maingat sa fit at tugma kahit malapitan."
+serviceCardsCurrentKey: "home"
+pageModules:
+  - type: "showcase"
+    pageKey: "home"
+faq:
+  heading: "Mga madalas itanong"
+  items:
+    - q: "Nagsisilbi ba kayo sa San Jose at South Bay?"
+      a: "Oo. Nasa San Jose kami at karamihan ng kliyente ay mula sa San Jose at kalapit na lungsod. Kung kaya mong dalhin ang sasakyan (o mga bahagi) sa shop, matutulungan ka namin."
+    - q: "Magkano ang auto upholstery?"
+      a: "Depende sa trabaho, materyales, at kondisyon ng umiiral na bahagi. Pinakamadaling paraan para sa tumpak na quote ay malinaw ang scope: isang panel, isang upuan, o buong interior."
+    - q: "Kaya bang itugma?"
+      a: "Yan ang punto. Hindi lang kulay — mahalaga ang texture/hibla at tuwid na tahi para mag-blend ang ayos."
+    - q: "Mas ok bang ayusin o palitan?"
+      a: "Kung marupok na ang materyal o kalat ang sira, mas malinis at mas tatagal ang palit. Kung lokal lang ang problema, puwedeng sapat ang target na ayos."
 ---
-
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import PageShowcaseSections from "../../../components/PageShowcaseSections.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "Nagsisilbi ba kayo sa San Jose at South Bay?",
-    a: "Oo. Nasa San Jose kami at karamihan ng kliyente ay mula sa San Jose at kalapit na lungsod. Kung kaya mong dalhin ang sasakyan (o mga bahagi) sa shop, matutulungan ka namin.",
-  },
-  {
-    q: "Magkano ang auto upholstery?",
-    a: "Depende sa trabaho, materyales, at kondisyon ng umiiral na bahagi. Pinakamadaling paraan para sa tumpak na quote ay malinaw ang scope: isang panel, isang upuan, o buong interior.",
-  },
-  {
-    q: "Kaya bang itugma?",
-    a: "Yan ang punto. Hindi lang kulay — mahalaga ang texture/hibla at tuwid na tahi para mag-blend ang ayos.",
-  },
-  {
-    q: "Mas ok bang ayusin o palitan?",
-    a: "Kung marupok na ang materyal o kalat ang sira, mas malinis at mas tatagal ang palit. Kung lokal lang ang problema, puwedeng sapat ang target na ayos.",
-  },
-];
-
-<PageHero
-  locale="tl"
-  title="Pagawaan ng interior ng sasakyan sa San Jose"
-  lead="Mga upuan, kisame, bubong ng kabriolet, at klasikong interior—pamilyang shop sa San Jose, maingat sa fit at tugma kahit malapitan."
-/>
-
-<ServiceCards locale="tl" currentKey="home" />
-<PageShowcaseSections locale="tl" pageKey="home" />
 
 Araw-araw napapansin ang interior: punit sa upuan ng driver, kisame na bumababa, vinyl na bitak sa araw. Tumawag o mag-SMS sa Craig's Auto Upholstery sa San Jose at bibigyan ka namin ng malinaw na payo—ano ang puwedeng ayusin nang malinis, ano ang mas ok ibalot muli, at anong kailangan para ma-quote nang tama.
 
@@ -164,11 +148,6 @@ Para mabilis at tama:
 - **Pamilyang negosyo** na nakatayo sa lokal na tiwala
 - **60+ taon** sa San Jose
 - **Auto-first ang focus**, kaya detalye at match ang fokus
-
----
-
-<FaqSection heading="Mga madalas itanong" faqs={faqs} />
-
 ---
 
 ## Bisitahin ang Craig's Auto Upholstery

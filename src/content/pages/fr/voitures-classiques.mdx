@@ -2,38 +2,24 @@
 title: "Intérieurs de voitures classiques à San Jose | Restauration sellerie | Craig's"
 description: "Sellerie intérieure pour voitures classiques à San Jose : patronage fidèle, coutures nettes et finitions respectueuses de l’époque pour un rendu authentique."
 pageKey: "classicCars"
+template: "standard"
+hero:
+  title: "Intérieurs de voitures classiques à San Jose"
+  lead: "Sellerie classique à San Jose — planifiée pour la cohérence, avec des détails qui respectent l’époque et un habitacle réellement abouti."
+serviceCardsCurrentKey: "classicCars"
+pageModules:
+  - type: "featuredProject"
+    projectId: "buick-eight"
+faq:
+  heading: "Questions fréquentes intérieurs classiques"
+  items:
+    - q: "Pouvez-vous m’aider à prioriser la restauration ?"
+      a: "Oui. Beaucoup de propriétaires avancent par étapes. Nous planifions les travaux pour garder une cohérence visuelle entre phases."
+    - q: "Faites-vous uniquement des intérieurs complets ?"
+      a: "Non. Nous pouvons réparer des zones ciblées, ou planifier une remise complète quand vous voulez retrouver un habitacle unifié."
+    - q: "Combien de temps prend un intérieur classique ?"
+      a: "Le délai dépend du périmètre et des matériaux. Après inspection, nous donnons un plan et un calendrier réalistes."
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-import FeaturedProject from "../../../components/FeaturedProject.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "Pouvez-vous m’aider à prioriser la restauration ?",
-    a: "Oui. Beaucoup de propriétaires avancent par étapes. Nous planifions les travaux pour garder une cohérence visuelle entre phases.",
-  },
-  {
-    q: "Faites-vous uniquement des intérieurs complets ?",
-    a: "Non. Nous pouvons réparer des zones ciblées, ou planifier une remise complète quand vous voulez retrouver un habitacle unifié.",
-  },
-  {
-    q: "Combien de temps prend un intérieur classique ?",
-    a: "Le délai dépend du périmètre et des matériaux. Après inspection, nous donnons un plan et un calendrier réalistes.",
-  },
-];
-
-<PageHero
-  locale="fr"
-  title="Intérieurs de voitures classiques à San Jose"
-  lead="Sellerie classique à San Jose — planifiée pour la cohérence, avec des détails qui respectent l’époque et un habitacle réellement abouti."
-/>
-
-<ServiceCards locale="fr" currentKey="classicCars" />
-
-<FeaturedProject projectId="buick-eight" locale="fr" />
 
 Sur une voiture classique, l’intérieur est la partie avec laquelle vous vivez le plus. Même une carrosserie superbe
 semble inachevée si les sièges ne s’accordent pas aux panneaux, si le ciel de toit est fatigué, ou si l’habitacle
@@ -147,7 +133,3 @@ Pour avancer efficacement, apportez :
 - Les informations sur d’anciennes réparations, si vous les avez
 
 Si le projet est prévu par phases, dites-le dès le début : l’ordre des travaux compte.
-
----
-
-<FaqSection heading="Questions fréquentes intérieurs classiques" faqs={faqs} />

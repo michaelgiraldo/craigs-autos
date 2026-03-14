@@ -4,6 +4,23 @@ import { z } from 'astro/zod';
 
 const localizedText = z.record(z.string(), z.string());
 const localizedTextList = z.record(z.string(), z.array(z.string()));
+const faqItem = z.object({
+	q: z.string(),
+	a: z.string(),
+});
+const pageModule = z.discriminatedUnion('type', [
+	z.object({
+		type: z.literal('featuredProject'),
+		projectId: z.string(),
+	}),
+	z.object({
+		type: z.literal('showcase'),
+		pageKey: z.string(),
+	}),
+	z.object({
+		type: z.literal('convertibleTopMarqueAtlas'),
+	}),
+]);
 
 const pages = defineCollection({
   loader: glob({ pattern: ['**/*.md', '**/*.mdx'], base: './src/content/pages' }),
@@ -11,6 +28,25 @@ const pages = defineCollection({
     title: z.string(),
     description: z.string().min(1),
     pageKey: z.string(),
+    template: z.enum(['standard', 'project']).optional(),
+    hero: z
+      .object({
+        title: z.string(),
+        lead: z.string().optional(),
+        kicker: z.string().optional(),
+        showTrust: z.boolean().optional(),
+      })
+      .optional(),
+    showServiceCards: z.boolean().optional(),
+    serviceCardsCurrentKey: z.string().optional(),
+    pageModules: z.array(pageModule).optional(),
+    faq: z
+      .object({
+        heading: z.string(),
+        items: z.array(faqItem),
+      })
+      .optional(),
+    projectId: z.string().optional(),
     noindex: z.boolean().optional(),
   }),
 });

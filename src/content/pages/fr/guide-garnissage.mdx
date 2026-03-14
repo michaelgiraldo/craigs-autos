@@ -2,43 +2,24 @@
 title: "Guide garnissage | Cadre de décision sellerie auto"
 description: "Guide complet pour choisir entre réparation et regarnissage auto : matériaux, étendue des travaux, tarifs et étapes pour une décision éclairée."
 pageKey: "upholsteryGuide"
+template: "standard"
+hero:
+  title: "Guide garnissage"
+  lead: "Guide décision sellerie auto : matériaux, périmètre, prix, et déroulé"
+faq:
+  heading: "Questions fréquentes guide garnissage"
+  items:
+    - q: "Un ciel de toit qui tombe est-il un problème de tissu ?"
+      a: "Le plus souvent non. Ce sont la mousse de support et la colle qui lâchent en premier. Refixer le tissu ne tient que si le support est encore sain."
+    - q: "Pouvez-vous reprendre la mousse de siège sans regarnir ?"
+      a: "Oui. Si la housse est encore en bon état, une reprise mousse peut restaurer le confort sans changer l’aspect visible."
+    - q: "Quelles photos aident le plus pour un devis sellerie ?"
+      a: "Année/marque/modèle + une vue large, un gros plan de la zone endommagée, et une vue de profil montrant affaissement ou hauteur d’assise."
+    - q: "Combien de temps prennent généralement des travaux de sellerie ?"
+      a: "Les ciels de toit peuvent être rapides une fois les matériaux prêts. Les reprises de sièges et travaux multipanneaux demandent plus de temps pour la pose et les ajustements."
+    - q: "Le vinyle est-il toujours moins cher que le cuir ?"
+      a: "Pas forcément. La qualité du matériau et la complexité de main-d’œuvre pèsent plus que l’étiquette. Le vinyle est souvent plus simple d’entretien, mais le prix dépend du périmètre réel."
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "Un ciel de toit qui tombe est-il un problème de tissu ?",
-    a: "Le plus souvent non. Ce sont la mousse de support et la colle qui lâchent en premier. Refixer le tissu ne tient que si le support est encore sain.",
-  },
-  {
-    q: "Pouvez-vous reprendre la mousse de siège sans regarnir ?",
-    a: "Oui. Si la housse est encore en bon état, une reprise mousse peut restaurer le confort sans changer l’aspect visible.",
-  },
-  {
-    q: "Quelles photos aident le plus pour un devis sellerie ?",
-    a: "Année/marque/modèle + une vue large, un gros plan de la zone endommagée, et une vue de profil montrant affaissement ou hauteur d’assise.",
-  },
-  {
-    q: "Combien de temps prennent généralement des travaux de sellerie ?",
-    a: "Les ciels de toit peuvent être rapides une fois les matériaux prêts. Les reprises de sièges et travaux multipanneaux demandent plus de temps pour la pose et les ajustements.",
-  },
-  {
-    q: "Le vinyle est-il toujours moins cher que le cuir ?",
-    a: "Pas forcément. La qualité du matériau et la complexité de main-d’œuvre pèsent plus que l’étiquette. Le vinyle est souvent plus simple d’entretien, mais le prix dépend du périmètre réel.",
-  },
-];
-
-<PageHero
-  locale="fr"
-  title="Guide garnissage"
-  lead="Guide décision sellerie auto : matériaux, périmètre, prix, et déroulé"
-/>
-
-<ServiceCards locale="fr" />
 
 Commencez par le symptôme que vous voyez. Chaque section explique pourquoi cela arrive, quelle solution tient, et quelles questions poser avant de valider un devis.
 
@@ -388,11 +369,6 @@ Choisissez un sujet : matériaux, niveau de travaux, prix, et déroulé.
     </div>
   </details>
 </div>
-
----
-
-<FaqSection heading="Questions fréquentes guide garnissage" faqs={faqs} />
-
 <script
   is:inline
   set:html={`

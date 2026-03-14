@@ -2,41 +2,26 @@
 title: "San Jose में कार सीट रिपेयर | फोम, बोल्स्टर, री‑अपहोल्स्ट्री | Craig's"
 description: "San Jose में कार सीट रिपेयर: टूटे सीम, फटे पैनल, घिसे बोल्स्टर और फोम की मरम्मत के लिए विशेषज्ञ समाधान।"
 pageKey: "carSeats"
+template: "standard"
+hero:
+  title: "San Jose में कार सीट रिपेयर"
+  lead: "सीम, बोल्स्टर और फोम—सीट को साफ लुक और बेहतर सपोर्ट में वापस लाते हैं."
+serviceCardsCurrentKey: "carSeats"
+pageModules:
+  - type: "showcase"
+    pageKey: "carSeats"
+faq:
+  heading: "सीट अक्सर पूछे जाने वाले प्रश्न"
+  items:
+    - q: "क्या सिर्फ ड्राइवर सीट ठीक हो सकती है?"
+      a: "हाँ. अक्सर शुरुआत वहीं से होती है."
+    - q: "क्या दूसरी सीटों से मैच होगा?"
+      a: "यही लक्ष्य है. रंग के साथ‑साथ टेक्सचर/ग्रेन और सीम भी मैच होने चाहिए."
+    - q: "छोटा कट हो तो भी री‑अपहोल्स्ट्री जरूरी है?"
+      a: "जरूरी नहीं. यदि नुकसान लोकल हो और आसपास मजबूत हो, रिपेयर पर्याप्त हो सकता है."
+    - q: "सीट धँसने का कारण क्या है?"
+      a: "अक्सर फोम. कवर बदलने से लुक सुधरता है, लेकिन आराम के लिए फोम जरूरी है."
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import PageShowcaseSections from "../../../components/PageShowcaseSections.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "क्या सिर्फ ड्राइवर सीट ठीक हो सकती है?",
-    a: "हाँ. अक्सर शुरुआत वहीं से होती है.",
-  },
-  {
-    q: "क्या दूसरी सीटों से मैच होगा?",
-    a: "यही लक्ष्य है. रंग के साथ‑साथ टेक्सचर/ग्रेन और सीम भी मैच होने चाहिए.",
-  },
-  {
-    q: "छोटा कट हो तो भी री‑अपहोल्स्ट्री जरूरी है?",
-    a: "जरूरी नहीं. यदि नुकसान लोकल हो और आसपास मजबूत हो, रिपेयर पर्याप्त हो सकता है.",
-  },
-  {
-    q: "सीट धँसने का कारण क्या है?",
-    a: "अक्सर फोम. कवर बदलने से लुक सुधरता है, लेकिन आराम के लिए फोम जरूरी है.",
-  },
-];
-
-<PageHero
-  locale="hi"
-  title="San Jose में कार सीट रिपेयर"
-  lead="सीम, बोल्स्टर और फोम—सीट को साफ लुक और बेहतर सपोर्ट में वापस लाते हैं."
-/>
-
-<ServiceCards locale="hi" currentKey="carSeats" />
-<PageShowcaseSections locale="hi" pageKey="carSeats" />
 
 <aside class="callout" aria-label="अपहोल्स्ट्री गाइड">
   <p class="callout__title">सीट के लिए सही समाधान समझना चाहते हैं?</p>
@@ -130,11 +115,6 @@ export const faqs = [
 SMS: [SMS (408) 379-3820](sms:+14083793820)  
 मोटरसाइकिल सीट चाहिए? देखें: <LocalizedLink locale="hi" pageKey="motorcycleSeats">मोटरसाइकिल सीट अपहोल्स्ट्री</LocalizedLink>.
 चेकलिस्ट: <LocalizedLink locale="hi" pageKey="contact">संपर्क और अनुमान</LocalizedLink>
-
----
-
-<FaqSection heading="सीट अक्सर पूछे जाने वाले प्रश्न" faqs={faqs} />
-
 ---
 
 संबंधित:

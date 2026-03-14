@@ -2,25 +2,19 @@
 title: "施工事例を見る | サンノゼの内装事例 | Craig's"
 description: "サンノゼの内装修理事例をシートやヘッドライナー、コンバーチブルトップの写真で詳しくご紹介。"
 pageKey: "gallery"
+template: "standard"
+hero:
+  title: "施工事例を見る"
+  lead: "写真で見るべきポイントと、似た車種の事例の探し方。"
+serviceCardsCurrentKey: "gallery"
+pageModules:
+  - type: "featuredProject"
+    projectId: "buick-eight"
+  - type: "featuredProject"
+    projectId: "porsche-boxster-s-seat-project"
+  - type: "showcase"
+    pageKey: "gallery"
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-import FeaturedProject from "../../../components/FeaturedProject.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import PageShowcaseSections from "../../../components/PageShowcaseSections.astro";
-
-<PageHero
-  locale="ja"
-  title="施工事例を見る"
-  lead="写真で見るべきポイントと、似た車種の事例の探し方。"
-/>
-
-<ServiceCards locale="ja" currentKey="gallery" />
-<FeaturedProject projectId="buick-eight" locale="ja" />
-<FeaturedProject projectId="porsche-boxster-s-seat-project" locale="ja" />
-
-<PageShowcaseSections locale="ja" pageKey="gallery" />
 
 多くの方が写真で判断します。ここでは仕上がりを見極めるポイントをまとめました。
 

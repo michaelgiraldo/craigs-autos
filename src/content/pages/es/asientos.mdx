@@ -2,41 +2,26 @@
 title: "Reparación de asientos en San José | Espuma, bolsters, retapizado | Craig's"
 description: "Reparación experta de asientos en San José: costuras, bolsters y espuma dañada, con opciones de retapizado que garantizan un ajuste perfecto."
 pageKey: "carSeats"
+template: "standard"
+hero:
+  title: "Reparación de asientos en San José"
+  lead: "Costuras abiertas, bolsters gastados y reconstrucción de espuma—para que el asiento se vea limpio y vuelva a sentirse firme."
+serviceCardsCurrentKey: "carSeats"
+pageModules:
+  - type: "showcase"
+    pageKey: "carSeats"
+faq:
+  heading: "Preguntas frecuentes de asientos"
+  items:
+    - q: "¿Pueden reparar solo el asiento del conductor?"
+      a: "Sí. Muchos trabajos empiezan por el asiento del conductor porque se desgasta primero."
+    - q: "¿Pueden combinar con los demás asientos?"
+      a: "Ese es el objetivo. Un buen match no es solo color: también textura/grano, líneas de costura y cómo asienta el panel."
+    - q: "¿Necesito retapizar si la rotura es pequeña?"
+      a: "No siempre. Si el daño es localizado y el material alrededor sigue firme, una reparación puntual puede funcionar. Si el material está quebradizo o fallando en varios paneles, retapizar suele ser el reinicio limpio."
+    - q: "Si el asiento se siente hundido, ¿es solo la funda?"
+      a: "A menudo es la espuma. Cambiar solo la funda mejora la apariencia, pero la espuma devuelve la comodidad y la forma."
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import PageShowcaseSections from "../../../components/PageShowcaseSections.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "¿Pueden reparar solo el asiento del conductor?",
-    a: "Sí. Muchos trabajos empiezan por el asiento del conductor porque se desgasta primero.",
-  },
-  {
-    q: "¿Pueden combinar con los demás asientos?",
-    a: "Ese es el objetivo. Un buen match no es solo color: también textura/grano, líneas de costura y cómo asienta el panel.",
-  },
-  {
-    q: "¿Necesito retapizar si la rotura es pequeña?",
-    a: "No siempre. Si el daño es localizado y el material alrededor sigue firme, una reparación puntual puede funcionar. Si el material está quebradizo o fallando en varios paneles, retapizar suele ser el reinicio limpio.",
-  },
-  {
-    q: "Si el asiento se siente hundido, ¿es solo la funda?",
-    a: "A menudo es la espuma. Cambiar solo la funda mejora la apariencia, pero la espuma devuelve la comodidad y la forma.",
-  },
-];
-
-<PageHero
-  locale="es"
-  title="Reparación de asientos en San José"
-  lead="Costuras abiertas, bolsters gastados y reconstrucción de espuma—para que el asiento se vea limpio y vuelva a sentirse firme."
-/>
-
-<ServiceCards locale="es" currentKey="carSeats" />
-<PageShowcaseSections locale="es" pageKey="carSeats" />
 
 El asiento es la parte del interior que tocas todos los días. Cuando una costura se abre, un
 panel se rompe o el cojín se aplana, el auto se siente gastado de inmediato.
@@ -163,11 +148,6 @@ Para cotizar rápido, envía:
 Llamar: [(408) 379-3820](tel:+14083793820)  
 Texto: [Texto (408) 379-3820](sms:+14083793820)  
 Checklist de fotos: <LocalizedLink locale="es" pageKey="contact">Contacto y cotizaciones</LocalizedLink>
-
----
-
-<FaqSection heading="Preguntas frecuentes de asientos" faqs={faqs} />
-
 ---
 
 Relacionados:

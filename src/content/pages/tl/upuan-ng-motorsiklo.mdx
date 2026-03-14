@@ -2,49 +2,30 @@
 title: "Tapiseriya ng upuan ng motorsiklo sa San Jose | Ayos, foam, cover | Craig's"
 description: "Pag-ayos at pag-recover ng upuan ng motorsiklo sa San Jose gamit ang foam shaping at matibay na materyales na kayang tiisin ang araw at ulan."
 pageKey: "motorcycleSeats"
+template: "standard"
+hero:
+  title: "Tapiseriya ng upuan ng motorsiklo sa San Jose"
+  lead: "Ang upuan ang hindi mo puwedeng balewalain. Inaayos, nire‑recover, at nire‑rebuild namin ang upuan ng motorsiklo sa San Jose para malinis tingnan at komportable sa biyahe."
+serviceCardsCurrentKey: "motorcycleSeats"
+pageModules:
+  - type: "showcase"
+    pageKey: "motorcycleSeats"
+faq:
+  heading: "Mga madalas itanong sa tapiseriya ng upuan ng motorsiklo"
+  items:
+    - q: "Pwede bang rider seat lang (hindi ang passenger seat)?"
+      a: "Oo. Maraming trabaho ang nagsisimula sa rider seat dahil iyon ang ramdam mo bawat biyahe."
+    - q: "Kailangan bang dalhin ang buong motorsiklo?"
+      a: "Hindi palagi. Sa maraming kaso, upuan lang ang kailangan. Kung fitment o alignment ang issue, mas mainam dalhin ang buong motor."
+    - q: "Puwede bang ayusin ang comfort, hindi lang itsura?"
+      a: "Oo. Karaniwang foam/support ang problema sa comfort. Kaya naming i-rebuild o i-reshape ang foam para bumalik ang suporta."
+    - q: "Kaya bang i-match ang kasalukuyang look o kailangan custom?"
+      a: "Pwede pareho. May gustong factory‑clean reset; may gustong custom stitching, texture, o profile. Nililinaw namin ang direksiyon bago magsimula."
+    - q: "Tatagal ba ang materyal sa labas?"
+      a: "Nagre‑recommend kami base sa tunay na gamit: araw, ulan, init, at kung madalas naka‑parking sa labas."
+    - q: "Paano makakuha ng quote?"
+      a: "Tumawag o mag‑text ng year/make/model at ilang larawan sa liwanag ng araw (wide + close‑up). Kung comfort ang issue, sabihin kung paano ito nararamdaman sa mahabang biyahe."
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import PageShowcaseSections from "../../../components/PageShowcaseSections.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "Pwede bang rider seat lang (hindi ang passenger seat)?",
-    a: "Oo. Maraming trabaho ang nagsisimula sa rider seat dahil iyon ang ramdam mo bawat biyahe.",
-  },
-  {
-    q: "Kailangan bang dalhin ang buong motorsiklo?",
-    a: "Hindi palagi. Sa maraming kaso, upuan lang ang kailangan. Kung fitment o alignment ang issue, mas mainam dalhin ang buong motor.",
-  },
-  {
-    q: "Puwede bang ayusin ang comfort, hindi lang itsura?",
-    a: "Oo. Karaniwang foam/support ang problema sa comfort. Kaya naming i-rebuild o i-reshape ang foam para bumalik ang suporta.",
-  },
-  {
-    q: "Kaya bang i-match ang kasalukuyang look o kailangan custom?",
-    a: "Pwede pareho. May gustong factory‑clean reset; may gustong custom stitching, texture, o profile. Nililinaw namin ang direksiyon bago magsimula.",
-  },
-  {
-    q: "Tatagal ba ang materyal sa labas?",
-    a: "Nagre‑recommend kami base sa tunay na gamit: araw, ulan, init, at kung madalas naka‑parking sa labas.",
-  },
-  {
-    q: "Paano makakuha ng quote?",
-    a: "Tumawag o mag‑text ng year/make/model at ilang larawan sa liwanag ng araw (wide + close‑up). Kung comfort ang issue, sabihin kung paano ito nararamdaman sa mahabang biyahe.",
-  },
-];
-
-<PageHero
-  locale="tl"
-  title="Tapiseriya ng upuan ng motorsiklo sa San Jose"
-  lead="Ang upuan ang hindi mo puwedeng balewalain. Inaayos, nire‑recover, at nire‑rebuild namin ang upuan ng motorsiklo sa San Jose para malinis tingnan at komportable sa biyahe."
-/>
-
-<ServiceCards locale="tl" currentKey="motorcycleSeats" />
-<PageShowcaseSections locale="tl" pageKey="motorcycleSeats" />
 
 Ang upuan ng motorsiklo ay hindi “interior trim.” Ito ang koneksiyon mo sa motor.
 
@@ -205,5 +186,3 @@ Mag-text: [SMS (408) 379-3820](sms:+14083793820)
 Direksyon: 271 Bestor St, San Jose, CA 95112
 
 Mas detalyado: <LocalizedLink locale="tl" pageKey="contact">Ugnayan at estimate</LocalizedLink>
-
-<FaqSection heading="Mga madalas itanong sa tapiseriya ng upuan ng motorsiklo" faqs={faqs} />

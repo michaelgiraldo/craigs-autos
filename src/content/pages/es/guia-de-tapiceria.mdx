@@ -2,43 +2,24 @@
 title: "Guía de tapicería | Marco de decisión (interior automotriz)"
 description: "Guía completa para elegir tapicería automotriz: materiales, alcance, precios y consejos para decidir entre reparación o retapizado."
 pageKey: "upholsteryGuide"
+template: "standard"
+hero:
+  title: "Guía de tapicería"
+  lead: "Guía del comprador de tapicería automotriz: materiales, alcance, precios y proceso"
+faq:
+  heading: "Preguntas frecuentes de la guía"
+  items:
+    - q: "¿Un techo interior caído es un problema de la tela?"
+      a: "Casi siempre no. Lo que falla primero es la espuma y el adhesivo, por eso volver a pegar la tela solo dura si la base sigue firme."
+    - q: "¿Se puede reconstruir la espuma del asiento sin retapizar?"
+      a: "Sí. Si la funda todavía está en buen estado, reconstruir la espuma puede devolver comodidad sin cambiar el material visible."
+    - q: "¿Qué fotos ayudan para cotizar tapicería?"
+      a: "Año/marca/modelo más una foto amplia, un primer plano del daño y una foto lateral que muestre caída o altura del asiento."
+    - q: "¿Cuánto suele tardar un trabajo de tapicería?"
+      a: "Los techos interiores pueden ser de entrega rápida cuando el material está listo. Reconstrucciones de asientos y trabajos con muchos paneles suelen tardar más por el ajuste y las pruebas."
+    - q: "¿El vinil siempre es más barato que el cuero?"
+      a: "No siempre. La calidad del material y la complejidad de mano de obra importan más que la etiqueta. El vinil suele requerir menos mantenimiento, pero el precio depende del trabajo y del grado del material."
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "¿Un techo interior caído es un problema de la tela?",
-    a: "Casi siempre no. Lo que falla primero es la espuma y el adhesivo, por eso volver a pegar la tela solo dura si la base sigue firme.",
-  },
-  {
-    q: "¿Se puede reconstruir la espuma del asiento sin retapizar?",
-    a: "Sí. Si la funda todavía está en buen estado, reconstruir la espuma puede devolver comodidad sin cambiar el material visible.",
-  },
-  {
-    q: "¿Qué fotos ayudan para cotizar tapicería?",
-    a: "Año/marca/modelo más una foto amplia, un primer plano del daño y una foto lateral que muestre caída o altura del asiento.",
-  },
-  {
-    q: "¿Cuánto suele tardar un trabajo de tapicería?",
-    a: "Los techos interiores pueden ser de entrega rápida cuando el material está listo. Reconstrucciones de asientos y trabajos con muchos paneles suelen tardar más por el ajuste y las pruebas.",
-  },
-  {
-    q: "¿El vinil siempre es más barato que el cuero?",
-    a: "No siempre. La calidad del material y la complejidad de mano de obra importan más que la etiqueta. El vinil suele requerir menos mantenimiento, pero el precio depende del trabajo y del grado del material.",
-  },
-];
-
-<PageHero
-  locale="es"
-  title="Guía de tapicería"
-  lead="Guía del comprador de tapicería automotriz: materiales, alcance, precios y proceso"
-/>
-
-<ServiceCards locale="es" />
 
 Empieza por el problema que ves. Cada sección explica por qué ocurre, qué suele durar y qué preguntar antes de pagar.
 
@@ -388,11 +369,6 @@ Elige un tema: materiales, cuánto trabajo necesitas, precios y qué esperar.
     </div>
   </details>
 </div>
-
----
-
-<FaqSection heading="Preguntas frecuentes de la guía" faqs={faqs} />
-
 <script
   is:inline
   set:html={`

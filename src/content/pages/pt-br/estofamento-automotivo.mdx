@@ -2,39 +2,23 @@
 title: "Estofamento automotivo em San Jose | Reparo e reestofamento | Craig's"
 description: "Reparo e reestofamento automotivo com ajuste perfeito, combinação de materiais e acabamento detalhado em San Jose."
 pageKey: "autoUpholstery"
+template: "standard"
+hero:
+  title: "Estofamento automotivo em San Jose"
+  lead: "Bancos, forro do teto, painéis e acabamentos—oficina familiar em San Jose com foco em ajuste limpo e combinação correta."
+serviceCardsCurrentKey: "autoUpholstery"
+faq:
+  heading: "Perguntas frequentes de estofamento automotivo"
+  items:
+    - q: "Dá para consertar só uma parte?"
+      a: "Sim. Muita gente começa pelo ponto mais visível. Indicamos o menor reparo que ainda fica limpo."
+    - q: "O acabamento pode ficar igual ao original?"
+      a: "Esse é o padrão. Cor, textura e alinhamento de costura precisam bater."
+    - q: "Vocês fazem acabamentos e painéis também?"
+      a: "Sim. Bancos, forro do teto e painéis internos entram no escopo de estofamento."
+    - q: "Como pedir orçamento?"
+      a: "Envie ano/marca/modelo e algumas fotos em boa luz. Se a combinação é crítica, mande também a área “boa”."
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "Dá para consertar só uma parte?",
-    a: "Sim. Muita gente começa pelo ponto mais visível. Indicamos o menor reparo que ainda fica limpo.",
-  },
-  {
-    q: "O acabamento pode ficar igual ao original?",
-    a: "Esse é o padrão. Cor, textura e alinhamento de costura precisam bater.",
-  },
-  {
-    q: "Vocês fazem acabamentos e painéis também?",
-    a: "Sim. Bancos, forro do teto e painéis internos entram no escopo de estofamento.",
-  },
-  {
-    q: "Como pedir orçamento?",
-    a: "Envie ano/marca/modelo e algumas fotos em boa luz. Se a combinação é crítica, mande também a área “boa”.",
-  },
-];
-
-<PageHero
-  locale="pt-br"
-  title="Estofamento automotivo em San Jose"
-  lead="Bancos, forro do teto, painéis e acabamentos—oficina familiar em San Jose com foco em ajuste limpo e combinação correta."
-/>
-
-<ServiceCards locale="pt-br" currentKey="autoUpholstery" />
 
 O objetivo do estofamento é devolver unidade ao interior: nada de remendo aparente, costuras retas e um acabamento que pareça de fábrica.
 
@@ -129,5 +113,3 @@ SMS: [SMS (408) 379-3820](sms:+14083793820)
 Endereço: 271 Bestor St, San Jose, CA 95112
 
 Mais detalhes: <LocalizedLink locale="pt-br" pageKey="contact">Contato e orçamentos</LocalizedLink>
-
-<FaqSection heading="Perguntas frequentes de estofamento automotivo" faqs={faqs} />

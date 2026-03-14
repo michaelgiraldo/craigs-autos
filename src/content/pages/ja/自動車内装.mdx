@@ -2,39 +2,23 @@
 title: "サンノゼの自動車内装 | 修理と張り替え | Craig's"
 description: "サンノゼでシートやパネル、ヘッドライナーの修理と張り替えを素材に合わせて丁寧に対応します。"
 pageKey: "autoUpholstery"
+template: "standard"
+hero:
+  title: "サンノゼの自動車内装"
+  lead: "シート、天井内張り、内装パネル、コンバーチブルトップ—仕上がりの統一感にこだわります。"
+serviceCardsCurrentKey: "autoUpholstery"
+faq:
+  heading: "内装 よくある質問"
+  items:
+    - q: "部分修理だけでも可能ですか？"
+      a: "はい。最も目立つ箇所だけの修理も対応します。最小限で綺麗に見える方法をご提案します。"
+    - q: "純正のように仕上がりますか？"
+      a: "そこを重視しています。色だけでなく、質感・艶・縫製のラインを合わせます。"
+    - q: "内装パネルやトリムも対応しますか？"
+      a: "はい。シート、ヘッドライナー、内装パネルを含めて対応します。"
+    - q: "見積もり方法は？"
+      a: "年式/メーカー/モデルと写真を送ってください。マッチ重視なら良好部位の写真もお願いします。"
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "部分修理だけでも可能ですか？",
-    a: "はい。最も目立つ箇所だけの修理も対応します。最小限で綺麗に見える方法をご提案します。",
-  },
-  {
-    q: "純正のように仕上がりますか？",
-    a: "そこを重視しています。色だけでなく、質感・艶・縫製のラインを合わせます。",
-  },
-  {
-    q: "内装パネルやトリムも対応しますか？",
-    a: "はい。シート、ヘッドライナー、内装パネルを含めて対応します。",
-  },
-  {
-    q: "見積もり方法は？",
-    a: "年式/メーカー/モデルと写真を送ってください。マッチ重視なら良好部位の写真もお願いします。",
-  },
-];
-
-<PageHero
-  locale="ja"
-  title="サンノゼの自動車内装"
-  lead="シート、天井内張り、内装パネル、コンバーチブルトップ—仕上がりの統一感にこだわります。"
-/>
-
-<ServiceCards locale="ja" currentKey="autoUpholstery" />
 
 内装の目的は「一体感」。補修跡が目立たず、座り心地と見た目が整っている状態を目指します。
 
@@ -129,5 +113,3 @@ SMS：[SMS (408) 379-3820](sms:+14083793820)
 住所：271 Bestor St, San Jose, CA 95112
 
 詳しくは：<LocalizedLink locale="ja" pageKey="contact">お問い合わせ</LocalizedLink>
-
-<FaqSection heading="内装 よくある質問" faqs={faqs} />

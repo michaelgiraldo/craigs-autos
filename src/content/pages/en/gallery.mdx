@@ -2,25 +2,19 @@
 title: "See Our Work | Auto Upholstery Work in San Jose | Craig's"
 description: "Browse upholstery examples for seats, headliners, convertible tops, and classic interiors, with details that show fit quality and material consistency."
 pageKey: "gallery"
+template: "standard"
+hero:
+  title: "See Our Work"
+  lead: "What to look for in upholstery photos—and how to get examples similar to your car."
+serviceCardsCurrentKey: "gallery"
+pageModules:
+  - type: "featuredProject"
+    projectId: "buick-eight"
+  - type: "featuredProject"
+    projectId: "porsche-boxster-s-seat-project"
+  - type: "showcase"
+    pageKey: "gallery"
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-import FeaturedProject from "../../../components/FeaturedProject.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import PageShowcaseSections from "../../../components/PageShowcaseSections.astro";
-
-<PageHero
-  locale="en"
-  title="See Our Work"
-  lead="What to look for in upholstery photos—and how to get examples similar to your car."
-/>
-
-<ServiceCards locale="en" currentKey="gallery" />
-
-<FeaturedProject projectId="buick-eight" locale="en" />
-<FeaturedProject projectId="porsche-boxster-s-seat-project" locale="en" />
-<PageShowcaseSections locale="en" pageKey="gallery" />
 
 Photos are how most people decide whether to call. This page is a quick guide to what to look for
 in seats, headliners, convertible tops, and classic interiors—plus the easiest way to get examples

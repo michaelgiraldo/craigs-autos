@@ -2,25 +2,19 @@
 title: "Tingnan ang aming trabaho | Mga gawa sa San Jose | Craig's"
 description: "Tingnan ang mga halimbawa ng tapiseriya para sa upuan, kisame, convertible tops, at klasikong interior na nagpapakita ng kalidad at pagkakatugma ng materyales."
 pageKey: "gallery"
+template: "standard"
+hero:
+  title: "Tingnan ang aming trabaho"
+  lead: "Ano ang titingnan sa mga larawan at paano makakuha ng halimbawa na katulad ng sasakyan mo."
+serviceCardsCurrentKey: "gallery"
+pageModules:
+  - type: "featuredProject"
+    projectId: "buick-eight"
+  - type: "featuredProject"
+    projectId: "porsche-boxster-s-seat-project"
+  - type: "showcase"
+    pageKey: "gallery"
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-import FeaturedProject from "../../../components/FeaturedProject.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import PageShowcaseSections from "../../../components/PageShowcaseSections.astro";
-
-<PageHero
-  locale="tl"
-  title="Tingnan ang aming trabaho"
-  lead="Ano ang titingnan sa mga larawan at paano makakuha ng halimbawa na katulad ng sasakyan mo."
-/>
-
-<ServiceCards locale="tl" currentKey="gallery" />
-<FeaturedProject projectId="buick-eight" locale="tl" />
-<FeaturedProject projectId="porsche-boxster-s-seat-project" locale="tl" />
-
-<PageShowcaseSections locale="tl" pageKey="gallery" />
 
 Karaniwang basehan ng tawag ang mga larawan. Narito ang mabilis na gabay sa mga detalye na dapat tingnan sa upuan, kisame, convertible top, at classic interiors.
 

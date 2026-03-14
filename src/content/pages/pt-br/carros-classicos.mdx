@@ -2,38 +2,24 @@
 title: "Interiores de carros clássicos em San Jose | Restauração | Craig's"
 description: "Restauração fiel de interiores clássicos com costura precisa e acabamento que mantém o estilo original sem exageros."
 pageKey: "classicCars"
+template: "standard"
+hero:
+  title: "Interiores de carros clássicos em San Jose"
+  lead: "Estofamento clássico com consistência, detalhes que respeitam a época e um interior com cara de pronto."
+serviceCardsCurrentKey: "classicCars"
+pageModules:
+  - type: "featuredProject"
+    projectId: "buick-eight"
+faq:
+  heading: "Perguntas frequentes de interiores clássicos"
+  items:
+    - q: "Vocês ajudam a decidir por onde começar?"
+      a: "Sim. Muitos projetos clássicos são feitos em etapas. Ajudamos a planejar para manter a consistência."
+    - q: "Vocês fazem só interior completo?"
+      a: "Não. Fazemos reparos pontuais ou uma renovação completa quando o objetivo é uniformidade."
+    - q: "Quanto tempo leva um interior clássico?"
+      a: "O prazo depende do escopo e dos materiais. Após a avaliação, passamos um plano realista."
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-import FeaturedProject from "../../../components/FeaturedProject.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "Vocês ajudam a decidir por onde começar?",
-    a: "Sim. Muitos projetos clássicos são feitos em etapas. Ajudamos a planejar para manter a consistência.",
-  },
-  {
-    q: "Vocês fazem só interior completo?",
-    a: "Não. Fazemos reparos pontuais ou uma renovação completa quando o objetivo é uniformidade.",
-  },
-  {
-    q: "Quanto tempo leva um interior clássico?",
-    a: "O prazo depende do escopo e dos materiais. Após a avaliação, passamos um plano realista.",
-  },
-];
-
-<PageHero
-  locale="pt-br"
-  title="Interiores de carros clássicos em San Jose"
-  lead="Estofamento clássico com consistência, detalhes que respeitam a época e um interior com cara de pronto."
-/>
-
-<ServiceCards locale="pt-br" currentKey="classicCars" />
-
-<FeaturedProject projectId="buick-eight" locale="pt-br" />
 
 No clássico, o interior é onde você vive. Mesmo com exterior impecável, bancos que não combinam, forro cansado ou painéis desalinhados deixam a sensação de “incompleto”.
 
@@ -128,11 +114,6 @@ Checklist: <LocalizedLink locale="pt-br" pageKey="contact">Contato e orçamentos
 - Notas de reparos anteriores (se souber)
 
 Se o projeto for por etapas, avise. Planejar a ordem faz o resultado ficar consistente.
-
----
-
-<FaqSection heading="Perguntas frequentes de interiores clássicos" faqs={faqs} />
-
 ---
 
 Relacionado:

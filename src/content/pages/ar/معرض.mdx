@@ -2,25 +2,19 @@
 title: "شاهد أعمالنا | تنجيد سيارات سان خوسيه | Craig's"
 description: "استعرض صور مشاريع التنجيد التي تشمل المقاعد، بطانة السقف، الأسقف القابلة للطي، والداخلية الكلاسيكية بجودة عالية."
 pageKey: "gallery"
+template: "standard"
+hero:
+  title: "شاهد أعمالنا"
+  lead: "ما الذي تلاحظه في الصور وكيف تحصل على أمثلة مشابهة لسيارتك."
+serviceCardsCurrentKey: "gallery"
+pageModules:
+  - type: "featuredProject"
+    projectId: "buick-eight"
+  - type: "featuredProject"
+    projectId: "porsche-boxster-s-seat-project"
+  - type: "showcase"
+    pageKey: "gallery"
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-import FeaturedProject from "../../../components/FeaturedProject.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import PageShowcaseSections from "../../../components/PageShowcaseSections.astro";
-
-<PageHero
-  locale="ar"
-  title="شاهد أعمالنا"
-  lead="ما الذي تلاحظه في الصور وكيف تحصل على أمثلة مشابهة لسيارتك."
-/>
-
-<ServiceCards locale="ar" currentKey="gallery" />
-<FeaturedProject projectId="buick-eight" locale="ar" />
-<FeaturedProject projectId="porsche-boxster-s-seat-project" locale="ar" />
-
-<PageShowcaseSections locale="ar" pageKey="gallery" />
 
 الكثير يقرر بناءً على الصور. هذه قائمة سريعة لما يجب ملاحظته في الأعمال.
 

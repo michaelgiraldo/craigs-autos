@@ -2,41 +2,26 @@
 title: "Oficina de interiores automotivos em San Jose | Craig's"
 description: "Oficina familiar em San Jose especializada em bancos, forro, capotas e interiores clássicos com acabamento durável e detalhado."
 pageKey: "home"
+template: "standard"
+hero:
+  title: "Oficina de interiores automotivos em San Jose"
+  lead: "Bancos, forro do teto, capotas e interiores clássicos—oficina familiar em San Jose, foco em ajuste limpo e combinação natural."
+serviceCardsCurrentKey: "home"
+pageModules:
+  - type: "showcase"
+    pageKey: "home"
+faq:
+  heading: "Perguntas frequentes"
+  items:
+    - q: "Vocês atendem San Jose e South Bay?"
+      a: "Sim. Estamos em San Jose e a maioria dos clientes vem da região. Se você consegue trazer o carro (ou as peças) até a oficina, conseguimos ajudar."
+    - q: "Quanto custa o estofamento automotivo?"
+      a: "Depende do escopo, do material e da condição atual. Para um orçamento real, precisamos definir se é um painel, um banco ou o interior completo."
+    - q: "Dá para combinar com o original?"
+      a: "Esse é o objetivo. Cor, textura/veios e alinhamento de costura precisam bater para não parecer remendo."
+    - q: "Reparo é melhor ou trocar?"
+      a: "Se o material está frágil ou várias partes estão danificadas, a troca costuma ser mais limpa e durável. Se o problema é local, o reparo resolve."
 ---
-
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import PageShowcaseSections from "../../../components/PageShowcaseSections.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "Vocês atendem San Jose e South Bay?",
-    a: "Sim. Estamos em San Jose e a maioria dos clientes vem da região. Se você consegue trazer o carro (ou as peças) até a oficina, conseguimos ajudar.",
-  },
-  {
-    q: "Quanto custa o estofamento automotivo?",
-    a: "Depende do escopo, do material e da condição atual. Para um orçamento real, precisamos definir se é um painel, um banco ou o interior completo.",
-  },
-  {
-    q: "Dá para combinar com o original?",
-    a: "Esse é o objetivo. Cor, textura/veios e alinhamento de costura precisam bater para não parecer remendo.",
-  },
-  {
-    q: "Reparo é melhor ou trocar?",
-    a: "Se o material está frágil ou várias partes estão danificadas, a troca costuma ser mais limpa e durável. Se o problema é local, o reparo resolve.",
-  },
-];
-
-<PageHero
-  locale="pt-br"
-  title="Oficina de interiores automotivos em San Jose"
-  lead="Bancos, forro do teto, capotas e interiores clássicos—oficina familiar em San Jose, foco em ajuste limpo e combinação natural."
-/>
-
-<ServiceCards locale="pt-br" currentKey="home" />
-<PageShowcaseSections locale="pt-br" pageKey="home" />
 
 Problemas no interior aparecem todo dia: rasgo no banco do motorista, forro caindo, vinil rachado pelo sol. Fale com a Craig's Auto Upholstery em San Jose e a gente explica com clareza o que dá para reparar, o que vale reestofar e o que precisamos ver para orçar direito.
 
@@ -144,11 +129,6 @@ Checklist completo: <LocalizedLink locale="pt-br" pageKey="contact">Contato e or
 - **Empresa familiar**
 - **60+ anos em San Jose**
 - **Somente interior automotivo**
-
----
-
-<FaqSection heading="Perguntas frequentes" faqs={faqs} />
-
 ---
 
 ## Endereço da Craig's Auto Upholstery

@@ -2,38 +2,24 @@
 title: "聖荷西經典車內飾 | 修復與翻新 | Craig's"
 description: "經典車內飾翻新注重細節與一致性，保留原有風格，呈現自然且不過度修復的質感。"
 pageKey: "classicCars"
+template: "standard"
+hero:
+  title: "聖荷西經典車內飾"
+  lead: "經典內飾修復—一致性、年代感與細節是關鍵。"
+serviceCardsCurrentKey: "classicCars"
+pageModules:
+  - type: "featuredProject"
+    projectId: "buick-eight"
+faq:
+  heading: "經典內飾 常見問題"
+  items:
+    - q: "可以分階段修復嗎？"
+      a: "可以。許多經典車會分階段進行，我們會協助規劃以保持一致。"
+    - q: "一定要整套內飾嗎？"
+      a: "不一定。可做局部修復，也能規劃完整翻新。"
+    - q: "需要多久？"
+      a: "取決於範圍與材質。檢查後提供清楚時程。"
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-import FeaturedProject from "../../../components/FeaturedProject.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "可以分階段修復嗎？",
-    a: "可以。許多經典車會分階段進行，我們會協助規劃以保持一致。",
-  },
-  {
-    q: "一定要整套內飾嗎？",
-    a: "不一定。可做局部修復，也能規劃完整翻新。",
-  },
-  {
-    q: "需要多久？",
-    a: "取決於範圍與材質。檢查後提供清楚時程。",
-  },
-];
-
-<PageHero
-  locale="zh-hant"
-  title="聖荷西經典車內飾"
-  lead="經典內飾修復—一致性、年代感與細節是關鍵。"
-/>
-
-<ServiceCards locale="zh-hant" currentKey="classicCars" />
-
-<FeaturedProject projectId="buick-eight" locale="zh-hant" />
 
 經典車外觀再漂亮，內飾若不一致就會顯得不完整。我們協助車主判斷哪些值得保留、哪些需要重整，讓整體看起來是一套完成的內飾。
 
@@ -98,11 +84,6 @@ export const faqs = [
 致電：[(408) 379-3820](tel:+14083793820)  
 簡訊：[簡訊 (408) 379-3820](sms:+14083793820)  
 清單：<LocalizedLink locale="zh-hant" pageKey="contact">聯絡</LocalizedLink>
-
----
-
-<FaqSection heading="經典內飾 常見問題" faqs={faqs} />
-
 ---
 
 相關頁面：

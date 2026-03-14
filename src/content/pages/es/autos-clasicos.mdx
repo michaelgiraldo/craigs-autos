@@ -2,38 +2,24 @@
 title: "Interiores de autos clásicos en San José | Tapicería y restauración | Craig's"
 description: "Restauración de interiores para autos clásicos en San José con patrones fieles a la época y acabados impecables que respetan su estilo original."
 pageKey: "classicCars"
+template: "standard"
+hero:
+  title: "Interiores de autos clásicos en San José"
+  lead: "Tapicería clásica en San José—planificada para coherencia, detalles de época y un interior que se vea terminado."
+serviceCardsCurrentKey: "classicCars"
+pageModules:
+  - type: "featuredProject"
+    projectId: "buick-eight"
+faq:
+  heading: "Preguntas frecuentes de clásicos"
+  items:
+    - q: "¿Pueden ayudarme a decidir qué restaurar primero?"
+      a: "Sí. Muchos propietarios hacen el interior por etapas. Planeamos el trabajo para mantener coherencia y evitar resultados disparejos."
+    - q: "¿Solo hacen interiores completos?"
+      a: "No. Podemos reparar áreas puntuales o planear una renovación completa cuando quieras que el interior se vea como un conjunto."
+    - q: "¿Cuánto tarda un interior clásico?"
+      a: "El tiempo depende del alcance y los materiales. Después de la inspección, damos un plan y calendario realistas."
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-import FeaturedProject from "../../../components/FeaturedProject.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "¿Pueden ayudarme a decidir qué restaurar primero?",
-    a: "Sí. Muchos propietarios hacen el interior por etapas. Planeamos el trabajo para mantener coherencia y evitar resultados disparejos.",
-  },
-  {
-    q: "¿Solo hacen interiores completos?",
-    a: "No. Podemos reparar áreas puntuales o planear una renovación completa cuando quieras que el interior se vea como un conjunto.",
-  },
-  {
-    q: "¿Cuánto tarda un interior clásico?",
-    a: "El tiempo depende del alcance y los materiales. Después de la inspección, damos un plan y calendario realistas.",
-  },
-];
-
-<PageHero
-  locale="es"
-  title="Interiores de autos clásicos en San José"
-  lead="Tapicería clásica en San José—planificada para coherencia, detalles de época y un interior que se vea terminado."
-/>
-
-<ServiceCards locale="es" currentKey="classicCars" />
-
-<FeaturedProject projectId="buick-eight" locale="es" />
 
 En un clásico, el interior es donde vives el auto. Incluso con un exterior impecable, el auto se
 siente inconcluso si los asientos no combinan con los paneles, el techo está cansado o el cabin
@@ -150,11 +136,6 @@ Para avanzar rápido ayuda traer:
 
 Si estás construyendo el auto por etapas, dínoslo. El trabajo interior es más fácil cuando se
 programa en el orden correcto.
-
----
-
-<FaqSection heading="Preguntas frecuentes de clásicos" faqs={faqs} />
-
 ---
 
 Relacionados:

@@ -2,41 +2,26 @@
 title: "Upholstery Mobil di San Jose | Jok, Plafon, Atap Convertible | Craig's"
 description: "Layanan upholstery mobil keluarga di San Jose dengan pengalaman 60+ tahun, meliputi perbaikan jok, plafon, atap convertible, dan interior klasik yang tahan lama."
 pageKey: "home"
+template: "standard"
+hero:
+  title: "Bengkel Perbaikan Interior Mobil di San Jose"
+  lead: "Jok, plafon kabin, atap convertible, dan interior klasik. Bengkel keluarga dengan fokus pada hasil rapi, presisi, dan tahan pakai."
+serviceCardsCurrentKey: "home"
+pageModules:
+  - type: "showcase"
+    pageKey: "home"
+faq:
+  heading: "Pertanyaan umum"
+  items:
+    - q: "Apakah melayani San Jose dan area South Bay?"
+      a: "Ya. Kami berbasis di San Jose dan sebagian besar pelanggan datang dari San Jose serta kota-kota South Bay di sekitarnya."
+    - q: "Berapa biaya upholstery mobil?"
+      a: "Biaya tergantung lingkup kerja, material, dan kondisi interior saat ini. Cara tercepat adalah kirim detail pekerjaan dan foto yang jelas."
+    - q: "Bisakah hasilnya menyatu dengan interior lama?"
+      a: "Itu standar kami. Kami memperhatikan warna, tekstur, arah jahitan, dan kerapian panel supaya hasilnya tidak terlihat tempelan."
+    - q: "Lebih baik diperbaiki sebagian atau ganti total?"
+      a: "Jika kerusakan lokal dan material lain masih kuat, perbaikan titik bisa cukup. Jika retak sudah menyebar, pelapisan ulang biasanya lebih tahan lama."
 ---
-
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-import PageShowcaseSections from "../../../components/PageShowcaseSections.astro";
-
-export const faqs = [
-  {
-    q: "Apakah melayani San Jose dan area South Bay?",
-    a: "Ya. Kami berbasis di San Jose dan sebagian besar pelanggan datang dari San Jose serta kota-kota South Bay di sekitarnya.",
-  },
-  {
-    q: "Berapa biaya upholstery mobil?",
-    a: "Biaya tergantung lingkup kerja, material, dan kondisi interior saat ini. Cara tercepat adalah kirim detail pekerjaan dan foto yang jelas.",
-  },
-  {
-    q: "Bisakah hasilnya menyatu dengan interior lama?",
-    a: "Itu standar kami. Kami memperhatikan warna, tekstur, arah jahitan, dan kerapian panel supaya hasilnya tidak terlihat tempelan.",
-  },
-  {
-    q: "Lebih baik diperbaiki sebagian atau ganti total?",
-    a: "Jika kerusakan lokal dan material lain masih kuat, perbaikan titik bisa cukup. Jika retak sudah menyebar, pelapisan ulang biasanya lebih tahan lama.",
-  },
-];
-
-<PageHero
-  locale="id"
-  title="Bengkel Perbaikan Interior Mobil di San Jose"
-  lead="Jok, plafon kabin, atap convertible, dan interior klasik. Bengkel keluarga dengan fokus pada hasil rapi, presisi, dan tahan pakai."
-/>
-
-<ServiceCards locale="id" currentKey="home" />
-<PageShowcaseSections locale="id" pageKey="home" />
 
 <aside class="callout" aria-label="Contoh pekerjaan">
   <p class="callout__title">Ingin lihat layanan paling sering diminta?</p>
@@ -82,11 +67,6 @@ Kami mengerjakan interior otomotif sebagai layanan utama:
 - **Interior mobil klasik**
 
 Untuk estimasi lebih cepat, lihat halaman <LocalizedLink locale="id" pageKey="contact">Kontak</LocalizedLink>.
-
----
-
-<FaqSection heading="Pertanyaan umum" faqs={faqs} />
-
 ---
 
 ## Kunjungi Craig's Auto Upholstery

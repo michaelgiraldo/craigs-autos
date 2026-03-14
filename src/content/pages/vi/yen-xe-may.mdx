@@ -2,49 +2,30 @@
 title: "Bọc yên xe máy tại San Jose | Sửa yên, mút, bọc mới | Craig's"
 description: "Bọc và sửa yên xe máy tại San Jose với tạo hình mút mới, vật liệu chống nắng mưa và độ khít bền đẹp qua thời gian sử dụng."
 pageKey: "motorcycleSeats"
+template: "standard"
+hero:
+  title: "Bọc yên xe máy tại San Jose"
+  lead: "Yên xe là phần bạn không thể bỏ qua. Chúng tôi sửa, bọc lại và làm lại yên xe máy ở San Jose để nhìn đẹp từ gần và ngồi êm khi chạy."
+serviceCardsCurrentKey: "motorcycleSeats"
+pageModules:
+  - type: "showcase"
+    pageKey: "motorcycleSeats"
+faq:
+  heading: "Câu hỏi thường gặp về bọc yên xe máy"
+  items:
+    - q: "Có thể chỉ bọc lại yên người lái (không làm yên sau) không?"
+      a: "Có. Nhiều việc bắt đầu từ yên người lái vì đó là phần bạn cảm nhận mỗi km."
+    - q: "Tôi có cần mang cả xe không?"
+      a: "Không nhất thiết. Nhiều trường hợp chỉ cần mang yên. Nếu cần kiểm tra độ khớp hay căn chỉnh, mang cả xe sẽ tốt hơn."
+    - q: "Có thể cải thiện độ êm, không chỉ vẻ ngoài không?"
+      a: "Có. Vấn đề êm ái thường là do mút và phần đỡ. Chúng tôi có thể làm lại hoặc tạo hình mút để yên chắc và dễ chịu hơn."
+    - q: "Có thể giữ kiểu dáng hiện tại hay bắt buộc làm custom?"
+      a: "Bạn có thể chọn cả hai. Một số muốn phục hồi sạch như zin. Một số muốn đường chỉ, bề mặt hoặc dáng yên khác. Chúng tôi sẽ xác nhận hướng làm trước khi bắt đầu."
+    - q: "Chất liệu có chịu được ngoài trời không?"
+      a: "Chúng tôi chọn vật liệu theo cách bạn sử dụng: nắng, mưa, nhiệt và xe thường để ngoài trời hay không."
+    - q: "Làm sao để báo giá?"
+      a: "Gọi hoặc nhắn năm/ hãng/ mẫu xe và vài ảnh chụp ban ngày (toàn cảnh + cận cảnh). Nếu cần cải thiện độ êm, hãy nói cảm giác khi đi đường dài."
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import PageShowcaseSections from "../../../components/PageShowcaseSections.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "Có thể chỉ bọc lại yên người lái (không làm yên sau) không?",
-    a: "Có. Nhiều việc bắt đầu từ yên người lái vì đó là phần bạn cảm nhận mỗi km.",
-  },
-  {
-    q: "Tôi có cần mang cả xe không?",
-    a: "Không nhất thiết. Nhiều trường hợp chỉ cần mang yên. Nếu cần kiểm tra độ khớp hay căn chỉnh, mang cả xe sẽ tốt hơn.",
-  },
-  {
-    q: "Có thể cải thiện độ êm, không chỉ vẻ ngoài không?",
-    a: "Có. Vấn đề êm ái thường là do mút và phần đỡ. Chúng tôi có thể làm lại hoặc tạo hình mút để yên chắc và dễ chịu hơn.",
-  },
-  {
-    q: "Có thể giữ kiểu dáng hiện tại hay bắt buộc làm custom?",
-    a: "Bạn có thể chọn cả hai. Một số muốn phục hồi sạch như zin. Một số muốn đường chỉ, bề mặt hoặc dáng yên khác. Chúng tôi sẽ xác nhận hướng làm trước khi bắt đầu.",
-  },
-  {
-    q: "Chất liệu có chịu được ngoài trời không?",
-    a: "Chúng tôi chọn vật liệu theo cách bạn sử dụng: nắng, mưa, nhiệt và xe thường để ngoài trời hay không.",
-  },
-  {
-    q: "Làm sao để báo giá?",
-    a: "Gọi hoặc nhắn năm/ hãng/ mẫu xe và vài ảnh chụp ban ngày (toàn cảnh + cận cảnh). Nếu cần cải thiện độ êm, hãy nói cảm giác khi đi đường dài.",
-  },
-];
-
-<PageHero
-  locale="vi"
-  title="Bọc yên xe máy tại San Jose"
-  lead="Yên xe là phần bạn không thể bỏ qua. Chúng tôi sửa, bọc lại và làm lại yên xe máy ở San Jose để nhìn đẹp từ gần và ngồi êm khi chạy."
-/>
-
-<ServiceCards locale="vi" currentKey="motorcycleSeats" />
-<PageShowcaseSections locale="vi" pageKey="motorcycleSeats" />
 
 Yên xe không phải “nội thất”. Đó là điểm tiếp xúc trực tiếp giữa bạn và chiếc xe.
 
@@ -203,5 +184,3 @@ Nhắn: [Nhắn (408) 379-3820](sms:+14083793820)
 Địa chỉ: 271 Bestor St, San Jose, CA 95112
 
 Chi tiết hơn: <LocalizedLink locale="vi" pageKey="contact">Liên hệ & báo giá</LocalizedLink>
-
-<FaqSection heading="Câu hỏi thường gặp về bọc yên xe máy" faqs={faqs} />

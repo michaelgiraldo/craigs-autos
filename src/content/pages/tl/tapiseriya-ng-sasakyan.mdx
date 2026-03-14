@@ -2,39 +2,23 @@
 title: "Tapiseriya ng sasakyan sa San Jose | Pag-ayos at Muling Balot | Craig's"
 description: "Pag-ayos ng tapiseriya ng sasakyan sa San Jose para sa upuan, panel, kisame, at trim na may tamang pagkakatugma at maingat na fit ng mga materyales."
 pageKey: "autoUpholstery"
+template: "standard"
+hero:
+  title: "Tapiseriya ng sasakyan sa San Jose"
+  lead: "Upuan, kisame, interior panels, at trim—pamilyang shop sa San Jose na maingat sa fit at tugma."
+serviceCardsCurrentKey: "autoUpholstery"
+faq:
+  heading: "Mga madalas itanong sa tapiseriya"
+  items:
+    - q: "Puwede bang isang bahagi lang ang ayusin?"
+      a: "Oo. Marami ang nagsisimula sa pinaka-nakikita araw-araw—punit na upuan, bagsak na kisame, pudpod na armrest. Irerekomenda namin ang pinakamaliit na ayos na malinis ang itsura."
+    - q: "Kaya bang magmukhang pareho sa original?"
+      a: "Iyan ang standard. Kulay lang ang simula—kasing halaga ang texture/hibla, linya ng tahi, at fit ng panel."
+    - q: "Inaayos din ba ang trim at panels?"
+      a: "Oo. Kasama sa tapiseriya ang upuan, kisame, at mga interior panels/trim na kumukupas o hindi na tugma."
+    - q: "Paano magpa-quote?"
+      a: "Tumawag o mag-SMS ng taon/make/model at ilang larawan sa maliwanag na ilaw. Kung kritikal ang match, isama ang larawan ng ‘ok' na bahagi."
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "Puwede bang isang bahagi lang ang ayusin?",
-    a: "Oo. Marami ang nagsisimula sa pinaka-nakikita araw-araw—punit na upuan, bagsak na kisame, pudpod na armrest. Irerekomenda namin ang pinakamaliit na ayos na malinis ang itsura.",
-  },
-  {
-    q: "Kaya bang magmukhang pareho sa original?",
-    a: "Iyan ang standard. Kulay lang ang simula—kasing halaga ang texture/hibla, linya ng tahi, at fit ng panel.",
-  },
-  {
-    q: "Inaayos din ba ang trim at panels?",
-    a: "Oo. Kasama sa tapiseriya ang upuan, kisame, at mga interior panels/trim na kumukupas o hindi na tugma.",
-  },
-  {
-    q: "Paano magpa-quote?",
-    a: "Tumawag o mag-SMS ng taon/make/model at ilang larawan sa maliwanag na ilaw. Kung kritikal ang match, isama ang larawan ng ‘ok' na bahagi.",
-  },
-];
-
-<PageHero
-  locale="tl"
-  title="Tapiseriya ng sasakyan sa San Jose"
-  lead="Upuan, kisame, interior panels, at trim—pamilyang shop sa San Jose na maingat sa fit at tugma."
-/>
-
-<ServiceCards locale="tl" currentKey="autoUpholstery" />
 
 Ang goal ng tapiseriya ay gawing buo ulit ang interior: hindi halatang patch, maayos ang upo, at malinis ang detalye.
 
@@ -155,5 +139,3 @@ SMS: [SMS (408) 379-3820](sms:+14083793820)
 Address: 271 Bestor St, San Jose, CA 95112
 
 Checklist ng mga larawan sa ugnayan: <LocalizedLink locale="tl" pageKey="contact">Ugnayan at Tantiya</LocalizedLink>
-
-<FaqSection heading="Mga madalas itanong sa tapiseriya" faqs={faqs} />

@@ -2,38 +2,24 @@
 title: "Classic Car Interiors in San Jose | Upholstery Restoration | Craig's"
 description: "Classic car interior upholstery with pattern-correct paneling, clean seam alignment, and finishes that respect period character without looking over-restored."
 pageKey: "classicCars"
+template: "standard"
+hero:
+  title: "Classic Car Interiors in San Jose"
+  lead: "Classic interior upholstery in San Jose—planned for consistency, details that fit the era, and a cabin that feels finished."
+serviceCardsCurrentKey: "classicCars"
+pageModules:
+  - type: "featuredProject"
+    projectId: "buick-eight"
+faq:
+  heading: "Classic Interior FAQs"
+  items:
+    - q: "Can you help me decide what to restore first?"
+      a: "Yes. Many classic owners do interiors in stages. We can plan the work so it stays consistent and doesn’t create mismatched results."
+    - q: "Do you only do full interiors?"
+      a: "No. We can repair targeted areas, or plan a full interior refresh when you want the cabin to look like one set again."
+    - q: "How long does a classic interior take?"
+      a: "Timeline depends on how much is being done and the material choices. After inspection, we provide a realistic plan and schedule."
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-import FeaturedProject from "../../../components/FeaturedProject.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "Can you help me decide what to restore first?",
-    a: "Yes. Many classic owners do interiors in stages. We can plan the work so it stays consistent and doesn’t create mismatched results.",
-  },
-  {
-    q: "Do you only do full interiors?",
-    a: "No. We can repair targeted areas, or plan a full interior refresh when you want the cabin to look like one set again.",
-  },
-  {
-    q: "How long does a classic interior take?",
-    a: "Timeline depends on how much is being done and the material choices. After inspection, we provide a realistic plan and schedule.",
-  },
-];
-
-<PageHero
-  locale="en"
-  title="Classic Car Interiors in San Jose"
-  lead="Classic interior upholstery in San Jose—planned for consistency, details that fit the era, and a cabin that feels finished."
-/>
-
-<ServiceCards locale="en" currentKey="classicCars" />
-
-<FeaturedProject projectId="buick-eight" locale="en" />
 
 On a classic, the interior is the part you live with. Even a great exterior can feel unfinished if
 the seats don’t match the panels, the headliner is tired, or the cabin looks like it was repaired
@@ -150,7 +136,3 @@ To move quickly, it helps to bring:
 
 If you’re building the car in stages, tell us. Interior work is easier when scheduled in the
 right order.
-
----
-
-<FaqSection heading="Classic Interior FAQs" faqs={faqs} />

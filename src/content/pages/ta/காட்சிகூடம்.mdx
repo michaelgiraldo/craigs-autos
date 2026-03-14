@@ -2,25 +2,19 @@
 title: "எங்கள் பணிகளைப் பாருங்கள் | சான் ஹோசே உள்வடிவம் பணிகள் | Craig's"
 description: "சான் ஹோசே உள்வடிவ பணிகளின் புகைப்படங்கள்: இருக்கைகள், ஹெட்லைனர், கன்வர்டிபிள் டாப் மற்றும் கிளாசிக் உள்வடிவங்களில் நுட்பமான பொருத்தம் மற்றும் தரத்தை காணலாம்."
 pageKey: "gallery"
+template: "standard"
+hero:
+  title: "எங்கள் பணிகளைப் பாருங்கள்"
+  lead: "புகைப்படங்களில் கவனிக்க வேண்டியவற்றை எளிமையாக காட்டுகிறோம்."
+serviceCardsCurrentKey: "gallery"
+pageModules:
+  - type: "featuredProject"
+    projectId: "buick-eight"
+  - type: "featuredProject"
+    projectId: "porsche-boxster-s-seat-project"
+  - type: "showcase"
+    pageKey: "gallery"
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-import FeaturedProject from "../../../components/FeaturedProject.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import PageShowcaseSections from "../../../components/PageShowcaseSections.astro";
-
-<PageHero
-  locale="ta"
-  title="எங்கள் பணிகளைப் பாருங்கள்"
-  lead="புகைப்படங்களில் கவனிக்க வேண்டியவற்றை எளிமையாக காட்டுகிறோம்."
-/>
-
-<ServiceCards locale="ta" currentKey="gallery" />
-<FeaturedProject projectId="buick-eight" locale="ta" />
-<FeaturedProject projectId="porsche-boxster-s-seat-project" locale="ta" />
-
-<PageShowcaseSections locale="ta" pageKey="gallery" />
 
 பலர் புகைப்படம் பார்த்தே முடிவு செய்கிறார்கள். நல்ல வேலை எப்படி தெரியும் என்பதை இங்கே தொகுத்துள்ளோம்.
 

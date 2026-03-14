@@ -2,36 +2,21 @@
 title: "Convertible Top Repair & Replacement in San Jose | Craig's"
 description: "Convertible top repair and replacement for Porsche, Ferrari, Jaguar, Mercedes, BMW, Volkswagen, and more in San Jose, with clear repair-vs-replacement guidance."
 pageKey: "convertibleTops"
+template: "standard"
+hero:
+  title: "Convertible Top Repair & Replacement in San Jose"
+  lead: "Leak, wind noise, worn material, or a top that won’t sit right—get a clear recommendation after inspection."
+serviceCardsCurrentKey: "convertibleTops"
+faq:
+  heading: "Convertible Top FAQs"
+  items:
+    - q: "Can you repair a leaking convertible top?"
+      a: "Sometimes. Leaks can come from material wear, seam failure, seals, or how the top sits when it’s closed. We inspect and recommend the fix that will hold up."
+    - q: "How do I know if I need replacement?"
+      a: "If material is brittle/cracked or multiple seams are failing, replacement is often the more reliable reset than chasing spot repairs."
+    - q: "Is fabric better than vinyl?"
+      a: "It depends on the original style and your priorities. We’ll guide the best choice for appearance and durability after inspection."
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-import ConvertibleTopMarqueAtlas from "../../../components/ConvertibleTopMarqueAtlas.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "Can you repair a leaking convertible top?",
-    a: "Sometimes. Leaks can come from material wear, seam failure, seals, or how the top sits when it’s closed. We inspect and recommend the fix that will hold up.",
-  },
-  {
-    q: "How do I know if I need replacement?",
-    a: "If material is brittle/cracked or multiple seams are failing, replacement is often the more reliable reset than chasing spot repairs.",
-  },
-  {
-    q: "Is fabric better than vinyl?",
-    a: "It depends on the original style and your priorities. We’ll guide the best choice for appearance and durability after inspection.",
-  },
-];
-
-<PageHero
-  locale="en"
-  title="Convertible Top Repair & Replacement in San Jose"
-  lead="Leak, wind noise, worn material, or a top that won’t sit right—get a clear recommendation after inspection."
-/>
-
-<ServiceCards locale="en" currentKey="convertibleTops" />
 
 A convertible top problem shows up fast: water on the seat, wind noise on the freeway, or a top
 that just looks tired. We’ll look at the material, seams, and how the top sits when closed—then
@@ -178,7 +163,3 @@ To speed up an estimate, text:
 Call: [(408) 379-3820](tel:+14083793820)  
 Text: [Text (408) 379-3820](sms:+14083793820)  
 Photo checklist: <LocalizedLink pageKey="contact">Contact & Estimates</LocalizedLink>
-
----
-
-<FaqSection heading="Convertible Top FAQs" faqs={faqs} />

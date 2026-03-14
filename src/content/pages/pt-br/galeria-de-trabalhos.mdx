@@ -2,25 +2,19 @@
 title: "Veja nosso trabalho | Estofamento automotivo em San Jose | Craig's"
 description: "Explore fotos de estofamento automotivo mostrando qualidade no ajuste, materiais e acabamento em San Jose."
 pageKey: "gallery"
+template: "standard"
+hero:
+  title: "Veja nosso trabalho"
+  lead: "O que observar nas fotos e como conseguir exemplos parecidos com o seu carro."
+serviceCardsCurrentKey: "gallery"
+pageModules:
+  - type: "featuredProject"
+    projectId: "buick-eight"
+  - type: "featuredProject"
+    projectId: "porsche-boxster-s-seat-project"
+  - type: "showcase"
+    pageKey: "gallery"
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-import FeaturedProject from "../../../components/FeaturedProject.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import PageShowcaseSections from "../../../components/PageShowcaseSections.astro";
-
-<PageHero
-  locale="pt-br"
-  title="Veja nosso trabalho"
-  lead="O que observar nas fotos e como conseguir exemplos parecidos com o seu carro."
-/>
-
-<ServiceCards locale="pt-br" currentKey="gallery" />
-<FeaturedProject projectId="buick-eight" locale="pt-br" />
-<FeaturedProject projectId="porsche-boxster-s-seat-project" locale="pt-br" />
-
-<PageShowcaseSections locale="pt-br" pageKey="gallery" />
 
 A maioria decide pela foto. Aqui vai um guia rápido do que observar em bancos, forro do teto, capotas e interiores clássicos—e como obter exemplos relevantes.
 

@@ -2,39 +2,23 @@
 title: "Auto Upholstery in San Jose | Interior Repair & Restoration | Craig's"
 description: "Auto interior repair for seats, panels, headliners, and trim with precise panel fit, material matching, and practical scope recommendations."
 pageKey: "autoUpholstery"
+template: "standard"
+hero:
+  title: "Auto Upholstery in San Jose"
+  lead: "Seats, headliners, trim, and convertible tops—family-owned in San Jose, focused on work that looks right up close and holds up day after day."
+serviceCardsCurrentKey: "autoUpholstery"
+faq:
+  heading: "Auto Upholstery FAQs"
+  items:
+    - q: "Can you fix one area without redoing the whole interior?"
+      a: "Yes. Many customers start with the one problem they see every day (a torn seat panel, a sagging headliner, a worn armrest). We’ll recommend the smallest fix that still looks clean and holds up."
+    - q: "Can you make it blend with the rest of the interior?"
+      a: "That’s the standard we aim for. A good blend is more than color—it’s texture/grain, stitching and seam alignment, and how tight the panels sit once everything is back together."
+    - q: "Do you work on interior trim and panels too?"
+      a: "Yes. Auto upholstery includes seats, headliners, and many interior trim pieces and panels that wear, loosen, or stop matching over time."
+    - q: "How do I get a quote?"
+      a: "Call or text us your year/make/model and a couple photos in daylight. If it’s a matching job, include one photo of the “good” area you want it to blend with."
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "Can you fix one area without redoing the whole interior?",
-    a: "Yes. Many customers start with the one problem they see every day (a torn seat panel, a sagging headliner, a worn armrest). We’ll recommend the smallest fix that still looks clean and holds up.",
-  },
-  {
-    q: "Can you make it blend with the rest of the interior?",
-    a: "That’s the standard we aim for. A good blend is more than color—it’s texture/grain, stitching and seam alignment, and how tight the panels sit once everything is back together.",
-  },
-  {
-    q: "Do you work on interior trim and panels too?",
-    a: "Yes. Auto upholstery includes seats, headliners, and many interior trim pieces and panels that wear, loosen, or stop matching over time.",
-  },
-  {
-    q: "How do I get a quote?",
-    a: "Call or text us your year/make/model and a couple photos in daylight. If it’s a matching job, include one photo of the “good” area you want it to blend with.",
-  },
-];
-
-<PageHero
-  locale="en"
-  title="Auto Upholstery in San Jose"
-  lead="Seats, headliners, trim, and convertible tops—family-owned in San Jose, focused on work that looks right up close and holds up day after day."
-/>
-
-<ServiceCards locale="en" currentKey="autoUpholstery" />
 
 Auto upholstery is the work that brings an interior back to “finished”: a seat that doesn’t look
 patched, a headliner that sits smooth and tight again, trim that matches, and details that don’t
@@ -186,5 +170,3 @@ Text: [Text (408) 379-3820](sms:+14083793820)
 Directions: 271 Bestor St, San Jose, CA 95112
 
 More detail: <LocalizedLink pageKey="contact">Contact & Estimates</LocalizedLink>
-
-<FaqSection heading="Auto Upholstery FAQs" faqs={faqs} />

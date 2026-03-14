@@ -2,43 +2,24 @@
 title: "Upholstery Guide | Auto Upholstery Decision Framework"
 description: "Learn how to choose repair vs reupholstery, compare leather-vinyl-cloth tradeoffs, and understand pricing drivers before requesting a quote."
 pageKey: "upholsteryGuide"
+template: "standard"
+hero:
+  title: "Upholstery Guide"
+  lead: "Auto Upholstery Buyer’s Guide: Materials, Scope, Pricing, Process"
+faq:
+  heading: "Upholstery Guide FAQs"
+  items:
+    - q: "Is a sagging headliner a fabric problem?"
+      a: "Usually no. The foam backing and adhesive are what fail first, so reattaching fabric only lasts if the backing is still solid."
+    - q: "Can you rebuild seat foam without reupholstering?"
+      a: "Yes. If the cover is still in good shape, foam rebuilds can restore comfort without changing the visible material."
+    - q: "What photos help you quote upholstery work?"
+      a: "Year/make/model plus a wide shot, a close-up of the damage, and a side-angle photo showing sagging or seat height."
+    - q: "How long does upholstery work usually take?"
+      a: "Headliners can be short-turnaround once materials are ready. Seat rebuilds and multi-panel work usually take longer because of fitting and test work."
+    - q: "Is vinyl always cheaper than leather?"
+      a: "Not always. Material grade and labor complexity matter more than labels. Vinyl is often lower maintenance, but price depends on what’s involved and material quality."
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "Is a sagging headliner a fabric problem?",
-    a: "Usually no. The foam backing and adhesive are what fail first, so reattaching fabric only lasts if the backing is still solid.",
-  },
-  {
-    q: "Can you rebuild seat foam without reupholstering?",
-    a: "Yes. If the cover is still in good shape, foam rebuilds can restore comfort without changing the visible material.",
-  },
-  {
-    q: "What photos help you quote upholstery work?",
-    a: "Year/make/model plus a wide shot, a close-up of the damage, and a side-angle photo showing sagging or seat height.",
-  },
-  {
-    q: "How long does upholstery work usually take?",
-    a: "Headliners can be short-turnaround once materials are ready. Seat rebuilds and multi-panel work usually take longer because of fitting and test work.",
-  },
-  {
-    q: "Is vinyl always cheaper than leather?",
-    a: "Not always. Material grade and labor complexity matter more than labels. Vinyl is often lower maintenance, but price depends on what’s involved and material quality.",
-  },
-];
-
-<PageHero
-  locale="en"
-  title="Upholstery Guide"
-  lead="Auto Upholstery Buyer’s Guide: Materials, Scope, Pricing, Process"
-/>
-
-<ServiceCards locale="en" />
 
 Start with the problem you see. Each section explains why it happens, what usually lasts, and what to ask before you pay.
 
@@ -388,11 +369,6 @@ Pick a topic below: materials, how much work you need, pricing, and what to expe
     </div>
   </details>
 </div>
-
----
-
-<FaqSection heading="Upholstery Guide FAQs" faqs={faqs} />
-
 <script
   is:inline
   set:html={`

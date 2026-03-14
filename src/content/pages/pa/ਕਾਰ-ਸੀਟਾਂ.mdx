@@ -2,41 +2,26 @@
 title: "San Jose ਵਿੱਚ ਕਾਰ ਸੀਟ ਮੁਰੰਮਤ | ਫੋਮ, ਬੋਲਸਟਰ, ਰੀ‑ਅਪਹੋਲਸਟਰੀ | Craig's"
 description: "San Jose ਵਿੱਚ ਕਾਰ ਸੀਟਾਂ ਦੀ ਮੁਰੰਮਤ: ਟੁੱਟੀਆਂ ਸੀਮਾਂ, ਫੱਟੇ ਬੋਲਸਟਰ ਅਤੇ ਘਿਸਿਆ ਫੋਮ, ਹਾਲਤ ਅਨੁਸਾਰ ਸਲਾਹ।"
 pageKey: "carSeats"
+template: "standard"
+hero:
+  title: "San Jose ਵਿੱਚ ਕਾਰ ਸੀਟ ਮੁਰੰਮਤ"
+  lead: "ਸੀਮ, ਬੋਲਸਟਰ ਅਤੇ ਫੋਮ—ਸੀਟ ਨੂੰ ਸਾਫ ਲੁੱਕ ਅਤੇ ਸਹੀ ਸਹਾਰਾ ਵਾਪਸ ਮਿਲਦਾ ਹੈ."
+serviceCardsCurrentKey: "carSeats"
+pageModules:
+  - type: "showcase"
+    pageKey: "carSeats"
+faq:
+  heading: "ਸੀਟ ਅਕਸਰ ਪੁੱਛੇ ਜਾਂਦੇ ਸਵਾਲ"
+  items:
+    - q: "ਕੀ ਸਿਰਫ ਡਰਾਈਵਰ ਸੀਟ ਹੀ ਠੀਕ ਹੋ ਸਕਦੀ ਹੈ?"
+      a: "ਹਾਂ. ਅਕਸਰ ਸ਼ੁਰੂਆਤ ਉੱਥੋਂ ਹੀ ਹੁੰਦੀ ਹੈ."
+    - q: "ਕੀ ਬਾਕੀ ਸੀਟਾਂ ਨਾਲ ਮੈਚ ਹੋਵੇਗਾ?"
+      a: "ਇਹੀ ਟਾਰਗੇਟ ਹੈ. ਰੰਗ ਨਾਲ ਟੈਕਸਚਰ/ਗ੍ਰੇਨ ਅਤੇ ਸਟੀਚਿੰਗ ਵੀ ਮੈਚ ਹੋਣੀ ਚਾਹੀਦੀ ਹੈ."
+    - q: "ਛੋਟੀ ਕਟ ਲਈ ਰੀ‑ਅਪਹੋਲਸਟਰੀ ਲਾਜ਼ਮੀ ਹੈ?"
+      a: "ਜ਼ਰੂਰੀ ਨਹੀਂ. ਜੇ ਡੈਮੇਜ ਲੋਕਲ ਹੈ ਅਤੇ ਮਟੀਰੀਅਲ ਮਜ਼ਬੂਤ ਹੈ, ਰਿਪੇਅਰ ਕਾਫੀ ਹੋ ਸਕਦਾ ਹੈ."
+    - q: "ਸੀਟ ਧੱਸੀ ਕਿਉਂ ਲੱਗਦੀ ਹੈ?"
+      a: "ਅਕਸਰ ਫੋਮ ਕਾਰਨ. ਕਵਰ ਬਦਲਣ ਨਾਲ ਲੁੱਕ ਸੁਧਰਦਾ ਹੈ, ਪਰ ਕਮਫ਼ਰਟ ਲਈ ਫੋਮ ਜਰੂਰੀ ਹੈ."
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import PageShowcaseSections from "../../../components/PageShowcaseSections.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "ਕੀ ਸਿਰਫ ਡਰਾਈਵਰ ਸੀਟ ਹੀ ਠੀਕ ਹੋ ਸਕਦੀ ਹੈ?",
-    a: "ਹਾਂ. ਅਕਸਰ ਸ਼ੁਰੂਆਤ ਉੱਥੋਂ ਹੀ ਹੁੰਦੀ ਹੈ.",
-  },
-  {
-    q: "ਕੀ ਬਾਕੀ ਸੀਟਾਂ ਨਾਲ ਮੈਚ ਹੋਵੇਗਾ?",
-    a: "ਇਹੀ ਟਾਰਗੇਟ ਹੈ. ਰੰਗ ਨਾਲ ਟੈਕਸਚਰ/ਗ੍ਰੇਨ ਅਤੇ ਸਟੀਚਿੰਗ ਵੀ ਮੈਚ ਹੋਣੀ ਚਾਹੀਦੀ ਹੈ.",
-  },
-  {
-    q: "ਛੋਟੀ ਕਟ ਲਈ ਰੀ‑ਅਪਹੋਲਸਟਰੀ ਲਾਜ਼ਮੀ ਹੈ?",
-    a: "ਜ਼ਰੂਰੀ ਨਹੀਂ. ਜੇ ਡੈਮੇਜ ਲੋਕਲ ਹੈ ਅਤੇ ਮਟੀਰੀਅਲ ਮਜ਼ਬੂਤ ਹੈ, ਰਿਪੇਅਰ ਕਾਫੀ ਹੋ ਸਕਦਾ ਹੈ.",
-  },
-  {
-    q: "ਸੀਟ ਧੱਸੀ ਕਿਉਂ ਲੱਗਦੀ ਹੈ?",
-    a: "ਅਕਸਰ ਫੋਮ ਕਾਰਨ. ਕਵਰ ਬਦਲਣ ਨਾਲ ਲੁੱਕ ਸੁਧਰਦਾ ਹੈ, ਪਰ ਕਮਫ਼ਰਟ ਲਈ ਫੋਮ ਜਰੂਰੀ ਹੈ.",
-  },
-];
-
-<PageHero
-  locale="pa"
-  title="San Jose ਵਿੱਚ ਕਾਰ ਸੀਟ ਮੁਰੰਮਤ"
-  lead="ਸੀਮ, ਬੋਲਸਟਰ ਅਤੇ ਫੋਮ—ਸੀਟ ਨੂੰ ਸਾਫ ਲੁੱਕ ਅਤੇ ਸਹੀ ਸਹਾਰਾ ਵਾਪਸ ਮਿਲਦਾ ਹੈ."
-/>
-
-<ServiceCards locale="pa" currentKey="carSeats" />
-<PageShowcaseSections locale="pa" pageKey="carSeats" />
 
 <aside class="callout" aria-label="ਅਪਹੋਲਸਟਰੀ ਗਾਈਡ">
   <p class="callout__title">ਕੀ ਸਮਝ ਨਹੀਂ ਆ ਰਿਹਾ ਸੀਟ ਨੂੰ ਕੀ ਲੋੜ ਹੈ?</p>
@@ -132,11 +117,6 @@ export const faqs = [
 SMS: [SMS (408) 379-3820](sms:+14083793820)  
 ਮੋਟਰਸਾਈਕਲ ਸੀਟ ਚਾਹੀਦੀ ਹੈ? ਵੇਖੋ <LocalizedLink locale="pa" pageKey="motorcycleSeats">ਮੋਟਰਸਾਈਕਲ ਸੀਟ ਅਪਹੋਲਸਟਰੀ</LocalizedLink>.
 ਚੈਕਲਿਸਟ: <LocalizedLink locale="pa" pageKey="contact">ਸੰਪਰਕ</LocalizedLink>
-
----
-
-<FaqSection heading="ਸੀਟ ਅਕਸਰ ਪੁੱਛੇ ਜਾਂਦੇ ਸਵਾਲ" faqs={faqs} />
-
 ---
 
 ਸੰਬੰਧਿਤ:

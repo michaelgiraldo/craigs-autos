@@ -2,41 +2,26 @@
 title: "Tapicería automotriz en San José | Asientos, techos, capotas | Craig's"
 description: "Tapicería automotriz en San José con más de 60 años de experiencia: asientos, techos, capotas e interiores clásicos con materiales duraderos."
 pageKey: "home"
+template: "standard"
+hero:
+  title: "Taller de reparación de interiores de auto en San José"
+  lead: "Asientos, techos interiores, capotas y clásicos—taller familiar en San José, enfocado en un ajuste limpio y un acabado que se vea bien de cerca."
+serviceCardsCurrentKey: "home"
+pageModules:
+  - type: "showcase"
+    pageKey: "home"
+faq:
+  heading: "Preguntas frecuentes"
+  items:
+    - q: "¿Atienden San José y el sur de la bahía?"
+      a: "Sí. Estamos en San José y la mayoría de nuestros clientes vienen de San José y ciudades cercanas del South Bay. Si puedes traer el vehículo (o las piezas) al taller, podemos ayudarte."
+    - q: "¿Cuánto cuesta la tapicería automotriz?"
+      a: "El costo depende del trabajo, los materiales y el estado de lo existente. La forma más rápida de cotizar es definir el alcance: un panel, un asiento o un interior completo."
+    - q: "¿Pueden hacer que combine?"
+      a: "Ese es el objetivo. El color es solo una parte: la textura/grano y la alineación de costuras son lo que hace que el arreglo se integre."
+    - q: "¿Conviene reparar o reemplazar?"
+      a: "Si el material está quebradizo o el daño está en varios paneles, reemplazar suele dar un resultado más limpio y duradero. Si el problema es localizado, una reparación puntual puede funcionar."
 ---
-
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import PageShowcaseSections from "../../../components/PageShowcaseSections.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "¿Atienden San José y el sur de la bahía?",
-    a: "Sí. Estamos en San José y la mayoría de nuestros clientes vienen de San José y ciudades cercanas del South Bay. Si puedes traer el vehículo (o las piezas) al taller, podemos ayudarte.",
-  },
-  {
-    q: "¿Cuánto cuesta la tapicería automotriz?",
-    a: "El costo depende del trabajo, los materiales y el estado de lo existente. La forma más rápida de cotizar es definir el alcance: un panel, un asiento o un interior completo.",
-  },
-  {
-    q: "¿Pueden hacer que combine?",
-    a: "Ese es el objetivo. El color es solo una parte: la textura/grano y la alineación de costuras son lo que hace que el arreglo se integre.",
-  },
-  {
-    q: "¿Conviene reparar o reemplazar?",
-    a: "Si el material está quebradizo o el daño está en varios paneles, reemplazar suele dar un resultado más limpio y duradero. Si el problema es localizado, una reparación puntual puede funcionar.",
-  },
-];
-
-<PageHero
-  locale="es"
-  title="Taller de reparación de interiores de auto en San José"
-  lead="Asientos, techos interiores, capotas y clásicos—taller familiar en San José, enfocado en un ajuste limpio y un acabado que se vea bien de cerca."
-/>
-
-<ServiceCards locale="es" currentKey="home" />
-<PageShowcaseSections locale="es" pageKey="home" />
 
 Los problemas del interior se notan todos los días: una rasgadura en el asiento del conductor,
 un techo que se descuelga, vinil cuarteado por el sol. Llama o envía un texto a Craig’s Auto
@@ -175,11 +160,6 @@ Checklist completo: <LocalizedLink locale="es" pageKey="contact">Contacto y coti
 - **Negocio familiar** basado en confianza local
 - **Más de 60 años** de oficio en el área de San José
 - **Enfoque automotriz**, el detalle y la combinación son prioridad
-
----
-
-<FaqSection heading="Preguntas frecuentes" faqs={faqs} />
-
 ---
 
 ## Visita Craig's Auto Upholstery

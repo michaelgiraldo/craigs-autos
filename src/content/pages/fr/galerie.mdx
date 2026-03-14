@@ -2,25 +2,19 @@
 title: "Nos réalisations | Garnissage auto à San Jose | Craig's"
 description: "Explorez nos réalisations en sellerie auto à San Jose : sièges, ciels de toit, capotes et intérieurs classiques avec un souci du détail et de la qualité d’ajustement."
 pageKey: "gallery"
+template: "standard"
+hero:
+  title: "Voir nos réalisations"
+  lead: "Que regarder sur des photos de sellerie — et comment obtenir des exemples proches de votre voiture."
+serviceCardsCurrentKey: "gallery"
+pageModules:
+  - type: "featuredProject"
+    projectId: "buick-eight"
+  - type: "featuredProject"
+    projectId: "porsche-boxster-s-seat-project"
+  - type: "showcase"
+    pageKey: "gallery"
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-import FeaturedProject from "../../../components/FeaturedProject.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import PageShowcaseSections from "../../../components/PageShowcaseSections.astro";
-
-<PageHero
-  locale="fr"
-  title="Voir nos réalisations"
-  lead="Que regarder sur des photos de sellerie — et comment obtenir des exemples proches de votre voiture."
-/>
-
-<ServiceCards locale="fr" currentKey="gallery" />
-
-<FeaturedProject projectId="buick-eight" locale="fr" />
-<FeaturedProject projectId="porsche-boxster-s-seat-project" locale="fr" />
-<PageShowcaseSections locale="fr" pageKey="gallery" />
 
 Les photos sont souvent le point de départ avant un appel. Cette page est un guide rapide : quoi regarder
 sur des sièges, ciels de toit, capotes et intérieurs classiques, et comment obtenir des exemples pertinents

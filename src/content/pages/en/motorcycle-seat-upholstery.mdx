@@ -2,49 +2,30 @@
 title: "Motorcycle Seat Upholstery in San Jose | Repair, Foam, Custom Covers | Craig's"
 description: "Motorcycle seat repair and recovering with foam shaping, weather-ready materials, and fit that stays clean through daily sun and rain."
 pageKey: "motorcycleSeats"
+template: "standard"
+hero:
+  title: "Motorcycle Seat Upholstery in San Jose"
+  lead: "Your seat is the part you can’t ignore. We repair, recover, and rebuild motorcycle seats in San Jose so they look clean up close and feel right on the ride."
+serviceCardsCurrentKey: "motorcycleSeats"
+pageModules:
+  - type: "showcase"
+    pageKey: "motorcycleSeats"
+faq:
+  heading: "Motorcycle Seat Upholstery FAQs"
+  items:
+    - q: "Can you reupholster just the rider seat (not the passenger)?"
+      a: "Yes. Many jobs start with the rider seat because it’s the one you feel every mile."
+    - q: "Do I need to bring the entire motorcycle?"
+      a: "Not always. In many cases you can bring just the seat. If fitment or alignment is part of the issue, bringing the bike can help."
+    - q: "Can you improve comfort, not just appearance?"
+      a: "Yes. Comfort problems are often foam/support problems. We can rebuild or reshape foam so the seat feels supportive again."
+    - q: "Can you match the current look, or do I have to go custom?"
+      a: "You can do either. Some riders want a clean, factory-like reset. Others want custom stitching, texture, or a different profile. We’ll confirm the direction before work begins."
+    - q: "Will the material hold up outdoors?"
+      a: "We recommend materials based on real use: sun exposure, rain, heat, and how often the bike lives outside."
+    - q: "How do I get a quote?"
+      a: "Call or text your bike year/make/model and a couple photos in daylight (wide + close-up). If comfort is part of it, tell us how it feels on longer rides."
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import PageShowcaseSections from "../../../components/PageShowcaseSections.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "Can you reupholster just the rider seat (not the passenger)?",
-    a: "Yes. Many jobs start with the rider seat because it’s the one you feel every mile.",
-  },
-  {
-    q: "Do I need to bring the entire motorcycle?",
-    a: "Not always. In many cases you can bring just the seat. If fitment or alignment is part of the issue, bringing the bike can help.",
-  },
-  {
-    q: "Can you improve comfort, not just appearance?",
-    a: "Yes. Comfort problems are often foam/support problems. We can rebuild or reshape foam so the seat feels supportive again.",
-  },
-  {
-    q: "Can you match the current look, or do I have to go custom?",
-    a: "You can do either. Some riders want a clean, factory-like reset. Others want custom stitching, texture, or a different profile. We’ll confirm the direction before work begins.",
-  },
-  {
-    q: "Will the material hold up outdoors?",
-    a: "We recommend materials based on real use: sun exposure, rain, heat, and how often the bike lives outside.",
-  },
-  {
-    q: "How do I get a quote?",
-    a: "Call or text your bike year/make/model and a couple photos in daylight (wide + close-up). If comfort is part of it, tell us how it feels on longer rides.",
-  },
-];
-
-<PageHero
-  locale="en"
-  title="Motorcycle Seat Upholstery in San Jose"
-  lead="Your seat is the part you can’t ignore. We repair, recover, and rebuild motorcycle seats in San Jose so they look clean up close and feel right on the ride."
-/>
-
-<ServiceCards locale="en" currentKey="motorcycleSeats" />
-<PageShowcaseSections locale="en" pageKey="motorcycleSeats" />
 
 A motorcycle seat isn’t “interior trim.” It’s your interface with the bike.
 
@@ -203,5 +184,3 @@ Text: [Text (408) 379-3820](sms:+14083793820)
 Directions: 271 Bestor St, San Jose, CA 95112
 
 More detail: <LocalizedLink pageKey="contact">Contact & Estimates</LocalizedLink>
-
-<FaqSection heading="Motorcycle Seat Upholstery FAQs" faqs={faqs} />

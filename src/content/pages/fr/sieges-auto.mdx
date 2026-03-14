@@ -2,41 +2,26 @@
 title: "Réparation de sièges auto à San Jose | Mousse, bourrelets, regarnissage | Craig's"
 description: "Réparation experte de sièges auto à San Jose : coutures, panneaux et mousse restaurés avec options de regarnissage pour un confort et un rendu soignés."
 pageKey: "carSeats"
+template: "standard"
+hero:
+  title: "Réparation de sièges auto à San Jose"
+  lead: "Coutures ouvertes, bourrelets usés, mousse affaissée — pour un rendu propre et un vrai retour de confort."
+serviceCardsCurrentKey: "carSeats"
+pageModules:
+  - type: "showcase"
+    pageKey: "carSeats"
+faq:
+  heading: "Questions fréquentes réparation de sièges"
+  items:
+    - q: "Pouvez-vous réparer uniquement le siège conducteur ?"
+      a: "Oui. Beaucoup de projets commencent par le siège conducteur, car c’est lui qui s’use en premier."
+    - q: "Pouvez-vous raccorder avec les autres sièges ?"
+      a: "C’est l’objectif. Un bon raccord dépasse la couleur : grain/texture, lignes de couture, et tension des panneaux après remontage."
+    - q: "Une petite déchirure impose-t-elle un regarnissage complet ?"
+      a: "Pas toujours. Si le dommage est localisé et le matériau autour encore solide, une réparation ciblée peut fonctionner. Si le matériau est cassant ou fatigué sur plusieurs panneaux, le regarnissage est souvent plus propre."
+    - q: "Si le siège est affaissé, est-ce juste la housse ?"
+      a: "Souvent non, c’est la mousse. Changer uniquement la housse peut améliorer l’aspect, mais la reprise mousse est ce qui restaure le confort et la forme."
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-import PageShowcaseSections from "../../../components/PageShowcaseSections.astro";
-
-export const faqs = [
-  {
-    q: "Pouvez-vous réparer uniquement le siège conducteur ?",
-    a: "Oui. Beaucoup de projets commencent par le siège conducteur, car c’est lui qui s’use en premier.",
-  },
-  {
-    q: "Pouvez-vous raccorder avec les autres sièges ?",
-    a: "C’est l’objectif. Un bon raccord dépasse la couleur : grain/texture, lignes de couture, et tension des panneaux après remontage.",
-  },
-  {
-    q: "Une petite déchirure impose-t-elle un regarnissage complet ?",
-    a: "Pas toujours. Si le dommage est localisé et le matériau autour encore solide, une réparation ciblée peut fonctionner. Si le matériau est cassant ou fatigué sur plusieurs panneaux, le regarnissage est souvent plus propre.",
-  },
-  {
-    q: "Si le siège est affaissé, est-ce juste la housse ?",
-    a: "Souvent non, c’est la mousse. Changer uniquement la housse peut améliorer l’aspect, mais la reprise mousse est ce qui restaure le confort et la forme.",
-  },
-];
-
-<PageHero
-  locale="fr"
-  title="Réparation de sièges auto à San Jose"
-  lead="Coutures ouvertes, bourrelets usés, mousse affaissée — pour un rendu propre et un vrai retour de confort."
-/>
-
-<ServiceCards locale="fr" currentKey="carSeats" />
-<PageShowcaseSections locale="fr" pageKey="carSeats" />
 
 Le siège est la partie de l’intérieur que vous utilisez le plus. Quand une couture s’ouvre, qu’un panneau se
 déchire, ou que l’assise s’affaisse, la voiture paraît usée immédiatement.
@@ -170,7 +155,3 @@ Pour un devis rapide, envoyez :
 Appel : [(408) 379-3820](tel:+14083793820)  
 SMS : [SMS (408) 379-3820](sms:+14083793820)  
 Checklist photo : <LocalizedLink locale="fr" pageKey="contact">Contact et devis</LocalizedLink>
-
----
-
-<FaqSection heading="Questions fréquentes réparation de sièges" faqs={faqs} />

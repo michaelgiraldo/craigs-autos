@@ -2,41 +2,26 @@
 title: "샌호세 시트 수리 | 폼, 볼스터, 재커버링 | Craig's"
 description: "샌호세 시트 수리: 찢어진 봉제선, 마모된 볼스터, 폼 복원까지 상태에 맞는 최적 솔루션을 제안합니다."
 pageKey: "carSeats"
+template: "standard"
+hero:
+  title: "샌호세 시트 수리"
+  lead: "찢김, 봉제선, 볼스터 마모, 폼 복원—깨끗한 외관과 편안한 착좌감을 목표로 합니다."
+serviceCardsCurrentKey: "carSeats"
+pageModules:
+  - type: "showcase"
+    pageKey: "carSeats"
+faq:
+  heading: "시트 수리 자주 묻는 질문"
+  items:
+    - q: "운전석만 수리할 수 있나요?"
+      a: "네. 가장 많이 쓰이는 좌석부터 시작하는 경우가 많습니다."
+    - q: "다른 좌석과 맞출 수 있나요?"
+      a: "그게 목표입니다. 색상뿐 아니라 결, 봉제선 방향, 핏까지 맞춥니다."
+    - q: "작은 찢김도 재커버링이 필요할까요?"
+      a: "항상 그렇진 않습니다. 국소 손상이고 주변이 튼튼하면 수리로 가능합니다. 재료가 약해졌다면 재커버링이 더 깔끔합니다."
+    - q: "좌석이 꺼지는 건 커버 문제인가요?"
+      a: "대부분 폼 문제입니다. 커버만 바꾸면 외관은 좋아지지만, 폼 복원이 착좌감을 바꿉니다."
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import PageShowcaseSections from "../../../components/PageShowcaseSections.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "운전석만 수리할 수 있나요?",
-    a: "네. 가장 많이 쓰이는 좌석부터 시작하는 경우가 많습니다.",
-  },
-  {
-    q: "다른 좌석과 맞출 수 있나요?",
-    a: "그게 목표입니다. 색상뿐 아니라 결, 봉제선 방향, 핏까지 맞춥니다.",
-  },
-  {
-    q: "작은 찢김도 재커버링이 필요할까요?",
-    a: "항상 그렇진 않습니다. 국소 손상이고 주변이 튼튼하면 수리로 가능합니다. 재료가 약해졌다면 재커버링이 더 깔끔합니다.",
-  },
-  {
-    q: "좌석이 꺼지는 건 커버 문제인가요?",
-    a: "대부분 폼 문제입니다. 커버만 바꾸면 외관은 좋아지지만, 폼 복원이 착좌감을 바꿉니다.",
-  },
-];
-
-<PageHero
-  locale="ko"
-  title="샌호세 시트 수리"
-  lead="찢김, 봉제선, 볼스터 마모, 폼 복원—깨끗한 외관과 편안한 착좌감을 목표로 합니다."
-/>
-
-<ServiceCards locale="ko" currentKey="carSeats" />
-<PageShowcaseSections locale="ko" pageKey="carSeats" />
 
 시트는 매일 사용하는 부분입니다. 찢김이나 폼 꺼짐은 차량 전체를 낡아 보이게 합니다.
 
@@ -136,11 +121,6 @@ export const faqs = [
 전화: [(408) 379-3820](tel:+14083793820)  
 문자: [문자 (408) 379-3820](sms:+14083793820)  
 체크리스트: <LocalizedLink locale="ko" pageKey="contact">문의 및 견적</LocalizedLink>
-
----
-
-<FaqSection heading="시트 수리 자주 묻는 질문" faqs={faqs} />
-
 ---
 
 관련:

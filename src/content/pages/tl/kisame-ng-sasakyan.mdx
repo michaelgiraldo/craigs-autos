@@ -2,47 +2,27 @@
 title: "Pag-ayos ng kisame sa San Jose | Ayos o Palit | Craig's"
 description: "Pag-ayos at pagpapalit ng kisame sa San Jose para sa mga bagsak, bula, at mantsa, may malinaw na gabay kung kailan ayusin o palitan ang buong headliner."
 pageKey: "headliners"
+template: "standard"
+hero:
+  title: "Pag-ayos ng kisame sa San Jose"
+  lead: "Bagsak ang kisame? Inaayos o pinapalitan namin sa San Jose para maging pantay ulit at malinis ang edges."
+serviceCardsCurrentKey: "headliners"
+faq:
+  heading: "Mga madalas itanong sa kisame"
+  items:
+    - q: "Puwede bang ayusin nang hindi pinapalitan?"
+      a: "Minsan. Kung maliit lang ang sira at matibay pa ang backing, puwedeng lokal na ayos. Kung sira na ang foam backing, mas tumatagal ang palit."
+    - q: "Sunroof shade lang ang lumuluwag — kailangan bang palit lahat?"
+      a: "Hindi palagi. May mga issue na lokal lang. Titingnan namin ang kondisyon ng backing para sa tamang payo."
+    - q: "Maging pantay ba ang itsura?"
+      a: "Dapat makinis at pantay ang kisame, at malinis ang edges sa ilaw, visor, at trim."
+    - q: "Ok ba ang pins o spray glue?"
+      a: "Pansamantala lang. Hindi nito inaayos ang backing at kadalasang bumabalik ang bagsak. Kung degraded na ang backing, palit ang mas tama."
+    - q: "Kaya bang itugma ang kulay?"
+      a: "Oo, hahanapin namin ang pinakamalapit na tono at texture bago simulan."
+    - q: "Ano ang kailangan para sa quote?"
+      a: "Taon/make/model at ilang larawan sa maliwanag na ilaw para makita ang lawak at kung may sunroof. Kumpleto ang listahan sa contact page."
 ---
-import LocalizedLink from "../../../components/LocalizedLink.astro";
-
-import PageHero from "../../../components/PageHero.astro";
-import ServiceCards from "../../../components/ServiceCards.astro";
-import FaqSection from "../../../components/FaqSection.astro";
-
-export const faqs = [
-  {
-    q: "Puwede bang ayusin nang hindi pinapalitan?",
-    a: "Minsan. Kung maliit lang ang sira at matibay pa ang backing, puwedeng lokal na ayos. Kung sira na ang foam backing, mas tumatagal ang palit.",
-  },
-  {
-    q: "Sunroof shade lang ang lumuluwag — kailangan bang palit lahat?",
-    a: "Hindi palagi. May mga issue na lokal lang. Titingnan namin ang kondisyon ng backing para sa tamang payo.",
-  },
-  {
-    q: "Maging pantay ba ang itsura?",
-    a: "Dapat makinis at pantay ang kisame, at malinis ang edges sa ilaw, visor, at trim.",
-  },
-  {
-    q: "Ok ba ang pins o spray glue?",
-    a: "Pansamantala lang. Hindi nito inaayos ang backing at kadalasang bumabalik ang bagsak. Kung degraded na ang backing, palit ang mas tama.",
-  },
-  {
-    q: "Kaya bang itugma ang kulay?",
-    a: "Oo, hahanapin namin ang pinakamalapit na tono at texture bago simulan.",
-  },
-  {
-    q: "Ano ang kailangan para sa quote?",
-    a: "Taon/make/model at ilang larawan sa maliwanag na ilaw para makita ang lawak at kung may sunroof. Kumpleto ang listahan sa contact page.",
-  },
-];
-
-<PageHero
-  locale="tl"
-  title="Pag-ayos ng kisame sa San Jose"
-  lead="Bagsak ang kisame? Inaayos o pinapalitan namin sa San Jose para maging pantay ulit at malinis ang edges."
-/>
-
-<ServiceCards locale="tl" currentKey="headliners" />
 
 Kapag nagsimulang bumagsak ang kisame, mabilis tumanda ang cabin. Sa init ng San Jose, kapag nagsimulang masira ang foam backing, kumakalat ito. Ang tanong: ok ba ang lokal na ayos o palit na para tumagal.
 
@@ -216,11 +196,6 @@ Ihanda:
 Checklist: <LocalizedLink locale="tl" pageKey="contact">Ugnayan at Tantiya</LocalizedLink>
 
 **Tumawag:** [(408) 379-3820](tel:+14083793820)
-
----
-
-<FaqSection heading="Mga madalas itanong sa kisame" faqs={faqs} />
-
 ---
 
 Kaugnay:
