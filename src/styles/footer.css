@@ -1,0 +1,130 @@
+.site-footer {
+	border-top: 1px solid rgba(17, 24, 39, 0.08);
+	margin-top: 2.75rem;
+	padding: 1.75rem 0 3.5rem;
+	color: var(--color-muted);
+}
+
+.site-footer__grid {
+	display: grid;
+	gap: 0.65rem;
+}
+
+@media (min-width: 760px) {
+	.site-footer__grid {
+		grid-template-columns: 1.2fr 0.8fr;
+		align-items: start;
+	}
+}
+
+.site-footer__brand {
+	color: var(--color-ink);
+	font-weight: 900;
+	letter-spacing: -0.02em;
+	margin: 0;
+}
+
+.site-footer__links {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.6rem 0.9rem;
+	margin: 0.55rem 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.site-footer__links a {
+	color: var(--color-muted);
+	text-decoration: none;
+	font-weight: 650;
+}
+
+.site-footer__links a:hover {
+	color: var(--color-ink);
+	text-decoration: underline;
+}
+
+.sticky-cta {
+	position: fixed;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 60;
+	padding: 0.75rem var(--gutter-right) calc(0.75rem + var(--safe-bottom)) var(--gutter-left);
+	background: rgba(17, 17, 17, 0.92);
+	backdrop-filter: blur(12px);
+	border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.sticky-cta__inner {
+	max-width: var(--content-max);
+	margin: 0 auto;
+	display: grid;
+	grid-template-columns: 2fr 1fr 1fr 1fr;
+	gap: 0.75rem;
+}
+
+.sticky-cta a {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	padding: 0.78rem 1rem;
+	border-radius: var(--radius-pill);
+	text-decoration: none;
+	font-weight: 900;
+	letter-spacing: -0.01em;
+}
+
+.sticky-cta__call {
+	background: var(--color-accent);
+	color: #fff;
+}
+
+.sticky-cta__number {
+	white-space: nowrap;
+}
+
+.sticky-cta__text {
+	background: rgba(255, 255, 255, 0.14);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	color: #fff;
+}
+
+.sticky-cta__email {
+	background: rgba(255, 255, 255, 0.14);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	color: #fff;
+}
+
+.sticky-cta__dir {
+	background: rgba(255, 255, 255, 0.14);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	color: #fff;
+}
+
+@media (max-width: 520px) {
+	.sticky-cta__inner {
+		grid-template-columns: 1fr 1fr;
+	}
+
+	.sticky-cta__call {
+		grid-column: 1 / -1;
+	}
+
+	.sticky-cta__email {
+		grid-column: 1 / -1;
+	}
+}
+
+@media (max-width: 360px) {
+	.sticky-cta__number {
+		display: none;
+	}
+}
+
+@media (min-width: 900px) {
+	.sticky-cta {
+		display: none;
+	}
+}
