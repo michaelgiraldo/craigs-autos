@@ -37,10 +37,21 @@ const contentComponents = {
 	ServiceCards,
 };
 const pageModules = (entry.data.pageModules ?? []) as PageModule[];
+const resolveReferenceId = (value: string | { id: string } | undefined) => {
+	if (typeof value === 'string') {
+		return value;
+	}
+
+	if (value?.id) {
+		return value.id;
+	}
+
+	throw new Error('Missing collection reference id.');
+};
 ---
 
-{template === 'project' && entry.data.projectId ? (
-	<ProjectPage projectId={entry.data.projectId} locale={locale} />
+{template === 'project' && entry.data.project ? (
+	<ProjectPage projectId={resolveReferenceId(entry.data.project)} locale={locale} />
 ) : usesStructuredTemplate ? (
 	<>
 		{entry.data.hero ? (
@@ -57,11 +68,11 @@ const pageModules = (entry.data.pageModules ?? []) as PageModule[];
 		) : null}
 		{pageModules.map((module: PageModule) => {
 			if (module.type === 'featuredProject') {
-				return <FeaturedProject projectId={module.projectId} locale={locale} />;
+				return <FeaturedProject projectId={resolveReferenceId(module.project)} locale={locale} />;
 			}
 
 			if (module.type === 'showcase') {
-				return <PageShowcaseSections locale={locale} pageKey={module.pageKey} />;
+				return <PageShowcaseSections locale={locale} showcaseId={resolveReferenceId(module.showcase)} />;
 			}
 
 			return <ConvertibleTopMarqueAtlas locale={locale} />;

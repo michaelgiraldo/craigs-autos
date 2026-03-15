@@ -1,5 +1,5 @@
 import { LOCALES } from './core.js';
-import { PAGE_LABELS } from './page-labels.js';
+import { PAGE_LABELS } from './page-meta.js';
 import {
 	getPageEntry,
 	getManifestPageKeys,

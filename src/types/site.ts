@@ -23,11 +23,14 @@ export type LocaleMap<T> = Partial<Record<LocaleKey, T>>;
 export type LocalizedText = LocaleMap<string>;
 export type LocalizedTextList = LocaleMap<string[]>;
 export type SiteData = typeof import('../lib/site-data/core.js').SITE;
-export type UiCopy = (typeof import('../lib/site-data/ui-copy.js').UI_COPY)[string];
+export type UiCopy =
+	(typeof import('../lib/site-data/ui-copy.js').UI_COPY)[keyof typeof import('../lib/site-data/ui-copy.js').UI_COPY];
 
 export type PageEntry = CollectionEntry<'pages'>;
 export type PageModule = NonNullable<PageEntry['data']['pageModules']>[number];
 export type PageFaqItem = NonNullable<NonNullable<PageEntry['data']['faq']>['items']>[number];
+export type GalleryEntry = CollectionEntry<'galleries'>;
+export type ShowcaseEntry = CollectionEntry<'showcases'>;
 
 export type GalleryImage = {
 	id?: string;
@@ -51,6 +54,25 @@ export type ProjectData = Omit<CollectionEntry<'projects'>['data'], 'images'> & 
 	id: string;
 	images: ProjectImage[];
 };
+
+export type GalleryData =
+	| (Omit<Extract<GalleryEntry['data'], { kind: 'gallery' }>, 'images'> & {
+			id: string;
+			images: GalleryImage[];
+	  })
+	| (Omit<Extract<GalleryEntry['data'], { kind: 'beforeAfter' }>, 'pairs'> & {
+			id: string;
+			pairs: BeforeAfterPair[];
+	  });
+
+export type ShowcaseSection = ShowcaseEntry['data']['sections'][number];
+export type ShowcaseSectionWithMedia =
+	| (Extract<ShowcaseSection, { type: 'gallery' }> & {
+			images: GalleryImage[];
+	  })
+	| (Extract<ShowcaseSection, { type: 'beforeAfter' }> & {
+			pairs: BeforeAfterPair[];
+	  });
 
 export type LanguageLink = {
 	key: LocaleKey;

@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { LOCALE_ORDER, LOCALES } from '../src/lib/site-data.js';
 import { getPageKeys, getTranslations } from '../src/lib/site-data/page-registry.js';
+import { getPageEntry } from '../src/lib/site-data/page-manifest.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -59,12 +60,29 @@ function parsePageKey(filePath, content) {
     errors.push(`Missing frontmatter in ${path.relative(ROOT, filePath)}`);
     return null;
   }
-  const pageKeyMatch = frontmatterMatch[1].match(/^pageKey:\s*['"]?(.+?)['"]?\s*$/m);
-  if (!pageKeyMatch) {
-    errors.push(`Missing pageKey in ${path.relative(ROOT, filePath)}`);
-    return null;
-  }
-  return pageKeyMatch[1];
+  const block = frontmatterMatch[1];
+  const readField = (key) => {
+    const match = block.match(new RegExp(`^${key}:\\s*(.+)$`, 'm'));
+    if (!match) {
+      errors.push(`Missing ${key} in ${path.relative(ROOT, filePath)}`);
+      return null;
+    }
+
+    let value = match[1].trim();
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = value.slice(1, -1);
+    }
+
+    return value.replaceAll('\\"', '"').replaceAll("\\'", "'").trim();
+  };
+
+  return {
+    pageKey: readField('pageKey'),
+    locale: readField('locale'),
+  };
 }
 
 function buildLocalePageIndex(locale) {
@@ -80,26 +98,18 @@ function buildLocalePageIndex(locale) {
 
   for (const filePath of files) {
     const content = fs.readFileSync(filePath, 'utf-8');
-    const pageKey = parsePageKey(filePath, content);
-    if (!pageKey) continue;
-    map.set(pageKey, { filePath, content });
+    const frontmatter = parsePageKey(filePath, content);
+    if (!frontmatter?.pageKey || !frontmatter?.locale) continue;
+    if (frontmatter.locale !== locale) {
+      errors.push(
+        `Locale folder mismatch in ${path.relative(ROOT, filePath)}: folder=${locale} frontmatter=${frontmatter.locale}`,
+      );
+      continue;
+    }
+    map.set(frontmatter.pageKey, { filePath, content });
   }
 
   return map;
-}
-
-function resolveContentPath(locale, slug) {
-  const localeDir = path.join(CONTENT_ROOT, locale);
-  const candidates = [`${slug}.mdx`, `${slug}.md`];
-
-  for (const candidate of candidates) {
-    const candidatePath = path.join(localeDir, candidate);
-    if (fs.existsSync(candidatePath)) {
-      return candidatePath;
-    }
-  }
-
-  return path.join(localeDir, `${slug}.mdx`);
 }
 
 function contentSignalLength(content) {
@@ -146,13 +156,14 @@ for (const pageKey of pageKeys) {
       errors.push(`Page manifest for ${pageKey} missing locale mapping: ${locale}`);
       continue;
     }
-
-    const slug =
-      mappedPath === `/${locale}/` ? 'index' : mappedPath.split('/').filter(Boolean).at(-1);
-    const contentPath = resolveContentPath(locale, slug);
+    const manifestEntry = getPageEntry(pageKey, locale);
     const ogPath = path.join(OG_ROOT, locale, `${pageKey}.jpg`);
 
-    assertExists(contentPath, `Content page for ${pageKey} (${locale})`);
+    if (!manifestEntry?.filePath) {
+      errors.push(`Page manifest missing file path for ${pageKey} (${locale})`);
+    } else {
+      assertExists(manifestEntry.filePath, `Content page for ${pageKey} (${locale})`);
+    }
     assertExists(ogPath, `OG image for ${pageKey} (${locale})`);
   }
 }

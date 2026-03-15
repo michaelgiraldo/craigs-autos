@@ -1,83 +1,39 @@
 ---
-import type { LocaleKey, LocalizedText } from '../types/site';
-import LightboxGallery from './LightboxGallery.astro';
+import type {
+	BeforeAfterPair,
+	GalleryImage,
+	LocaleKey,
+	LocalizedText,
+	ShowcaseSectionWithMedia,
+} from '../types/site';
+import { getShowcaseSections } from '../data/galleries/page-showcase.js';
 import BeforeAfterPairGrid from './BeforeAfterPairGrid.astro';
-import {
-	BEFORE_AFTER_SHOWCASE_PAIRS,
-	SHOWCASE_COPY,
-	getCarSeatsAllImages,
-	getHomeShowcaseImages,
-	getMotorcycleSeatHighlightImages,
-	getServiceGalleryHighlightImages,
-} from '../data/galleries/page-showcase.js';
-
-type ShowcasePageKey = keyof typeof SHOWCASE_COPY;
-
-type ShowcaseCopy = {
-	title?: LocalizedText;
-	highlightTitle?: LocalizedText;
-	beforeAfterTitle?: LocalizedText;
-};
+import LightboxGallery from './LightboxGallery.astro';
 
 interface Props {
 	locale?: LocaleKey;
-	pageKey?: string;
+	showcaseId: string;
 }
 
-const { locale = 'en', pageKey = 'home' } = Astro.props as Props;
+const { locale = 'en', showcaseId } = Astro.props as Props;
+const sections = (await getShowcaseSections(showcaseId)) as ShowcaseSectionWithMedia[];
 const resolveCopy = (value?: LocalizedText) => value?.[locale] ?? value?.en ?? '';
-const copy = (SHOWCASE_COPY[pageKey as ShowcasePageKey] ?? SHOWCASE_COPY.home) as ShowcaseCopy;
-const homeShowcaseImages = pageKey === 'home' ? await getHomeShowcaseImages() : [];
-const carSeatsAllImages = pageKey === 'carSeats' ? await getCarSeatsAllImages() : [];
-const serviceGalleryHighlightImages =
-	pageKey === 'gallery' ? await getServiceGalleryHighlightImages() : [];
-const motorcycleSeatHighlightImages =
-	pageKey === 'motorcycleSeats' ? await getMotorcycleSeatHighlightImages() : [];
 ---
 
-{pageKey === 'home' ? (
-	<section class="page-showcase" aria-label={resolveCopy(copy.title)}>
-		<h2>{resolveCopy(copy.title)}</h2>
-		<LightboxGallery images={homeShowcaseImages} locale={locale} />
-	</section>
-) : null}
-
-{pageKey === 'carSeats' ? (
-	<section class="page-showcase" aria-label={resolveCopy(copy.highlightTitle)}>
-		<h2>{resolveCopy(copy.highlightTitle)}</h2>
-		<LightboxGallery images={carSeatsAllImages} locale={locale} />
-	</section>
-) : null}
-
-{pageKey === 'gallery' ? (
-	<section class="page-showcase" aria-label={resolveCopy(copy.highlightTitle)}>
-		<h2>{resolveCopy(copy.highlightTitle)}</h2>
-		<LightboxGallery images={serviceGalleryHighlightImages} locale={locale} />
-	</section>
-) : null}
-
-{pageKey === 'carSeats' ? (
-	<BeforeAfterPairGrid
-		pairs={BEFORE_AFTER_SHOWCASE_PAIRS}
-		locale={locale}
-		label={resolveCopy(copy.beforeAfterTitle)}
-	/>
-) : null}
-
-{pageKey === 'gallery' ? (
-	<BeforeAfterPairGrid
-		pairs={BEFORE_AFTER_SHOWCASE_PAIRS}
-		locale={locale}
-		label={resolveCopy(copy.beforeAfterTitle)}
-	/>
-) : null}
-
-{pageKey === 'motorcycleSeats' ? (
-	<section class="page-showcase" aria-label={resolveCopy(copy.highlightTitle)}>
-		<h2>{resolveCopy(copy.highlightTitle)}</h2>
-		<LightboxGallery images={motorcycleSeatHighlightImages} locale={locale} />
-	</section>
-) : null}
+{sections.map((section: ShowcaseSectionWithMedia) =>
+	section.type === 'beforeAfter' ? (
+		<BeforeAfterPairGrid
+			pairs={(section.pairs ?? []) as BeforeAfterPair[]}
+			locale={locale}
+			label={resolveCopy(section.title)}
+		/>
+	) : (
+		<section class="page-showcase" aria-label={resolveCopy(section.title)}>
+			{resolveCopy(section.title) ? <h2>{resolveCopy(section.title)}</h2> : null}
+			<LightboxGallery images={(section.images ?? []) as GalleryImage[]} locale={locale} />
+		</section>
+	),
+)}
 
 <style>
 	.page-showcase {

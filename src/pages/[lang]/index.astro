@@ -7,19 +7,12 @@ import { LOCALES } from '../../lib/site-data.js';
 import { getTranslations, resolveLocaleKey } from '../../lib/site-data/page-registry.js';
 
 export async function getStaticPaths() {
-	const parseEntryPath = (entryId: string) => entryId.replace(/\.mdx?$/, '').split('/');
 	const entries = await getCollection('pages');
-	const indexEntries = entries.filter((entry) => {
-		const [, ...slugParts] = parseEntryPath(entry.id);
-		const slug = slugParts.join('/');
-		return !slug || slug === 'index';
-	});
+	const indexEntries = entries.filter((entry) => entry.data.slug === 'index');
 
 	return indexEntries.map((entry) => {
-		const [lang] = parseEntryPath(entry.id);
-
 		return {
-			params: { lang },
+			params: { lang: entry.data.locale },
 			props: { entry },
 		};
 	});
@@ -30,8 +23,7 @@ interface Props {
 }
 
 const { entry } = Astro.props as Props;
-const [entryLocale] = entry.id.replace(/\.mdx?$/, '').split('/');
-const locale = resolveLocaleKey(entryLocale) as LocaleKey;
+const locale = resolveLocaleKey(entry.data.locale) as LocaleKey;
 const pageKey = entry.data.pageKey;
 const translations = getTranslations(pageKey);
 const canonicalPath = translations?.[locale] ?? `/${locale}/`;

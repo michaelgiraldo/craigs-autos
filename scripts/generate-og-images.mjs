@@ -244,6 +244,8 @@ function parseFrontmatter(raw, filePath) {
     title: parseField('title'),
     description: parseField('description'),
     pageKey: parseField('pageKey'),
+    locale: parseField('locale'),
+    slug: parseField('slug'),
   };
 }
 
@@ -455,16 +457,22 @@ async function collectEntries() {
 
       const fullPath = path.join(CONTENT_ROOT, locale, file);
       const raw = await fs.readFile(fullPath, 'utf8');
-      const { title, description, pageKey } = parseFrontmatter(raw, fullPath);
+      const {
+        title,
+        description,
+        pageKey,
+        locale: declaredLocale,
+      } = parseFrontmatter(raw, fullPath);
+      const entryLocale = declaredLocale ?? locale;
 
-      const dedupeKey = `${locale}/${pageKey}`;
+      const dedupeKey = `${entryLocale}/${pageKey}`;
       if (dedupe.has(dedupeKey)) {
         throw new Error(`Duplicate pageKey for locale found: ${dedupeKey}`);
       }
       dedupe.add(dedupeKey);
 
       entries.push({
-        locale,
+        locale: entryLocale,
         pageKey,
         title: normalizeOgTitle(title),
         description: normalizeText(description),

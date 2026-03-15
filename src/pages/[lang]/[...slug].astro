@@ -7,22 +7,14 @@ import { LOCALES } from '../../lib/site-data.js';
 import { getTranslations, resolveLocaleKey } from '../../lib/site-data/page-registry.js';
 
 export async function getStaticPaths() {
-	const parseEntryPath = (entryId: string) => entryId.replace(/\.mdx?$/, '').split('/');
 	const entries = await getCollection('pages');
-	const nonIndexEntries = entries.filter((entry) => {
-		const [, ...slugParts] = parseEntryPath(entry.id);
-		const slug = slugParts.join('/');
-		return slug && slug !== 'index';
-	});
+	const nonIndexEntries = entries.filter((entry) => entry.data.slug !== 'index');
 
 	return nonIndexEntries.map((entry) => {
-		const [lang, ...slugParts] = parseEntryPath(entry.id);
-		const slug = slugParts.join('/');
-
 		return {
 			params: {
-				lang,
-				slug,
+				lang: entry.data.locale,
+				slug: entry.data.slug,
 			},
 			props: { entry },
 		};
@@ -34,9 +26,8 @@ interface Props {
 }
 
 const { entry } = Astro.props as Props;
-const [entryLocale, ...slugParts] = entry.id.replace(/\.mdx?$/, '').split('/');
-const locale = resolveLocaleKey(entryLocale) as LocaleKey;
-const slug = slugParts.join('/');
+const locale = resolveLocaleKey(entry.data.locale) as LocaleKey;
+const slug = entry.data.slug;
 const pageKey = entry.data.pageKey;
 const translations = getTranslations(pageKey);
 const canonicalPath = translations?.[locale] ?? `/${locale}/${slug}/`;

@@ -36,75 +36,83 @@ const parseFrontmatter = (content, filePath) => {
 		title: readField('title'),
 		description: readField('description'),
 		pageKey: readField('pageKey'),
+		locale: readField('locale'),
+		slug: readField('slug'),
 	};
 };
 
-const listPageFiles = () => {
-	const localeDirs = fs
-		.readdirSync(CONTENT_ROOT, { withFileTypes: true })
-		.filter((entry) => entry.isDirectory())
-		.map((entry) => entry.name)
-		.sort((left, right) => left.localeCompare(right, 'en'));
-
+const listPageFiles = (dir = CONTENT_ROOT) => {
+	const entries = fs.readdirSync(dir, { withFileTypes: true });
 	const pageFiles = [];
 
-	for (const locale of localeDirs) {
-		const localeDir = path.join(CONTENT_ROOT, locale);
-		const localeFiles = fs
-			.readdirSync(localeDir, { withFileTypes: true })
-			.filter((entry) => entry.isFile() && PAGE_FILE_PATTERN.test(entry.name))
-			.map((entry) => entry.name)
-			.sort((left, right) => left.localeCompare(right, 'en'));
+	for (const entry of entries) {
+		const entryPath = path.join(dir, entry.name);
 
-		for (const fileName of localeFiles) {
-			const filePath = path.join(localeDir, fileName);
-			pageFiles.push({ locale, fileName, filePath });
+		if (entry.isDirectory()) {
+			pageFiles.push(...listPageFiles(entryPath));
+			continue;
+		}
+
+		if (entry.isFile() && PAGE_FILE_PATTERN.test(entry.name)) {
+			pageFiles.push(entryPath);
 		}
 	}
 
-	return pageFiles;
+	return pageFiles.sort((left, right) => left.localeCompare(right, 'en'));
 };
 
 const getManifestSignature = (pageFiles) =>
 	pageFiles
-		.map(({ filePath }) => {
+		.map((filePath) => {
 			const stats = fs.statSync(filePath);
 			return `${filePath}:${stats.mtimeMs}`;
 		})
 		.join('|');
 
+const buildPagePath = (locale, slug) => (slug === 'index' ? `/${locale}/` : `/${locale}/${slug}/`);
+
 const buildPageManifest = (pageFiles) => {
 	const manifestByKey = {};
 	const entries = [];
 
-	for (const { locale, fileName, filePath } of pageFiles) {
-			const content = fs.readFileSync(filePath, 'utf-8');
-			const frontmatter = parseFrontmatter(content, filePath);
-			const pageKey = frontmatter.pageKey;
+	for (const filePath of pageFiles) {
+		const content = fs.readFileSync(filePath, 'utf-8');
+		const frontmatter = parseFrontmatter(content, filePath);
+		const { description, locale, pageKey, slug, title } = frontmatter;
 
-			if (!pageKey) {
-				throw new Error(`Missing pageKey in ${filePath}`);
-			}
+		if (!pageKey) {
+			throw new Error(`Missing pageKey in ${filePath}`);
+		}
 
-			const slug = fileName.replace(PAGE_FILE_PATTERN, '');
-			const pagePath = slug === 'index' ? `/${locale}/` : `/${locale}/${slug}/`;
-			const entry = {
-				locale,
-				slug,
-				path: pagePath,
-				pageKey,
-				title: frontmatter.title,
-				description: frontmatter.description,
-				filePath,
-			};
+		if (!locale) {
+			throw new Error(`Missing locale in ${filePath}`);
+		}
 
-			manifestByKey[pageKey] ??= { key: pageKey, locales: {} };
-			if (manifestByKey[pageKey].locales[locale]) {
-				throw new Error(`Duplicate localized page for ${pageKey}/${locale}: ${filePath}`);
-			}
+		if (!LOCALES[locale]) {
+			throw new Error(`Unknown locale "${locale}" in ${filePath}`);
+		}
 
-			manifestByKey[pageKey].locales[locale] = entry;
-			entries.push(entry);
+		if (!slug) {
+			throw new Error(`Missing slug in ${filePath}`);
+		}
+
+		const entry = {
+			locale,
+			slug,
+			path: buildPagePath(locale, slug),
+			pageKey,
+			title,
+			description,
+			filePath,
+		};
+
+		manifestByKey[pageKey] ??= { key: pageKey, locales: {} };
+		if (manifestByKey[pageKey].locales[locale]) {
+			throw new Error(`Duplicate localized page for ${pageKey}/${locale}: ${filePath}`);
+		}
+
+		manifestByKey[pageKey].locales[locale] = entry;
+		entries.push(entry);
 	}
 
 	return {
@@ -135,7 +143,9 @@ export function getManifestPageKeys() {
 }
 
 export function getManifestPageEntries() {
-	return getManifestState().entries;
+	return [...getManifestState().entries].sort((left, right) =>
+		`${left.locale}/${left.pageKey}`.localeCompare(`${right.locale}/${right.pageKey}`, 'en'),
+	);
 }
 
 export function getPageLocales(pageKey) {

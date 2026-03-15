@@ -1,342 +1,174 @@
+import { getCollection } from 'astro:content';
 import { getProjectImage } from '../projects/index.js';
-import { CAR_SEATS_GALLERY } from './car-seats.js';
-import { CAR_SEATS_BEFORE_AFTER } from './car-seats-before-after.js';
-import { MOTORCYCLE_SEATS_GALLERY } from './motorcycle-seats.js';
 
-const findById = (items, id) => items.find((item) => item.id === id);
+const GALLERY_IMAGE_MODULES = import.meta.glob(
+	'../../assets/images/**/*.{avif,gif,jpeg,jpg,png,webp}',
+	{
+		eager: true,
+		import: 'default',
+	},
+);
 
-const GENERIC_SEAT_ALT = {
-	en: 'Car seat upholstery example.',
-	es: 'Ejemplo de tapiceria de asiento de auto.',
-	vi: 'Vi du boc ghe xe hoi.',
-	'zh-hans': '汽车座椅内饰案例。',
-	tl: 'Halimbawa ng upholstery ng upuan ng sasakyan.',
-	id: 'Contoh hasil upholstery jok mobil.',
-	ko: '자동차 시트 업홀스터리 사례.',
-	hi: 'कार सीट अपहोल्स्ट्री उदाहरण।',
-	pa: 'ਕਾਰ ਸੀਟ ਅਪਹੋਲਸਟਰੀ ਉਦਾਹਰਨ।',
-	'pt-br': 'Exemplo de estofamento de banco automotivo.',
-	'zh-hant': '汽車座椅內裝案例。',
-	ja: '車のシート張り替え事例。',
-	ar: 'مثال على تنجيد مقعد سيارة.',
-	ru: 'Пример перетяжки автомобильного сиденья.',
-	ta: 'கார் சீட் உள்வடிவு உதாரணம்.',
-};
+const GALLERY_IMAGE_PREFIX = '../../assets/images/';
 
-const GENERIC_SEAT_CAPTION = {
-	en: 'Car seat upholstery example.',
-	es: 'Ejemplo de tapiceria de asiento.',
-	vi: 'Vi du boc ghe xe.',
-	'zh-hans': '座椅翻新案例。',
-	tl: 'Halimbawa ng seat upholstery.',
-	id: 'Contoh hasil pelapisan ulang jok mobil.',
-	ko: '시트 업홀스터리 사례.',
-	hi: 'सीट अपहोल्स्ट्री उदाहरण।',
-	pa: 'ਸੀਟ ਅਪਹੋਲਸਟਰੀ ਉਦਾਹਰਨ।',
-	'pt-br': 'Exemplo de estofamento de banco.',
-	'zh-hant': '座椅翻新案例。',
-	ja: 'シート張り替え事例。',
-	ar: 'مثال على تنجيد المقاعد.',
-	ru: 'Пример перетяжки сидений.',
-	ta: 'சீட் உள்வடிவு உதாரணம்.',
-};
+const GALLERY_IMAGE_ASSETS = new Map(
+	Object.entries(GALLERY_IMAGE_MODULES).map(([assetPath, asset]) => [
+		assetPath.slice(GALLERY_IMAGE_PREFIX.length),
+		asset,
+	]),
+);
 
-const GENERIC_MOTORCYCLE_ALT = {
-	en: 'Motorcycle seat upholstery example.',
-	es: 'Ejemplo de tapiceria de asiento de motocicleta.',
-	vi: 'Vi du boc yen xe may.',
-	'zh-hans': '摩托车座椅内饰案例。',
-	tl: 'Halimbawa ng upholstery ng upuan ng motorsiklo.',
-	id: 'Contoh hasil upholstery jok motor.',
-	ko: '오토바이 시트 업홀스터리 사례.',
-	hi: 'मोटरसाइकिल सीट अपहोल्स्ट्री उदाहरण।',
-	pa: 'ਮੋਟਰਸਾਈਕਲ ਸੀਟ ਅਪਹੋਲਸਟਰੀ ਉਦਾਹਰਨ।',
-	'pt-br': 'Exemplo de estofamento de banco de motocicleta.',
-	'zh-hant': '摩托車座椅內裝案例。',
-	ja: 'バイクシート張り替え事例。',
-	ar: 'مثال على تنجيد مقعد دراجة نارية.',
-	ru: 'Пример перетяжки сиденья мотоцикла.',
-	ta: 'மோட்டார் சைக்கிள் சீட் உள்வடிவு உதாரணம்.',
-};
+const hydrateGalleryMedia = (image, sourceId) => {
+	const asset = GALLERY_IMAGE_ASSETS.get(image.assetPath);
 
-const GENERIC_MOTORCYCLE_CAPTION = {
-	en: 'Motorcycle seat upholstery example.',
-	es: 'Ejemplo de asiento de motocicleta tapizado.',
-	vi: 'Vi du yen xe may boc lai.',
-	'zh-hans': '摩托车座椅翻新案例。',
-	tl: 'Halimbawa ng reupholstery ng upuan ng motorsiklo.',
-	id: 'Contoh hasil pelapisan ulang jok motor.',
-	ko: '오토바이 시트 재커버 사례.',
-	hi: 'मोटरसाइकिल सीट री-अपहोल्स्ट्री उदाहरण।',
-	pa: 'ਮੋਟਰਸਾਈਕਲ ਸੀਟ ਰੀ-ਅਪਹੋਲਸਟਰੀ ਉਦਾਹਰਨ।',
-	'pt-br': 'Exemplo de reestofamento de banco de motocicleta.',
-	'zh-hant': '摩托車座椅翻新案例。',
-	ja: 'バイクシート張り替え事例。',
-	ar: 'مثال على إعادة تنجيد مقعد الدراجة النارية.',
-	ru: 'Пример перетяжки сиденья мотоцикла.',
-	ta: 'மோட்டார் சைக்கிள் சீட் மீள் உள்வடிவு உதாரணம்.',
-};
-
-const withSeatCopy = (item) =>
-	item
-		? {
-				...item,
-				alt: { ...GENERIC_SEAT_ALT, en: item.alt?.en ?? GENERIC_SEAT_ALT.en },
-				caption: { ...GENERIC_SEAT_CAPTION, en: item.caption?.en ?? GENERIC_SEAT_CAPTION.en },
-			}
-		: null;
-
-const withMotorcycleCopy = (item) =>
-	item
-		? {
-				...item,
-				alt: { ...GENERIC_MOTORCYCLE_ALT, en: item.alt?.en ?? GENERIC_MOTORCYCLE_ALT.en },
-				caption: {
-					...GENERIC_MOTORCYCLE_CAPTION,
-					en: item.caption?.en ?? GENERIC_MOTORCYCLE_CAPTION.en,
-				},
-			}
-		: null;
-
-const CAR_SEATS_ALL_IMAGES = [...CAR_SEATS_GALLERY.map(withSeatCopy)].filter(Boolean);
-
-const MOTORCYCLE_SEAT_HIGHLIGHT_IMAGES = [
-	withMotorcycleCopy(findById(MOTORCYCLE_SEATS_GALLERY, 'motorcycle-seat-upholstery-green-finish')),
-	withMotorcycleCopy(findById(MOTORCYCLE_SEATS_GALLERY, 'ktm-orange-motorcycle-seat-top-view')),
-].filter(Boolean);
-
-export const BEFORE_AFTER_SHOWCASE_PAIRS = CAR_SEATS_BEFORE_AFTER;
-
-let homeShowcaseImagesPromise;
-let serviceGalleryHighlightImagesPromise;
-
-export const getHomeShowcaseImages = async () => {
-	if (!homeShowcaseImagesPromise) {
-		homeShowcaseImagesPromise = Promise.all([
-			getProjectImage('porsche-boxster-s-seat-project', 'door-panel'),
-			getProjectImage('buick-eight', 'headliner'),
-		]).then((projectImages) =>
-			[
-				...projectImages,
-				withSeatCopy(findById(CAR_SEATS_GALLERY, 'custom-seat-set-two-tone-upholstery')),
-				withSeatCopy(findById(CAR_SEATS_GALLERY, 'classic-rear-bench-seat-upholstery')),
-				withSeatCopy(findById(CAR_SEATS_GALLERY, 'classic-red-bench-seat-detail')),
-				withSeatCopy(findById(CAR_SEATS_GALLERY, 'suv-diamond-stitched-seat-interior')),
-				withSeatCopy(findById(CAR_SEATS_GALLERY, 'red-black-classic-front-seats-interior')),
-				withSeatCopy(findById(CAR_SEATS_GALLERY, 'recaro-classic-bucket-seat-front-view')),
-				withSeatCopy(findById(CAR_SEATS_GALLERY, 'rv-captain-seat-upholstery-installed')),
-				withSeatCopy(findById(CAR_SEATS_GALLERY, 'boat-seat-black-vinyl-upholstery')),
-				withMotorcycleCopy(
-					findById(MOTORCYCLE_SEATS_GALLERY, 'motorcycle-seat-upholstery-green-finish'),
-				),
-				withMotorcycleCopy(
-					findById(MOTORCYCLE_SEATS_GALLERY, 'ktm-orange-motorcycle-seat-top-view'),
-				),
-			].filter(Boolean),
-		);
+	if (!asset) {
+		throw new Error(`Missing gallery asset for ${sourceId}: ${image.assetPath}`);
 	}
 
-	return homeShowcaseImagesPromise;
+	return {
+		...image,
+		asset,
+	};
 };
 
-export const getCarSeatsAllImages = async () => CAR_SEATS_ALL_IMAGES;
+const hydrateGallery = (entry) => {
+	const id = entry.data.id ?? entry.id;
 
-export const getServiceGalleryHighlightImages = async () => {
-	if (!serviceGalleryHighlightImagesPromise) {
-		serviceGalleryHighlightImagesPromise = Promise.all([
-			getProjectImage('porsche-boxster-s-seat-project', 'front-seats-installed'),
-			getProjectImage('buick-eight', 'front-seats'),
-		]).then((projectImages) =>
-			[
-				withSeatCopy(findById(CAR_SEATS_GALLERY, 'sedan-front-seats-reupholstery-installed')),
-				withSeatCopy(findById(CAR_SEATS_GALLERY, 'custom-seat-set-two-tone-upholstery')),
-				withSeatCopy(findById(CAR_SEATS_GALLERY, 'recaro-classic-bucket-seat-front-view')),
-				withSeatCopy(findById(CAR_SEATS_GALLERY, 'red-black-classic-front-seats-interior')),
-				withMotorcycleCopy(
-					findById(MOTORCYCLE_SEATS_GALLERY, 'motorcycle-seat-upholstery-green-finish'),
-				),
-				withMotorcycleCopy(
-					findById(MOTORCYCLE_SEATS_GALLERY, 'ktm-orange-motorcycle-seat-top-view'),
-				),
-				...projectImages,
-			].filter(Boolean),
-		);
+	if (entry.data.kind === 'beforeAfter') {
+		return {
+			...entry.data,
+			id,
+			pairs: (entry.data.pairs ?? []).map((pair) => ({
+				...pair,
+				before: hydrateGalleryMedia(pair.before, `${id}:before:${pair.pairId}`),
+				after: hydrateGalleryMedia(pair.after, `${id}:after:${pair.pairId}`),
+			})),
+		};
 	}
 
-	return serviceGalleryHighlightImagesPromise;
+	return {
+		...entry.data,
+		id,
+		images: (entry.data.images ?? []).map((image) => hydrateGalleryMedia(image, id)),
+	};
 };
 
-export const getMotorcycleSeatHighlightImages = async () => MOTORCYCLE_SEAT_HIGHLIGHT_IMAGES;
+const hydrateShowcase = (entry) => ({
+	...entry.data,
+	id: entry.data.id ?? entry.id,
+});
 
-export const SHOWCASE_COPY = {
-	home: {
-		title: {
-			en: 'Upholstery examples',
-			es: 'Ejemplos de tapiceria',
-			vi: 'Vi du boc ghe',
-			'zh-hans': '内饰案例',
-			tl: 'Mga halimbawa ng upholstery',
-			id: 'Contoh upholstery',
-			ko: '업홀스터리 작업 사례',
-			hi: 'अपहोल्स्ट्री उदाहरण',
-			pa: 'ਅਪਹੋਲਸਟਰੀ ਉਦਾਹਰਨ',
-			'pt-br': 'Exemplos de estofamento',
-			'zh-hant': '內裝案例',
-			ja: '張り替え事例',
-			ar: 'أمثلة لأعمال التنجيد',
-			ru: 'Примеры перетяжки',
-			ta: 'உள்வடிவு உதாரணங்கள்',
-		},
-	},
-	carSeats: {
-		highlightTitle: {
-			en: 'Car seat gallery',
-			es: 'Galeria de asientos',
-			vi: 'Thu vien ghe xe',
-			'zh-hans': '座椅案例',
-			tl: 'Gallery ng upuan ng sasakyan',
-			id: 'Galeri jok mobil',
-			ko: '자동차 시트 갤러리',
-			hi: 'कार सीट गैलरी',
-			pa: 'ਕਾਰ ਸੀਟ ਗੈਲਰੀ',
-			'pt-br': 'Galeria de bancos automotivos',
-			'zh-hant': '座椅案例',
-			ja: 'シート施工ギャラリー',
-			ar: 'معرض مقاعد السيارات',
-			ru: 'Галерея автосидений',
-			ta: 'கார் சீட் கேலரி',
-		},
-		beforeAfterTitle: {
-			en: 'Before and after seat examples',
-			es: 'Ejemplos de asientos antes y despues',
-			vi: 'Vi du ghe truoc va sau',
-			'zh-hans': '座椅前后对比',
-			tl: 'Mga halimbawa ng upuan bago at pagkatapos',
-			id: 'Contoh jok sebelum dan sesudah',
-			ko: '시트 작업 전후 사례',
-			hi: 'सीट पहले और बाद के उदाहरण',
-			pa: 'ਸੀਟ ਪਹਿਲਾਂ ਅਤੇ ਬਾਅਦ ਦੇ ਉਦਾਹਰਨ',
-			'pt-br': 'Exemplos de bancos antes e depois',
-			'zh-hant': '座椅前後對比',
-			ja: 'シートの施工前後事例',
-			ar: 'أمثلة قبل وبعد لمقاعد السيارات',
-			ru: 'Примеры сидений до и после',
-			ta: 'சீட் முன் மற்றும் பின் உதாரணங்கள்',
-		},
-	},
-	gallery: {
-		highlightTitle: {
-			en: 'Service gallery highlights',
-			es: 'Destacados de la galeria de servicios',
-			vi: 'Diem nhan thu vien dich vu',
-			'zh-hans': '服务案例精选',
-			tl: 'Mga tampok sa gallery ng serbisyo',
-			id: 'Sorotan galeri layanan',
-			ko: '서비스 갤러리 하이라이트',
-			hi: 'सेवा गैलरी मुख्य उदाहरण',
-			pa: 'ਸੇਵਾ ਗੈਲਰੀ ਮੁੱਖ ਉਦਾਹਰਨ',
-			'pt-br': 'Destaques da galeria de servicos',
-			'zh-hant': '服務案例精選',
-			ja: 'サービス施工の注目例',
-			ar: 'أبرز صور معرض الخدمات',
-			ru: 'Ключевые примеры из галереи услуг',
-			ta: 'சேவை கேலரி முக்கிய உதாரணங்கள்',
-		},
-		beforeAfterTitle: {
-			en: 'Before and after seat examples',
-			es: 'Ejemplos de asientos antes y despues',
-			vi: 'Vi du ghe truoc va sau',
-			'zh-hans': '座椅前后对比',
-			tl: 'Mga halimbawa ng upuan bago at pagkatapos',
-			id: 'Contoh jok sebelum dan sesudah',
-			ko: '시트 작업 전후 사례',
-			hi: 'सीट पहले और बाद के उदाहरण',
-			pa: 'ਸੀਟ ਪਹਿਲਾਂ ਅਤੇ ਬਾਅਦ ਦੇ ਉਦਾਹਰਨ',
-			'pt-br': 'Exemplos de bancos antes e depois',
-			'zh-hant': '座椅前後對比',
-			ja: 'シートの施工前後事例',
-			ar: 'أمثلة قبل وبعد لمقاعد السيارات',
-			ru: 'Примеры сидений до и после',
-			ta: 'சீட் முன் மற்றும் பின் உதாரணங்கள்',
-		},
-	},
-	motorcycleSeats: {
-		highlightTitle: {
-			en: 'Motorcycle seat examples',
-			es: 'Ejemplos de asientos de motocicleta',
-			vi: 'Vi du yen xe may',
-			'zh-hans': '摩托车座椅案例',
-			tl: 'Mga halimbawa ng upuan ng motorsiklo',
-			id: 'Contoh jok motor',
-			ko: '오토바이 시트 사례',
-			hi: 'मोटरसाइकिल सीट उदाहरण',
-			pa: 'ਮੋਟਰਸਾਈਕਲ ਸੀਟ ਉਦਾਹਰਨ',
-			'pt-br': 'Exemplos de bancos de motocicleta',
-			'zh-hant': '摩托車座椅案例',
-			ja: 'バイクシート事例',
-			ar: 'أمثلة لمقاعد الدراجات النارية',
-			ru: 'Примеры сидений мотоцикла',
-			ta: 'மோட்டார் சைக்கிள் சீட் உதாரணங்கள்',
-		},
-	},
+let galleriesByIdPromise;
+let showcasesByIdPromise;
+const resolveReferenceId = (value) =>
+	typeof value === 'string' ? value : value?.id;
+
+const getGalleriesById = async () => {
+	if (!galleriesByIdPromise) {
+		galleriesByIdPromise = getCollection('galleries').then((entries) => {
+			const galleries = entries.map(hydrateGallery);
+			return new Map(galleries.map((gallery) => [gallery.id, gallery]));
+		});
+	}
+
+	return galleriesByIdPromise;
 };
 
-Object.assign(GENERIC_SEAT_ALT, {
-	fa: 'نمونه روکش صندلی خودرو.',
-	te: 'కార్ సీటు అప్హోల్స్టరీ ఉదాహరణ.',
-	fr: 'Exemple de garnissage de siège auto.',
-});
+const getShowcasesById = async () => {
+	if (!showcasesByIdPromise) {
+		showcasesByIdPromise = getCollection('showcases').then((entries) => {
+			const showcases = entries.map(hydrateShowcase);
+			return new Map(showcases.map((showcase) => [showcase.id, showcase]));
+		});
+	}
 
-Object.assign(GENERIC_SEAT_CAPTION, {
-	fa: 'نمونه بازروکشی صندلی خودرو.',
-	te: 'సీటు రీ-అప్హోల్స్టరీ ఉదాహరణ.',
-	fr: 'Exemple de réfection de siège.',
-});
+	return showcasesByIdPromise;
+};
 
-Object.assign(GENERIC_MOTORCYCLE_ALT, {
-	fa: 'نمونه روکش زین موتورسیکلت.',
-	te: 'మోటార్‌సైకిల్ సీటు అప్హోల్స్టరీ ఉదాహరణ.',
-	fr: 'Exemple de garnissage de selle moto.',
-});
+export const getGallery = async (id) => {
+	const galleriesById = await getGalleriesById();
+	return galleriesById.get(id);
+};
 
-Object.assign(GENERIC_MOTORCYCLE_CAPTION, {
-	fa: 'نمونه بازروکشی زین موتورسیکلت.',
-	te: 'మోటార్‌సైకిల్ సీటు రీ-అప్హోల్స్టరీ ఉదాహరణ.',
-	fr: 'Exemple de réfection de selle moto.',
-});
+export const getShowcase = async (id) => {
+	const showcasesById = await getShowcasesById();
+	return showcasesById.get(id);
+};
 
-Object.assign(SHOWCASE_COPY.home.title, {
-	fa: 'نمونه‌های روکش',
-	te: 'అప్హోల్స్టరీ ఉదాహరణలు',
-	fr: 'Exemples de garnissage',
-});
+const resolveShowcaseItems = async (items = []) =>
+	Promise.all(
+		items.map(async (item) => {
+			if (item.type === 'projectImage') {
+				const projectId = resolveReferenceId(item.project);
+				const image = await getProjectImage(projectId, item.imageId);
 
-Object.assign(SHOWCASE_COPY.carSeats.highlightTitle, {
-	fa: 'گالری صندلی خودرو',
-	te: 'కార్ సీట్ల గ్యాలరీ',
-	fr: 'Galerie des sièges auto',
-});
+				if (!image) {
+					throw new Error(
+						`Missing project showcase image for ${projectId}: ${item.imageId}`,
+					);
+				}
 
-Object.assign(SHOWCASE_COPY.carSeats.beforeAfterTitle, {
-	fa: 'نمونه‌های قبل و بعد صندلی',
-	te: 'సీట్ల ముందు-తర్వాత ఉదాహరణలు',
-	fr: 'Exemples avant/après des sièges',
-});
+				return image;
+			}
 
-Object.assign(SHOWCASE_COPY.gallery.highlightTitle, {
-	fa: 'منتخب گالری خدمات',
-	te: 'సేవల గ్యాలరీ ముఖ్య ఉదాహరణలు',
-	fr: 'Sélection de la galerie de services',
-});
+			const galleryId = resolveReferenceId(item.gallery);
+			const gallery = await getGallery(galleryId);
 
-Object.assign(SHOWCASE_COPY.gallery.beforeAfterTitle, {
-	fa: 'نمونه‌های قبل و بعد صندلی',
-	te: 'సీట్ల ముందు-తర్వాత ఉదాహరణలు',
-	fr: 'Exemples avant/après des sièges',
-});
+			if (!gallery || gallery.kind !== 'gallery') {
+				throw new Error(`Missing gallery showcase source: ${galleryId}`);
+			}
 
-Object.assign(SHOWCASE_COPY.motorcycleSeats.highlightTitle, {
-	fa: 'نمونه‌های زین موتورسیکلت',
-	te: 'మోటార్‌సైకిల్ సీట్ల ఉదాహరణలు',
-	fr: 'Exemples de selles moto',
-});
+			const image = gallery.images?.find((candidate) => candidate.id === item.imageId);
+
+			if (!image) {
+				throw new Error(`Missing gallery showcase image for ${galleryId}: ${item.imageId}`);
+			}
+
+			return image;
+		}),
+	);
+
+export const getShowcaseSections = async (showcaseId) => {
+	const showcase = await getShowcase(showcaseId);
+
+	if (!showcase) {
+		throw new Error(`Showcase not found: ${showcaseId}`);
+	}
+
+	return Promise.all(
+		(showcase.sections ?? []).map(async (section) => {
+			if (section.type === 'beforeAfter') {
+				const galleryId = resolveReferenceId(section.gallery);
+				const gallery = await getGallery(galleryId);
+
+				if (!gallery || gallery.kind !== 'beforeAfter') {
+					throw new Error(`Before/after gallery not found: ${galleryId}`);
+				}
+
+				return {
+					...section,
+					pairs: gallery.pairs ?? [],
+				};
+			}
+
+			if (section.gallery) {
+				const galleryId = resolveReferenceId(section.gallery);
+				const gallery = await getGallery(galleryId);
+
+				if (!gallery || gallery.kind !== 'gallery') {
+					throw new Error(`Gallery not found: ${galleryId}`);
+				}
+
+				return {
+					...section,
+					images: gallery.images ?? [],
+				};
+			}
+
+			return {
+				...section,
+				images: await resolveShowcaseItems(section.items ?? []),
+			};
+		}),
+	);
+};

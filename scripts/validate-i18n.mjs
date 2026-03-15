@@ -8,6 +8,38 @@ import { getPageKeys, getTranslations } from '../src/lib/site-data/page-registry
 const PARTIAL_LOCALE_PAGE_KEYS = new Set();
 const errors = [];
 const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const parseFrontmatter = (content, filePath) => {
+  const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---/);
+  if (!frontmatterMatch) {
+    errors.push(`Missing frontmatter in ${filePath}`);
+    return null;
+  }
+
+  const block = frontmatterMatch[1];
+  const readField = (key) => {
+    const match = block.match(new RegExp(`^${key}:\\s*(.+)$`, 'm'));
+    if (!match) {
+      errors.push(`Missing ${key} in ${filePath}`);
+      return null;
+    }
+
+    let value = match[1].trim();
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = value.slice(1, -1);
+    }
+
+    return value.replaceAll('\\"', '"').replaceAll("\\'", "'").trim();
+  };
+
+  return {
+    pageKey: readField('pageKey'),
+    locale: readField('locale'),
+    slug: readField('slug'),
+  };
+};
 
 const localeKeys = Object.keys(LOCALES);
 const orderedSet = new Set(LOCALE_ORDER);
@@ -54,8 +86,28 @@ const files = await glob('src/content/pages/*/*.{md,mdx}');
 const pagesByKey = new Map();
 
 for (const file of files) {
-  const locale = path.basename(path.dirname(file));
+  const folderLocale = path.basename(path.dirname(file));
   const content = fs.readFileSync(file, 'utf-8');
+  const frontmatter = parseFrontmatter(content, file);
+
+  if (!frontmatter) {
+    continue;
+  }
+
+  const { locale, pageKey } = frontmatter;
+
+  if (!locale || !pageKey) {
+    continue;
+  }
+
+  if (!LOCALES[locale]) {
+    errors.push(`Unknown locale "${locale}" in ${file}`);
+    continue;
+  }
+
+  if (folderLocale !== locale) {
+    errors.push(`Locale folder mismatch in ${file}: folder=${folderLocale} frontmatter=${locale}`);
+  }
 
   if (locale !== 'en') {
     const missingLocalePattern = /<LocalizedLink\b(?![^>]*\blocale=)[^>]*\bpageKey=/g;
@@ -75,24 +127,6 @@ for (const file of files) {
         `LocalizedLink uses raw path as link text in ${file}. Replace "/${locale}/..." with readable link text.`,
       );
     }
-  }
-
-  const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---/);
-  if (!frontmatterMatch) {
-    errors.push(`Missing frontmatter in ${file}`);
-    continue;
-  }
-  const frontmatter = frontmatterMatch[1];
-  const pageKeyMatch = frontmatter.match(/^pageKey:\s*['"]?(.+?)['"]?\s*$/m);
-  if (!pageKeyMatch) {
-    errors.push(`Missing pageKey in ${file}`);
-    continue;
-  }
-  const pageKey = pageKeyMatch[1];
-
-  if (!LOCALES[locale]) {
-    errors.push(`Unknown locale folder "${locale}" in ${file}`);
-    continue;
   }
 
   if (!pagesByKey.has(pageKey)) {
