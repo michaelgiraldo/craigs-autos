@@ -2,7 +2,7 @@ import { defineFunction } from '@aws-amplify/backend';
 
 export const chatkitAttachmentUpload = defineFunction({
   name: 'chatkit-attachment-upload',
-  runtime: 20,
+  runtime: 24,
   timeoutSeconds: 20,
   environment: {
     CHATKIT_ATTACHMENT_ALLOWED_MIME_TYPES:

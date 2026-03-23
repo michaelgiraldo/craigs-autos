@@ -1,6 +1,7 @@
 {
   "extends": "astro/tsconfigs/strict",
   "compilerOptions": {
+    "lib": ["DOM", "DOM.Iterable", "ES2025"],
     "types": []
   },
   "include": [".astro/types.d.ts", "src/**/*"],

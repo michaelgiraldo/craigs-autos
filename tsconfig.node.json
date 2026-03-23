@@ -1,15 +1,9 @@
 {
+  "extends": "./tsconfig.runtime-base.json",
   "compilerOptions": {
-    "target": "es2022",
     "module": "nodenext",
     "moduleResolution": "nodenext",
-    "noEmit": true,
     "allowJs": true,
-    "resolveJsonModule": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "strict": true,
-    "skipLibCheck": true,
     "types": ["node"]
   },
   "include": ["astro.config.mjs", "server/**/*", "scripts/**/*", "shared/**/*"]

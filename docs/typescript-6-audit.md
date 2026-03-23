@@ -14,6 +14,8 @@ Audit date: March 23, 2026
 - Upgraded to TypeScript `6.0.2`
 - Removed `@astrojs/check` because it still peers on TypeScript `^5.0.0`
 - Added direct `@types/node` to `devDependencies`
+- Added `tsconfig.runtime-base.json` so Node/tooling and Amplify backend configs
+  share the same explicit ES2025 baseline
 - Split TypeScript config by runtime boundary:
   - `tsconfig.json` for Astro/browser-facing code
   - `tsconfig.node.json` for Node scripts and local tooling
@@ -22,15 +24,27 @@ Audit date: March 23, 2026
   - `tsconfig.json` uses `"types": []`
   - `tsconfig.node.json` uses `"types": ["node"]`
   - `amplify/tsconfig.json` uses `"types": ["node"]`
+- Made the language baseline explicit:
+  - `tsconfig.json` keeps Astro's browser-facing target behavior but explicitly
+    uses `lib: ["DOM", "DOM.Iterable", "ES2025"]`
+  - `tsconfig.node.json` and `amplify/tsconfig.json` inherit
+    `target: "es2025"` and `lib: ["ES2025"]`
+- Aligned the remaining older Lambda definition to `runtime: 24` for backend consistency
 
 ## Why these changes matter
 
-TypeScript 6 changes the default `types` behavior toward an explicit model.
-This repo contains browser code, Node scripts, and backend Lambda code with
-different runtime assumptions. Splitting the configs prevents Node globals from
-bleeding into browser-facing files while keeping Node-based code explicit about
-its ambient types. A direct `@types/node` dependency plus explicit `types`
-entries keeps the repo stable as TypeScript continues toward 7.0.
+TypeScript 6 changes the default `types` behavior toward an explicit model, and
+it now supports `target: "es2025"`. This repo contains browser code, Node
+scripts, and backend Lambda code with different runtime assumptions. Splitting
+the configs prevents Node globals from bleeding into browser-facing files while
+keeping Node-based code explicit about its ambient types. A direct
+`@types/node` dependency plus explicit `types` entries keeps the repo stable as
+TypeScript continues toward 7.0.
+
+The repo now uses ES2025 as the explicit TypeScript language baseline for
+runtime-capable code. The browser-facing config keeps Astro/Vite target
+defaults while explicitly opting into ES2025 library types, because the
+installed `esbuild` version does not accept `target = "es2025"` yet.
 
 ## Deprecated features checked in this repo
 
@@ -57,6 +71,6 @@ Still relevant conceptually, but already compatible here:
 
 ## Current conclusion
 
-After the TypeScript 6 migration, this repo compiles and builds cleanly without
-using any deprecated TypeScript 6 configuration or syntax that requires further
-code rewrites.
+After the TypeScript 6 migration and ES2025 baseline update, this repo compiles
+and builds cleanly without using deprecated TypeScript 6 configuration or
+syntax that requires further code rewrites.

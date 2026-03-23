@@ -7,6 +7,27 @@ type ChatKitThreadItem = Awaited<
   ReturnType<OpenAI['beta']['chatkit']['threads']['listItems']>
 >['data'][number];
 
+async function* listThreadItems(
+  openai: OpenAI,
+  threadId: string,
+): AsyncGenerator<ChatKitThreadItem> {
+  let after: string | undefined;
+
+  for (let pageCount = 0; pageCount < 20; pageCount += 1) {
+    const page = await openai.beta.chatkit.threads.listItems(threadId, {
+      order: 'asc',
+      limit: 100,
+      ...(after ? { after } : {}),
+    });
+
+    yield* page.data ?? [];
+
+    if (!page.has_more) break;
+    after = page.last_id ?? after;
+    if (!after) break;
+  }
+}
+
 function joinTextParts(parts: Array<{ text: string }>): string {
   return parts
     .map((part) => part.text)
@@ -39,26 +60,9 @@ export async function buildTranscript(args: {
 
   const thread: ChatKitThread = await args.openai.beta.chatkit.threads.retrieve(args.threadId);
 
-  const items: ChatKitThreadItem[] = [];
-  let after: string | undefined;
-
-  for (let pageCount = 0; pageCount < 20; pageCount += 1) {
-    const page = await args.openai.beta.chatkit.threads.listItems(args.threadId, {
-      order: 'asc',
-      limit: 100,
-      ...(after ? { after } : {}),
-    });
-
-    items.push(...(page?.data ?? []));
-
-    if (!page?.has_more) break;
-    after = page?.last_id ?? after;
-    if (!after) break;
-  }
-
   const lines: TranscriptLine[] = [];
 
-  for (const item of items) {
+  for await (const item of listThreadItems(args.openai, args.threadId)) {
     if (!item || typeof item !== 'object') continue;
 
     if (item.type === 'chatkit.user_message') {
@@ -89,8 +93,8 @@ export async function buildTranscript(args: {
   }
 
   return {
-    threadTitle: thread?.title ?? null,
-    threadUser: thread?.user ?? 'unknown',
+    threadTitle: thread.title ?? null,
+    threadUser: thread.user ?? 'unknown',
     lines,
   };
 }

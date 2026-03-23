@@ -158,34 +158,43 @@ async function startLocalStack(timeoutMs) {
   child.stderr.on('data', (chunk) => readStderr(String(chunk)));
 
   try {
-    const readyBaseUrl = await new Promise((resolve, reject) => {
-      const timeoutId = setTimeout(() => {
-        reject(
-          new Error(
-            `Timed out waiting for local ChatKit dev stack.\nRecent output:\n${recentLines.join('\n')}`,
-          ),
-        );
-      }, timeoutMs);
+    const ready = Promise.withResolvers();
+    const timeoutId = setTimeout(() => {
+      ready.reject(
+        new Error(
+          `Timed out waiting for local ChatKit dev stack.\nRecent output:\n${recentLines.join('\n')}`,
+        ),
+      );
+    }, timeoutMs);
 
-      const checkReady = () => {
-        if (baseUrl && apiReady) {
-          clearTimeout(timeoutId);
-          resolve(baseUrl);
-        }
-      };
+    const cleanup = () => {
+      clearTimeout(timeoutId);
+      child.off('exit', handleExit);
+      child.stdout.off('data', checkReady);
+      child.stderr.off('data', checkReady);
+    };
 
-      child.on('exit', (code) => {
-        clearTimeout(timeoutId);
-        reject(
-          new Error(
-            `Local ChatKit dev stack exited early with code ${code ?? 'unknown'}.\nRecent output:\n${recentLines.join('\n')}`,
-          ),
-        );
-      });
+    const checkReady = () => {
+      if (baseUrl && apiReady) {
+        cleanup();
+        ready.resolve(baseUrl);
+      }
+    };
 
-      child.stdout.on('data', checkReady);
-      child.stderr.on('data', checkReady);
-    });
+    const handleExit = (code) => {
+      cleanup();
+      ready.reject(
+        new Error(
+          `Local ChatKit dev stack exited early with code ${code ?? 'unknown'}.\nRecent output:\n${recentLines.join('\n')}`,
+        ),
+      );
+    };
+
+    child.on('exit', handleExit);
+    child.stdout.on('data', checkReady);
+    child.stderr.on('data', checkReady);
+
+    const readyBaseUrl = await ready.promise;
 
     return {
       baseUrl: readyBaseUrl,
