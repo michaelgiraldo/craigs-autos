@@ -96,6 +96,12 @@ run_npx() {
     npx --yes "$@"
 }
 
+# Use npm-check-updates' peer-aware mode so we do not bump shared tooling
+# past the compatibility window declared by packages in this repo.
+run_ncu() {
+  run_npx npm-check-updates --peer "$@"
+}
+
 dep_update_is_excluded_path() {
   local rel="$1"
   case "$rel" in
@@ -159,7 +165,7 @@ dep_update_normal_mode() {
   package_backup=$(create_dep_update_backup package.json)
   lock_backup=$(create_dep_update_backup package-lock.json)
   before_signature=$(package_json_signature)
-  run_npx npm-check-updates -u
+  run_ncu -u
   after_signature=$(package_json_signature)
 
   if [[ "$before_signature" == "$after_signature" ]]; then
@@ -190,7 +196,7 @@ dep_update_clean_mode() {
   package_backup=$(create_dep_update_backup package.json)
   lock_backup=$(create_dep_update_backup package-lock.json)
   before_signature=$(package_json_signature)
-  run_npx npm-check-updates -u
+  run_ncu -u
   after_signature=$(package_json_signature)
 
   if [[ "$before_signature" == "$after_signature" ]]; then
