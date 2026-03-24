@@ -44,6 +44,7 @@ test('lead-signal handler writes event and case records for valid payload', asyn
       user: 'anon_123',
       locale: 'en',
       clickUrl: 'tel:+14083793820',
+      provider: null,
       attribution: {
         utm_source: 'google',
       },

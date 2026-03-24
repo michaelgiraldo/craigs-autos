@@ -21,12 +21,12 @@ const allowedEventSchema = z.enum([
 
 const leadSignalPayloadSchema = z.looseObject({
   event: z.string(),
-  pageUrl: z.string().optional(),
-  user: z.string().optional(),
-  locale: z.string().optional(),
-  clickUrl: z.string().optional(),
-  provider: z.string().optional(),
-  lead_intent_type: z.string().optional(),
+  pageUrl: z.string().nullable().optional(),
+  user: z.string().nullable().optional(),
+  locale: z.string().nullable().optional(),
+  clickUrl: z.string().nullable().optional(),
+  provider: z.string().nullable().optional(),
+  lead_intent_type: z.string().nullable().optional(),
   attribution: z.unknown().optional(),
 });
 
