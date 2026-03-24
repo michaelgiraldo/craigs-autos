@@ -1,6 +1,4 @@
 ---
-import leadSignalsScriptUrl from '../../scripts/lead-signals.ts?url';
-
 const {
   gtmAllowedOnPage = false,
   gtmId = '',
@@ -36,4 +34,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   </>
 ) : null}
 
-<script is:inline type="module" src={leadSignalsScriptUrl}></script>
+<script>
+  import { initLeadSignals } from '../../scripts/analytics/index.ts';
+
+  initLeadSignals();
+</script>

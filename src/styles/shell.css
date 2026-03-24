@@ -246,13 +246,6 @@
 	gap: 0.45rem;
 }
 
-.header-email__label {
-	color: var(--color-muted);
-	text-transform: uppercase;
-	letter-spacing: 0.08em;
-	font-size: 0.65rem;
-}
-
 .header-email__value {
 	font-variant-numeric: tabular-nums;
 }

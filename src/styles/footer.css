@@ -60,7 +60,7 @@
 	max-width: var(--content-max);
 	margin: 0 auto;
 	display: grid;
-	grid-template-columns: 2fr 1fr 1fr 1fr;
+	grid-template-columns: 2fr 1fr 1fr;
 	gap: 0.75rem;
 }
 
@@ -77,7 +77,8 @@
 }
 
 .sticky-cta__call {
-	background: var(--color-accent);
+	background: rgba(255, 255, 255, 0.14);
+	border: 1px solid rgba(255, 255, 255, 0.2);
 	color: #fff;
 }
 
@@ -86,18 +87,11 @@
 }
 
 .sticky-cta__text {
-	background: rgba(255, 255, 255, 0.14);
-	border: 1px solid rgba(255, 255, 255, 0.2);
+	background: var(--color-accent);
 	color: #fff;
 }
 
 .sticky-cta__email {
-	background: rgba(255, 255, 255, 0.14);
-	border: 1px solid rgba(255, 255, 255, 0.2);
-	color: #fff;
-}
-
-.sticky-cta__dir {
 	background: rgba(255, 255, 255, 0.14);
 	border: 1px solid rgba(255, 255, 255, 0.2);
 	color: #fff;
@@ -108,11 +102,7 @@
 		grid-template-columns: 1fr 1fr;
 	}
 
-	.sticky-cta__call {
-		grid-column: 1 / -1;
-	}
-
-	.sticky-cta__email {
+	.sticky-cta__text {
 		grid-column: 1 / -1;
 	}
 }

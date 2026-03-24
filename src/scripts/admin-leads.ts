@@ -1,5 +1,3 @@
-export {};
-
 const STORAGE_KEY = 'craigs_admin_auth';
 const OUTPUTS_PATH = '/amplify_outputs.json';
 const FETCH_TIMEOUT_MS = 8_000;
@@ -23,9 +21,11 @@ type LeadsApiResponse = {
   next_cursor?: string | null;
 };
 
-const app = document.getElementById('admin-leads-app');
+export const initAdminLeads = (app = document.getElementById('admin-leads-app')) => {
+  if (!(app instanceof HTMLElement)) {
+    return;
+  }
 
-if (app instanceof HTMLElement) {
   const state = {
     endpoint: null as string | null,
     auth: sessionStorage.getItem(STORAGE_KEY) || '',
@@ -313,4 +313,4 @@ if (app instanceof HTMLElement) {
   if (state.auth) {
     void fetchLeads(true);
   }
-}
+};

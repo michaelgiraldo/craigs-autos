@@ -27,6 +27,7 @@ import {
 	SITE,
 	UI_COPY,
 } from '../lib/site-data.js';
+import { buildEstimateEmailHref } from '../lib/email-draft.js';
 import {
 	getPageLabel,
 	getPagePath,
@@ -161,7 +162,13 @@ const mapsQuery = encodeURIComponent(
 const mapsHref = `https://www.google.com/maps/dir/?api=1&destination=${mapsQuery}`;
 const appleMapsHref = SITE.appleMapsUrl;
 const smsHref = `sms:${SITE.phone}`;
-const emailHref = `mailto:${SITE.email}`;
+const emailHref = buildEstimateEmailHref({
+	siteEmail: SITE.email,
+	ui,
+	pageTitle: title,
+	languageLabel: LOCALES[locale]?.nativeLabel ?? locale,
+	pageUrl: canonicalUrl,
+});
 
 const resolvedTranslations: LocaleMap<string> = {};
 for (const key of localeKeys) {
@@ -429,7 +436,7 @@ const structuredData = {
 				defer
 			></script>
 		</head>
-		<body>
+		<body data-default-mailto-address={SITE.email} data-default-mailto-href={emailHref}>
 			<AnalyticsBody gtmAllowedOnPage={gtmAllowedOnPage} gtmId={gtmId} />
 			<a class="skip-link" href="#main-content">Skip to content</a>
 			<SiteHeader
@@ -464,7 +471,7 @@ const structuredData = {
 				ui={ui}
 			/>
 			<ChatWidget locale={locale} />
-			<StickyCta emailHref={emailHref} mapsHref={mapsHref} site={SITE} smsHref={smsHref} ui={ui} />
+			<StickyCta emailHref={emailHref} site={SITE} smsHref={smsHref} ui={ui} />
 			<SiteMenu
 				canonicalPath={canonicalPath}
 				emailHref={emailHref}

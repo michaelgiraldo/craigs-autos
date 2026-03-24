@@ -1,6 +1,5 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import adminLeadsScriptUrl from '../../scripts/admin-leads.ts?url';
 
 const title = "Admin | Leads";
 const description = "Lead qualification dashboard.";
@@ -15,7 +14,11 @@ const description = "Lead qualification dashboard.";
       <div id="admin-leads-app" class="admin-leads__app"></div>
     </div>
   </main>
-  <script is:inline type="module" src={adminLeadsScriptUrl}></script>
+  <script>
+    import { initAdminLeads } from '../../scripts/admin-leads.ts';
+
+    initAdminLeads();
+  </script>
   <style>
     .admin-leads { padding: 2.5rem 0 4rem; }
     .admin-leads__subtitle { color: #445; max-width: 680px; }

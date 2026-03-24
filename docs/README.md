@@ -19,6 +19,7 @@ Legacy entrypoint (kept for older links):
 Security + architecture audit:
 
 - `docs/breaking-change-audit-2026-02-18.md`
+- `docs/browser-script-architecture.md`
 
 Redirects:
 

@@ -1,7 +1,7 @@
 {
   "en": {
     "callCta": "Call",
-    "textCta": "Text",
+    "textCta": "Text Photos",
     "directionsCta": "Directions",
     "menuLabel": "Menu",
     "languageLabel": "Language",
@@ -16,11 +16,15 @@
       "60+ years in San Jose",
       "Family-owned",
       "Automotive interiors first"
-    ]
+    ],
+    "emailCta": "Email Details",
+    "heroCtaHelper": "Fastest response: text photos and your vehicle details.",
+    "emailSubject": "Estimate request",
+    "emailBodyTemplate": "Vehicle:\nService needed:\nBest callback number:\nPhotos attached: yes/no\n\nPage: {pageTitle}\nLanguage: {language}\nURL: {pageUrl}"
   },
   "es": {
     "callCta": "Llamar",
-    "textCta": "Texto",
+    "textCta": "Enviar fotos",
     "directionsCta": "Cómo llegar",
     "menuLabel": "Menú",
     "languageLabel": "Idioma",
@@ -35,11 +39,15 @@
       "60+ años en la zona",
       "Negocio familiar",
       "Enfoque automotriz"
-    ]
+    ],
+    "emailCta": "Enviar detalles",
+    "heroCtaHelper": "La respuesta más rápida: envíe fotos y los datos de su vehículo por texto.",
+    "emailSubject": "Solicitud de presupuesto",
+    "emailBodyTemplate": "Vehículo:\nServicio necesario:\nMejor número para devolver la llamada:\nFotos adjuntas: sí/no\n\nPágina: {pageTitle}\nIdioma: {language}\nURL: {pageUrl}"
   },
   "vi": {
     "callCta": "Gọi",
-    "textCta": "Nhắn tin",
+    "textCta": "Nhắn ảnh",
     "directionsCta": "Chỉ đường",
     "menuLabel": "Menu",
     "languageLabel": "Ngôn ngữ",
@@ -54,11 +62,15 @@
       "Hơn 60 năm",
       "Cơ sở gia đình",
       "Ưu tiên nội thất ô tô"
-    ]
+    ],
+    "emailCta": "Gửi chi tiết",
+    "heroCtaHelper": "Cách nhanh nhất: nhắn ảnh và thông tin xe của bạn.",
+    "emailSubject": "Yêu cầu báo giá",
+    "emailBodyTemplate": "Xe:\nDịch vụ cần:\nSố điện thoại liên hệ tốt nhất:\nCó đính kèm ảnh: có/không\n\nTrang: {pageTitle}\nNgôn ngữ: {language}\nURL: {pageUrl}"
   },
   "zh-hans": {
     "callCta": "致电",
-    "textCta": "短信",
+    "textCta": "短信发照片",
     "directionsCta": "导航",
     "menuLabel": "菜单",
     "languageLabel": "语言",
@@ -73,11 +85,15 @@
       "60多年经验",
       "家族经营",
       "汽车内饰为主"
-    ]
+    ],
+    "emailCta": "邮件发详情",
+    "heroCtaHelper": "最快的方式：短信发送照片和您的车辆信息。",
+    "emailSubject": "估价请求",
+    "emailBodyTemplate": "车辆：\n所需服务：\n最佳回电号码：\n是否附照片：是/否\n\n页面：{pageTitle}\n语言：{language}\nURL: {pageUrl}"
   },
   "tl": {
     "callCta": "Tumawag",
-    "textCta": "Text",
+    "textCta": "I-text ang larawan",
     "directionsCta": "Direksyon",
     "menuLabel": "Menu",
     "languageLabel": "Wika",
@@ -92,11 +108,15 @@
       "60+ taon sa San Jose",
       "Pamilyang negosyo",
       "Pangunahing auto upholstery"
-    ]
+    ],
+    "emailCta": "I-email ang detalye",
+    "heroCtaHelper": "Pinakamabilis na tugon: i-text ang mga larawan at detalye ng sasakyan.",
+    "emailSubject": "Hiling sa estimate",
+    "emailBodyTemplate": "Sasakyan:\nKailangang serbisyo:\nPinakamainam na numerong tatawagan:\nMay kalakip na larawan: oo/hindi\n\nPahina: {pageTitle}\nWika: {language}\nURL: {pageUrl}"
   },
   "id": {
     "callCta": "Telepon",
-    "textCta": "Pesan",
+    "textCta": "Kirim foto",
     "directionsCta": "Petunjuk arah",
     "menuLabel": "Menu",
     "languageLabel": "Bahasa",
@@ -111,11 +131,15 @@
       "60+ tahun di San Jose",
       "Usaha keluarga",
       "Fokus interior otomotif"
-    ]
+    ],
+    "emailCta": "Kirim detail",
+    "heroCtaHelper": "Respons tercepat: kirim foto dan detail kendaraan Anda lewat pesan.",
+    "emailSubject": "Permintaan estimasi",
+    "emailBodyTemplate": "Kendaraan:\nLayanan yang dibutuhkan:\nNomor terbaik untuk dihubungi:\nFoto terlampir: ya/tidak\n\nHalaman: {pageTitle}\nBahasa: {language}\nURL: {pageUrl}"
   },
   "ko": {
     "callCta": "전화",
-    "textCta": "문자",
+    "textCta": "사진 문자",
     "directionsCta": "길찾기",
     "menuLabel": "메뉴",
     "languageLabel": "언어",
@@ -130,11 +154,15 @@
       "San Jose 60+년",
       "가족 운영",
       "자동차 내장 중심"
-    ]
+    ],
+    "emailCta": "상세 이메일",
+    "heroCtaHelper": "가장 빠른 방법: 사진과 차량 정보를 문자로 보내 주세요.",
+    "emailSubject": "견적 요청",
+    "emailBodyTemplate": "차량:\n필요한 서비스:\n가장 연락받기 좋은 번호:\n사진 첨부: 예/아니오\n\n페이지: {pageTitle}\n언어: {language}\nURL: {pageUrl}"
   },
   "hi": {
     "callCta": "कॉल करें",
-    "textCta": "मैसेज",
+    "textCta": "फोटो भेजें",
     "directionsCta": "दिशा-निर्देश",
     "menuLabel": "मेनू",
     "languageLabel": "भाषा",
@@ -149,11 +177,15 @@
       "San Jose में 60+ वर्ष",
       "परिवार द्वारा संचालित",
       "ऑटो इंटीरियर प्राथमिक"
-    ]
+    ],
+    "emailCta": "विवरण ईमेल करें",
+    "heroCtaHelper": "सबसे तेज जवाब के लिए फोटो और अपने वाहन की जानकारी भेजें।",
+    "emailSubject": "अनुमान अनुरोध",
+    "emailBodyTemplate": "वाहन:\nज़रूरी सेवा:\nसबसे अच्छा कॉलबैक नंबर:\nफोटो संलग्न: हां/नहीं\n\nपेज: {pageTitle}\nभाषा: {language}\nURL: {pageUrl}"
   },
   "pa": {
     "callCta": "ਕਾਲ ਕਰੋ",
-    "textCta": "ਮੇਸੇਜ",
+    "textCta": "ਫੋਟੋ ਭੇਜੋ",
     "directionsCta": "ਰਾਹ-ਦੱਸੋ",
     "menuLabel": "ਮੇਨੂ",
     "languageLabel": "ਭਾਸ਼ਾ",
@@ -168,11 +200,15 @@
       "San Jose ਵਿੱਚ 60+ ਸਾਲ",
       "ਪਰਿਵਾਰਕ ਕਾਰੋਬਾਰ",
       "ਆਟੋ ਇੰਟੀਰੀਅਰ ਮੁੱਖ"
-    ]
+    ],
+    "emailCta": "ਵੇਰਵੇ ਈਮੇਲ ਕਰੋ",
+    "heroCtaHelper": "ਸਭ ਤੋਂ ਤੇਜ਼ ਜਵਾਬ ਲਈ ਫੋਟੋਆਂ ਅਤੇ ਆਪਣੇ ਵਾਹਨ ਦੇ ਵੇਰਵੇ ਭੇਜੋ।",
+    "emailSubject": "ਅਨੁਮਾਨ ਬੇਨਤੀ",
+    "emailBodyTemplate": "ਵਾਹਨ:\nਲੋੜੀਂਦੀ ਸੇਵਾ:\nਸਭ ਤੋਂ ਵਧੀਆ ਕਾਲਬੈਕ ਨੰਬਰ:\nਫੋਟੋ ਸੰਲਗਨ: ਹਾਂ/ਨਹੀਂ\n\nਸਫ਼ਾ: {pageTitle}\nਭਾਸ਼ਾ: {language}\nURL: {pageUrl}"
   },
   "pt-br": {
     "callCta": "Ligar",
-    "textCta": "Mensagem",
+    "textCta": "Enviar fotos",
     "directionsCta": "Rotas",
     "menuLabel": "Menu",
     "languageLabel": "Idioma",
@@ -187,11 +223,15 @@
       "Mais de 60 anos em San Jose",
       "Empresa familiar",
       "Foco em estofamento automotivo"
-    ]
+    ],
+    "emailCta": "Enviar detalhes",
+    "heroCtaHelper": "Resposta mais rápida: envie fotos e os detalhes do seu veículo por mensagem.",
+    "emailSubject": "Pedido de orçamento",
+    "emailBodyTemplate": "Veículo:\nServiço necessário:\nMelhor número para retorno:\nFotos anexadas: sim/não\n\nPágina: {pageTitle}\nIdioma: {language}\nURL: {pageUrl}"
   },
   "zh-hant": {
     "callCta": "致電",
-    "textCta": "簡訊",
+    "textCta": "簡訊發照片",
     "directionsCta": "導航",
     "menuLabel": "選單",
     "languageLabel": "語言",
@@ -206,11 +246,15 @@
       "在聖荷西 60+ 年",
       "家族經營",
       "汽車內飾為主"
-    ]
+    ],
+    "emailCta": "電郵發詳情",
+    "heroCtaHelper": "最快的方式：用簡訊傳送照片和您的車輛資訊。",
+    "emailSubject": "估價請求",
+    "emailBodyTemplate": "車輛：\n需要的服務：\n最佳回電號碼：\n是否附照片：是/否\n\n頁面：{pageTitle}\n語言：{language}\nURL: {pageUrl}"
   },
   "ja": {
     "callCta": "電話",
-    "textCta": "SMS",
+    "textCta": "写真を送る",
     "directionsCta": "道順",
     "menuLabel": "メニュー",
     "languageLabel": "言語",
@@ -225,11 +269,15 @@
       "サンノゼで60年以上",
       "家族経営",
       "自動車内装中心"
-    ]
+    ],
+    "emailCta": "詳細をメール",
+    "heroCtaHelper": "いちばん早い方法は、写真と車両情報をテキストで送ることです。",
+    "emailSubject": "見積もり依頼",
+    "emailBodyTemplate": "車両：\n必要なサービス：\n折り返し先電話番号：\n写真添付：はい/いいえ\n\nページ：{pageTitle}\n言語：{language}\nURL: {pageUrl}"
   },
   "ar": {
     "callCta": "اتصال",
-    "textCta": "رسالة",
+    "textCta": "أرسل صورًا",
     "directionsCta": "الاتجاهات",
     "menuLabel": "القائمة",
     "languageLabel": "اللغة",
@@ -244,11 +292,15 @@
       "أكثر من 60 سنة في سان خوسيه",
       "عمل عائلي",
       "تركيز على داخلية السيارات"
-    ]
+    ],
+    "emailCta": "أرسل التفاصيل",
+    "heroCtaHelper": "أسرع طريقة للرد: أرسل صورا ومعلومات سيارتك عبر الرسائل.",
+    "emailSubject": "طلب تقدير",
+    "emailBodyTemplate": "المركبة:\nالخدمة المطلوبة:\nأفضل رقم للاتصال:\nصور مرفقة: نعم/لا\n\nالصفحة: {pageTitle}\nاللغة: {language}\nالرابط: {pageUrl}"
   },
   "ru": {
     "callCta": "Позвонить",
-    "textCta": "Сообщение",
+    "textCta": "Отправить фото",
     "directionsCta": "Маршрут",
     "menuLabel": "Меню",
     "languageLabel": "Язык",
@@ -263,11 +315,15 @@
       "Более 60 лет в Сан-Хосе",
       "Семейный бизнес",
       "Автоинтерьеры — приоритет"
-    ]
+    ],
+    "emailCta": "Отправить детали",
+    "heroCtaHelper": "Самый быстрый ответ: отправьте фото и данные автомобиля сообщением.",
+    "emailSubject": "Запрос на оценку",
+    "emailBodyTemplate": "Автомобиль:\nНужная услуга:\nЛучший номер для обратного звонка:\nФото приложены: да/нет\n\nСтраница: {pageTitle}\nЯзык: {language}\nURL: {pageUrl}"
   },
   "ta": {
     "callCta": "அழைக்க",
-    "textCta": "செய்தி",
+    "textCta": "புகைப்படம் அனுப்பு",
     "directionsCta": "திசைகள்",
     "menuLabel": "மெனு",
     "languageLabel": "மொழி",
@@ -282,13 +338,17 @@
       "சான் ஹோசேவில் 60+ ஆண்டுகள்",
       "குடும்ப நிறுவனம்",
       "கார் உள்வடிவம் முதன்மை"
-    ]
+    ],
+    "emailCta": "விவரங்களை மின்னஞ்சல் செய்",
+    "heroCtaHelper": "வேகமான பதிலுக்கு புகைப்படங்களையும் வாகன விவரங்களையும் அனுப்புங்கள்.",
+    "emailSubject": "மதிப்பீட்டு கோரிக்கை",
+    "emailBodyTemplate": "வாகனம்:\nதேவையான சேவை:\nதிரும்ப அழைக்க சிறந்த எண்:\nபுகைப்படங்கள் இணைக்கப்பட்டதா: ஆம்/இல்லை\n\nபக்கம்: {pageTitle}\nமொழி: {language}\nURL: {pageUrl}"
   },
   "fa": {
     "callCta": "تماس",
-    "textCta": "پیامک",
+    "textCta": "ارسال عکس",
     "directionsCta": "مسیر",
-    "emailCta": "ایمیل",
+    "emailCta": "ارسال جزئیات",
     "menuLabel": "منو",
     "languageLabel": "زبان",
     "quickActionsLabel": "اقدام سریع",
@@ -302,13 +362,16 @@
       "بیش از 60 سال در سن‌خوزه",
       "کسب‌وکار خانوادگی",
       "تمرکز کامل روی داخل خودرو"
-    ]
+    ],
+    "heroCtaHelper": "سریع ترین پاسخ: عکس ها و اطلاعات خودرو را پیامک کنید.",
+    "emailSubject": "درخواست برآورد",
+    "emailBodyTemplate": "خودرو:\nخدمت موردنیاز:\nبهترین شماره برای تماس:\nعکس پیوست شده: بله/خیر\n\nصفحه: {pageTitle}\nزبان: {language}\nنشانی: {pageUrl}"
   },
   "te": {
     "callCta": "కాల్",
-    "textCta": "మెసేజ్",
+    "textCta": "ఫోటోలు పంపండి",
     "directionsCta": "దిశలు",
-    "emailCta": "ఇమెయిల్",
+    "emailCta": "వివరాలను ఇమెయిల్ చేయండి",
     "menuLabel": "మెను",
     "languageLabel": "భాష",
     "quickActionsLabel": "త్వరిత చర్యలు",
@@ -322,13 +385,16 @@
       "సాన్ హోసేలో 60+ సంవత్సరాలు",
       "కుటుంబ ఆధారిత వ్యాపారం",
       "ఆటో ఇంటీరియర్స్‌కు ప్రాధాన్యం"
-    ]
+    ],
+    "heroCtaHelper": "అత్యంత వేగమైన స్పందన కోసం ఫోటోలు మరియు మీ వాహన వివరాలు పంపండి.",
+    "emailSubject": "అంచనా అభ్యర్థన",
+    "emailBodyTemplate": "వాహనం:\nఅవసరమైన సేవ:\nమళ్ళీ కాల్ చేయడానికి ఉత్తమ నంబర్:\nఫోటోలు జత చేశారా: అవును/కాదు\n\nపేజీ: {pageTitle}\nభాష: {language}\nURL: {pageUrl}"
   },
   "fr": {
     "callCta": "Appeler",
-    "textCta": "SMS",
+    "textCta": "Envoyer des photos",
     "directionsCta": "Itinéraire",
-    "emailCta": "Email",
+    "emailCta": "Envoyer les détails",
     "menuLabel": "Menu",
     "languageLabel": "Langue",
     "quickActionsLabel": "Actions rapides",
@@ -342,6 +408,9 @@
       "Plus de 60 ans à San Jose",
       "Entreprise familiale",
       "Spécialistes des intérieurs auto"
-    ]
+    ],
+    "heroCtaHelper": "Réponse la plus rapide : envoyez des photos et les détails de votre véhicule par message.",
+    "emailSubject": "Demande de devis",
+    "emailBodyTemplate": "Véhicule :\nService nécessaire :\nMeilleur numéro de rappel :\nPhotos jointes : oui/non\n\nPage : {pageTitle}\nLangue : {language}\nURL : {pageUrl}"
   }
 }

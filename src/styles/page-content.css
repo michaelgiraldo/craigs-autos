@@ -39,6 +39,14 @@
 	gap: 0.75rem;
 }
 
+.hero__helper {
+	margin: -0.15rem 0 0;
+	color: var(--color-muted);
+	font-weight: 650;
+	font-size: 0.95rem;
+	max-width: 46rem;
+}
+
 .hero__meta {
 	display: flex;
 	flex-wrap: wrap;

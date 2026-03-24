@@ -300,6 +300,23 @@ const initNavPanels = () => {
   };
 };
 
+const initDefaultMailtoLinks = () => {
+  const defaultMailtoHref = document.body.dataset.defaultMailtoHref;
+  const defaultMailtoAddress = document.body.dataset.defaultMailtoAddress;
+  if (!defaultMailtoHref || !defaultMailtoAddress) {
+    return null;
+  }
+
+  const links = Array.from(
+    document.querySelectorAll(`a[href="mailto:${CSS.escape(defaultMailtoAddress)}"]`),
+  );
+  links.forEach((link) => {
+    link.setAttribute('href', defaultMailtoHref);
+  });
+
+  return null;
+};
+
 export const initBaseLayoutBehaviors = () => {
   if (typeof window === 'undefined') {
     return;
@@ -310,7 +327,12 @@ export const initBaseLayoutBehaviors = () => {
     previousCleanup();
   }
 
-  const cleanups = [initLanguageSwitcherPanel(), initSiteMenu(), initNavPanels()].filter(Boolean);
+  const cleanups = [
+    initLanguageSwitcherPanel(),
+    initSiteMenu(),
+    initNavPanels(),
+    initDefaultMailtoLinks(),
+  ].filter(Boolean);
 
   window[CLEANUP_KEY] = () => {
     cleanups.forEach((cleanup) => {
