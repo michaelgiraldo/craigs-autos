@@ -32,6 +32,20 @@ Then open:
 
 - `http://localhost:4321/en/`
 
+## Maintenance
+
+Refresh dependency ranges and lockfiles with:
+
+```sh
+npm run deps:update
+```
+
+For a full clean reinstall while rebuilding the lockfile:
+
+```sh
+npm run deps:update:clean
+```
+
 ## Deployment
 
 - AWS Amplify is connected to branches; commit + push triggers deploy.
