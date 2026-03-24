@@ -6,7 +6,7 @@
     "dev": "astro dev",
     "dev:chatkit": "node --env-file-if-exists=.env.local server/chatkit-dev.mjs",
     "dev:local": "concurrently -k -n api,web -c yellow,cyan \"npm:dev:chatkit\" \"npm:dev\"",
-    "typecheck:web": "npx tsc --pretty false --noEmit -p tsconfig.json",
+    "typecheck:web": "npx astro sync && npx tsc --pretty false --noEmit -p tsconfig.json",
     "typecheck:node": "npx tsc --pretty false --noEmit -p tsconfig.node.json",
     "typecheck:backend": "npx tsc --pretty false --noEmit -p amplify/tsconfig.json",
     "typecheck": "npm run typecheck:web && npm run typecheck:node && npm run typecheck:backend",

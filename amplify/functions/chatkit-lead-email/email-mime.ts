@@ -77,8 +77,8 @@ export function linkifyTextToHtml(text: string): string {
   let out = '';
   let lastIndex = 0;
 
-  for (const match of text.matchAll(urlRegex)) {
-    const raw = match?.[0] ?? '';
+  for (let match = urlRegex.exec(text); match; match = urlRegex.exec(text)) {
+    const raw = match[0] ?? '';
     if (!raw) continue;
     const index = typeof match.index === 'number' ? match.index : 0;
     out += escapeHtml(text.slice(lastIndex, index));

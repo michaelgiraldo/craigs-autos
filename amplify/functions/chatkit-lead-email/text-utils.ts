@@ -137,8 +137,8 @@ export function extractCustomerContact(
 
   const phoneCandidates: string[] = [];
   const phoneRegex = /(\+?\d[\d().\-\s]{7,}\d)/g;
-  for (const match of customerText.matchAll(phoneRegex)) {
-    const raw = (match?.[1] ?? '').trim();
+  for (let match = phoneRegex.exec(customerText); match; match = phoneRegex.exec(customerText)) {
+    const raw = (match[1] ?? '').trim();
     if (!raw) continue;
     const digits = raw.replace(/[^\d]/g, '');
     if (digits === shopPhoneDigits) continue;
