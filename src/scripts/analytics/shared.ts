@@ -2,12 +2,14 @@ export const OUTPUTS_PATH = '/amplify_outputs.json';
 export const FETCH_TIMEOUT_MS = 8_000;
 export const STORAGE_KEY = 'craigs_attribution_v1';
 export const USER_KEY = 'chatkit-user-id';
-export const PAID_LANDING_SESSION_KEY = 'craigs_paid_landing_seen_v1';
 
 export type AttributionPayload = {
   gclid: string | null;
   gbraid: string | null;
   wbraid: string | null;
+  msclkid: string | null;
+  fbclid: string | null;
+  ttclid: string | null;
   utm_source: string | null;
   utm_medium: string | null;
   utm_campaign: string | null;
@@ -17,7 +19,10 @@ export type AttributionPayload = {
   last_touch_ts?: string | null;
   landing_page?: string | null;
   referrer?: string | null;
+  referrer_host?: string | null;
   device_type?: string | null;
+  source_platform?: string | null;
+  click_id_type?: string | null;
 };
 
 export type TouchRecord = Record<string, string | null | undefined>;

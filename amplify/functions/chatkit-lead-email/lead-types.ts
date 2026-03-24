@@ -69,6 +69,9 @@ export type LeadAttributionPayload = {
   gclid: string | null;
   gbraid: string | null;
   wbraid: string | null;
+  msclkid: string | null;
+  fbclid: string | null;
+  ttclid: string | null;
   utm_source: string | null;
   utm_medium: string | null;
   utm_campaign: string | null;
@@ -78,26 +81,33 @@ export type LeadAttributionPayload = {
   last_touch_ts: string | null;
   landing_page: string | null;
   referrer: string | null;
+  referrer_host: string | null;
   device_type: 'mobile' | 'desktop' | null;
+  source_platform: string | null;
+  click_id_type: string | null;
 };
 
-export type LeadAttributionRecord = {
+export type LeadCaseRecord = {
   lead_id: string;
-  thread_id: string;
+  thread_id: string | null;
   created_at: number;
-  lead_method: 'chat';
+  lead_method: string;
   lead_reason: string;
+  lead_intent_type: 'call' | 'text' | 'email' | 'directions' | 'chat';
   locale: string | null;
   page_url: string | null;
   user_id: string | null;
   qualified: boolean;
   qualified_at: number | null;
-  uploaded: boolean;
-  uploaded_at: number | null;
+  uploaded_google_ads: boolean;
+  uploaded_google_ads_at: number | null;
   device_type: 'mobile' | 'desktop' | null;
   gclid: string | null;
   gbraid: string | null;
   wbraid: string | null;
+  msclkid: string | null;
+  fbclid: string | null;
+  ttclid: string | null;
   utm_source: string | null;
   utm_medium: string | null;
   utm_campaign: string | null;
@@ -107,6 +117,11 @@ export type LeadAttributionRecord = {
   last_touch_ts: string | null;
   landing_page: string | null;
   referrer: string | null;
+  referrer_host: string | null;
+  source_platform: string | null;
+  click_id_type: string | null;
+  click_url: string | null;
+  provider: string | null;
   customer_phone: string | null;
   customer_email: string | null;
   ttl: number;

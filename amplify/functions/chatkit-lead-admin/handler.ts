@@ -18,7 +18,7 @@ const corsHeaders = {
 };
 
 const adminEnvSchema = z.object({
-  LEAD_ATTRIBUTION_TABLE_NAME: z.string().trim().min(1),
+  LEAD_CASES_TABLE_NAME: z.string().trim().min(1),
   LEADS_ADMIN_PASSWORD: z.string().trim().min(1),
 });
 
@@ -201,7 +201,7 @@ export function createLeadAdminHandler(deps: LeadAdminDeps) {
 }
 
 const parsedEnv = adminEnvSchema.safeParse(process.env);
-const runtimeTableName = parsedEnv.success ? parsedEnv.data.LEAD_ATTRIBUTION_TABLE_NAME : '';
+const runtimeTableName = parsedEnv.success ? parsedEnv.data.LEAD_CASES_TABLE_NAME : '';
 const runtimeAdminPassword = parsedEnv.success ? parsedEnv.data.LEADS_ADMIN_PASSWORD : '';
 const runtimeDb = runtimeTableName ? DynamoDBDocumentClient.from(new DynamoDBClient({})) : null;
 

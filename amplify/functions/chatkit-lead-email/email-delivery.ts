@@ -161,10 +161,15 @@ export async function sendTranscriptEmail(args: {
 
   if (attribution) {
     bodyParts.push('Attribution');
+    if (attribution.source_platform)
+      bodyParts.push(`Source platform: ${attribution.source_platform}`);
     if (attribution.device_type) bodyParts.push(`Device: ${attribution.device_type}`);
     if (attribution.gclid) bodyParts.push(`GCLID: ${attribution.gclid}`);
     if (attribution.gbraid) bodyParts.push(`GBRAID: ${attribution.gbraid}`);
     if (attribution.wbraid) bodyParts.push(`WBRAID: ${attribution.wbraid}`);
+    if (attribution.msclkid) bodyParts.push(`MSCLKID: ${attribution.msclkid}`);
+    if (attribution.fbclid) bodyParts.push(`FBCLID: ${attribution.fbclid}`);
+    if (attribution.ttclid) bodyParts.push(`TTCLID: ${attribution.ttclid}`);
     if (attribution.utm_source || attribution.utm_medium || attribution.utm_campaign) {
       const utm = [
         attribution.utm_source ? `utm_source=${attribution.utm_source}` : null,
@@ -179,6 +184,7 @@ export async function sendTranscriptEmail(args: {
     }
     if (attribution.landing_page) bodyParts.push(`Landing page: ${attribution.landing_page}`);
     if (attribution.referrer) bodyParts.push(`Referrer: ${attribution.referrer}`);
+    if (attribution.referrer_host) bodyParts.push(`Referrer host: ${attribution.referrer_host}`);
     if (attribution.first_touch_ts) bodyParts.push(`First touch: ${attribution.first_touch_ts}`);
     if (attribution.last_touch_ts) bodyParts.push(`Last touch: ${attribution.last_touch_ts}`);
     bodyParts.push('');

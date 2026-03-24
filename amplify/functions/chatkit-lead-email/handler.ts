@@ -21,7 +21,7 @@ import { sendTranscriptEmail } from './email-delivery';
 import { generateLeadSummary } from './lead-summary';
 import type {
   LeadAttributionPayload,
-  LeadAttributionRecord,
+  LeadCaseRecord,
   LeadDedupeRecord,
   LeadDedupeStatus,
   LeadEmailRequest,
@@ -55,8 +55,8 @@ const leadDedupeDb = leadDedupeTableName?.trim()
   ? DynamoDBDocumentClient.from(new DynamoDBClient({}))
   : null;
 
-const leadAttributionTableName = process.env.LEAD_ATTRIBUTION_TABLE_NAME;
-const leadAttributionDb = leadAttributionTableName?.trim()
+const leadCasesTableName = process.env.LEAD_CASES_TABLE_NAME;
+const leadCasesDb = leadCasesTableName?.trim()
   ? DynamoDBDocumentClient.from(new DynamoDBClient({}))
   : null;
 
@@ -342,7 +342,7 @@ async function markLeadError(args: { threadId: string; leaseId: string; errorMes
   );
 }
 
-async function storeLeadAttribution(args: {
+async function storeLeadCase(args: {
   threadId: string;
   locale: string;
   pageUrl: string;
@@ -352,28 +352,32 @@ async function storeLeadAttribution(args: {
   customerPhone: string | null;
   customerEmail: string | null;
 }): Promise<string | null> {
-  if (!leadAttributionDb || !leadAttributionTableName) return null;
+  if (!leadCasesDb || !leadCasesTableName) return null;
   const now = nowEpochSeconds();
   const leadId = randomUUID();
   const ttl = ttlSecondsFromNow(LEAD_ATTRIBUTION_TTL_DAYS);
 
-  const record: LeadAttributionRecord = {
+  const record: LeadCaseRecord = {
     lead_id: leadId,
     thread_id: args.threadId,
     created_at: now,
     lead_method: 'chat',
     lead_reason: args.reason,
+    lead_intent_type: 'chat',
     locale: args.locale || null,
     page_url: args.pageUrl || null,
     user_id: args.chatUser || null,
     qualified: false,
     qualified_at: null,
-    uploaded: false,
-    uploaded_at: null,
+    uploaded_google_ads: false,
+    uploaded_google_ads_at: null,
     device_type: args.attribution?.device_type ?? null,
     gclid: args.attribution?.gclid ?? null,
     gbraid: args.attribution?.gbraid ?? null,
     wbraid: args.attribution?.wbraid ?? null,
+    msclkid: args.attribution?.msclkid ?? null,
+    fbclid: args.attribution?.fbclid ?? null,
+    ttclid: args.attribution?.ttclid ?? null,
     utm_source: args.attribution?.utm_source ?? null,
     utm_medium: args.attribution?.utm_medium ?? null,
     utm_campaign: args.attribution?.utm_campaign ?? null,
@@ -383,14 +387,19 @@ async function storeLeadAttribution(args: {
     last_touch_ts: args.attribution?.last_touch_ts ?? null,
     landing_page: args.attribution?.landing_page ?? null,
     referrer: args.attribution?.referrer ?? null,
+    referrer_host: args.attribution?.referrer_host ?? null,
+    source_platform: args.attribution?.source_platform ?? null,
+    click_id_type: args.attribution?.click_id_type ?? null,
+    click_url: null,
+    provider: null,
     customer_phone: args.customerPhone,
     customer_email: args.customerEmail,
     ttl,
   };
 
-  await leadAttributionDb.send(
+  await leadCasesDb.send(
     new PutCommand({
-      TableName: leadAttributionTableName,
+      TableName: leadCasesTableName,
       Item: record,
     }),
   );
@@ -419,6 +428,9 @@ function sanitizeAttribution(input: unknown): LeadAttributionPayload | null {
     gclid: normalizeAttributionValue(data.gclid, 128),
     gbraid: normalizeAttributionValue(data.gbraid, 128),
     wbraid: normalizeAttributionValue(data.wbraid, 128),
+    msclkid: normalizeAttributionValue(data.msclkid, 128),
+    fbclid: normalizeAttributionValue(data.fbclid, 128),
+    ttclid: normalizeAttributionValue(data.ttclid, 128),
     utm_source: normalizeAttributionValue(data.utm_source, 128),
     utm_medium: normalizeAttributionValue(data.utm_medium, 128),
     utm_campaign: normalizeAttributionValue(data.utm_campaign, 200),
@@ -428,7 +440,10 @@ function sanitizeAttribution(input: unknown): LeadAttributionPayload | null {
     last_touch_ts: normalizeAttributionValue(data.last_touch_ts, 64),
     landing_page: normalizeAttributionValue(data.landing_page, 300),
     referrer: normalizeAttributionValue(data.referrer, 300),
+    referrer_host: normalizeAttributionValue(data.referrer_host, 200),
     device_type: normalizeDeviceType(data.device_type),
+    source_platform: normalizeAttributionValue(data.source_platform, 80),
+    click_id_type: normalizeAttributionValue(data.click_id_type, 40),
   };
 
   const hasAny = Object.values(payload).some(
@@ -670,7 +685,7 @@ export const handler = async (
         const detectedContact = extractCustomerContact(lines, SHOP_PHONE_DIGITS);
         const customerPhone = hydratedLeadSummary?.customer_phone ?? detectedContact.phone ?? null;
         const customerEmail = hydratedLeadSummary?.customer_email ?? detectedContact.email ?? null;
-        await storeLeadAttribution({
+        await storeLeadCase({
           threadId,
           locale,
           pageUrl,

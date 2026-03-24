@@ -6,14 +6,21 @@ type LeadItem = {
   lead_id?: string;
   created_at?: number;
   lead_method?: string;
+  lead_intent_type?: string;
   device_type?: string;
   customer_phone?: string;
   customer_email?: string;
+  source_platform?: string;
   utm_source?: string;
+  utm_campaign?: string;
   gclid?: string;
   gbraid?: string;
   wbraid?: string;
+  msclkid?: string;
+  fbclid?: string;
+  ttclid?: string;
   qualified?: boolean;
+  uploaded_google_ads?: boolean;
 };
 
 type LeadsApiResponse = {
@@ -228,11 +235,14 @@ export const initAdminLeads = (app = document.getElementById('admin-leads-app'))
       '<thead><tr>' +
       '<th>Date</th>' +
       '<th>Method</th>' +
+      '<th>Intent</th>' +
+      '<th>Source</th>' +
+      '<th>Campaign</th>' +
+      '<th>Click ID</th>' +
       '<th>Device</th>' +
       '<th>Contact</th>' +
-      '<th>Source</th>' +
-      '<th>GCLID</th>' +
       '<th>Status</th>' +
+      '<th>Google Ads</th>' +
       '<th>Action</th>' +
       '</tr></thead>';
 
@@ -240,30 +250,47 @@ export const initAdminLeads = (app = document.getElementById('admin-leads-app'))
 
     if (!state.items.length && !state.loading) {
       const empty = document.createElement('tr');
-      empty.innerHTML = '<td colspan="8" class="muted">No leads found.</td>';
+      empty.innerHTML = '<td colspan="10" class="muted">No leads found.</td>';
       tbody.appendChild(empty);
     } else {
       for (const item of state.items) {
         const tr = document.createElement('tr');
         const created = item.created_at ? new Date(item.created_at * 1000).toLocaleString() : '-';
         const method = item.lead_method || '-';
+        const intent = item.lead_intent_type || '-';
         const device = item.device_type || '-';
         const contact = item.customer_phone || item.customer_email || '-';
-        const source = item.utm_source || '-';
-        const gclid = item.gclid || item.gbraid || item.wbraid || '-';
+        const source = item.source_platform || item.utm_source || '-';
+        const campaign = item.utm_campaign || '-';
+        const clickId =
+          item.gclid ||
+          item.gbraid ||
+          item.wbraid ||
+          item.msclkid ||
+          item.fbclid ||
+          item.ttclid ||
+          '-';
         const qualified = item.qualified === true;
+        const uploadedGoogleAds = item.uploaded_google_ads === true;
 
         tr.innerHTML =
           `<td>${created}</td>` +
           `<td>${method}</td>` +
+          `<td>${intent}</td>` +
+          `<td>${source}</td>` +
+          `<td>${campaign}</td>` +
+          `<td>${clickId}</td>` +
           `<td>${device}</td>` +
           `<td>${contact}</td>` +
-          `<td>${source}</td>` +
-          `<td>${gclid}</td>` +
           '<td>' +
           (qualified
             ? '<span class="badge badge--yes">Qualified</span>'
             : '<span class="badge badge--no">No</span>') +
+          '</td>' +
+          '<td>' +
+          (uploadedGoogleAds
+            ? '<span class="badge badge--yes">Uploaded</span>'
+            : '<span class="badge badge--no">Pending</span>') +
           '</td>';
 
         const actionCell = document.createElement('td');

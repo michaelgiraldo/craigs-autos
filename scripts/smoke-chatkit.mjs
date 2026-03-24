@@ -328,25 +328,15 @@ async function checkAttribution(browser, baseUrl, timeoutMs) {
     const landingState = await page.evaluate(() => ({
       attribution: window.localStorage.getItem('craigs_attribution_v1'),
       cookie: document.cookie,
-      paidLandingSeen: window.sessionStorage.getItem('craigs_paid_landing_seen_v1'),
       dataLayerTail: Array.isArray(window.dataLayer) ? window.dataLayer.slice(-3) : [],
     }));
 
     const attribution = landingState.attribution ? JSON.parse(landingState.attribution) : null;
     if (attribution?.last_touch?.gclid !== 'smoke-gclid') {
-      throw new Error('Paid landing smoke test did not persist the expected gclid.');
+      throw new Error('Attribution smoke test did not persist the expected gclid.');
     }
     if (!landingState.cookie.includes('gclid=smoke-gclid')) {
-      throw new Error('Paid landing smoke test did not persist the gclid cookie.');
-    }
-    if (landingState.paidLandingSeen !== 'smoke-gclid|||/en/') {
-      throw new Error('Paid landing smoke test did not mark the session signature.');
-    }
-    const landingEvent = landingState.dataLayerTail.find(
-      (entry) => entry?.event === 'lead_ad_landing',
-    );
-    if (!landingEvent) {
-      throw new Error('Paid landing smoke test did not push lead_ad_landing to the dataLayer.');
+      throw new Error('Attribution smoke test did not persist the gclid cookie.');
     }
 
     const clickEvents = await page.evaluate(() => {
@@ -362,6 +352,15 @@ async function checkAttribution(browser, baseUrl, timeoutMs) {
     const callEvent = clickEvents.find((entry) => entry?.event === 'lead_click_to_call');
     if (!callEvent) {
       throw new Error('Click-to-call smoke test did not push lead_click_to_call to the dataLayer.');
+    }
+    if (callEvent.lead_intent_type !== 'call') {
+      throw new Error('Click-to-call smoke test did not include lead_intent_type=call.');
+    }
+    if (callEvent.source_platform !== 'google_ads') {
+      throw new Error('Click-to-call smoke test did not infer source_platform=google_ads.');
+    }
+    if (callEvent.click_id_type !== 'gclid') {
+      throw new Error('Click-to-call smoke test did not infer click_id_type=gclid.');
     }
 
     assertClean('Attribution smoke');

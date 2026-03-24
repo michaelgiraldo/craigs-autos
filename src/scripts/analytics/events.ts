@@ -1,60 +1,5 @@
-import {
-  attributionForDataLayer,
-  getAttribution,
-  getUrlAttributionParams,
-  getUserId,
-  hasPaidClickId,
-  markPaidLandingSeen,
-  wasPaidLandingSeen,
-} from './attribution';
-import type { AttributionPayload } from './shared';
+import { attributionForDataLayer, getAttribution, getUserId } from './attribution';
 import { pushDataLayer, sendSignal } from './transport';
-
-export const trackPaidLanding = () => {
-  const params = getUrlAttributionParams();
-  if (!hasPaidClickId(params)) return;
-
-  const attribution = getAttribution() || ({} as AttributionPayload);
-  if (params.gclid) attribution.gclid = params.gclid;
-  if (params.gbraid) attribution.gbraid = params.gbraid;
-  if (params.wbraid) attribution.wbraid = params.wbraid;
-  if (params.utm_source) attribution.utm_source = params.utm_source;
-  if (params.utm_medium) attribution.utm_medium = params.utm_medium;
-  if (params.utm_campaign) attribution.utm_campaign = params.utm_campaign;
-  if (params.utm_term) attribution.utm_term = params.utm_term;
-  if (params.utm_content) attribution.utm_content = params.utm_content;
-
-  const signature = [
-    params.gclid || '',
-    params.gbraid || '',
-    params.wbraid || '',
-    window.location.pathname,
-  ].join('|');
-  if (wasPaidLandingSeen(signature)) return;
-
-  const locale = document.documentElement ? document.documentElement.lang : null;
-  const payload = {
-    event: 'lead_ad_landing',
-    pageUrl: window.location.href,
-    user: getUserId(),
-    locale,
-    clickUrl: window.location.href,
-    provider: 'google_ads',
-    attribution,
-  };
-
-  pushDataLayer('lead_ad_landing', {
-    lead_method: 'lead_ad_landing',
-    page_url: window.location.href,
-    click_url: window.location.href,
-    provider: 'google_ads',
-    locale,
-    ...attributionForDataLayer(attribution),
-  });
-
-  sendSignal(payload);
-  markPaidLandingSeen(signature);
-};
 
 export const trackLeadClick = (event: MouseEvent) => {
   let element: Element | null = event.target instanceof Element ? event.target : null;
@@ -87,6 +32,14 @@ export const trackLeadClick = (event: MouseEvent) => {
 
   const attribution = getAttribution();
   const locale = document.documentElement ? document.documentElement.lang : null;
+  const leadIntentType =
+    eventName === 'lead_click_to_call'
+      ? 'call'
+      : eventName === 'lead_click_to_text'
+        ? 'text'
+        : eventName === 'lead_click_email'
+          ? 'email'
+          : 'directions';
   const payload = {
     event: eventName,
     pageUrl: window.location.href,
@@ -94,11 +47,13 @@ export const trackLeadClick = (event: MouseEvent) => {
     locale,
     clickUrl: href,
     provider,
+    lead_intent_type: leadIntentType,
     attribution,
   };
 
   pushDataLayer(eventName, {
     lead_method: eventName,
+    lead_intent_type: leadIntentType,
     page_url: window.location.href,
     click_url: href,
     provider,

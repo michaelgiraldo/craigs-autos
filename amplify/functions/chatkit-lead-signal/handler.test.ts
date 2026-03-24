@@ -6,7 +6,8 @@ test('lead-signal handler rejects invalid events', async () => {
   const handler = createLeadSignalHandler({
     configValid: true,
     nowEpochSeconds: () => 1_000,
-    writeRecord: async () => undefined,
+    writeEventRecord: async () => undefined,
+    writeCaseRecord: async () => undefined,
   });
 
   const result = await handler({
@@ -21,13 +22,17 @@ test('lead-signal handler rejects invalid events', async () => {
   assert.match(result.body, /Invalid event/);
 });
 
-test('lead-signal handler writes record for valid payload', async () => {
-  const writes: Array<Record<string, unknown>> = [];
+test('lead-signal handler writes event and case records for valid payload', async () => {
+  const eventWrites: Array<Record<string, unknown>> = [];
+  const caseWrites: Array<Record<string, unknown>> = [];
   const handler = createLeadSignalHandler({
     configValid: true,
     nowEpochSeconds: () => 1_000,
-    writeRecord: async (record) => {
-      writes.push(record);
+    writeEventRecord: async (record) => {
+      eventWrites.push(record);
+    },
+    writeCaseRecord: async (record) => {
+      caseWrites.push(record);
     },
   });
 
@@ -39,7 +44,6 @@ test('lead-signal handler writes record for valid payload', async () => {
       user: 'anon_123',
       locale: 'en',
       clickUrl: 'tel:+14083793820',
-      provider: 'google_ads',
       attribution: {
         utm_source: 'google',
       },
@@ -47,17 +51,23 @@ test('lead-signal handler writes record for valid payload', async () => {
   });
 
   assert.equal(result.statusCode, 200);
-  assert.equal(writes.length, 1);
-  assert.equal(writes[0].lead_method, 'lead_click_to_call');
-  assert.equal(writes[0].utm_source, 'google');
-  assert.equal(writes[0].user_id, 'anon_123');
+  assert.equal(eventWrites.length, 1);
+  assert.equal(caseWrites.length, 1);
+  assert.equal(eventWrites[0].lead_method, 'lead_click_to_call');
+  assert.equal(caseWrites[0].lead_method, 'lead_click_to_call');
+  assert.equal(caseWrites[0].lead_intent_type, 'call');
+  assert.equal(caseWrites[0].source_platform, 'google_ads');
+  assert.equal(caseWrites[0].qualified, false);
+  assert.equal(caseWrites[0].uploaded_google_ads, false);
+  assert.equal(caseWrites[0].user_id, 'anon_123');
 });
 
 test('lead-signal handler returns 500 when configuration is missing', async () => {
   const handler = createLeadSignalHandler({
     configValid: false,
     nowEpochSeconds: () => 1_000,
-    writeRecord: async () => undefined,
+    writeEventRecord: async () => undefined,
+    writeCaseRecord: async () => undefined,
   });
 
   const result = await handler({

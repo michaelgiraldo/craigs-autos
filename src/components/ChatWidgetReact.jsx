@@ -81,6 +81,12 @@ function getOrCreateUserId() {
   return value;
 }
 
+const BLOCKED_HANDOFF_REASONS = new Set(['empty_thread', 'missing_contact', 'not_ready']);
+
+function classifyChatHandoffReason(reason) {
+  return BLOCKED_HANDOFF_REASONS.has(reason) ? 'lead_chat_handoff_blocked' : 'lead_chat_handoff_deferred';
+}
+
 function lockBodyScroll() {
   const scrollY = window.scrollY || document.documentElement.scrollTop;
   document.body.dataset.chatScrollY = String(scrollY);
@@ -129,6 +135,7 @@ export default function ChatWidgetReact({
   const [chatInstance, setChatInstance] = React.useState(null);
   const chatRef = React.useRef(null);
   const chatPanelRef = React.useRef(null);
+  const panelOpenReasonRef = React.useRef('auto_default');
   const seenThreadIdsRef = React.useRef(new Set());
   const leadEmailInFlightRef = React.useRef(false);
   const hasUserInteractedRef = React.useRef(false);
@@ -142,13 +149,21 @@ export default function ChatWidgetReact({
   React.useEffect(() => {
     // Keep SSR hydration stable by rendering closed first, then applying per-device default after mount.
     let nextOpen = !isMobile();
+    let openReason = nextOpen ? 'auto_default' : 'closed_default';
     try {
       const saved = sessionStorage.getItem(OPEN_KEY);
-      if (saved === 'true') nextOpen = true;
-      if (saved === 'false') nextOpen = false;
+      if (saved === 'true') {
+        nextOpen = true;
+        openReason = 'session_restore';
+      }
+      if (saved === 'false') {
+        nextOpen = false;
+        openReason = 'closed_restore';
+      }
     } catch {
       // Ignore storage access issues; fall back to device default.
     }
+    panelOpenReasonRef.current = openReason;
     setOpen(nextOpen);
     setOpenInitialized(true);
   }, []);
@@ -217,6 +232,20 @@ export default function ChatWidgetReact({
     return () => unlockBodyScroll();
   }, [open, openInitialized]);
 
+  React.useEffect(() => {
+    if (!openInitialized || !open) return;
+    pushLeadDataLayer('lead_chat_panel_opened', {
+      lead_method: 'chat',
+      lead_intent_type: 'chat',
+      lead_locale: locale,
+      open_reason: panelOpenReasonRef.current,
+      thread_id: threadId ?? null,
+      user_id: userId ?? null,
+      page_url: window.location.href,
+      page_path: window.location.pathname,
+    });
+  }, [locale, open, openInitialized, threadId, userId]);
+
   const sendLeadEmail = React.useCallback(
     async ({ reason = 'chat_closed' } = {}) => {
       if (leadEmailInFlightRef.current) return;
@@ -251,8 +280,9 @@ export default function ChatWidgetReact({
         });
         if (!response.ok) {
           if (isDev) console.error('ChatKit lead email error', response.status, text);
-          pushLeadDataLayer('lead_chat_lead_error', {
+          pushLeadDataLayer('lead_chat_handoff_error', {
             lead_method: 'chat',
+            lead_intent_type: 'chat',
             lead_locale: locale,
             lead_request_reason: reason,
             thread_id: activeThreadId,
@@ -268,8 +298,9 @@ export default function ChatWidgetReact({
         try {
           data = text ? JSON.parse(text) : {};
         } catch {
-          pushLeadDataLayer('lead_chat_lead_error', {
+          pushLeadDataLayer('lead_chat_handoff_error', {
             lead_method: 'chat',
+            lead_intent_type: 'chat',
             lead_locale: locale,
             lead_request_reason: reason,
             thread_id: activeThreadId,
@@ -284,8 +315,9 @@ export default function ChatWidgetReact({
         const backendReason = typeof data?.reason === 'string' ? data.reason : '';
         if (data?.sent === true) {
           globalThis.localStorage?.setItem(sentKey, 'true');
-          pushLeadDataLayer('lead_chat_lead_sent', {
+          pushLeadDataLayer('lead_chat_handoff_sent', {
             lead_method: 'chat',
+            lead_intent_type: 'chat',
             lead_locale: locale,
             lead_request_reason: reason,
             lead_reason: backendReason || reason,
@@ -295,8 +327,9 @@ export default function ChatWidgetReact({
             page_path: window.location.pathname,
           });
         } else if (data?.sent === false) {
-          pushLeadDataLayer('lead_chat_lead_skipped', {
+          pushLeadDataLayer(classifyChatHandoffReason(backendReason || 'unknown'), {
             lead_method: 'chat',
+            lead_intent_type: 'chat',
             lead_locale: locale,
             lead_request_reason: reason,
             lead_reason: backendReason || 'unknown',
@@ -308,8 +341,9 @@ export default function ChatWidgetReact({
         }
       } catch (err) {
         if (isDev) console.error('ChatKit lead email request failed', err);
-        pushLeadDataLayer('lead_chat_lead_error', {
+        pushLeadDataLayer('lead_chat_handoff_error', {
           lead_method: 'chat',
+          lead_intent_type: 'chat',
           lead_locale: locale,
           lead_request_reason: reason,
           thread_id: threadId,
@@ -464,9 +498,11 @@ export default function ChatWidgetReact({
           aria-controls="chat-panel"
           aria-label={copy.launcherLabel}
           onClick={() => {
+            panelOpenReasonRef.current = 'launcher_click';
             setOpen(true);
-            pushLeadDataLayer('lead_chat_open', {
+            pushLeadDataLayer('lead_chat_launcher_clicked', {
               lead_method: 'chat',
+              lead_intent_type: 'chat',
               lead_locale: locale,
               thread_id: threadId ?? null,
               user_id: userId ?? null,
@@ -545,8 +581,9 @@ export default function ChatWidgetReact({
                       setThreadId(nextId);
                       if (!seenThreadIdsRef.current.has(nextId)) {
                         seenThreadIdsRef.current.add(nextId);
-                        pushLeadDataLayer('lead_chat_session_started', {
+                        pushLeadDataLayer('lead_chat_thread_started', {
                           lead_method: 'chat',
+                          lead_intent_type: 'chat',
                           lead_locale: locale,
                           thread_id: nextId,
                           user_id: userId ?? 'anonymous',

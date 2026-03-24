@@ -46,11 +46,11 @@ setLambdaDescription(
 );
 setLambdaDescription(
   backend.chatkitLeadSignal.resources.lambda,
-  'Logs lead interaction attribution events (call, text, email, directions, landing) to DynamoDB.'
+  'Logs actionable lead interaction events (call, text, email, directions) and writes normalized lead candidates to DynamoDB.'
 );
 setLambdaDescription(
   backend.chatkitLeadAdmin.resources.lambda,
-  'Password-protected admin API to list lead records and update qualification status for conversion workflows.'
+  'Password-protected admin API to list lead cases and update qualification status for conversion workflows.'
 );
 
 // Expose a lightweight HTTPS endpoint that creates ChatKit sessions.
@@ -228,10 +228,28 @@ chatkitLeadDedupeTable.grantReadWriteData(backend.chatkitLeadEmail.resources.lam
   chatkitLeadDedupeTable.tableName
 );
 
-// Store attribution data (GCLID/UTM) for offline conversion uploads.
-const chatkitLeadAttributionTable = new Table(
+// Immutable lead event log for actionable first-party events.
+const chatkitLeadEventsTable = new Table(
   Stack.of(backend.chatkitLeadEmail.resources.lambda),
-  'ChatkitLeadAttributionTable',
+  'ChatkitLeadEventsTable',
+  {
+    billingMode: BillingMode.PAY_PER_REQUEST,
+    partitionKey: { name: 'event_id', type: AttributeType.STRING },
+    timeToLiveAttribute: 'ttl',
+    removalPolicy: RemovalPolicy.RETAIN,
+  }
+);
+
+chatkitLeadEventsTable.grantReadWriteData(backend.chatkitLeadSignal.resources.lambda);
+(backend.chatkitLeadSignal.resources.lambda as any).addEnvironment(
+  'LEAD_EVENTS_TABLE_NAME',
+  chatkitLeadEventsTable.tableName
+);
+
+// Lead cases back the admin portal, qualification workflow, and offline conversion uploads.
+const chatkitLeadCasesTable = new Table(
+  Stack.of(backend.chatkitLeadEmail.resources.lambda),
+  'ChatkitLeadCasesTable',
   {
     billingMode: BillingMode.PAY_PER_REQUEST,
     partitionKey: { name: 'lead_id', type: AttributeType.STRING },
@@ -240,22 +258,22 @@ const chatkitLeadAttributionTable = new Table(
   }
 );
 
-chatkitLeadAttributionTable.grantReadWriteData(backend.chatkitLeadEmail.resources.lambda);
+chatkitLeadCasesTable.grantReadWriteData(backend.chatkitLeadEmail.resources.lambda);
 (backend.chatkitLeadEmail.resources.lambda as any).addEnvironment(
-  'LEAD_ATTRIBUTION_TABLE_NAME',
-  chatkitLeadAttributionTable.tableName
+  'LEAD_CASES_TABLE_NAME',
+  chatkitLeadCasesTable.tableName
 );
 
-chatkitLeadAttributionTable.grantReadWriteData(backend.chatkitLeadSignal.resources.lambda);
+chatkitLeadCasesTable.grantReadWriteData(backend.chatkitLeadSignal.resources.lambda);
 (backend.chatkitLeadSignal.resources.lambda as any).addEnvironment(
-  'LEAD_ATTRIBUTION_TABLE_NAME',
-  chatkitLeadAttributionTable.tableName
+  'LEAD_CASES_TABLE_NAME',
+  chatkitLeadCasesTable.tableName
 );
 
-chatkitLeadAttributionTable.grantReadWriteData(backend.chatkitLeadAdmin.resources.lambda);
+chatkitLeadCasesTable.grantReadWriteData(backend.chatkitLeadAdmin.resources.lambda);
 (backend.chatkitLeadAdmin.resources.lambda as any).addEnvironment(
-  'LEAD_ATTRIBUTION_TABLE_NAME',
-  chatkitLeadAttributionTable.tableName
+  'LEAD_CASES_TABLE_NAME',
+  chatkitLeadCasesTable.tableName
 );
 
 // Used by tokenized message handoff links in lead emails.
