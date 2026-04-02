@@ -112,7 +112,6 @@
 
       <div class="actions">
         <a id="open-sms" class="btn btn--primary" href="#">Send via SMS</a>
-        <button id="open-google-voice" class="btn" type="button">Send via Google Voice</button>
         <a id="call" class="btn" href="#">Call</a>
         <button id="copy-phone" class="btn" type="button">Copy phone</button>
         <button id="copy-body" class="btn" type="button">Copy message</button>
@@ -139,7 +138,6 @@
       const toEl = document.getElementById('to');
       const bodyEl = document.getElementById('body');
       const openSmsEl = document.getElementById('open-sms');
-      const openGoogleVoiceBtn = document.getElementById('open-google-voice');
       const callEl = document.getElementById('call');
       const copyPhoneBtn = document.getElementById('copy-phone');
       const copyBodyBtn = document.getElementById('copy-body');
@@ -156,12 +154,6 @@
         if (messageIndex !== -1 && parts[messageIndex + 1]) return parts[messageIndex + 1];
 
         return '';
-      }
-
-      function getChannel() {
-        const url = new URL(window.location.href);
-        const value = url.searchParams.get('channel');
-        return value && value.trim() ? value.trim().toLowerCase() : '';
       }
 
       function normalizeE164Digits(phone) {
@@ -189,12 +181,6 @@
         return `sms:${to}?&body=${encodeURIComponent(text)}`;
       }
 
-      function buildGoogleVoiceHref(phone) {
-        const e164Digits = normalizeE164Digits(phone);
-        if (!e164Digits) return 'https://voice.google.com/u/0/messages';
-        return `https://voice.google.com/u/0/messages?itemId=${encodeURIComponent(`t.+${e164Digits}`)}`;
-      }
-
       function withFetchTimeout(init = {}) {
         if (typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout === 'function') {
           return { ...init, signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) };
@@ -214,8 +200,6 @@
 
       async function run() {
         const token = getToken();
-        const channel = getChannel();
-        const useGoogleVoice = channel === 'google_voice';
         if (!token) {
           statusEl.textContent = 'Missing token.';
           statusEl.classList.add('error');
@@ -249,26 +233,12 @@
         const to = data.to_phone;
         const body = data.body || '';
         const smsHref = buildSmsHref(to, body);
-        const googleVoiceHref = buildGoogleVoiceHref(to);
         const telHref = buildTelHref(to);
 
         toEl.textContent = to || '—';
         bodyEl.textContent = body || '—';
         openSmsEl.href = smsHref;
         callEl.href = telHref;
-
-        openGoogleVoiceBtn.addEventListener('click', async () => {
-          if (body) {
-            try {
-              await navigator.clipboard.writeText(String(body));
-            } catch {}
-          }
-          try {
-            window.open(googleVoiceHref, '_blank', 'noopener,noreferrer');
-          } catch {
-            window.location.href = googleVoiceHref;
-          }
-        });
 
         copyPhoneBtn.addEventListener('click', async () => {
           if (!to) return;
@@ -288,18 +258,14 @@
           } catch {}
         });
 
-        statusEl.textContent = useGoogleVoice
-          ? 'Draft ready for Google Voice.'
-          : 'Draft ready. Choose a channel.';
+        statusEl.textContent = 'Draft ready. Send via SMS or copy the message.';
 
-        if (!useGoogleVoice) {
-          // Best-effort auto-open. If the browser blocks it, the primary button remains.
-          setTimeout(() => {
-            try {
-              window.location.href = smsHref;
-            } catch {}
-          }, 50);
-        }
+        // Best-effort auto-open. If the browser blocks it, the primary button remains.
+        setTimeout(() => {
+          try {
+            window.location.href = smsHref;
+          } catch {}
+        }, 50);
       }
 
       run();

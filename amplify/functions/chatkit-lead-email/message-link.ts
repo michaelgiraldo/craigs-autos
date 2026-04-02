@@ -36,18 +36,6 @@ export function inferMessageLinkBaseUrl(pageHref: string | null): string {
   return PROD_MESSAGE_LINK_BASE_URL;
 }
 
-export function withLinkChannel(link: string, channel: string): string | null {
-  const safeLink = safeHttpUrl(link);
-  if (!safeLink) return null;
-  try {
-    const url = new URL(safeLink);
-    url.searchParams.set('channel', channel);
-    return url.toString();
-  } catch {
-    return null;
-  }
-}
-
 export function buildMessageLinkTokenUrl(baseUrl: string, token: string): string {
   const normalizedBase = safeHttpUrl(baseUrl) ?? PROD_MESSAGE_LINK_BASE_URL;
   return joinUrl(normalizedBase, `/message/?token=${encodeURIComponent(token)}`);

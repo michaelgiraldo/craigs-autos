@@ -17,7 +17,7 @@ Scope:
 - `amplify/functions/chatkit-lead-email` (Lambda): builds transcript, summarizes, and sends lead email.
 - `amplify/functions/chatkit-attachment-upload` (Lambda): receives user files and stores them in S3.
 - `amplify/functions/chatkit-message-link` (Lambda): resolves short-lived token links used by
-  message handoff actions in lead emails (SMS + Google Voice entry).
+  message handoff actions in lead emails (SMS entry).
 - `S3 bucket (chatkit-attachment-bucket)`: stores uploaded attachments and serves them with preview URLs.
 - `DynamoDB (ChatkitLeadDedupeTable)`: enforces one send per thread and tracks lease/error state.
 - `DynamoDB (ChatkitLeadAttributionTable)`: stores lead metadata for offline conversion use.
@@ -55,9 +55,7 @@ Current retention in this repo:
 - The backend only sends when the summary model returns `handoff_ready = true`.
 - The email body now inlines small preview images so photos are visible inline in
   the owner email, no extra clicks needed.
-- Lead email quick actions include both `Send via SMS` and `Send via Google Voice`.
-- Google Voice one-click currently means: open Google Voice web UI and best-effort
-  copy the draft message to clipboard for paste/send (no auto-send).
+- Lead email quick actions include `Send via SMS` for one-click text handoff.
 - Legacy SMS-named link contracts were removed in this phase (breaking change).
 - No new AWS service was introduced. This is implemented with existing Lambdas,
   S3, SES, and DynamoDB plus existing chat runtime behavior.

@@ -275,20 +275,12 @@ It produces:
 - plain text part
 - HTML part with:
   - clickable phone/email/thread links
-  - quick-action chips (tel/sms/google voice/mail/open page/open logs)
+  - quick-action chips (tel/sms/mail/open page/open logs)
   - call script prompts
   - copy/paste drafts (SMS, email subject/body, suggested outreach)
   - transcript
 - optional inline photos rendered with `Content-ID` CID references when attachments are
   small image previews from attachment storage
-
-Current Google Voice behavior in lead emails:
-
-- `Send via Google Voice` links route through the same tokenized `/message/?token=...` flow
-  with `channel=google_voice`.
-- On `/message/`, Google Voice one-click means: open Google Voice web UI and best-effort copy
-  the draft message to clipboard for paste/send.
-- This does not auto-send through Google Voice.
 
 If you modify the email template, keep both HTML and text in sync.
 

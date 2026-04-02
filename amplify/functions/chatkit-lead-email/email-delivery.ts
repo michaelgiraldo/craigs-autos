@@ -4,7 +4,7 @@ import type { InlineAttachment } from './attachments';
 import { extractAttachments, fetchInlineAttachment } from './attachments';
 import { buildLeadEmailSubject, buildOutreachDrafts } from './drafts';
 import { buildRawEmail, linkifyTextToHtml } from './email-mime';
-import { inferMessageLinkBaseUrl, withLinkChannel } from './message-link';
+import { inferMessageLinkBaseUrl } from './message-link';
 import {
   emailToMailto,
   escapeHtml,
@@ -132,9 +132,6 @@ export async function sendTranscriptEmail(args: {
         baseUrl: messageLinkBaseUrl,
       })
     : null;
-  const googleVoiceCustomerLink = smsCustomerLink
-    ? withLinkChannel(smsCustomerLink, 'google_voice')
-    : null;
 
   const emailDraftHref = customerEmail
     ? mailtoWithDraft(customerEmail, emailDraftSubject, emailDraftBody)
@@ -226,7 +223,6 @@ export async function sendTranscriptEmail(args: {
 
   bodyParts.push('Drafts');
   if (smsCustomerLink) bodyParts.push(`Send via SMS link:\n${smsCustomerLink}`);
-  if (googleVoiceCustomerLink) bodyParts.push(`Google Voice link:\n${googleVoiceCustomerLink}`);
   if (customerPhone) bodyParts.push(`Text message:\n${smsDraft}`);
   if (customerEmail) {
     bodyParts.push(`Email subject:\n${emailDraftSubject}`);
@@ -315,9 +311,6 @@ export async function sendTranscriptEmail(args: {
   const quickActions: Array<{ label: string; href: string }> = [];
   if (customerTelHref) quickActions.push({ label: 'Call customer', href: customerTelHref });
   if (smsCustomerLink) quickActions.push({ label: 'Send via SMS', href: smsCustomerLink });
-  if (googleVoiceCustomerLink) {
-    quickActions.push({ label: 'Send via Google Voice', href: googleVoiceCustomerLink });
-  }
   if (customerMailHref) quickActions.push({ label: 'Email customer', href: customerMailHref });
   if (emailDraftHref) quickActions.push({ label: 'Email draft', href: emailDraftHref });
   if (pageHref) quickActions.push({ label: 'Open page', href: pageHref });
@@ -355,20 +348,13 @@ export async function sendTranscriptEmail(args: {
     : '';
 
   const draftsHtmlParts: string[] = [];
-  if (smsCustomerLink || googleVoiceCustomerLink) {
+  if (smsCustomerLink) {
     const linkRows: string[] = [];
     if (smsCustomerLink) {
       linkRows.push(
         `<div style="margin:0 0 8px"><a href="${escapeHtml(
           smsCustomerLink,
         )}" style="color:#141cff;text-decoration:none">Send via SMS link</a></div>`,
-      );
-    }
-    if (googleVoiceCustomerLink) {
-      linkRows.push(
-        `<div><a href="${escapeHtml(
-          googleVoiceCustomerLink,
-        )}" style="color:#141cff;text-decoration:none">Google Voice link</a></div>`,
       );
     }
     draftsHtmlParts.push(`<div style="margin:0 0 12px">

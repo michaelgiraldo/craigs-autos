@@ -97,7 +97,7 @@ const chatkitLeadEmailUrl = new FunctionUrl(
 );
 
 // Expose a lightweight endpoint used by `/message` to resolve a token into
-// {to_phone, body}. The browser then opens the selected channel client (SMS, Google Voice, etc).
+// {to_phone, body}. The browser then opens the SMS client or exposes copy/call helpers.
 const chatkitMessageLinkUrl = new FunctionUrl(
   Stack.of(backend.chatkitMessageLink.resources.lambda),
   'ChatkitMessageLinkUrl',
