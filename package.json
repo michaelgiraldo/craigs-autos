@@ -51,7 +51,7 @@
     "@aws-amplify/backend-cli": "^1.8.2",
     "@biomejs/biome": "^2.4.10",
     "@types/node": "^25.5.0",
-    "aws-cdk-lib": "^2.247.0",
+    "aws-cdk-lib": "^2.248.0",
     "constructs": "^10.6.0",
     "glob": "^13.0.6",
     "playwright": "^1.59.1",
