@@ -144,7 +144,7 @@ async function parseUploadedFile(event: LambdaEvent): Promise<{
 
   const headers = normalizeHeaders(event.headers);
   const contentType = headers['content-type'];
-  if (!contentType || !contentType.toLowerCase().startsWith('multipart/form-data')) {
+  if (!contentType?.toLowerCase().startsWith('multipart/form-data')) {
     return { threadId: null };
   }
 

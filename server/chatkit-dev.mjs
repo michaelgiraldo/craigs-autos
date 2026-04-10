@@ -60,7 +60,7 @@ function normalizeHeaders(req) {
 async function parseAttachmentFromRequest(req) {
   const headers = normalizeHeaders(req);
   const contentType = headers['content-type'];
-  if (!contentType || !contentType.toLowerCase().startsWith('multipart/form-data')) {
+  if (!contentType?.toLowerCase().startsWith('multipart/form-data')) {
     return { error: 'Expected multipart/form-data' };
   }
 
