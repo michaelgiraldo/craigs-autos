@@ -300,6 +300,110 @@ chatkitMessageLinkTokenTable.grantReadWriteData(backend.chatkitLeadEmail.resourc
   chatkitMessageLinkTokenTable.tableName
 );
 
+// Journey-first lead substrate used by click, chat, and upcoming form capture flows.
+const leadDataStack = Stack.of(backend.chatkitLeadEmail.resources.lambda);
+
+const leadContactsTable = new Table(leadDataStack, 'LeadContactsTable', {
+  billingMode: BillingMode.PAY_PER_REQUEST,
+  partitionKey: { name: 'contact_id', type: AttributeType.STRING },
+  removalPolicy: RemovalPolicy.RETAIN,
+});
+
+leadContactsTable.addGlobalSecondaryIndex({
+  indexName: 'normalized_phone-index',
+  partitionKey: { name: 'normalized_phone', type: AttributeType.STRING },
+});
+
+leadContactsTable.addGlobalSecondaryIndex({
+  indexName: 'normalized_email-index',
+  partitionKey: { name: 'normalized_email', type: AttributeType.STRING },
+});
+
+leadContactsTable.addGlobalSecondaryIndex({
+  indexName: 'quo_contact_id-index',
+  partitionKey: { name: 'quo_contact_id', type: AttributeType.STRING },
+});
+
+const leadJourneysTable = new Table(leadDataStack, 'LeadJourneysTable', {
+  billingMode: BillingMode.PAY_PER_REQUEST,
+  partitionKey: { name: 'journey_id', type: AttributeType.STRING },
+  removalPolicy: RemovalPolicy.RETAIN,
+});
+
+leadJourneysTable.addGlobalSecondaryIndex({
+  indexName: 'admin_partition-updated_at_ms-index',
+  partitionKey: { name: 'admin_partition', type: AttributeType.STRING },
+  sortKey: { name: 'updated_at_ms', type: AttributeType.NUMBER },
+});
+
+const leadRecordsTable = new Table(leadDataStack, 'LeadRecordsTable', {
+  billingMode: BillingMode.PAY_PER_REQUEST,
+  partitionKey: { name: 'lead_record_id', type: AttributeType.STRING },
+  removalPolicy: RemovalPolicy.RETAIN,
+});
+
+leadRecordsTable.addGlobalSecondaryIndex({
+  indexName: 'contact_id-updated_at_ms-index',
+  partitionKey: { name: 'contact_id', type: AttributeType.STRING },
+  sortKey: { name: 'updated_at_ms', type: AttributeType.NUMBER },
+});
+
+leadRecordsTable.addGlobalSecondaryIndex({
+  indexName: 'admin_partition-updated_at_ms-index',
+  partitionKey: { name: 'admin_partition', type: AttributeType.STRING },
+  sortKey: { name: 'updated_at_ms', type: AttributeType.NUMBER },
+});
+
+leadRecordsTable.addGlobalSecondaryIndex({
+  indexName: 'status-updated_at_ms-index',
+  partitionKey: { name: 'status', type: AttributeType.STRING },
+  sortKey: { name: 'updated_at_ms', type: AttributeType.NUMBER },
+});
+
+const leadJourneyEventsTable = new Table(leadDataStack, 'LeadJourneyEventsTable', {
+  billingMode: BillingMode.PAY_PER_REQUEST,
+  partitionKey: { name: 'journey_id', type: AttributeType.STRING },
+  sortKey: { name: 'event_sort_key', type: AttributeType.STRING },
+  removalPolicy: RemovalPolicy.RETAIN,
+});
+
+leadJourneyEventsTable.addGlobalSecondaryIndex({
+  indexName: 'lead_record_id-occurred_at_ms-index',
+  partitionKey: { name: 'lead_record_id', type: AttributeType.STRING },
+  sortKey: { name: 'occurred_at_ms', type: AttributeType.NUMBER },
+});
+
+const leadActionTokensTable = new Table(leadDataStack, 'LeadActionTokensTable', {
+  billingMode: BillingMode.PAY_PER_REQUEST,
+  partitionKey: { name: 'token', type: AttributeType.STRING },
+  timeToLiveAttribute: 'expires_at_ms',
+  removalPolicy: RemovalPolicy.RETAIN,
+});
+
+for (const lambda of [
+  backend.chatkitLeadEmail.resources.lambda,
+  backend.chatkitLeadSignal.resources.lambda,
+  backend.chatkitLeadAdmin.resources.lambda,
+]) {
+  leadContactsTable.grantReadWriteData(lambda);
+  leadJourneysTable.grantReadWriteData(lambda);
+  leadJourneyEventsTable.grantReadWriteData(lambda);
+  leadRecordsTable.grantReadWriteData(lambda);
+  leadActionTokensTable.grantReadWriteData(lambda);
+
+  (lambda as any).addEnvironment('LEAD_CONTACTS_TABLE_NAME', leadContactsTable.tableName);
+  (lambda as any).addEnvironment('LEAD_JOURNEYS_TABLE_NAME', leadJourneysTable.tableName);
+  (lambda as any).addEnvironment(
+    'LEAD_JOURNEY_EVENTS_TABLE_NAME',
+    leadJourneyEventsTable.tableName
+  );
+  (lambda as any).addEnvironment('LEAD_RECORDS_TABLE_NAME', leadRecordsTable.tableName);
+  (lambda as any).addEnvironment(
+    'LEAD_ACTION_TOKENS_TABLE_NAME',
+    leadActionTokensTable.tableName
+  );
+}
+
 backend.addOutput({
   custom: {
     // Used by the frontend widget (via /amplify_outputs.json) to locate the session endpoint.

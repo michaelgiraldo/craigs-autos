@@ -1,7 +1,8 @@
 import React from 'react';
 import { ChatKit, useChatKit } from '@openai/chatkit-react';
 import { BRAND_NAME, CHAT_COPY } from '../lib/site-data.js';
-import { getAttributionPayload } from '../lib/attribution.js';
+import { getAttributionPayload, getJourneyId } from '../lib/attribution.js';
+import { sendSignal } from '../scripts/analytics/transport.ts';
 import {
   fetchAmplifyOutputsUrls,
   isPlaceholderUrl,
@@ -16,6 +17,7 @@ import {
   CHATKIT_LOCALE_MAP,
   CHATKIT_MAX_ATTACHMENTS,
   CHATKIT_MAX_ATTACHMENT_BYTES,
+  FIRST_MESSAGE_SENT_KEY_PREFIX,
   LEAD_SENT_KEY_PREFIX,
   OPEN_KEY,
   THREAD_STORAGE_KEY,
@@ -52,6 +54,7 @@ function ChatKitWithHooks({
   options,
   onReady,
   onError,
+  onLog,
   onThreadChange,
   onResponseStart,
   onResponseEnd,
@@ -61,6 +64,7 @@ function ChatKitWithHooks({
     ...options,
     onReady,
     onError,
+    onLog,
     onThreadChange,
     onResponseStart,
     onResponseEnd,
@@ -112,6 +116,13 @@ function isMobile() {
   return window.matchMedia('(max-width: 900px)').matches;
 }
 
+function createClientEventId(prefix) {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return `${prefix}_${crypto.randomUUID()}`;
+  }
+  return `${prefix}_${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`;
+}
+
 export default function ChatWidgetReact({
   locale = 'en',
   sessionUrl = '/api/chatkit/session/',
@@ -134,11 +145,13 @@ export default function ChatWidgetReact({
   const [chatkitError, setChatkitError] = React.useState(null);
   const [chatInstance, setChatInstance] = React.useState(null);
   const chatRef = React.useRef(null);
+  const threadIdRef = React.useRef(null);
   const chatPanelRef = React.useRef(null);
-  const panelOpenReasonRef = React.useRef('auto_default');
-  const seenThreadIdsRef = React.useRef(new Set());
   const leadEmailInFlightRef = React.useRef(false);
   const hasUserInteractedRef = React.useRef(false);
+  const pendingFirstMessageRef = React.useRef(false);
+  const pendingFirstMessageTimerRef = React.useRef(null);
+  const suppressNextThreadFirstMessageRef = React.useRef(false);
   const isDev = import.meta.env.DEV;
 
   React.useEffect(() => {
@@ -147,23 +160,23 @@ export default function ChatWidgetReact({
   }, []);
 
   React.useEffect(() => {
+    threadIdRef.current = threadId;
+  }, [threadId]);
+
+  React.useEffect(() => {
     // Keep SSR hydration stable by rendering closed first, then applying per-device default after mount.
     let nextOpen = !isMobile();
-    let openReason = nextOpen ? 'auto_default' : 'closed_default';
     try {
       const saved = sessionStorage.getItem(OPEN_KEY);
       if (saved === 'true') {
         nextOpen = true;
-        openReason = 'session_restore';
       }
       if (saved === 'false') {
         nextOpen = false;
-        openReason = 'closed_restore';
       }
     } catch {
       // Ignore storage access issues; fall back to device default.
     }
-    panelOpenReasonRef.current = openReason;
     setOpen(nextOpen);
     setOpenInitialized(true);
   }, []);
@@ -232,19 +245,88 @@ export default function ChatWidgetReact({
     return () => unlockBodyScroll();
   }, [open, openInitialized]);
 
+  const clearPendingFirstMessageTimer = React.useCallback(() => {
+    if (typeof pendingFirstMessageTimerRef.current === 'number') {
+      window.clearTimeout(pendingFirstMessageTimerRef.current);
+      pendingFirstMessageTimerRef.current = null;
+    }
+  }, []);
+
+  const emitFirstChatMessageEvent = React.useCallback(
+    (trackedThreadId) => {
+      clearPendingFirstMessageTimer();
+      pendingFirstMessageRef.current = false;
+
+      const activeThreadId = trackedThreadId ?? threadIdRef.current ?? null;
+      if (activeThreadId) {
+        const sentKey = `${FIRST_MESSAGE_SENT_KEY_PREFIX}${activeThreadId}`;
+        if (globalThis.localStorage?.getItem(sentKey) === 'true') {
+          return;
+        }
+        globalThis.localStorage?.setItem(sentKey, 'true');
+      }
+
+      const occurredAtMs = Date.now();
+      const clientEventId = createClientEventId('chat_first_message');
+      const journeyId = getJourneyId();
+
+      pushLeadDataLayer('lead_chat_first_message_sent', {
+        event_class: 'customer_action',
+        customer_action: 'chat_first_message_sent',
+        lead_strength: 'soft_intent',
+        verification_status: 'unverified',
+        locale,
+        journey_id: journeyId,
+        client_event_id: clientEventId,
+        occurred_at_ms: occurredAtMs,
+        page_path: window.location.pathname,
+        page_url: window.location.href,
+        thread_id: activeThreadId,
+        user_id: userId ?? null,
+      });
+
+      sendSignal({
+        event: 'lead_chat_first_message_sent',
+        journey_id: journeyId,
+        client_event_id: clientEventId,
+        occurred_at_ms: occurredAtMs,
+        pageUrl: window.location.href,
+        pagePath: window.location.pathname,
+        user: userId ?? null,
+        locale,
+        threadId: activeThreadId,
+        attribution: getAttributionPayload(),
+      });
+    },
+    [clearPendingFirstMessageTimer, locale, userId]
+  );
+
+  const trackFirstChatMessage = React.useCallback(() => {
+    hasUserInteractedRef.current = true;
+    const activeThreadId = threadIdRef.current;
+    if (activeThreadId) {
+      suppressNextThreadFirstMessageRef.current = false;
+      emitFirstChatMessageEvent(activeThreadId);
+      return;
+    }
+
+    if (pendingFirstMessageRef.current) {
+      return;
+    }
+
+    pendingFirstMessageRef.current = true;
+    clearPendingFirstMessageTimer();
+    pendingFirstMessageTimerRef.current = window.setTimeout(() => {
+      suppressNextThreadFirstMessageRef.current = true;
+      emitFirstChatMessageEvent(null);
+    }, 3000);
+  }, [clearPendingFirstMessageTimer, emitFirstChatMessageEvent]);
+
   React.useEffect(() => {
-    if (!openInitialized || !open) return;
-    pushLeadDataLayer('lead_chat_panel_opened', {
-      lead_method: 'chat',
-      lead_intent_type: 'chat',
-      lead_locale: locale,
-      open_reason: panelOpenReasonRef.current,
-      thread_id: threadId ?? null,
-      user_id: userId ?? null,
-      page_url: window.location.href,
-      page_path: window.location.pathname,
-    });
-  }, [locale, open, openInitialized, threadId, userId]);
+    return () => {
+      clearPendingFirstMessageTimer();
+    };
+  }, [clearPendingFirstMessageTimer]);
 
   const sendLeadEmail = React.useCallback(
     async ({ reason = 'chat_closed' } = {}) => {
@@ -380,17 +462,23 @@ export default function ChatWidgetReact({
   }, [sendLeadEmail]);
 
   const startNewChat = React.useCallback(() => {
+    clearPendingFirstMessageTimer();
+    pendingFirstMessageRef.current = false;
+    suppressNextThreadFirstMessageRef.current = false;
     sessionStorage.removeItem(THREAD_STORAGE_KEY);
     setThreadId(null);
     chatRef.current?.setThreadId?.(null);
-  }, []);
+  }, [clearPendingFirstMessageTimer]);
 
   const resetChat = React.useCallback(() => {
+    clearPendingFirstMessageTimer();
+    pendingFirstMessageRef.current = false;
+    suppressNextThreadFirstMessageRef.current = false;
     setChatkitReady(false);
     setChatkitError(null);
     setChatInstance(null);
     setChatMountId((value) => value + 1);
-  }, []);
+  }, [clearPendingFirstMessageTimer]);
 
   const options = React.useMemo(() => {
     const initialThread = threadId ?? undefined;
@@ -498,17 +586,8 @@ export default function ChatWidgetReact({
           aria-controls="chat-panel"
           aria-label={copy.launcherLabel}
           onClick={() => {
-            panelOpenReasonRef.current = 'launcher_click';
+            hasUserInteractedRef.current = true;
             setOpen(true);
-            pushLeadDataLayer('lead_chat_launcher_clicked', {
-              lead_method: 'chat',
-              lead_intent_type: 'chat',
-              lead_locale: locale,
-              thread_id: threadId ?? null,
-              user_id: userId ?? null,
-              page_url: window.location.href,
-              page_path: window.location.pathname,
-            });
           }}
         >
           <svg className="chat-launcher__icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -571,6 +650,12 @@ export default function ChatWidgetReact({
                       // taking a snapshot mid-conversation.
                       bumpIdleTimer();
                     }}
+                    onLog={(detail) => {
+                      if (detail?.name === 'composer.submit') {
+                        trackFirstChatMessage();
+                        bumpIdleTimer();
+                      }
+                    }}
                     onError={(detail) => {
                       setChatkitError(detail?.error ?? new Error('Chat unavailable.'));
                     }}
@@ -579,17 +664,12 @@ export default function ChatWidgetReact({
                       if (!nextId) return;
                       sessionStorage.setItem(THREAD_STORAGE_KEY, nextId);
                       setThreadId(nextId);
-                      if (!seenThreadIdsRef.current.has(nextId)) {
-                        seenThreadIdsRef.current.add(nextId);
-                        pushLeadDataLayer('lead_chat_thread_started', {
-                          lead_method: 'chat',
-                          lead_intent_type: 'chat',
-                          lead_locale: locale,
-                          thread_id: nextId,
-                          user_id: userId ?? 'anonymous',
-                          page_url: window.location.href,
-                          page_path: window.location.pathname,
-                        });
+                      hasUserInteractedRef.current = true;
+                      if (pendingFirstMessageRef.current) {
+                        suppressNextThreadFirstMessageRef.current = false;
+                        emitFirstChatMessageEvent(nextId);
+                      } else if (suppressNextThreadFirstMessageRef.current) {
+                        suppressNextThreadFirstMessageRef.current = false;
                       }
                       bumpIdleTimer();
                     }}

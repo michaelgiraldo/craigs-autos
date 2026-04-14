@@ -1,18 +1,15 @@
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
-import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
+import { mergeAttributionSnapshot } from '../_lead-core/domain/attribution.ts';
+import type { Journey, JourneyEvent } from '../_lead-core/domain/types.ts';
+import { dedupeStrings } from '../_lead-core/domain/normalize.ts';
+import { buildJourneySignal } from '../_lead-core/services/record-interaction.ts';
+import { applyJourneyStatusTransition } from '../_lead-core/services/shared.ts';
+import { createLeadCoreRuntime } from '../_lead-core/runtime.ts';
 import { decodeBody, emptyResponse, getHttpMethod, jsonResponse } from '../_shared/http.ts';
-import { asObject } from '../_shared/safe.ts';
-
-const LEAD_RECORD_TTL_DAYS = 180;
-
-const leadSignalEnvSchema = z.object({
-  LEAD_EVENTS_TABLE_NAME: z.string().trim().min(1),
-  LEAD_CASES_TABLE_NAME: z.string().trim().min(1),
-});
+import type { AllowedLeadSignalEvent, LeadSignalRequest } from './types.ts';
 
 const allowedEventSchema = z.enum([
+  'lead_chat_first_message_sent',
   'lead_click_to_call',
   'lead_click_to_text',
   'lead_click_email',
@@ -21,12 +18,16 @@ const allowedEventSchema = z.enum([
 
 const leadSignalPayloadSchema = z.looseObject({
   event: z.string(),
+  journey_id: z.string().nullable().optional(),
+  client_event_id: z.string().nullable().optional(),
+  occurred_at_ms: z.number().nullable().optional(),
   pageUrl: z.string().nullable().optional(),
+  pagePath: z.string().nullable().optional(),
   user: z.string().nullable().optional(),
   locale: z.string().nullable().optional(),
+  threadId: z.string().nullable().optional(),
   clickUrl: z.string().nullable().optional(),
   provider: z.string().nullable().optional(),
-  lead_intent_type: z.string().nullable().optional(),
   attribution: z.unknown().optional(),
 });
 
@@ -44,249 +45,50 @@ type LambdaResult = {
   body: string;
 };
 
-type LeadSignalRequest = z.infer<typeof leadSignalPayloadSchema>;
-type LeadIntentType = 'call' | 'text' | 'email' | 'directions';
-
-type LeadSignalAttribution = {
-  gclid: string | null;
-  gbraid: string | null;
-  wbraid: string | null;
-  msclkid: string | null;
-  fbclid: string | null;
-  ttclid: string | null;
-  utm_source: string | null;
-  utm_medium: string | null;
-  utm_campaign: string | null;
-  utm_term: string | null;
-  utm_content: string | null;
-  first_touch_ts: string | null;
-  last_touch_ts: string | null;
-  landing_page: string | null;
-  referrer: string | null;
-  referrer_host: string | null;
-  device_type: 'mobile' | 'desktop' | null;
-  source_platform: string | null;
-  click_id_type: string | null;
-};
-
-type UrlAttribution = Pick<
-  LeadSignalAttribution,
-  | 'gclid'
-  | 'gbraid'
-  | 'wbraid'
-  | 'msclkid'
-  | 'fbclid'
-  | 'ttclid'
-  | 'utm_source'
-  | 'utm_medium'
-  | 'utm_campaign'
-  | 'utm_term'
-  | 'utm_content'
->;
-
 type LeadSignalDeps = {
   configValid: boolean;
-  nowEpochSeconds: () => number;
-  writeEventRecord: (record: Record<string, unknown>) => Promise<void>;
-  writeCaseRecord: (record: Record<string, unknown>) => Promise<void>;
+  nowEpochMs: () => number;
+  getJourney: (journeyId: string) => Promise<Journey | null>;
+  getEvent: (journeyId: string, eventSortKey: string) => Promise<JourneyEvent | null>;
+  putJourney: (journey: Journey) => Promise<void>;
+  putEvent: (event: JourneyEvent) => Promise<void>;
 };
+
+function mergeJourney(current: Journey | null, incoming: Journey): Journey {
+  if (!current) return incoming;
+  const actionTypes = dedupeStrings([...current.action_types, ...incoming.action_types]) as Journey['action_types'];
+  const transition = applyJourneyStatusTransition({
+    currentStatus: current.journey_status,
+    currentReason: current.status_reason,
+    incomingStatus: incoming.journey_status,
+    incomingReason: incoming.status_reason,
+  });
+  return {
+    ...current,
+    lead_record_id: incoming.lead_record_id ?? current.lead_record_id,
+    contact_id: incoming.contact_id ?? current.contact_id,
+    journey_status: transition.journeyStatus ?? current.journey_status,
+    status_reason: transition.statusReason,
+    capture_channel: current.capture_channel ?? incoming.capture_channel,
+    first_action: current.first_action ?? incoming.first_action,
+    latest_action: incoming.latest_action ?? current.latest_action,
+    action_types: actionTypes,
+    action_count: Math.max(current.action_count, incoming.action_count, actionTypes.length),
+    lead_user_id: current.lead_user_id ?? incoming.lead_user_id,
+    thread_id: current.thread_id ?? incoming.thread_id,
+    locale: current.locale ?? incoming.locale,
+    page_url: current.page_url ?? incoming.page_url,
+    page_path: current.page_path ?? incoming.page_path,
+    origin: current.origin ?? incoming.origin,
+    site_label: current.site_label ?? incoming.site_label,
+    attribution: current.attribution ?? incoming.attribution,
+    created_at_ms: Math.min(current.created_at_ms, incoming.created_at_ms),
+    updated_at_ms: Math.max(current.updated_at_ms, incoming.updated_at_ms),
+  };
+}
 
 function json(statusCode: number, body: unknown): LambdaResult {
   return jsonResponse(statusCode, body);
-}
-
-function ttlSecondsFromNow(nowEpoch: number, days: number): number {
-  return nowEpoch + days * 24 * 60 * 60;
-}
-
-function normalizeValue(value: unknown, maxLen = 256): string | null {
-  if (typeof value !== 'string') return null;
-  const trimmed = value.trim();
-  if (!trimmed) return null;
-  if (trimmed.length <= maxLen) return trimmed;
-  return trimmed.slice(0, maxLen);
-}
-
-function normalizeDeviceType(value: unknown): 'mobile' | 'desktop' | null {
-  if (typeof value !== 'string') return null;
-  const normalized = value.trim().toLowerCase();
-  if (normalized === 'mobile' || normalized === 'desktop') return normalized;
-  return null;
-}
-
-function extractHostname(value: string | null | undefined): string | null {
-  if (!value) return null;
-  try {
-    return new URL(value).hostname || null;
-  } catch {
-    return null;
-  }
-}
-
-function normalizeToken(value: string | null | undefined): string {
-  return typeof value === 'string' ? value.trim().toLowerCase() : '';
-}
-
-function hasPaidMedium(value: string | null | undefined): boolean {
-  return ['cpc', 'ppc', 'paid', 'paid_search', 'paid-social', 'display'].includes(
-    normalizeToken(value),
-  );
-}
-
-function getClickIdType(attribution: LeadSignalAttribution): string | null {
-  if (attribution.gclid) return 'gclid';
-  if (attribution.gbraid) return 'gbraid';
-  if (attribution.wbraid) return 'wbraid';
-  if (attribution.msclkid) return 'msclkid';
-  if (attribution.fbclid) return 'fbclid';
-  if (attribution.ttclid) return 'ttclid';
-  return null;
-}
-
-function inferSourcePlatform(attribution: LeadSignalAttribution): string | null {
-  if (attribution.gclid || attribution.gbraid || attribution.wbraid) return 'google_ads';
-  if (attribution.msclkid) return 'microsoft_ads';
-  if (attribution.fbclid) return 'meta';
-  if (attribution.ttclid) return 'tiktok';
-
-  const utmSource = normalizeToken(attribution.utm_source);
-  const utmMedium = normalizeToken(attribution.utm_medium);
-  const referrerHost = normalizeToken(attribution.referrer_host);
-
-  if (utmSource === 'yelp') return 'yelp';
-  if (utmSource === 'reddit') return 'reddit';
-  if (utmSource === 'tiktok') return 'tiktok';
-  if (utmSource === 'facebook' || utmSource === 'instagram' || utmSource === 'meta') return 'meta';
-  if (utmSource === 'bing' || utmSource === 'microsoft') {
-    return hasPaidMedium(utmMedium) ? 'microsoft_ads' : 'bing';
-  }
-  if (utmSource === 'google') {
-    return hasPaidMedium(utmMedium) ? 'google_ads' : 'google';
-  }
-  if (utmSource) return utmSource;
-
-  if (referrerHost.includes('google.')) return 'organic_google';
-  if (referrerHost.includes('yelp.')) return 'yelp';
-  if (referrerHost.includes('bing.com')) return 'organic_bing';
-  if (referrerHost.includes('facebook.com') || referrerHost.includes('instagram.com'))
-    return 'meta';
-  if (referrerHost.includes('reddit.com')) return 'reddit';
-  if (referrerHost.includes('tiktok.com')) return 'tiktok';
-  if (!referrerHost) return 'direct';
-  return 'referral';
-}
-
-function sanitizeAttribution(input: unknown): LeadSignalAttribution | null {
-  const data = asObject(input);
-  if (!data) return null;
-  const payload: LeadSignalAttribution = {
-    gclid: normalizeValue(data.gclid, 128),
-    gbraid: normalizeValue(data.gbraid, 128),
-    wbraid: normalizeValue(data.wbraid, 128),
-    msclkid: normalizeValue(data.msclkid, 128),
-    fbclid: normalizeValue(data.fbclid, 128),
-    ttclid: normalizeValue(data.ttclid, 128),
-    utm_source: normalizeValue(data.utm_source, 128),
-    utm_medium: normalizeValue(data.utm_medium, 128),
-    utm_campaign: normalizeValue(data.utm_campaign, 200),
-    utm_term: normalizeValue(data.utm_term, 200),
-    utm_content: normalizeValue(data.utm_content, 200),
-    first_touch_ts: normalizeValue(data.first_touch_ts, 64),
-    last_touch_ts: normalizeValue(data.last_touch_ts, 64),
-    landing_page: normalizeValue(data.landing_page, 300),
-    referrer: normalizeValue(data.referrer, 300),
-    referrer_host: normalizeValue(data.referrer_host, 200),
-    device_type: normalizeDeviceType(data.device_type),
-    source_platform: normalizeValue(data.source_platform, 80),
-    click_id_type: normalizeValue(data.click_id_type, 40),
-  };
-
-  if (!payload.referrer_host) {
-    payload.referrer_host = extractHostname(payload.referrer);
-  }
-  if (!payload.click_id_type) {
-    payload.click_id_type = getClickIdType(payload);
-  }
-  if (!payload.source_platform) {
-    payload.source_platform = inferSourcePlatform(payload);
-  }
-
-  const hasAny = Object.values(payload).some(
-    (value) => typeof value === 'string' && value.trim().length > 0,
-  );
-  return hasAny ? payload : null;
-}
-
-function attributionFromUrl(urlValue: unknown): UrlAttribution | null {
-  const raw = normalizeValue(urlValue, 2000);
-  if (!raw) return null;
-  try {
-    const url = new URL(raw, 'https://craigs.autos');
-    const payload: UrlAttribution = {
-      gclid: normalizeValue(url.searchParams.get('gclid'), 128),
-      gbraid: normalizeValue(url.searchParams.get('gbraid'), 128),
-      wbraid: normalizeValue(url.searchParams.get('wbraid'), 128),
-      msclkid: normalizeValue(url.searchParams.get('msclkid'), 128),
-      fbclid: normalizeValue(url.searchParams.get('fbclid'), 128),
-      ttclid: normalizeValue(url.searchParams.get('ttclid'), 128),
-      utm_source: normalizeValue(url.searchParams.get('utm_source'), 128),
-      utm_medium: normalizeValue(url.searchParams.get('utm_medium'), 128),
-      utm_campaign: normalizeValue(url.searchParams.get('utm_campaign'), 200),
-      utm_term: normalizeValue(url.searchParams.get('utm_term'), 200),
-      utm_content: normalizeValue(url.searchParams.get('utm_content'), 200),
-    };
-    const hasAny = Object.values(payload).some(
-      (value) => typeof value === 'string' && value.trim().length > 0,
-    );
-    return hasAny ? payload : null;
-  } catch {
-    return null;
-  }
-}
-
-function mergedAttribution(inputAttribution: unknown, pageUrl: unknown, clickUrl: unknown) {
-  const base = sanitizeAttribution(inputAttribution);
-  const fromPage = attributionFromUrl(pageUrl);
-  const fromClick = attributionFromUrl(clickUrl);
-  const pickMergedValue = (key: keyof UrlAttribution): string | null =>
-    base?.[key] ?? fromPage?.[key] ?? fromClick?.[key] ?? null;
-
-  const merged: LeadSignalAttribution = {
-    gclid: pickMergedValue('gclid'),
-    gbraid: pickMergedValue('gbraid'),
-    wbraid: pickMergedValue('wbraid'),
-    msclkid: pickMergedValue('msclkid'),
-    fbclid: pickMergedValue('fbclid'),
-    ttclid: pickMergedValue('ttclid'),
-    utm_source: pickMergedValue('utm_source'),
-    utm_medium: pickMergedValue('utm_medium'),
-    utm_campaign: pickMergedValue('utm_campaign'),
-    utm_term: pickMergedValue('utm_term'),
-    utm_content: pickMergedValue('utm_content'),
-    first_touch_ts: base?.first_touch_ts ?? null,
-    last_touch_ts: base?.last_touch_ts ?? null,
-    landing_page: base?.landing_page ?? null,
-    referrer: base?.referrer ?? null,
-    referrer_host: base?.referrer_host ?? extractHostname(base?.referrer ?? null),
-    device_type: base?.device_type ?? null,
-    source_platform: base?.source_platform ?? null,
-    click_id_type: base?.click_id_type ?? null,
-  };
-
-  merged.click_id_type = getClickIdType(merged);
-  merged.source_platform = inferSourcePlatform(merged);
-
-  const hasAny = Object.values(merged).some(
-    (value) => typeof value === 'string' && value.trim().length > 0,
-  );
-  return hasAny ? merged : null;
-}
-
-function inferLeadIntentType(eventName: z.infer<typeof allowedEventSchema>): LeadIntentType {
-  if (eventName === 'lead_click_to_call') return 'call';
-  if (eventName === 'lead_click_to_text') return 'text';
-  if (eventName === 'lead_click_email') return 'email';
-  return 'directions';
 }
 
 export function createLeadSignalHandler(deps: LeadSignalDeps) {
@@ -309,9 +111,7 @@ export function createLeadSignalHandler(deps: LeadSignalDeps) {
     try {
       const body = decodeBody(event);
       const parsed = body ? JSON.parse(body) : {};
-      const result = leadSignalPayloadSchema.safeParse(
-        parsed && typeof parsed === 'object' ? parsed : {},
-      );
+      const result = leadSignalPayloadSchema.safeParse(parsed && typeof parsed === 'object' ? parsed : {});
       if (!result.success) return json(400, { error: 'Invalid request payload' });
       payload = result.data;
     } catch {
@@ -323,82 +123,70 @@ export function createLeadSignalHandler(deps: LeadSignalDeps) {
       return json(400, { error: 'Invalid event' });
     }
 
-    const eventName = eventNameResult.data;
-    const leadIntentType = inferLeadIntentType(eventName);
-    const attribution = mergedAttribution(payload.attribution, payload.pageUrl, payload.clickUrl);
-    const now = deps.nowEpochSeconds();
-    const ttl = ttlSecondsFromNow(now, LEAD_RECORD_TTL_DAYS);
+    const eventName = eventNameResult.data as AllowedLeadSignalEvent;
+    const nowMs = deps.nowEpochMs();
+    const occurredAtMs =
+      typeof payload.occurred_at_ms === 'number' && Number.isFinite(payload.occurred_at_ms)
+        ? payload.occurred_at_ms
+        : nowMs;
 
-    const commonFields = {
-      created_at: now,
-      lead_method: eventName,
-      lead_reason: eventName,
-      lead_intent_type: leadIntentType,
+    const { journey, event: signalEvent } = buildJourneySignal({
+      eventName,
+      occurredAtMs,
+      recordedAtMs: nowMs,
+      providedJourneyId: typeof payload.journey_id === 'string' ? payload.journey_id : null,
+      clientEventId: typeof payload.client_event_id === 'string' ? payload.client_event_id : null,
+      userId: typeof payload.user === 'string' ? payload.user : null,
+      threadId: typeof payload.threadId === 'string' ? payload.threadId : null,
+      pageUrl: typeof payload.pageUrl === 'string' ? payload.pageUrl : null,
+      pagePath: typeof payload.pagePath === 'string' ? payload.pagePath : null,
+      clickUrl: typeof payload.clickUrl === 'string' ? payload.clickUrl : null,
       locale: typeof payload.locale === 'string' ? payload.locale : null,
-      page_url: typeof payload.pageUrl === 'string' ? payload.pageUrl : null,
-      user_id: typeof payload.user === 'string' ? payload.user : null,
-      click_url: typeof payload.clickUrl === 'string' ? payload.clickUrl : null,
       provider: typeof payload.provider === 'string' ? payload.provider : null,
-      ...attribution,
-    };
-
-    await deps.writeEventRecord({
-      event_id: randomUUID(),
-      event_name: eventName,
-      ttl,
-      ...commonFields,
+      attribution: mergeAttributionSnapshot(payload.attribution, payload.pageUrl, payload.clickUrl),
     });
 
-    await deps.writeCaseRecord({
-      lead_id: randomUUID(),
-      thread_id: null,
-      qualified: false,
-      qualified_at: null,
-      uploaded_google_ads: false,
-      uploaded_google_ads_at: null,
-      customer_phone: null,
-      customer_email: null,
-      ttl,
-      ...commonFields,
-    });
+    const existingEvent = await deps.getEvent(signalEvent.journey_id, signalEvent.event_sort_key);
+    const existingJourney = await deps.getJourney(signalEvent.journey_id);
 
-    return json(200, { ok: true });
+    if (!existingEvent) {
+      await deps.putEvent(signalEvent);
+    }
+
+    await deps.putJourney(mergeJourney(existingJourney, journey));
+
+    return json(200, {
+      ok: true,
+      journey_id: signalEvent.journey_id,
+      journey_event_id: signalEvent.journey_event_id,
+      recorded: !existingEvent,
+    });
   };
 }
 
-function nowEpochSeconds(): number {
-  return Math.floor(Date.now() / 1000);
-}
-
-const parsedEnv = leadSignalEnvSchema.safeParse(process.env);
-const runtimeEventsTableName = parsedEnv.success ? parsedEnv.data.LEAD_EVENTS_TABLE_NAME : '';
-const runtimeCasesTableName = parsedEnv.success ? parsedEnv.data.LEAD_CASES_TABLE_NAME : '';
-const runtimeDb =
-  runtimeEventsTableName && runtimeCasesTableName
-    ? DynamoDBDocumentClient.from(new DynamoDBClient({}))
-    : null;
+const leadCoreRuntime = createLeadCoreRuntime(process.env);
 
 export const handler = createLeadSignalHandler({
-  configValid: Boolean(
-    parsedEnv.success && runtimeDb && runtimeEventsTableName && runtimeCasesTableName,
-  ),
-  nowEpochSeconds,
-  writeEventRecord: async (record) => {
-    if (!runtimeDb || !runtimeEventsTableName) return;
-    await runtimeDb.send(
-      new PutCommand({
-        TableName: runtimeEventsTableName,
-        Item: record,
-      }),
-    );
+  configValid: Boolean(leadCoreRuntime.configValid),
+  nowEpochMs: () => Date.now(),
+  getJourney: async (journeyId) => {
+    const repos = leadCoreRuntime.repos;
+    if (!repos) return null;
+    return repos.journeys.getById(journeyId);
   },
-  writeCaseRecord: async (record) => {
-    if (!runtimeDb || !runtimeCasesTableName) return;
-    await runtimeDb.send(
-      new PutCommand({
-        TableName: runtimeCasesTableName,
-        Item: record,
-      }),
-    );
+  getEvent: async (journeyId, eventSortKey) => {
+    const repos = leadCoreRuntime.repos;
+    if (!repos) return null;
+    return repos.journeyEvents.getBySortKey(journeyId, eventSortKey);
+  },
+  putJourney: async (journey) => {
+    const repos = leadCoreRuntime.repos;
+    if (!repos) return;
+    await repos.journeys.put(journey);
+  },
+  putEvent: async (signalEvent) => {
+    const repos = leadCoreRuntime.repos;
+    if (!repos) return;
+    await repos.journeyEvents.append(signalEvent);
   },
 });
