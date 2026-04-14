@@ -274,5 +274,28 @@
       "te": "సంప్రదించండి",
       "fr": "Contact"
     }
+  },
+  {
+    "id": "requestQuote",
+    "navLabel": {
+      "en": "Request a Quote",
+      "es": "Solicitar cotización",
+      "vi": "Yêu cầu báo giá",
+      "zh-hans": "获取报价",
+      "tl": "Humiling ng quote",
+      "id": "Minta estimasi",
+      "ko": "견적 요청",
+      "hi": "कोट अनुरोध",
+      "pa": "ਕੋਟ ਬੇਨਤੀ",
+      "pt-br": "Solicitar orçamento",
+      "zh-hant": "取得報價",
+      "ja": "見積もり依頼",
+      "ar": "طلب عرض سعر",
+      "ru": "Запрос оценки",
+      "ta": "மதிப்பீடு கோரிக்கை",
+      "fa": "درخواست برآورد",
+      "te": "కోట్ అభ్యర్థన",
+      "fr": "Demander un devis"
+    }
   }
 ]

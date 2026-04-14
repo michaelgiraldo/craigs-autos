@@ -8,6 +8,7 @@ export type QuoteOutreachChannel = 'sms' | 'email' | null;
 export type QuoteOutreachResult =
   | 'sms_sent'
   | 'email_sent_fallback'
+  | 'manual_followup_required'
   | 'no_customer_contact_method'
   | 'sms_failed_no_email_fallback'
   | 'customer_outreach_failed'

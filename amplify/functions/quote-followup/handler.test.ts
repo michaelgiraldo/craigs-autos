@@ -53,6 +53,7 @@ test('quote-followup sends SMS first and still notifies the owner', async () => 
 
   const handler = createQuoteFollowupHandler({
     configValid: true,
+    smsAutomationEnabled: true,
     nowEpochSeconds: () => 2_000,
     getSubmission: async () => current,
     acquireLease: async () => true,
@@ -91,6 +92,7 @@ test('quote-followup falls back to customer email when phone is missing', async 
 
   const handler = createQuoteFollowupHandler({
     configValid: true,
+    smsAutomationEnabled: true,
     nowEpochSeconds: () => 3_000,
     getSubmission: async () => current,
     acquireLease: async () => true,
@@ -126,6 +128,7 @@ test('quote-followup records SMS failure when no email fallback exists', async (
 
   const handler = createQuoteFollowupHandler({
     configValid: true,
+    smsAutomationEnabled: true,
     nowEpochSeconds: () => 4_000,
     getSubmission: async () => current,
     acquireLease: async () => true,
@@ -161,6 +164,7 @@ test('quote-followup records SMS failure when no email fallback exists', async (
 test('quote-followup skips duplicate sends when the submission is already complete', async () => {
   const handler = createQuoteFollowupHandler({
     configValid: true,
+    smsAutomationEnabled: true,
     nowEpochSeconds: () => 5_000,
     getSubmission: async () => makeRecord({ status: 'completed' }),
     acquireLease: async () => true,
@@ -183,4 +187,41 @@ test('quote-followup skips duplicate sends when the submission is already comple
 
   assert.equal(result.statusCode, 200);
   assert.match(result.body, /already_completed/);
+});
+
+test('quote-followup marks phone-only submissions for manual follow-up when SMS automation is off', async () => {
+  let current = makeRecord({ email: '' });
+
+  const handler = createQuoteFollowupHandler({
+    configValid: true,
+    smsAutomationEnabled: false,
+    nowEpochSeconds: () => 6_000,
+    getSubmission: async () => current,
+    acquireLease: async () => true,
+    saveSubmission: async (record) => {
+      current = { ...record };
+    },
+    generateDrafts: async () => ({
+      aiError: '',
+      aiModel: 'gpt-test',
+      aiStatus: 'generated',
+      drafts: {
+        smsBody: 'Please text us 2-4 photos.',
+        emailSubject: 'Craig\'s Auto Upholstery - next steps',
+        emailBody: 'Please email us 2-4 photos.',
+        missingInfo: [],
+      },
+    }),
+    sendSms: async () => ({ id: 'sms-should-not-send', status: 'sent' }),
+    sendCustomerEmail: async () => ({ messageId: 'unused-email' }),
+    sendOwnerEmail: async () => ({ messageId: 'owner-email-123' }),
+  });
+
+  const result = await handler({ submission_id: 'submission-1' });
+
+  assert.equal(result.statusCode, 200);
+  assert.equal(current.sms_status, 'skipped');
+  assert.equal(current.sms_error, 'manual_followup_required');
+  assert.equal(current.email_status, 'skipped');
+  assert.equal(current.outreach_result, 'manual_followup_required');
 });

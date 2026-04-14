@@ -2,6 +2,10 @@
   padding: 1.5rem 0 0.5rem;
 }
 
+.contact-lead-form-section--compact {
+  padding-top: 0;
+}
+
 .contact-lead-form-shell {
   display: grid;
   gap: 1rem;

@@ -1,0 +1,23 @@
+---
+import { QUOTE_PAGE_COPY } from '../lib/site-data/quote-page-copy.js';
+import { getPagePath, resolveLocaleKey } from '../lib/site-data/page-registry.js';
+import type { LocaleKey } from '../types/site';
+import '../styles/quote-request-page.css';
+
+interface Props {
+  locale: LocaleKey;
+}
+
+const { locale } = Astro.props as Props;
+const resolvedLocale = resolveLocaleKey(locale) as LocaleKey;
+const copy = QUOTE_PAGE_COPY[resolvedLocale] ?? QUOTE_PAGE_COPY.en;
+const requestQuoteHref = getPagePath('requestQuote', resolvedLocale);
+---
+
+<aside class="quote-request-cta" aria-label={copy.requestCtaTitle}>
+  <div class="quote-request-cta__content">
+    <h2>{copy.requestCtaTitle}</h2>
+    <p>{copy.requestCtaBody}</p>
+  </div>
+  <a class="quote-request-cta__button" href={requestQuoteHref}>{copy.requestCtaButton}</a>
+</aside>

@@ -47,7 +47,11 @@ function pushLeadFormDataLayer(eventName, params, attribution) {
   }
 }
 
-export default function ContactLeadForm({ locale = 'en', serviceKey = 'contact' }) {
+export default function ContactLeadForm({
+  locale = 'en',
+  serviceKey = 'contact',
+  showHeader = true,
+}) {
   const copy = CHAT_COPY[locale] ?? CHAT_COPY.en;
   const [form, setForm] = useState(initialForm);
   const [submitState, setSubmitState] = useState('idle');
@@ -224,13 +228,19 @@ export default function ContactLeadForm({ locale = 'en', serviceKey = 'contact' 
   };
 
   return (
-    <section className="contact-lead-form-section" aria-labelledby="contact-lead-form-title">
+    <section
+      aria-label={showHeader ? undefined : copy.quoteTitle}
+      aria-labelledby={showHeader ? 'contact-lead-form-title' : undefined}
+      className={`contact-lead-form-section${showHeader ? '' : ' contact-lead-form-section--compact'}`}
+    >
       <div className="contact-lead-form-shell">
-        <div className="contact-lead-form-copy">
-          <p className="contact-lead-form-kicker">{copy.quoteCta}</p>
-          <h2 id="contact-lead-form-title">{copy.quoteTitle}</h2>
-          <p className="contact-lead-form-lead">{copy.detailsLabel}</p>
-        </div>
+        {showHeader ? (
+          <div className="contact-lead-form-copy">
+            <p className="contact-lead-form-kicker">{copy.quoteCta}</p>
+            <h2 id="contact-lead-form-title">{copy.quoteTitle}</h2>
+            <p className="contact-lead-form-lead">{copy.detailsLabel}</p>
+          </div>
+        ) : null}
 
         <form className="contact-lead-form-card" onSubmit={handleSubmit} noValidate>
           <div className="contact-lead-form-grid">

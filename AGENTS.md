@@ -138,6 +138,12 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
   - Change `CHAT_COPY` in `src/lib/site-data.js` (deploy required).
   - Note: invalid ChatKit `icon` values can break the chat UI.
 
+- Standalone quote page / quote funnel copy:
+  - Change `src/components/QuoteRequestLanding.astro`
+  - CTA from contact pages lives in `src/components/QuoteRequestCta.astro`
+  - Locale-specific helper copy lives in `src/lib/site-data/quote-page-copy.js`
+  - Localized routes/frontmatter live under `src/content/pages/*/request-a-quote.mdx`
+
 - Chat widget behavior (triggers, runtime loading, theme):
   - Change `src/components/ChatWidgetReact.jsx` (deploy required).
 
@@ -147,6 +153,11 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
 
 - Lead email logic / template / idempotency:
   - Change `amplify/functions/chatkit-lead-email/handler.ts` and/or `amplify/backend.ts`.
+
+- Quote form follow-up workflow:
+  - Change `amplify/functions/contact-submit/handler.ts`
+  - Async follow-up lives in `amplify/functions/quote-followup/*`
+  - QUO may be intentionally disabled; when that is true, submissions should stay in manual follow-up rather than surfacing as SMS failures
 
 - Contact form intake / async follow-up:
   - Public intake endpoint: `amplify/functions/contact-submit/handler.ts`

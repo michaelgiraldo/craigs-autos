@@ -9,6 +9,9 @@ export function getOutreachResult(record: QuoteSubmissionRecord): QuoteOutreachR
 
   if (record.sms_status === 'sent') return 'sms_sent';
   if (record.email_status === 'sent') return 'email_sent_fallback';
+  if (hasPhone && record.sms_status === 'skipped' && record.sms_error === 'manual_followup_required') {
+    return 'manual_followup_required';
+  }
   if (!hasPhone && !hasEmail) return 'no_customer_contact_method';
   if (hasPhone && record.sms_status === 'failed' && !hasEmail) return 'sms_failed_no_email_fallback';
   if (record.sms_status === 'failed' || record.email_status === 'failed') {
@@ -50,6 +53,14 @@ async function attemptSmsOutreach(
   usablePhone: string | null,
 ) {
   if (usablePhone && record.sms_status !== 'sent') {
+    if (!deps.smsAutomationEnabled) {
+      record.sms_status = 'skipped';
+      record.sms_error = 'manual_followup_required';
+      record.outreach_channel = null;
+      await persistRecord(deps, record);
+      return;
+    }
+
     try {
       const smsResult = await deps.sendSms({ toE164: usablePhone, body: record.sms_body });
       record.sms_status = 'sent';
@@ -79,7 +90,7 @@ async function attemptEmailFallback(
   const shouldSendEmailFallback =
     usableEmail &&
     record.email_status !== 'sent' &&
-    ((Boolean(usablePhone) && record.sms_status === 'failed') || !usablePhone);
+    ((Boolean(usablePhone) && (record.sms_status === 'failed' || record.sms_status === 'skipped')) || !usablePhone);
 
   if (shouldSendEmailFallback) {
     try {

@@ -19,6 +19,7 @@ export type QuoteDraftGeneration = {
 
 export type QuoteFollowupDeps = {
   configValid: boolean;
+  smsAutomationEnabled: boolean;
   nowEpochSeconds: () => number;
   getSubmission: (submissionId: string) => Promise<QuoteSubmissionRecord | null>;
   acquireLease: (args: {

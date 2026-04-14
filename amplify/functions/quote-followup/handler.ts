@@ -124,6 +124,7 @@ const runtimeOpenAi = parsedEnv.success && parsedEnv.data.CHATKIT_OPENAI_API_KEY
 export const handler = createQuoteFollowupHandler({
   configValid:
     parsedEnv.success && Boolean(runtimeDb) && Boolean(runtimeSes) && leadCoreRuntime.configValid,
+  smsAutomationEnabled: parsedEnv.success && parsedEnv.data.QUO_ENABLED === 'true',
   nowEpochSeconds: () => Math.floor(Date.now() / 1000),
   getSubmission: async (submissionId: string) => {
     if (!runtimeDb || !parsedEnv.success) return null;
