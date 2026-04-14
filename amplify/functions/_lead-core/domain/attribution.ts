@@ -210,7 +210,7 @@ function attributionFromUrl(urlValue: unknown): Partial<Record<UrlAttributionKey
   if (!raw) return null;
 
   try {
-    const url = new URL(raw, 'https://cesar.autos');
+    const url = new URL(raw, 'https://craigs.autos');
     const payload: Partial<Record<UrlAttributionKey, string | null>> = {
       gclid: trimToNull(url.searchParams.get('gclid'), 128),
       gbraid: trimToNull(url.searchParams.get('gbraid'), 128),

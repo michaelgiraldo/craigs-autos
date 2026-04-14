@@ -29,7 +29,10 @@ export function buildQuoLeadTag(channel: CaptureChannel): QuoLeadTag {
   return channel === 'chat' ? 'Chat Lead' : 'Form Lead';
 }
 
-export function buildQuoExternalId(contact: LeadContact, sourcePrefix = 'abc-upholstery'): string | null {
+export function buildQuoExternalId(
+  contact: LeadContact,
+  sourcePrefix = 'craigs-auto-upholstery',
+): string | null {
   if (contact.normalized_phone) return `${sourcePrefix}:phone:${contact.normalized_phone}`;
   if (contact.normalized_email) return `${sourcePrefix}:email:${contact.normalized_email}`;
   return null;
@@ -64,7 +67,7 @@ export function buildQuoContactUpsert(args: {
   }
 
   return {
-    source: args.source ?? 'abc-upholstery-web',
+    source: args.source ?? 'craigs-auto-upholstery-web',
     externalId,
     ...(args.sourceUrl ? { sourceUrl: args.sourceUrl } : {}),
     defaultFields,
@@ -133,11 +136,11 @@ async function upsertQuoLeadContact(args: {
 }): Promise<{ quoContactId: string; quoTags: string[]; leadTagsFieldKey: string }> {
   const source = typeof args.config.source === 'string' && args.config.source.trim()
     ? args.config.source.trim()
-    : 'abc-upholstery-web';
+    : 'craigs-auto-upholstery-web';
   const externalIdPrefix =
     typeof args.config.externalIdPrefix === 'string' && args.config.externalIdPrefix.trim()
       ? args.config.externalIdPrefix.trim()
-      : 'abc-upholstery';
+      : 'craigs-auto-upholstery';
   const leadTagsFieldKey = await resolveLeadTagsFieldKey(args.config);
   const payloadBase = buildQuoContactUpsert({
     contact: args.contact,
@@ -269,8 +272,11 @@ export async function syncQuoLeadContact(args: {
           quo_contact_id: synced.quoContactId,
           quo_tags: synced.quoTags,
           lead_tags_field_key: synced.leadTagsFieldKey,
-          source: args.config.source ?? 'abc-upholstery-web',
-          external_id: buildQuoExternalId(contact, args.config.externalIdPrefix ?? 'abc-upholstery'),
+          source: args.config.source ?? 'craigs-auto-upholstery-web',
+          external_id: buildQuoExternalId(
+            contact,
+            args.config.externalIdPrefix ?? 'craigs-auto-upholstery',
+          ),
         },
       }),
     );
@@ -296,7 +302,7 @@ export async function syncQuoLeadContact(args: {
           discriminator: `${args.leadRecord.lead_record_id}:${args.leadRecord.latest_outreach.external_id ?? ''}:${errorMessage}`,
           payload: {
             error: errorMessage,
-            source: args.config.source ?? 'abc-upholstery-web',
+            source: args.config.source ?? 'craigs-auto-upholstery-web',
             configured_field_name: args.config.leadTagsFieldName ?? null,
             configured_field_key: args.config.leadTagsFieldKey ?? null,
           },
