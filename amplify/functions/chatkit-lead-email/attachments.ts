@@ -1,12 +1,9 @@
 import { randomUUID } from 'node:crypto';
-import { safeHttpUrl } from './text-utils';
+import sharp from 'sharp';
+import type { LeadAttachment } from './lead-types.ts';
+import { safeHttpUrl } from './text-utils.ts';
 
-export type AttachmentInfo = {
-  name: string;
-  mime: string | null;
-  url: string;
-  storageKey?: string | null;
-};
+export type AttachmentInfo = LeadAttachment;
 
 export type InlineAttachment = {
   contentId: string;
@@ -14,11 +11,37 @@ export type InlineAttachment = {
   mimeType: string;
   bytes: Buffer;
   sourceUrl: string;
+  transformed: boolean;
 };
 
-type TranscriptLineLike = {
-  text: string;
+export type AttachmentResolution = {
+  name: string;
+  mime: string | null;
+  status: 'attached' | 'omitted' | 'failed';
+  contentId?: string | null;
+  detail?: string | null;
 };
+
+export type PrepareAttachmentFailure = {
+  attachment: AttachmentInfo;
+  detail: string;
+  ok: false;
+};
+
+export type PrepareAttachmentSuccess = {
+  attachment: InlineAttachment;
+  ok: true;
+};
+
+export type PrepareAttachmentResult = PrepareAttachmentFailure | PrepareAttachmentSuccess;
+
+const EMAIL_SAFE_INLINE_MIME = new Set(['image/jpeg', 'image/png']);
+const NORMALIZED_OUTPUT_MIME = 'image/jpeg';
+const NORMALIZED_OUTPUT_EXTENSION = '.jpg';
+const NORMALIZED_DEFAULT_QUALITY = 82;
+const COMPACTED_QUALITY = 74;
+const COMPACTED_MAX_DIMENSION = 1600;
+const FETCH_TIMEOUT_MS = 8_000;
 
 function decodeUriSafe(value: string): string {
   try {
@@ -28,31 +51,10 @@ function decodeUriSafe(value: string): string {
   }
 }
 
-function parseAttachmentStorageKey(urlText: string): string {
-  try {
-    const parsedUrl = new URL(urlText);
-    const rawId = parsedUrl.searchParams.get('id') ?? '';
-    if (rawId) {
-      const decoded = decodeUriSafe(rawId).trim();
-      if (decoded && /^[A-Za-z0-9._/-]+$/.test(decoded) && !decoded.includes('..')) return decoded;
-    }
-
-    const pathSegment = parsedUrl.pathname.split('/').filter(Boolean).pop() ?? '';
-    if (pathSegment && /^[A-Za-z0-9._/-]+$/.test(pathSegment) && !pathSegment.includes('..')) {
-      return pathSegment;
-    }
-  } catch {
-    // ignore
-  }
-  return '';
-}
-
-function sanitizeAttachmentFilename(value: string, mimeType: string): string {
+export function sanitizeAttachmentFilename(value: string, mimeType: string): string {
   const normalized = typeof value === 'string' && value.trim() ? value.trim() : 'attachment';
   const safe = normalized.replace(/[<>:"/\\|?*]/g, '_').slice(0, 120);
-  const hasExt = /\.[^.]+$/.test(safe);
-  if (hasExt) return safe;
-
+  const base = safe.replace(/\.[^.]+$/, '');
   const extension =
     mimeType === 'image/png'
       ? '.png'
@@ -63,11 +65,15 @@ function sanitizeAttachmentFilename(value: string, mimeType: string): string {
           : mimeType === 'image/heif'
             ? '.heif'
             : '.jpg';
-  return `${safe}${extension}`;
+  return `${base || 'attachment'}${extension}`;
 }
 
 function pickAttachmentMime(mime: string | null): string {
-  const normalized = (mime ?? '').trim().toLowerCase();
+  const normalized = (mime ?? '')
+    .trim()
+    .toLowerCase()
+    .split(';')[0]
+    ?.trim() ?? '';
   if (normalized.startsWith('image/')) return normalized;
   return 'image/jpeg';
 }
@@ -76,68 +82,194 @@ function isInlineImageMime(mime: string): boolean {
   return mime.startsWith('image/');
 }
 
-export function extractAttachments(transcript: TranscriptLineLike[]): AttachmentInfo[] {
-  const seen = new Set<string>();
-  const attachments: AttachmentInfo[] = [];
-
-  for (const line of transcript) {
-    const rows = typeof line.text === 'string' ? line.text.split('\n') : [];
-    for (const row of rows) {
-      if (!row.startsWith('Attachment:')) continue;
-      let rest = row.replace(/^Attachment:\s*/, '').trim();
-      if (!rest) continue;
-
-      const urlMatch = rest.match(/https?:\/\/\S+$/);
-      const urlRaw = urlMatch?.[0] ?? '';
-      const urlSafe = urlRaw ? safeHttpUrl(urlRaw) : null;
-      if (!urlSafe) continue;
-
-      rest = rest.slice(0, Math.max(0, rest.length - urlRaw.length)).trim();
-
-      let mime: string | null = null;
-      const mimeMatch = rest.match(/\(([^)]+)\)\s*$/);
-      if (mimeMatch && typeof mimeMatch.index === 'number') {
-        mime = mimeMatch[1]?.trim() ? mimeMatch[1].trim() : null;
-        rest = rest.slice(0, mimeMatch.index).trim();
-      }
-
-      const name = rest || 'attachment';
-      if (seen.has(urlSafe)) continue;
-      seen.add(urlSafe);
-      const storageKey = parseAttachmentStorageKey(urlSafe);
-      attachments.push({ name, mime, url: urlSafe, storageKey: storageKey || null });
-    }
-  }
-
-  return attachments;
+function shouldNormalizeForEmail(mime: string): boolean {
+  return !EMAIL_SAFE_INLINE_MIME.has(mime);
 }
 
-export async function fetchInlineAttachment(
+function buildInlineAttachment(
   attachment: AttachmentInfo,
-  maxBytes: number,
-): Promise<InlineAttachment | null> {
+  args: {
+    bytes: Buffer;
+    mimeType: string;
+    transformed: boolean;
+  },
+): InlineAttachment {
+  return {
+    bytes: args.bytes,
+    contentId: `attachment-${randomUUID()}@craigs.autos`,
+    filename: sanitizeAttachmentFilename(attachment.name, args.mimeType),
+    mimeType: args.mimeType,
+    sourceUrl: attachment.url,
+    transformed: args.transformed,
+  };
+}
+
+function formatAttachmentDetail(detail: string): string {
+  return detail.replace(/_/g, ' ');
+}
+
+export function buildResolutionFromInlineAttachment(
+  attachment: AttachmentInfo,
+  inlineAttachment: InlineAttachment,
+): AttachmentResolution {
+  return {
+    contentId: inlineAttachment.contentId,
+    detail: inlineAttachment.transformed ? 'Normalized for email delivery.' : null,
+    mime: inlineAttachment.mimeType,
+    name: attachment.name,
+    status: 'attached',
+  };
+}
+
+export function buildResolutionFromFailure(
+  attachment: AttachmentInfo,
+  detail: string,
+): AttachmentResolution {
+  return {
+    detail: formatAttachmentDetail(detail),
+    mime: attachment.mime,
+    name: attachment.name,
+    status: 'failed',
+  };
+}
+
+export function buildResolutionFromOmission(
+  attachment: AttachmentInfo,
+  detail = 'Omitted to fit the email size budget.',
+): AttachmentResolution {
+  return {
+    detail,
+    mime: attachment.mime,
+    name: attachment.name,
+    status: 'omitted',
+  };
+}
+
+async function normalizeToJpeg(
+  bytes: Buffer,
+  compact: boolean,
+): Promise<Buffer> {
+  let pipeline = sharp(bytes, { failOn: 'none' }).rotate();
+  if (compact) {
+    pipeline = pipeline.resize({
+      fit: 'inside',
+      height: COMPACTED_MAX_DIMENSION,
+      width: COMPACTED_MAX_DIMENSION,
+      withoutEnlargement: true,
+    });
+  }
+  return pipeline
+    .jpeg({
+      mozjpeg: true,
+      quality: compact ? COMPACTED_QUALITY : NORMALIZED_DEFAULT_QUALITY,
+    })
+    .toBuffer();
+}
+
+function normalizeContentType(value: string | null, fallback: string): string {
+  return pickAttachmentMime(value ?? fallback);
+}
+
+async function maybeNormalizeAttachment(
+  attachment: AttachmentInfo,
+  args: {
+    bytes: Buffer;
+    compact: boolean;
+    mimeType: string;
+  },
+): Promise<InlineAttachment> {
+  if (!args.compact && !shouldNormalizeForEmail(args.mimeType)) {
+    return buildInlineAttachment(attachment, {
+      bytes: args.bytes,
+      mimeType: args.mimeType,
+      transformed: false,
+    });
+  }
+
+  const normalizedBytes = await normalizeToJpeg(args.bytes, args.compact);
+  return buildInlineAttachment(attachment, {
+    bytes: normalizedBytes,
+    mimeType: NORMALIZED_OUTPUT_MIME,
+    transformed: true,
+  });
+}
+
+function parseFetchFailure(err: unknown): string {
+  if (err instanceof Error) {
+    const message = decodeUriSafe(err.message).trim();
+    if (message) return message;
+  }
+  return 'fetch_failed';
+}
+
+export async function prepareInlineAttachment(
+  attachment: AttachmentInfo,
+): Promise<PrepareAttachmentResult> {
   const sourceUrl = safeHttpUrl(attachment.url);
-  if (!sourceUrl) return null;
-  const mimeType = pickAttachmentMime(attachment.mime);
-  if (!isInlineImageMime(mimeType)) return null;
+  if (!sourceUrl) {
+    return { attachment, detail: 'invalid_source_url', ok: false };
+  }
+
+  const declaredMimeType = pickAttachmentMime(attachment.mime);
+  if (!isInlineImageMime(declaredMimeType)) {
+    return { attachment, detail: 'unsupported_mime_type', ok: false };
+  }
 
   try {
     const response = await fetch(sourceUrl, {
-      signal: AbortSignal.timeout(8_000),
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
     });
-    if (!response.ok) return null;
-    const bytes = Buffer.from(await response.arrayBuffer());
-    if (!bytes.length || bytes.length > maxBytes) return null;
+    if (!response.ok) {
+      return {
+        attachment,
+        detail: `fetch_http_${response.status}`,
+        ok: false,
+      };
+    }
 
-    const contentType = pickAttachmentMime(response.headers.get('content-type') ?? mimeType);
-    const filename = sanitizeAttachmentFilename(attachment.name, contentType);
-    const contentId = `attachment-${randomUUID()}@craigs.autos`;
-    return {
-      contentId,
-      filename,
-      mimeType: contentType,
+    const bytes = Buffer.from(await response.arrayBuffer());
+    if (!bytes.length) {
+      return { attachment, detail: 'empty_attachment', ok: false };
+    }
+
+    const responseMimeType = normalizeContentType(response.headers.get('content-type'), declaredMimeType);
+    const inlineAttachment = await maybeNormalizeAttachment(attachment, {
       bytes,
-      sourceUrl,
+      compact: false,
+      mimeType: responseMimeType,
+    });
+
+    return {
+      attachment: {
+        ...inlineAttachment,
+        sourceUrl,
+      },
+      ok: true,
+    };
+  } catch (err: unknown) {
+    return {
+      attachment,
+      detail: parseFetchFailure(err),
+      ok: false,
+    };
+  }
+}
+
+export async function compactInlineAttachment(
+  attachment: InlineAttachment,
+): Promise<InlineAttachment | null> {
+  try {
+    const compactedBytes = await normalizeToJpeg(attachment.bytes, true);
+    if (!compactedBytes.length || compactedBytes.length >= attachment.bytes.length) {
+      return null;
+    }
+
+    return {
+      ...attachment,
+      bytes: compactedBytes,
+      filename: sanitizeAttachmentFilename(attachment.filename, NORMALIZED_OUTPUT_MIME),
+      mimeType: NORMALIZED_OUTPUT_MIME,
+      transformed: true,
     };
   } catch {
     return null;

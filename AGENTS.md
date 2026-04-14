@@ -14,11 +14,15 @@ If you are new here, start with:
 ## Repo overview
 
 - Framework: Astro (static site output) with React islands.
-- Product: multi-locale website + ChatKit-powered lead intake chat.
+- Product: multi-locale website + ChatKit-powered lead intake chat + public contact/quote form.
 - Hosting: AWS Amplify (Gen2) for static hosting + backend (Lambda Function URLs).
 - Chat/agent: OpenAI ChatKit UI runtime + managed workflow in Agent Builder.
-- Lead delivery: AWS SES emails transcript + internal AI summary to the shop.
-- Reliability: server-side idempotency keyed by ChatKit thread id (`cthr_...`) in DynamoDB.
+- Lead delivery:
+  - chat: AWS SES transcript + internal AI summary to the shop
+  - form: quote submission queue + async follow-up worker
+- Reliability:
+  - chat idempotency keyed by ChatKit thread id (`cthr_...`)
+  - form idempotency / workflow state keyed by `submission_id`
 
 ## Key documentation
 
@@ -85,6 +89,7 @@ Local ChatKit dev API:
   - deploy/update the Gen2 backend for the branch
   - generate `public/amplify_outputs.json` with branch-specific endpoints
 - The frontend reads `/amplify_outputs.json` at runtime to discover:
+  - `custom.contact_submit_url`
   - `custom.chatkit_session_url`
   - `custom.chatkit_lead_email_url`
 
@@ -104,6 +109,9 @@ Do not store these in the frontend or in git.
 - Defaults live in `amplify/functions/chatkit-lead-email/resource.ts`:
   - `LEAD_TO_EMAIL` (recipient, default `leads@craigs.autos`)
   - `LEAD_FROM_EMAIL` (sender, default `leads@craigs.autos`)
+- Quote follow-up defaults live in `amplify/functions/quote-followup/resource.ts`:
+  - `CONTACT_TO_EMAIL` / `CONTACT_FROM_EMAIL`
+  - `QUOTE_CUSTOMER_*`
 
 ## ChatKit: what to know (fast)
 
@@ -140,6 +148,17 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
 - Lead email logic / template / idempotency:
   - Change `amplify/functions/chatkit-lead-email/handler.ts` and/or `amplify/backend.ts`.
 
+- Contact form intake / async follow-up:
+  - Public intake endpoint: `amplify/functions/contact-submit/handler.ts`
+  - Async worker: `amplify/functions/quote-followup/handler.ts`
+  - Frontend form island: `src/components/ContactLeadForm.jsx`
+  - Contact page injection: `src/components/LocalizedPageContent.astro`
+
+- Journey-first lead storage / admin views:
+  - Shared substrate: `amplify/functions/_lead-core/*`
+  - Admin API: `amplify/functions/chatkit-lead-admin/handler.ts`
+  - Admin page script: `src/scripts/admin-leads.ts`
+
 ## Safe change checklists (common tasks)
 
 ### Update Agent Builder prompt safely
@@ -166,6 +185,23 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
   - HTML readable in Gmail desktop + mobile
   - text version useful for quick scanning
 - Test with a NEW thread id (idempotency blocks re-sends for old threads).
+
+### Update contact form or quote follow-up
+
+- Edit:
+  - public intake validation / queueing: `amplify/functions/contact-submit/handler.ts`
+  - customer/shop follow-up workflow: `amplify/functions/quote-followup/*`
+  - frontend fields / submission UX: `src/components/ContactLeadForm.jsx`
+- Run:
+  - `npm run typecheck:backend`
+  - `npm run test:backend`
+  - `npm run typecheck:web`
+  - `npm run build`
+- Validate:
+  - form submit creates a `submission_id`
+  - `QuoteSubmissionTable` record moves `queued -> processing -> completed|error`
+  - owner email is sent
+  - journey / lead record updates appear in admin
 
 ### Change idempotency timing (lease/cooldown/ttl)
 

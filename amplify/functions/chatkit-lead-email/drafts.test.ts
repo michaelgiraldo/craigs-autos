@@ -3,10 +3,10 @@ import assert from 'node:assert/strict';
 
 import { buildLeadEmailSubject, buildOutreachDrafts } from './drafts.ts';
 
-const SHOP_NAME = "Craig's Auto Upholstery";
-const SHOP_PHONE_DISPLAY = '(408) 379-3820';
-const SHOP_PHONE_DIGITS = '4083793820';
-const SHOP_ADDRESS = '271 Bestor St, San Jose, CA 95112';
+const SHOP_NAME = 'ABC Upholstery';
+const SHOP_PHONE_DISPLAY = '(408) 241-6800';
+const SHOP_PHONE_DIGITS = '4082416800';
+const SHOP_ADDRESS = '2221 Stevens Creek Blvd, Ste C, San Jose, CA 95128';
 
 test('buildLeadEmailSubject prefers vehicle and project context', () => {
   const subject = buildLeadEmailSubject({
@@ -51,14 +51,14 @@ test('buildOutreachDrafts creates fallback outreach with signature and address',
 
   assert.equal(
     drafts.emailDraftSubject,
-    "Craig's Auto Upholstery - next steps for 2021 Tesla Model Y - Full interior reupholstery in real leather",
+    'ABC Upholstery - next steps for 2021 Tesla Model Y - Full interior reupholstery in real leather',
   );
   assert.match(
     drafts.smsDraft,
-    /^Hi Michael - thanks for reaching out to Craig's Auto Upholstery about your 2021 Tesla Model Y - Full interior reupholstery in real leather\./,
+    /^Hi Michael - thanks for reaching out to ABC Upholstery about your 2021 Tesla Model Y - Full interior reupholstery in real leather\./,
   );
-  assert.match(drafts.smsDraft, /\(408\) 379-3820/);
-  assert.match(drafts.emailDraftBody, /271 Bestor St, San Jose, CA 95112/);
+  assert.match(drafts.smsDraft, /\(408\) 241-6800/);
+  assert.match(drafts.emailDraftBody, /2221 Stevens Creek Blvd, Ste C, San Jose, CA 95128/);
 });
 
 test('buildOutreachDrafts preserves provided outreach text while ensuring required signature fields', () => {
@@ -67,8 +67,7 @@ test('buildOutreachDrafts preserves provided outreach text while ensuring requir
       customer_name: 'Michael',
       vehicle: '2021 Tesla Model Y',
       project: null,
-      outreach_message:
-        "Hi Michael-this is Craig's Auto Upholstery. Please send photos when you can.",
+      outreach_message: 'Hi Michael-this is ABC Upholstery. Please send photos when you can.',
     },
     shopName: SHOP_NAME,
     shopPhoneDisplay: SHOP_PHONE_DISPLAY,
@@ -76,7 +75,7 @@ test('buildOutreachDrafts preserves provided outreach text while ensuring requir
     shopAddress: SHOP_ADDRESS,
   });
 
-  assert.match(drafts.smsDraft, /Hi Michael-this is Craig's Auto Upholstery\./);
-  assert.match(drafts.smsDraft, /\(408\) 379-3820/);
-  assert.match(drafts.emailDraftBody, /271 Bestor St, San Jose, CA 95112/);
+  assert.match(drafts.smsDraft, /Hi Michael-this is ABC Upholstery\./);
+  assert.match(drafts.smsDraft, /\(408\) 241-6800/);
+  assert.match(drafts.emailDraftBody, /2221 Stevens Creek Blvd, Ste C, San Jose, CA 95128/);
 });

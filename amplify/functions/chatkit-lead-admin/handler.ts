@@ -1,29 +1,29 @@
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import {
-  DynamoDBDocumentClient,
-  ScanCommand,
-  type ScanCommandInput,
-  UpdateCommand,
-} from '@aws-sdk/lib-dynamodb';
-import type { NativeAttributeValue } from '@aws-sdk/util-dynamodb';
 import { z } from 'zod';
+import { buildDefaultQualificationSnapshot, buildJourneyEvent } from '../_lead-core/services/shared.ts';
+import { deriveLeadRecordStatus } from '../_lead-core/services/outreach.ts';
+import {
+  toLeadAdminJourneySummary,
+  toLeadAdminRecordSummary,
+  type LeadAdminJourneySummary,
+  type LeadAdminRecordSummary,
+} from '../_lead-core/services/admin.ts';
+import { createLeadCoreRuntime } from '../_lead-core/runtime.ts';
 import { decodeBody, emptyResponse, getHttpMethod, jsonResponse } from '../_shared/http.ts';
 import { asObject } from '../_shared/safe.ts';
 
 const MAX_LIMIT = 500;
 const corsHeaders = {
-  'Access-Control-Allow-Origin': 'https://craigs.autos',
+  'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
   'Access-Control-Allow-Headers': 'content-type,authorization',
 };
 
 const adminEnvSchema = z.object({
-  LEAD_CASES_TABLE_NAME: z.string().trim().min(1),
   LEADS_ADMIN_PASSWORD: z.string().trim().min(1),
 });
 
 const postPayloadSchema = z.looseObject({
-  lead_id: z.unknown().optional(),
+  lead_record_id: z.unknown().optional(),
   qualified: z.unknown().optional(),
 });
 
@@ -43,19 +43,26 @@ type LambdaResult = {
   body: string;
 };
 
-type CursorKey = Record<string, NativeAttributeValue>;
-type LeadAdminItem = Record<string, NativeAttributeValue>;
+type CursorKey = Record<string, unknown>;
 
 type LeadAdminDeps = {
   configValid: boolean;
   adminPassword: string;
-  scanLeads: (args: {
+  listLeadRecords: (args: {
     limit: number;
     qualifiedFilter: boolean | null;
     cursor?: CursorKey;
-  }) => Promise<{ items: LeadAdminItem[]; lastEvaluatedKey?: CursorKey }>;
-  updateLead: (args: { leadId: string; qualified: boolean; qualifiedAt: number }) => Promise<void>;
-  nowEpochSeconds: () => number;
+  }) => Promise<{ items: LeadAdminRecordSummary[]; lastEvaluatedKey?: CursorKey }>;
+  listJourneys: (args: {
+    limit: number;
+    cursor?: CursorKey;
+  }) => Promise<{ items: LeadAdminJourneySummary[]; lastEvaluatedKey?: CursorKey }>;
+  updateLeadRecordQualification: (args: {
+    leadRecordId: string;
+    qualified: boolean;
+    qualifiedAtMs: number;
+  }) => Promise<boolean>;
+  nowEpochMs: () => number;
 };
 
 function json(statusCode: number, body: unknown): LambdaResult {
@@ -117,15 +124,6 @@ function decodeCursor(value: string | undefined): CursorKey | undefined {
   }
 }
 
-function getNumericField(item: LeadAdminItem, key: string): number {
-  const value = item[key];
-  return typeof value === 'number' ? value : 0;
-}
-
-function nowEpochSeconds(): number {
-  return Math.floor(Date.now() / 1000);
-}
-
 export function createLeadAdminHandler(deps: LeadAdminDeps) {
   return async (event: LambdaEvent): Promise<LambdaResult> => {
     const method = getHttpMethod(event);
@@ -146,20 +144,29 @@ export function createLeadAdminHandler(deps: LeadAdminDeps) {
       const qs = event.queryStringParameters ?? {};
       const limit = parseLimit(qs.limit);
       const qualifiedFilter = parseBool(qs.qualified);
-      const cursor = decodeCursor(qs.cursor);
+      const recordsCursor = decodeCursor(qs.records_cursor ?? qs.cursor);
+      const journeysCursor = decodeCursor(qs.journeys_cursor);
 
-      const result = await deps.scanLeads({
-        limit,
-        qualifiedFilter,
-        cursor,
-      });
+      const [recordsResult, journeysResult] = await Promise.all([
+        deps.listLeadRecords({
+          limit,
+          qualifiedFilter,
+          cursor: recordsCursor,
+        }),
+        deps.listJourneys({
+          limit,
+          cursor: journeysCursor,
+        }),
+      ]);
 
-      const items = Array.isArray(result.items) ? result.items : [];
-      items.sort((a, b) => getNumericField(b, 'created_at') - getNumericField(a, 'created_at'));
+      const leadRecords = Array.isArray(recordsResult.items) ? recordsResult.items : [];
+      const journeys = Array.isArray(journeysResult.items) ? journeysResult.items : [];
 
       return json(200, {
-        items,
-        next_cursor: encodeCursor(result.lastEvaluatedKey),
+        lead_records: leadRecords,
+        journeys,
+        next_records_cursor: encodeCursor(recordsResult.lastEvaluatedKey),
+        next_journeys_cursor: encodeCursor(journeysResult.lastEvaluatedKey),
       });
     }
 
@@ -175,23 +182,27 @@ export function createLeadAdminHandler(deps: LeadAdminDeps) {
         return json(400, { error: 'Invalid JSON body' });
       }
 
-      const leadIdResult = z.string().trim().min(1).safeParse(parsedPayload.lead_id);
-      if (!leadIdResult.success) return json(400, { error: 'Missing lead_id' });
+      const leadRecordIdResult = z.string().trim().min(1).safeParse(parsedPayload.lead_record_id);
+      if (!leadRecordIdResult.success) return json(400, { error: 'Missing lead_record_id' });
 
       const qualifiedResult = z.boolean().safeParse(parsedPayload.qualified);
       if (!qualifiedResult.success) {
         return json(400, { error: 'Missing qualified boolean' });
       }
 
-      await deps.updateLead({
-        leadId: leadIdResult.data,
+      const updated = await deps.updateLeadRecordQualification({
+        leadRecordId: leadRecordIdResult.data,
         qualified: qualifiedResult.data,
-        qualifiedAt: deps.nowEpochSeconds(),
+        qualifiedAtMs: deps.nowEpochMs(),
       });
+
+      if (!updated) {
+        return json(404, { error: 'Lead record not found' });
+      }
 
       return json(200, {
         ok: true,
-        lead_id: leadIdResult.data,
+        lead_record_id: leadRecordIdResult.data,
         qualified: qualifiedResult.data,
       });
     }
@@ -201,51 +212,96 @@ export function createLeadAdminHandler(deps: LeadAdminDeps) {
 }
 
 const parsedEnv = adminEnvSchema.safeParse(process.env);
-const runtimeTableName = parsedEnv.success ? parsedEnv.data.LEAD_CASES_TABLE_NAME : '';
-const runtimeAdminPassword = parsedEnv.success ? parsedEnv.data.LEADS_ADMIN_PASSWORD : '';
-const runtimeDb = runtimeTableName ? DynamoDBDocumentClient.from(new DynamoDBClient({})) : null;
+const leadCoreRuntime = createLeadCoreRuntime(process.env);
 
 export const handler = createLeadAdminHandler({
-  configValid: Boolean(parsedEnv.success && runtimeDb && runtimeTableName && runtimeAdminPassword),
-  adminPassword: runtimeAdminPassword,
-  scanLeads: async ({ limit, qualifiedFilter, cursor }) => {
-    if (!runtimeDb || !runtimeTableName) return { items: [] };
-    const scanInput: ScanCommandInput = {
-      TableName: runtimeTableName,
-      Limit: limit,
-    };
+  configValid: Boolean(parsedEnv.success && parsedEnv.data.LEADS_ADMIN_PASSWORD && leadCoreRuntime.configValid),
+  adminPassword: parsedEnv.success ? parsedEnv.data.LEADS_ADMIN_PASSWORD : '',
+  listLeadRecords: async ({ limit, qualifiedFilter, cursor }) => {
+    const repos = leadCoreRuntime.repos;
+    if (!repos) return { items: [] };
 
-    if (cursor) scanInput.ExclusiveStartKey = cursor;
+    const result = await repos.leadRecords.listPage({
+      limit,
+      qualifiedFilter,
+      cursor,
+    });
 
-    if (qualifiedFilter !== null) {
-      scanInput.FilterExpression = '#qualified = :qualified';
-      scanInput.ExpressionAttributeNames = { '#qualified': 'qualified' };
-      scanInput.ExpressionAttributeValues = { ':qualified': qualifiedFilter };
-    }
+    const contacts = await Promise.all(
+      result.items.map((leadRecord) =>
+        leadRecord.contact_id ? repos.contacts.getById(leadRecord.contact_id) : Promise.resolve(null),
+      ),
+    );
 
-    const result = await runtimeDb.send(new ScanCommand(scanInput));
     return {
-      items: Array.isArray(result.Items) ? result.Items : [],
-      lastEvaluatedKey: result.LastEvaluatedKey,
+      items: result.items.map((leadRecord, index) =>
+        toLeadAdminRecordSummary({
+          leadRecord,
+          contact: contacts[index] ?? null,
+        }),
+      ),
+      lastEvaluatedKey: result.lastEvaluatedKey,
     };
   },
-  updateLead: async ({ leadId, qualified, qualifiedAt }) => {
-    if (!runtimeDb || !runtimeTableName) return;
-    await runtimeDb.send(
-      new UpdateCommand({
-        TableName: runtimeTableName,
-        Key: { lead_id: leadId },
-        UpdateExpression: 'SET #qualified = :qualified, #qualified_at = :qualified_at',
-        ExpressionAttributeNames: {
-          '#qualified': 'qualified',
-          '#qualified_at': 'qualified_at',
-        },
-        ExpressionAttributeValues: {
-          ':qualified': qualified,
-          ':qualified_at': qualifiedAt,
+  listJourneys: async ({ limit, cursor }) => {
+    const repos = leadCoreRuntime.repos;
+    if (!repos) return { items: [] };
+    const result = await repos.journeys.listPage({ limit, cursor });
+    return {
+      items: result.items.map((journey) => toLeadAdminJourneySummary(journey)),
+      lastEvaluatedKey: result.lastEvaluatedKey,
+    };
+  },
+  updateLeadRecordQualification: async ({ leadRecordId, qualified, qualifiedAtMs }) => {
+    const repos = leadCoreRuntime.repos;
+    if (!repos) return false;
+
+    const existingLeadRecord = await repos.leadRecords.getById(leadRecordId);
+    if (!existingLeadRecord) return false;
+
+    const qualification = buildDefaultQualificationSnapshot({
+      ...existingLeadRecord.qualification,
+      qualified,
+      qualified_at_ms: qualified ? qualifiedAtMs : null,
+    });
+
+    const updatedLeadRecord = {
+      ...existingLeadRecord,
+      qualification,
+      status: deriveLeadRecordStatus({
+        qualification,
+        latestOutreach: existingLeadRecord.latest_outreach,
+      }),
+      updated_at_ms: qualifiedAtMs,
+    };
+
+    await repos.leadRecords.put(updatedLeadRecord);
+    await repos.journeyEvents.append(
+      buildJourneyEvent({
+        journeyId: existingLeadRecord.journey_id,
+        leadRecordId,
+        eventName: qualified ? 'lead_record_qualified' : 'lead_record_unqualified',
+        occurredAtMs: qualifiedAtMs,
+        recordedAtMs: qualifiedAtMs,
+        actor: 'admin',
+        discriminator: `${leadRecordId}:${qualified}:${qualifiedAtMs}`,
+        payload: {
+          qualified,
         },
       }),
     );
+
+    const existingJourney = await repos.journeys.getById(existingLeadRecord.journey_id);
+    if (existingJourney) {
+      await repos.journeys.put({
+        ...existingJourney,
+        lead_record_id: leadRecordId,
+        journey_status: qualified ? 'qualified' : 'captured',
+        updated_at_ms: qualifiedAtMs,
+      });
+    }
+
+    return true;
   },
-  nowEpochSeconds,
+  nowEpochMs: () => Date.now(),
 });

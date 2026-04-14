@@ -48,12 +48,17 @@ export function isPlausiblePhone(value: string): boolean {
   return digits.length >= 7;
 }
 
-export function phoneToTelHref(value: string): string | null {
+export function phoneToE164(value: string): string | null {
   const digits = value.replace(/[^\d]/g, '');
   if (digits.length < 7 || digits.length > 15) return null;
-  if (digits.length === 10) return `tel:+1${digits}`;
-  if (digits.length === 11 && digits.startsWith('1')) return `tel:+${digits}`;
-  return `tel:+${digits}`;
+  if (digits.length === 10) return `+1${digits}`;
+  if (digits.length === 11 && digits.startsWith('1')) return `+${digits}`;
+  return `+${digits}`;
+}
+
+export function phoneToTelHref(value: string): string | null {
+  const e164 = phoneToE164(value);
+  return e164 ? `tel:${e164}` : null;
 }
 
 export function emailToMailto(value: string): string | null {

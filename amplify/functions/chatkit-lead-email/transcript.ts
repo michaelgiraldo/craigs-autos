@@ -1,5 +1,5 @@
 import type OpenAI from 'openai';
-import type { TranscriptLine } from './lead-types';
+import type { LeadAttachment, TranscriptLine } from './lead-types';
 import { normalizeWhitespace } from './text-utils';
 
 type ChatKitThread = Awaited<ReturnType<OpenAI['beta']['chatkit']['threads']['retrieve']>>;
@@ -38,10 +38,34 @@ function joinTextParts(parts: Array<{ text: string }>): string {
 function formatAttachmentLine(attachment: {
   name: string;
   mime_type: string;
-  preview_url: string | null;
 }): string {
-  const url = attachment.preview_url ?? '';
-  return `Attachment: ${attachment.name}${attachment.mime_type ? ` (${attachment.mime_type})` : ''}${url ? ` ${url}` : ''}`;
+  return `Attachment: ${attachment.name}${attachment.mime_type ? ` (${attachment.mime_type})` : ''}`;
+}
+
+function collectAttachments(
+  attachments: Array<{
+    id?: string | null;
+    name: string;
+    mime_type: string | null;
+    preview_url: string | null;
+  }>,
+  seen: Set<string>,
+): LeadAttachment[] {
+  const collected: LeadAttachment[] = [];
+
+  for (const attachment of attachments) {
+    const url = attachment.preview_url?.trim() ?? '';
+    if (!url || seen.has(url)) continue;
+    seen.add(url);
+    collected.push({
+      id: typeof attachment.id === 'string' ? attachment.id : null,
+      name: attachment.name,
+      mime: attachment.mime_type?.trim() || null,
+      url,
+    });
+  }
+
+  return collected;
 }
 
 export async function buildTranscript(args: {
@@ -51,6 +75,7 @@ export async function buildTranscript(args: {
 }): Promise<{
   threadTitle: string | null;
   threadUser: string;
+  attachments: LeadAttachment[];
   lines: TranscriptLine[];
 }> {
   const assistantName =
@@ -61,6 +86,8 @@ export async function buildTranscript(args: {
   const thread: ChatKitThread = await args.openai.beta.chatkit.threads.retrieve(args.threadId);
 
   const lines: TranscriptLine[] = [];
+  const attachments: LeadAttachment[] = [];
+  const seenAttachments = new Set<string>();
 
   for await (const item of listThreadItems(args.openai, args.threadId)) {
     if (!item || typeof item !== 'object') continue;
@@ -68,6 +95,7 @@ export async function buildTranscript(args: {
     if (item.type === 'chatkit.user_message') {
       const text = joinTextParts(item.content);
       const attachmentLines = item.attachments.map(formatAttachmentLine);
+      attachments.push(...collectAttachments(item.attachments, seenAttachments));
 
       const fullText = normalizeWhitespace([text, ...attachmentLines].filter(Boolean).join('\n'));
       if (fullText) {
@@ -93,6 +121,7 @@ export async function buildTranscript(args: {
   }
 
   return {
+    attachments,
     threadTitle: thread.title ?? null,
     threadUser: thread.user ?? 'unknown',
     lines,

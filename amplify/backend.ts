@@ -9,8 +9,12 @@ import { chatkitLeadEmail } from './functions/chatkit-lead-email/resource';
 import { chatkitMessageLink } from './functions/chatkit-message-link/resource';
 import { chatkitLeadSignal } from './functions/chatkit-lead-signal/resource';
 import { chatkitLeadAdmin } from './functions/chatkit-lead-admin/resource';
+import { contactSubmit } from './functions/contact-submit/resource';
+import { quoteFollowup } from './functions/quote-followup/resource';
 
 const backend = defineBackend({
+  contactSubmit,
+  quoteFollowup,
   chatkitSession,
   chatkitLeadEmail,
   chatkitMessageLink,
@@ -50,7 +54,15 @@ setLambdaDescription(
 );
 setLambdaDescription(
   backend.chatkitLeadAdmin.resources.lambda,
-  'Password-protected admin API to list lead cases and update qualification status for conversion workflows.'
+  'Password-protected admin API to list journeys and lead records and update qualification status for conversion workflows.'
+);
+setLambdaDescription(
+  backend.contactSubmit.resources.lambda,
+  'Accepts public quote requests, stores them in DynamoDB, and asynchronously invokes the quote follow-up worker.'
+);
+setLambdaDescription(
+  backend.quoteFollowup.resources.lambda,
+  'Generates quote outreach drafts, sends SMS-first follow-up with email fallback, and emails the shop via SES.'
 );
 
 // Expose a lightweight HTTPS endpoint that creates ChatKit sessions.
@@ -156,7 +168,34 @@ const chatkitLeadAdminUrl = new FunctionUrl(
   }
 );
 
+// Expose the public contact/quote submission endpoint.
+const contactSubmitUrl = new FunctionUrl(
+  Stack.of(backend.contactSubmit.resources.lambda),
+  'ContactSubmitUrl',
+  {
+    function: backend.contactSubmit.resources.lambda,
+    authType: FunctionUrlAuthType.NONE,
+    cors: {
+      allowedOrigins: [
+        'https://chat.craigs.autos',
+        'https://craigs.autos',
+        'http://localhost:4321',
+      ],
+      allowedMethods: [HttpMethod.POST],
+      allowedHeaders: ['content-type'],
+      maxAge: Duration.days(1),
+    },
+  }
+);
+
 backend.chatkitLeadEmail.resources.lambda.addToRolePolicy(
+  new PolicyStatement({
+    actions: ['ses:SendEmail', 'ses:SendRawEmail'],
+    resources: ['*'],
+  })
+);
+
+backend.quoteFollowup.resources.lambda.addToRolePolicy(
   new PolicyStatement({
     actions: ['ses:SendEmail', 'ses:SendRawEmail'],
     resources: ['*'],
@@ -226,6 +265,34 @@ chatkitLeadDedupeTable.grantReadWriteData(backend.chatkitLeadEmail.resources.lam
 (backend.chatkitLeadEmail.resources.lambda as any).addEnvironment(
   'LEAD_DEDUPE_TABLE_NAME',
   chatkitLeadDedupeTable.tableName
+);
+
+const quoteSubmissionsTable = new Table(
+  Stack.of(backend.contactSubmit.resources.lambda),
+  'QuoteSubmissionTable',
+  {
+    billingMode: BillingMode.PAY_PER_REQUEST,
+    partitionKey: { name: 'submission_id', type: AttributeType.STRING },
+    timeToLiveAttribute: 'ttl',
+    removalPolicy: RemovalPolicy.RETAIN,
+  }
+);
+
+quoteSubmissionsTable.grantReadWriteData(backend.contactSubmit.resources.lambda);
+quoteSubmissionsTable.grantReadWriteData(backend.quoteFollowup.resources.lambda);
+(backend.contactSubmit.resources.lambda as any).addEnvironment(
+  'QUOTE_SUBMISSIONS_TABLE_NAME',
+  quoteSubmissionsTable.tableName
+);
+(backend.quoteFollowup.resources.lambda as any).addEnvironment(
+  'QUOTE_SUBMISSIONS_TABLE_NAME',
+  quoteSubmissionsTable.tableName
+);
+
+backend.quoteFollowup.resources.lambda.grantInvoke(backend.contactSubmit.resources.lambda);
+(backend.contactSubmit.resources.lambda as any).addEnvironment(
+  'QUOTE_FOLLOWUP_FUNCTION_NAME',
+  backend.quoteFollowup.resources.lambda.functionName
 );
 
 // Immutable lead event log for actionable first-party events.
@@ -381,6 +448,8 @@ const leadActionTokensTable = new Table(leadDataStack, 'LeadActionTokensTable', 
 });
 
 for (const lambda of [
+  backend.contactSubmit.resources.lambda,
+  backend.quoteFollowup.resources.lambda,
   backend.chatkitLeadEmail.resources.lambda,
   backend.chatkitLeadSignal.resources.lambda,
   backend.chatkitLeadAdmin.resources.lambda,
@@ -406,6 +475,8 @@ for (const lambda of [
 
 backend.addOutput({
   custom: {
+    // Used by the contact page form to submit quote requests.
+    contact_submit_url: contactSubmitUrl.url,
     // Used by the frontend widget (via /amplify_outputs.json) to locate the session endpoint.
     chatkit_session_url: chatkitSessionUrl.url,
     // Used by the frontend widget to send transcripts to the shop.

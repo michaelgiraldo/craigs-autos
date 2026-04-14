@@ -34,11 +34,11 @@ function hasShopPhone(value: string, shopPhoneDigits: string): boolean {
 }
 
 function hasShopName(value: string): boolean {
-  return /craig'?s\s+auto\s+upholstery/i.test(value);
+  return /\babc\s+upholstery\b/i.test(value);
 }
 
 function hasShopAddress(value: string): boolean {
-  return /271\s+bestor/i.test(value) || /\bbestor\b/i.test(value);
+  return /2221\s+stevens\s+creek/i.test(value) || /\bstevens\s+creek\b/i.test(value);
 }
 
 function ensureShopSignature(

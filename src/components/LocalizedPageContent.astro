@@ -2,6 +2,7 @@
 import { render } from 'astro:content';
 import type { PageEntry, PageModule, LocaleKey } from '../types/site';
 import ConvertibleTopMarqueAtlas from './ConvertibleTopMarqueAtlas.astro';
+import ContactLeadForm from './ContactLeadForm.jsx';
 import FaqSection from './FaqSection.astro';
 import FeaturedProject from './FeaturedProject.astro';
 import LocalizedLink from './LocalizedLink.astro';
@@ -23,6 +24,7 @@ if (!entry) {
 
 const template = entry.data.template ?? 'standard';
 const usesStructuredTemplate = template === 'project' || Boolean(entry.data.hero);
+const showContactForm = entry.data.pageKey === 'contact';
 
 const rendered = template === 'project' ? null : await render(entry);
 const RenderedContent = rendered?.Content ?? null;
@@ -66,6 +68,7 @@ const resolveReferenceId = (value: string | { id: string } | undefined) => {
 		{entry.data.showServiceCards !== false ? (
 			<ServiceCards locale={locale} currentKey={entry.data.serviceCardsCurrentKey} />
 		) : null}
+		{showContactForm ? <ContactLeadForm client:load locale={locale} serviceKey={entry.data.pageKey} /> : null}
 		{pageModules.map((module: PageModule) => {
 			if (module.type === 'featuredProject') {
 				return <FeaturedProject projectId={resolveReferenceId(module.project)} locale={locale} />;
@@ -83,5 +86,8 @@ const resolveReferenceId = (value: string | { id: string } | undefined) => {
 		) : null}
 	</>
 ) : RenderedContent ? (
-	<RenderedContent components={contentComponents} />
+	<>
+		{showContactForm ? <ContactLeadForm client:load locale={locale} serviceKey={entry.data.pageKey} /> : null}
+		<RenderedContent components={contentComponents} />
+	</>
 ) : null}

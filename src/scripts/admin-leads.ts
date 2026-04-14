@@ -1,31 +1,59 @@
-const STORAGE_KEY = 'craigs_admin_auth';
+const STORAGE_KEY = 'lead_admin_auth';
 const OUTPUTS_PATH = '/amplify_outputs.json';
 const FETCH_TIMEOUT_MS = 8_000;
 
-type LeadItem = {
-  lead_id?: string;
-  created_at?: number;
-  lead_method?: string;
-  lead_intent_type?: string;
+type LeadRecordItem = {
+  lead_record_id?: string;
+  journey_id?: string;
+  created_at_ms?: number;
+  updated_at_ms?: number;
+  status?: string;
+  capture_channel?: string;
+  first_action?: string | null;
+  latest_action?: string | null;
+  action_count?: number;
+  title?: string;
+  display_name?: string | null;
+  normalized_phone?: string | null;
+  normalized_email?: string | null;
   device_type?: string;
-  customer_phone?: string;
-  customer_email?: string;
   source_platform?: string;
-  utm_source?: string;
-  utm_campaign?: string;
-  gclid?: string;
-  gbraid?: string;
-  wbraid?: string;
-  msclkid?: string;
-  fbclid?: string;
-  ttclid?: string;
+  acquisition_class?: string | null;
+  utm_source?: string | null;
+  utm_campaign?: string | null;
+  click_id_type?: string | null;
+  click_id?: string | null;
   qualified?: boolean;
   uploaded_google_ads?: boolean;
+  outreach_channel?: string | null;
+  outreach_status?: string | null;
+};
+
+type JourneyItem = {
+  journey_id?: string;
+  lead_record_id?: string | null;
+  journey_status?: string;
+  status_reason?: string | null;
+  capture_channel?: string | null;
+  first_action?: string | null;
+  latest_action?: string | null;
+  action_types?: string[];
+  action_count?: number;
+  thread_id?: string | null;
+  lead_user_id?: string | null;
+  source_platform?: string | null;
+  acquisition_class?: string | null;
+  landing_page?: string | null;
+  referrer_host?: string | null;
+  created_at_ms?: number;
+  updated_at_ms?: number;
 };
 
 type LeadsApiResponse = {
-  items?: LeadItem[];
-  next_cursor?: string | null;
+  lead_records?: LeadRecordItem[];
+  journeys?: JourneyItem[];
+  next_records_cursor?: string | null;
+  next_journeys_cursor?: string | null;
 };
 
 export const initAdminLeads = (app = document.getElementById('admin-leads-app')) => {
@@ -37,10 +65,12 @@ export const initAdminLeads = (app = document.getElementById('admin-leads-app'))
     endpoint: null as string | null,
     auth: sessionStorage.getItem(STORAGE_KEY) || '',
     loading: false,
-    items: [] as LeadItem[],
+    leadRecords: [] as LeadRecordItem[],
+    journeys: [] as JourneyItem[],
     error: null as string | null,
     filterQualified: '',
-    cursor: null as string | null,
+    recordsCursor: null as string | null,
+    journeysCursor: null as string | null,
   };
 
   const setError = (message: string | null) => {
@@ -70,9 +100,7 @@ export const initAdminLeads = (app = document.getElementById('admin-leads-app'))
 
   const jsonHeaders = () => {
     const headers = new Headers({ 'Content-Type': 'application/json' });
-    if (state.auth) {
-      headers.set('Authorization', state.auth);
-    }
+    if (state.auth) headers.set('Authorization', state.auth);
     return headers;
   };
 
@@ -81,8 +109,10 @@ export const initAdminLeads = (app = document.getElementById('admin-leads-app'))
     state.loading = true;
     state.error = null;
     if (reset) {
-      state.items = [];
-      state.cursor = null;
+      state.leadRecords = [];
+      state.journeys = [];
+      state.recordsCursor = null;
+      state.journeysCursor = null;
     }
     render();
 
@@ -92,7 +122,8 @@ export const initAdminLeads = (app = document.getElementById('admin-leads-app'))
 
       const url = new URL(endpoint);
       url.searchParams.set('limit', '200');
-      if (state.cursor) url.searchParams.set('cursor', state.cursor);
+      if (state.recordsCursor) url.searchParams.set('records_cursor', state.recordsCursor);
+      if (state.journeysCursor) url.searchParams.set('journeys_cursor', state.journeysCursor);
       if (state.filterQualified) url.searchParams.set('qualified', state.filterQualified);
 
       const res = await fetch(
@@ -111,8 +142,10 @@ export const initAdminLeads = (app = document.getElementById('admin-leads-app'))
       if (!res.ok) throw new Error('Failed to load leads.');
 
       const data = (await res.json()) as LeadsApiResponse;
-      state.items = data.items || [];
-      state.cursor = data.next_cursor || null;
+      state.leadRecords = data.lead_records || [];
+      state.journeys = data.journeys || [];
+      state.recordsCursor = data.next_records_cursor || null;
+      state.journeysCursor = data.next_journeys_cursor || null;
       state.loading = false;
       render();
     } catch (error) {
@@ -121,7 +154,7 @@ export const initAdminLeads = (app = document.getElementById('admin-leads-app'))
     }
   };
 
-  const updateLead = async (leadId: string, qualified: boolean) => {
+  const updateLead = async (leadRecordId: string, qualified: boolean) => {
     state.loading = true;
     render();
     try {
@@ -133,7 +166,7 @@ export const initAdminLeads = (app = document.getElementById('admin-leads-app'))
         withFetchTimeout({
           method: 'POST',
           headers: jsonHeaders(),
-          body: JSON.stringify({ lead_id: leadId, qualified }),
+          body: JSON.stringify({ lead_record_id: leadRecordId, qualified }),
         }),
       );
 
@@ -205,7 +238,7 @@ export const initAdminLeads = (app = document.getElementById('admin-leads-app'))
 
     const filterSelect = document.createElement('select');
     filterSelect.innerHTML =
-      '<option value="">All</option>' +
+      '<option value="">All records</option>' +
       '<option value="true">Qualified</option>' +
       '<option value="false">Unqualified</option>';
     filterSelect.value = state.filterQualified;
@@ -217,9 +250,7 @@ export const initAdminLeads = (app = document.getElementById('admin-leads-app'))
     const refreshBtn = document.createElement('button');
     refreshBtn.textContent = 'Refresh';
     refreshBtn.className = 'secondary';
-    refreshBtn.addEventListener('click', () => {
-      void fetchLeads(true);
-    });
+    refreshBtn.addEventListener('click', () => void fetchLeads(true));
 
     const logoutBtn = document.createElement('button');
     logoutBtn.textContent = 'Log out';
@@ -229,17 +260,21 @@ export const initAdminLeads = (app = document.getElementById('admin-leads-app'))
     toolbar.append(filterSelect, refreshBtn, logoutBtn);
     wrapper.appendChild(toolbar);
 
+    const recordsHeading = document.createElement('h2');
+    recordsHeading.textContent = 'Lead Records';
+    recordsHeading.style.margin = '0 0 8px';
+    recordsHeading.style.fontSize = '1.1rem';
+    wrapper.appendChild(recordsHeading);
+
     const table = document.createElement('table');
     table.className = 'admin-table';
     table.innerHTML =
       '<thead><tr>' +
       '<th>Date</th>' +
-      '<th>Method</th>' +
-      '<th>Intent</th>' +
+      '<th>Capture</th>' +
+      '<th>Lead</th>' +
       '<th>Source</th>' +
-      '<th>Campaign</th>' +
-      '<th>Click ID</th>' +
-      '<th>Device</th>' +
+      '<th>Actions</th>' +
       '<th>Contact</th>' +
       '<th>Status</th>' +
       '<th>Google Ads</th>' +
@@ -247,45 +282,36 @@ export const initAdminLeads = (app = document.getElementById('admin-leads-app'))
       '</tr></thead>';
 
     const tbody = document.createElement('tbody');
-
-    if (!state.items.length && !state.loading) {
+    if (!state.leadRecords.length && !state.loading) {
       const empty = document.createElement('tr');
-      empty.innerHTML = '<td colspan="10" class="muted">No leads found.</td>';
+      empty.innerHTML = '<td colspan="9" class="muted">No lead records found.</td>';
       tbody.appendChild(empty);
     } else {
-      for (const item of state.items) {
+      for (const item of state.leadRecords) {
         const tr = document.createElement('tr');
-        const created = item.created_at ? new Date(item.created_at * 1000).toLocaleString() : '-';
-        const method = item.lead_method || '-';
-        const intent = item.lead_intent_type || '-';
+        const created = item.created_at_ms ? new Date(item.created_at_ms).toLocaleString() : '-';
+        const capture = item.capture_channel || '-';
+        const title = item.title || '-';
         const device = item.device_type || '-';
-        const contact = item.customer_phone || item.customer_email || '-';
+        const contactParts = [item.display_name, item.normalized_phone, item.normalized_email].filter(
+          (value): value is string => typeof value === 'string' && value.length > 0,
+        );
+        const contact = contactParts.length ? contactParts.join(' • ') : '-';
         const source = item.source_platform || item.utm_source || '-';
-        const campaign = item.utm_campaign || '-';
-        const clickId =
-          item.gclid ||
-          item.gbraid ||
-          item.wbraid ||
-          item.msclkid ||
-          item.fbclid ||
-          item.ttclid ||
-          '-';
+        const actionPath = [item.first_action, item.latest_action].filter(Boolean).join(' -> ') || '-';
         const qualified = item.qualified === true;
         const uploadedGoogleAds = item.uploaded_google_ads === true;
+        const statusLabel = qualified ? 'Qualified' : item.status || 'New';
 
         tr.innerHTML =
           `<td>${created}</td>` +
-          `<td>${method}</td>` +
-          `<td>${intent}</td>` +
+          `<td>${capture}</td>` +
+          `<td>${title}<br><span class="muted">${device}</span></td>` +
           `<td>${source}</td>` +
-          `<td>${campaign}</td>` +
-          `<td>${clickId}</td>` +
-          `<td>${device}</td>` +
+          `<td>${actionPath}<br><span class="muted">${item.action_count ?? 0} events</span></td>` +
           `<td>${contact}</td>` +
           '<td>' +
-          (qualified
-            ? '<span class="badge badge--yes">Qualified</span>'
-            : '<span class="badge badge--no">No</span>') +
+          `<span class="badge ${qualified ? 'badge--yes' : 'badge--no'}">${statusLabel}</span>` +
           '</td>' +
           '<td>' +
           (uploadedGoogleAds
@@ -298,8 +324,8 @@ export const initAdminLeads = (app = document.getElementById('admin-leads-app'))
         actionBtn.className = 'secondary';
         actionBtn.textContent = qualified ? 'Unqualify' : 'Qualify';
         actionBtn.addEventListener('click', () => {
-          if (!item.lead_id) return;
-          void updateLead(item.lead_id, !qualified);
+          if (!item.lead_record_id) return;
+          void updateLead(item.lead_record_id, !qualified);
         });
         actionCell.appendChild(actionBtn);
         tr.appendChild(actionCell);
@@ -309,6 +335,62 @@ export const initAdminLeads = (app = document.getElementById('admin-leads-app'))
 
     table.appendChild(tbody);
     wrapper.appendChild(table);
+
+    const journeysHeading = document.createElement('h2');
+    journeysHeading.textContent = 'Journeys';
+    journeysHeading.style.margin = '28px 0 4px';
+    journeysHeading.style.fontSize = '1.1rem';
+    wrapper.appendChild(journeysHeading);
+
+    const journeyNote = document.createElement('p');
+    journeyNote.className = 'muted';
+    journeyNote.textContent =
+      'Journeys include soft-intent behavior and incomplete chat flows, even when no lead record was captured.';
+    wrapper.appendChild(journeyNote);
+
+    const journeysTable = document.createElement('table');
+    journeysTable.className = 'admin-table';
+    journeysTable.innerHTML =
+      '<thead><tr>' +
+      '<th>Updated</th>' +
+      '<th>Status</th>' +
+      '<th>Capture</th>' +
+      '<th>Actions</th>' +
+      '<th>Source</th>' +
+      '<th>Reason</th>' +
+      '<th>Linked Record</th>' +
+      '</tr></thead>';
+
+    const journeysBody = document.createElement('tbody');
+    if (!state.journeys.length && !state.loading) {
+      const empty = document.createElement('tr');
+      empty.innerHTML = '<td colspan="7" class="muted">No journeys found.</td>';
+      journeysBody.appendChild(empty);
+    } else {
+      for (const journey of state.journeys) {
+        const tr = document.createElement('tr');
+        const updated = journey.updated_at_ms ? new Date(journey.updated_at_ms).toLocaleString() : '-';
+        const actionList = Array.isArray(journey.action_types) && journey.action_types.length
+          ? journey.action_types.join(', ')
+          : '-';
+        const source =
+          [journey.source_platform, journey.acquisition_class].filter(Boolean).join(' • ') ||
+          journey.landing_page ||
+          '-';
+        tr.innerHTML =
+          `<td>${updated}</td>` +
+          `<td>${journey.journey_status || '-'}</td>` +
+          `<td>${journey.capture_channel || '-'}</td>` +
+          `<td>${actionList}<br><span class="muted">${journey.action_count ?? 0} events</span></td>` +
+          `<td>${source}</td>` +
+          `<td>${journey.status_reason || '-'}</td>` +
+          `<td>${journey.lead_record_id || '-'}</td>`;
+        journeysBody.appendChild(tr);
+      }
+    }
+
+    journeysTable.appendChild(journeysBody);
+    wrapper.appendChild(journeysTable);
 
     if (state.loading) {
       const loading = document.createElement('p');

@@ -1,5 +1,5 @@
-import { escapeHtml, safeHttpUrl } from './text-utils';
-import type { InlineAttachment } from './attachments';
+import { escapeHtml, safeHttpUrl } from './text-utils.ts';
+import type { InlineAttachment } from './attachments.ts';
 
 function toEncodedHeaderWord(value: string): string {
   const safeValue = value.replace(/[\r\n]+/g, ' ');

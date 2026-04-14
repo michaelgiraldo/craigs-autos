@@ -1,44 +1,56 @@
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import {
-  DynamoDBDocumentClient,
-  GetCommand,
-  PutCommand,
-  UpdateCommand,
-} from '@aws-sdk/lib-dynamodb';
-import { SESv2Client } from '@aws-sdk/client-sesv2';
-import {
-  CreateScheduleCommand,
-  DeleteScheduleCommand,
-  SchedulerClient,
-  UpdateScheduleCommand,
-} from '@aws-sdk/client-scheduler';
-import { randomUUID } from 'node:crypto';
-import OpenAI from 'openai';
 import { z } from 'zod';
+import { createStableJourneyId } from '../_lead-core/domain/ids.ts';
+import { sanitizeAttributionSnapshot } from '../_lead-core/domain/attribution.ts';
+import { createLeadCoreRuntime } from '../_lead-core/runtime.ts';
 import { decodeBody, emptyResponse, getHttpMethod, jsonResponse } from '../_shared/http.ts';
-import { asObject, getErrorDetails } from '../_shared/safe.ts';
-import { sendTranscriptEmail } from './email-delivery';
-import { generateLeadSummary } from './lead-summary';
+import { getErrorDetails } from '../_shared/safe.ts';
+import {
+  acquireLeadSendLease,
+  getLeadDedupeRecord,
+  markLeadError,
+} from './dedupe-store.ts';
 import type {
-  LeadAttributionPayload,
-  LeadCaseRecord,
-  LeadDedupeRecord,
-  LeadDedupeStatus,
   LeadEmailRequest,
   LambdaEvent,
   LambdaResult,
-  TranscriptLine,
 } from './lead-types';
 import { createMessageLinkUrl as createMessageLinkTokenUrl } from './message-link';
-import { extractCustomerContact } from './text-utils';
-import { buildTranscript } from './transcript';
-
-const leadEmailEnvSchema = z.object({
-  OPENAI_API_KEY: z.string().trim().min(1),
-});
+import { deleteLeadRetrySchedule, upsertLeadRetrySchedule } from './retry-scheduler.ts';
+import {
+  LEAD_IDLE_DELAY_SECONDS,
+  LEAD_EMAIL_RAW_MESSAGE_MAX_BYTES,
+  LEAD_RETRY_GRACE_SECONDS,
+  MESSAGE_LINK_TOKEN_TTL_DAYS,
+  SHOP_ADDRESS,
+  SHOP_NAME,
+  SHOP_PHONE_DIGITS,
+  SHOP_PHONE_DISPLAY,
+  leadFromEmail,
+  leadSummaryModel,
+  leadToEmail,
+  messageLinkDb,
+  messageLinkTokenTableName,
+  nowEpochSeconds,
+  openai,
+  quoApiKey,
+  quoEnabled,
+  quoFromPhoneNumberId,
+  quoContactExternalIdPrefix,
+  quoContactSource,
+  quoLeadTagsFieldKey,
+  quoLeadTagsFieldName,
+  quoUserId,
+  ses,
+  isValidThreadId,
+} from './runtime.ts';
+import { evaluateChatLead } from './evaluation.ts';
+import { runChatOutreach } from './outreach-workflow.ts';
+import { persistCapturedChatLead } from './promotion.ts';
+import { persistChatWorkflowEvent } from './workflow-events.ts';
 
 const leadEmailPayloadSchema = z.looseObject({
   threadId: z.string().optional(),
+  journey_id: z.string().optional(),
   locale: z.string().optional(),
   pageUrl: z.string().optional(),
   user: z.string().optional(),
@@ -46,411 +58,7 @@ const leadEmailPayloadSchema = z.looseObject({
   attribution: z.unknown().optional(),
 });
 
-const parsedLeadEmailEnv = leadEmailEnvSchema.safeParse(process.env);
-const apiKey = parsedLeadEmailEnv.success ? parsedLeadEmailEnv.data.OPENAI_API_KEY : '';
-const openai = apiKey ? new OpenAI({ apiKey }) : null;
-
-const leadDedupeTableName = process.env.LEAD_DEDUPE_TABLE_NAME;
-const leadDedupeDb = leadDedupeTableName?.trim()
-  ? DynamoDBDocumentClient.from(new DynamoDBClient({}))
-  : null;
-
-const leadCasesTableName = process.env.LEAD_CASES_TABLE_NAME;
-const leadCasesDb = leadCasesTableName?.trim()
-  ? DynamoDBDocumentClient.from(new DynamoDBClient({}))
-  : null;
-
-const messageLinkTokenTableName = process.env.MESSAGE_LINK_TOKEN_TABLE_NAME;
-const messageLinkDb = messageLinkTokenTableName?.trim()
-  ? DynamoDBDocumentClient.from(new DynamoDBClient({}))
-  : null;
-
-const leadToEmail = process.env.LEAD_TO_EMAIL ?? 'leads@craigs.autos';
-const leadFromEmail = process.env.LEAD_FROM_EMAIL ?? 'leads@craigs.autos';
-const leadSummaryModel = process.env.LEAD_SUMMARY_MODEL ?? 'gpt-5.2-2025-12-11';
-const leadRetrySchedulerRoleArn = process.env.LEAD_RETRY_SCHEDULER_ROLE_ARN ?? '';
-const leadRetryScheduleGroupName = process.env.LEAD_RETRY_SCHEDULE_GROUP ?? 'default';
-const SHOP_NAME = "Craig's Auto Upholstery";
-const SHOP_PHONE_DISPLAY = '(408) 379-3820';
-const SHOP_PHONE_DIGITS = '4083793820';
-const SHOP_ADDRESS = '271 Bestor St, San Jose, CA 95112';
-
-const ses = new SESv2Client({});
-const scheduler = leadRetrySchedulerRoleArn ? new SchedulerClient({}) : null;
-
-const LEAD_DEDUPE_LEASE_SECONDS = 120;
-const LEAD_DEDUPE_ERROR_COOLDOWN_SECONDS = 60;
-const LEAD_DEDUPE_TTL_DAYS = 30;
-const LEAD_IDLE_DELAY_SECONDS = 300;
-const LEAD_RETRY_GRACE_SECONDS = 5;
-const LEAD_ATTRIBUTION_TTL_DAYS = 180;
-const MESSAGE_LINK_TOKEN_TTL_DAYS = 7;
-const LEAD_INLINE_ATTACHMENT_MAX_BYTES = 3_000_000;
-
-function isValidThreadId(value: string): boolean {
-  return value.startsWith('cthr_') && value.length > 'cthr_'.length;
-}
-
-function nowEpochSeconds(): number {
-  return Math.floor(Date.now() / 1000);
-}
-
-function ttlSecondsFromNow(days: number): number {
-  return nowEpochSeconds() + days * 24 * 60 * 60;
-}
-
-function latestActivityEpochSeconds(lines: TranscriptLine[]): number | null {
-  if (!lines.length) return null;
-  let latest = 0;
-  for (const line of lines) {
-    const createdAt = Math.floor(line?.created_at ?? 0);
-    if (createdAt > latest) latest = createdAt;
-  }
-  return latest > 0 ? latest : null;
-}
-
-function buildRetryScheduleName(threadId: string): string {
-  const safeId = threadId.replace(/[^A-Za-z0-9_-]/g, '-');
-  return `lead-retry-${safeId}`.slice(0, 64);
-}
-
-function atExpressionUtc(epochSeconds: number): string {
-  const utc = new Date(epochSeconds * 1000).toISOString().replace(/\.\d{3}Z$/, '');
-  return `at(${utc})`;
-}
-
-async function upsertLeadRetrySchedule(args: {
-  threadId: string;
-  runAtEpochSeconds: number;
-  functionArn: string;
-  payload: LeadEmailRequest;
-}): Promise<boolean> {
-  if (!scheduler || !args.functionArn || !leadRetrySchedulerRoleArn) return false;
-
-  const scheduleName = buildRetryScheduleName(args.threadId);
-  const scheduleExpression = atExpressionUtc(args.runAtEpochSeconds);
-  const input = JSON.stringify({
-    ...args.payload,
-    reason: 'server_retry',
-  });
-
-  const scheduleRequest = {
-    Name: scheduleName,
-    GroupName: leadRetryScheduleGroupName,
-    FlexibleTimeWindow: { Mode: 'OFF' as const },
-    ScheduleExpression: scheduleExpression,
-    ScheduleExpressionTimezone: 'UTC',
-    ActionAfterCompletion: 'DELETE' as const,
-    Target: {
-      Arn: args.functionArn,
-      RoleArn: leadRetrySchedulerRoleArn,
-      Input: input,
-      RetryPolicy: {
-        MaximumEventAgeInSeconds: 3600,
-        MaximumRetryAttempts: 1,
-      },
-    },
-  };
-
-  try {
-    await scheduler.send(new CreateScheduleCommand(scheduleRequest));
-    return true;
-  } catch (err: unknown) {
-    const { name, message } = getErrorDetails(err);
-    if (name !== 'ConflictException') {
-      console.error('Lead retry schedule create failed', name, message);
-      return false;
-    }
-  }
-
-  try {
-    await scheduler.send(
-      new UpdateScheduleCommand({
-        ...scheduleRequest,
-        State: 'ENABLED',
-      }),
-    );
-    return true;
-  } catch (err: unknown) {
-    const { name, message } = getErrorDetails(err);
-    console.error('Lead retry schedule update failed', name, message);
-    return false;
-  }
-}
-
-async function deleteLeadRetrySchedule(threadId: string): Promise<void> {
-  if (!scheduler) return;
-  const scheduleName = buildRetryScheduleName(threadId);
-  try {
-    await scheduler.send(
-      new DeleteScheduleCommand({
-        Name: scheduleName,
-        GroupName: leadRetryScheduleGroupName,
-      }),
-    );
-  } catch (err: unknown) {
-    const { name, message } = getErrorDetails(err);
-    if (name === 'ResourceNotFoundException') return;
-    console.error('Lead retry schedule delete failed', name, message);
-  }
-}
-
-function sanitizeLeadDedupeRecord(item: unknown): LeadDedupeRecord | null {
-  const record = asObject(item);
-  if (!record) return null;
-  const thread_id = typeof record.thread_id === 'string' ? record.thread_id : '';
-  const status = record.status as LeadDedupeStatus;
-  if (!thread_id) return null;
-  if (status !== 'sending' && status !== 'sent' && status !== 'error') return null;
-  return record as LeadDedupeRecord;
-}
-
-async function getLeadDedupeRecord(threadId: string): Promise<LeadDedupeRecord | null> {
-  if (!leadDedupeDb || !leadDedupeTableName) return null;
-  const result = await leadDedupeDb.send(
-    new GetCommand({
-      TableName: leadDedupeTableName,
-      Key: { thread_id: threadId },
-    }),
-  );
-  return sanitizeLeadDedupeRecord(result.Item);
-}
-
-async function acquireLeadSendLease(args: {
-  threadId: string;
-  reason: string;
-}): Promise<
-  { acquired: true; leaseId: string } | { acquired: false; record: LeadDedupeRecord | null }
-> {
-  if (!leadDedupeDb || !leadDedupeTableName) {
-    // No table configured (e.g., local dev) => allow sending but without cross-device idempotency.
-    return { acquired: true, leaseId: randomUUID() };
-  }
-
-  const now = nowEpochSeconds();
-  const leaseId = randomUUID();
-  const ttl = ttlSecondsFromNow(LEAD_DEDUPE_TTL_DAYS);
-
-  try {
-    await leadDedupeDb.send(
-      new UpdateCommand({
-        TableName: leadDedupeTableName,
-        Key: { thread_id: args.threadId },
-        UpdateExpression:
-          'SET #status = :sending, #lease_id = :lease_id, #lock_expires_at = :lock_expires_at, #updated_at = :now, #created_at = if_not_exists(#created_at, :now), #last_reason = :reason, #ttl = :ttl, #attempts = if_not_exists(#attempts, :zero) + :one',
-        ExpressionAttributeNames: {
-          '#status': 'status',
-          '#lease_id': 'lease_id',
-          '#lock_expires_at': 'lock_expires_at',
-          '#created_at': 'created_at',
-          '#updated_at': 'updated_at',
-          '#last_reason': 'last_reason',
-          '#ttl': 'ttl',
-          '#attempts': 'attempts',
-        },
-        ExpressionAttributeValues: {
-          ':sending': 'sending',
-          ':sent': 'sent',
-          ':lease_id': leaseId,
-          ':lock_expires_at': now + LEAD_DEDUPE_LEASE_SECONDS,
-          ':now': now,
-          ':reason': args.reason,
-          ':ttl': ttl,
-          ':zero': 0,
-          ':one': 1,
-        },
-        ConditionExpression:
-          'attribute_not_exists(thread_id) OR (#status <> :sent AND (attribute_not_exists(#lock_expires_at) OR #lock_expires_at < :now))',
-      }),
-    );
-    return { acquired: true, leaseId };
-  } catch (err: unknown) {
-    const { name } = getErrorDetails(err);
-    if (name === 'ConditionalCheckFailedException') {
-      const record = await getLeadDedupeRecord(args.threadId);
-      return { acquired: false, record };
-    }
-    throw err;
-  }
-}
-
-async function markLeadSent(args: {
-  threadId: string;
-  leaseId: string;
-  messageId?: string | null;
-}) {
-  if (!leadDedupeDb || !leadDedupeTableName) return;
-  const now = nowEpochSeconds();
-  const ttl = ttlSecondsFromNow(LEAD_DEDUPE_TTL_DAYS);
-  await leadDedupeDb.send(
-    new UpdateCommand({
-      TableName: leadDedupeTableName,
-      Key: { thread_id: args.threadId },
-      UpdateExpression:
-        'SET #status = :sent, #sent_at = :now, #updated_at = :now, #ttl = :ttl' +
-        (args.messageId ? ', #message_id = :message_id' : '') +
-        ' REMOVE #lease_id, #last_error',
-      ExpressionAttributeNames: {
-        '#status': 'status',
-        '#sent_at': 'sent_at',
-        '#updated_at': 'updated_at',
-        '#lease_id': 'lease_id',
-        '#last_error': 'last_error',
-        '#ttl': 'ttl',
-        '#message_id': 'message_id',
-      },
-      ExpressionAttributeValues: {
-        ':sent': 'sent',
-        ':now': now,
-        ':ttl': ttl,
-        ...(args.messageId ? { ':message_id': args.messageId } : {}),
-        ':lease_id': args.leaseId,
-      },
-      ConditionExpression: '#lease_id = :lease_id',
-    }),
-  );
-}
-
-async function markLeadError(args: { threadId: string; leaseId: string; errorMessage: string }) {
-  if (!leadDedupeDb || !leadDedupeTableName) return;
-  const now = nowEpochSeconds();
-  const ttl = ttlSecondsFromNow(LEAD_DEDUPE_TTL_DAYS);
-  await leadDedupeDb.send(
-    new UpdateCommand({
-      TableName: leadDedupeTableName,
-      Key: { thread_id: args.threadId },
-      UpdateExpression:
-        'SET #status = :error, #updated_at = :now, #lock_expires_at = :lock_expires_at, #last_error = :last_error, #ttl = :ttl REMOVE #lease_id',
-      ExpressionAttributeNames: {
-        '#status': 'status',
-        '#updated_at': 'updated_at',
-        '#lock_expires_at': 'lock_expires_at',
-        '#last_error': 'last_error',
-        '#ttl': 'ttl',
-        '#lease_id': 'lease_id',
-      },
-      ExpressionAttributeValues: {
-        ':error': 'error',
-        ':now': now,
-        ':lock_expires_at': now + LEAD_DEDUPE_ERROR_COOLDOWN_SECONDS,
-        ':last_error': args.errorMessage.slice(0, 500),
-        ':ttl': ttl,
-        ':lease_id': args.leaseId,
-      },
-      ConditionExpression: '#lease_id = :lease_id',
-    }),
-  );
-}
-
-async function storeLeadCase(args: {
-  threadId: string;
-  locale: string;
-  pageUrl: string;
-  chatUser: string;
-  reason: string;
-  attribution: LeadAttributionPayload | null;
-  customerPhone: string | null;
-  customerEmail: string | null;
-}): Promise<string | null> {
-  if (!leadCasesDb || !leadCasesTableName) return null;
-  const now = nowEpochSeconds();
-  const leadId = randomUUID();
-  const ttl = ttlSecondsFromNow(LEAD_ATTRIBUTION_TTL_DAYS);
-
-  const record: LeadCaseRecord = {
-    lead_id: leadId,
-    thread_id: args.threadId,
-    created_at: now,
-    lead_method: 'chat',
-    lead_reason: args.reason,
-    lead_intent_type: 'chat',
-    locale: args.locale || null,
-    page_url: args.pageUrl || null,
-    user_id: args.chatUser || null,
-    qualified: false,
-    qualified_at: null,
-    uploaded_google_ads: false,
-    uploaded_google_ads_at: null,
-    device_type: args.attribution?.device_type ?? null,
-    gclid: args.attribution?.gclid ?? null,
-    gbraid: args.attribution?.gbraid ?? null,
-    wbraid: args.attribution?.wbraid ?? null,
-    msclkid: args.attribution?.msclkid ?? null,
-    fbclid: args.attribution?.fbclid ?? null,
-    ttclid: args.attribution?.ttclid ?? null,
-    utm_source: args.attribution?.utm_source ?? null,
-    utm_medium: args.attribution?.utm_medium ?? null,
-    utm_campaign: args.attribution?.utm_campaign ?? null,
-    utm_term: args.attribution?.utm_term ?? null,
-    utm_content: args.attribution?.utm_content ?? null,
-    first_touch_ts: args.attribution?.first_touch_ts ?? null,
-    last_touch_ts: args.attribution?.last_touch_ts ?? null,
-    landing_page: args.attribution?.landing_page ?? null,
-    referrer: args.attribution?.referrer ?? null,
-    referrer_host: args.attribution?.referrer_host ?? null,
-    source_platform: args.attribution?.source_platform ?? null,
-    click_id_type: args.attribution?.click_id_type ?? null,
-    click_url: null,
-    provider: null,
-    customer_phone: args.customerPhone,
-    customer_email: args.customerEmail,
-    ttl,
-  };
-
-  await leadCasesDb.send(
-    new PutCommand({
-      TableName: leadCasesTableName,
-      Item: record,
-    }),
-  );
-  return leadId;
-}
-
-function normalizeAttributionValue(value: unknown, maxLen = 256): string | null {
-  if (typeof value !== 'string') return null;
-  const trimmed = value.trim();
-  if (!trimmed) return null;
-  if (trimmed.length <= maxLen) return trimmed;
-  return trimmed.slice(0, maxLen);
-}
-
-function normalizeDeviceType(value: unknown): 'mobile' | 'desktop' | null {
-  if (typeof value !== 'string') return null;
-  const normalized = value.trim().toLowerCase();
-  if (normalized === 'mobile' || normalized === 'desktop') return normalized;
-  return null;
-}
-
-function sanitizeAttribution(input: unknown): LeadAttributionPayload | null {
-  const data = asObject(input);
-  if (!data) return null;
-  const payload: LeadAttributionPayload = {
-    gclid: normalizeAttributionValue(data.gclid, 128),
-    gbraid: normalizeAttributionValue(data.gbraid, 128),
-    wbraid: normalizeAttributionValue(data.wbraid, 128),
-    msclkid: normalizeAttributionValue(data.msclkid, 128),
-    fbclid: normalizeAttributionValue(data.fbclid, 128),
-    ttclid: normalizeAttributionValue(data.ttclid, 128),
-    utm_source: normalizeAttributionValue(data.utm_source, 128),
-    utm_medium: normalizeAttributionValue(data.utm_medium, 128),
-    utm_campaign: normalizeAttributionValue(data.utm_campaign, 200),
-    utm_term: normalizeAttributionValue(data.utm_term, 200),
-    utm_content: normalizeAttributionValue(data.utm_content, 200),
-    first_touch_ts: normalizeAttributionValue(data.first_touch_ts, 64),
-    last_touch_ts: normalizeAttributionValue(data.last_touch_ts, 64),
-    landing_page: normalizeAttributionValue(data.landing_page, 300),
-    referrer: normalizeAttributionValue(data.referrer, 300),
-    referrer_host: normalizeAttributionValue(data.referrer_host, 200),
-    device_type: normalizeDeviceType(data.device_type),
-    source_platform: normalizeAttributionValue(data.source_platform, 80),
-    click_id_type: normalizeAttributionValue(data.click_id_type, 40),
-  };
-
-  const hasAny = Object.values(payload).some(
-    (value) => typeof value === 'string' && value.trim().length > 0,
-  );
-  return hasAny ? payload : null;
-}
+const leadCoreRuntime = createLeadCoreRuntime(process.env);
 
 export const handler = async (
   event: LambdaEvent | LeadEmailRequest,
@@ -469,7 +77,7 @@ export const handler = async (
     return jsonResponse(405, { error: 'Method not allowed' });
   }
 
-  if (!openai) {
+  if (!openai || !leadCoreRuntime.configValid) {
     return jsonResponse(500, { error: 'Server missing configuration' });
   }
 
@@ -501,65 +109,80 @@ export const handler = async (
     return jsonResponse(400, { error: 'Missing or invalid threadId' });
   }
 
+  const journeyId = createStableJourneyId({
+    providedJourneyId: typeof payload.journey_id === 'string' ? payload.journey_id : null,
+    fallbackKind: 'chat_thread',
+    fallbackValue: threadId,
+  });
   const locale = typeof payload.locale === 'string' ? payload.locale : '';
   const pageUrl = typeof payload.pageUrl === 'string' ? payload.pageUrl : '';
   const chatUser = typeof payload.user === 'string' ? payload.user : 'anonymous';
   const reason = typeof payload.reason === 'string' ? payload.reason : 'auto';
-  const attribution = sanitizeAttribution(payload.attribution);
+  const attribution = sanitizeAttributionSnapshot(payload.attribution);
   const functionArn =
     typeof context?.invokedFunctionArn === 'string' ? context.invokedFunctionArn : '';
+  const repos = leadCoreRuntime.repos;
 
   try {
     // Fast path: if we've already emailed this thread, don't re-fetch transcript or re-run summaries.
     const now = nowEpochSeconds();
-    if (leadDedupeDb && leadDedupeTableName) {
-      try {
-        const record = await getLeadDedupeRecord(threadId);
-        if (record?.status === 'sent') {
-          return jsonResponse(200, {
-            ok: true,
-            sent: true,
-            reason: 'already_sent',
-            sent_at: record.sent_at ?? null,
-          });
-        }
-        const lockExpiresAt =
-          typeof record?.lock_expires_at === 'number' ? record.lock_expires_at : 0;
-        if (record?.status === 'sending' && lockExpiresAt > now) {
-          return jsonResponse(200, { ok: true, sent: false, reason: 'in_progress' });
-        }
-        if (record?.status === 'error' && lockExpiresAt > now) {
-          return jsonResponse(200, { ok: true, sent: false, reason: 'cooldown' });
-        }
-      } catch (err: unknown) {
-        const { name, message } = getErrorDetails(err);
-        console.error('Lead dedupe read failed', name, message);
+    try {
+      const record = await getLeadDedupeRecord(threadId);
+      if (record?.status === 'sent') {
+        return jsonResponse(200, {
+          ok: true,
+          sent: true,
+          reason: 'already_sent',
+          sent_at: record.sent_at ?? null,
+        });
       }
+      const lockExpiresAt = typeof record?.lock_expires_at === 'number' ? record.lock_expires_at : 0;
+      if (record?.status === 'sending' && lockExpiresAt > now) {
+        return jsonResponse(200, { ok: true, sent: false, reason: 'in_progress' });
+      }
+      if (record?.status === 'error' && lockExpiresAt > now) {
+        return jsonResponse(200, { ok: true, sent: false, reason: 'cooldown' });
+      }
+    } catch (err: unknown) {
+      const { name, message } = getErrorDetails(err);
+      console.error('Lead dedupe read failed', name, message);
     }
 
-    const { threadTitle, threadUser, lines } = await buildTranscript({
+    const evaluation = await evaluateChatLead({
       openai,
       threadId,
-      assistantName: 'Roxana',
+      assistantName: "Craig's Auto Upholstery Intake",
+      locale,
+      pageUrl,
+      shopName: SHOP_NAME,
+      shopPhoneDisplay: SHOP_PHONE_DISPLAY,
+      shopPhoneDigits: SHOP_PHONE_DIGITS,
+      leadSummaryModel,
+      idleDelaySeconds: LEAD_IDLE_DELAY_SECONDS,
+      currentEpochSeconds: nowEpochSeconds(),
     });
 
-    // Avoid sending empty transcripts (e.g., user opened chat but never messaged).
-    const hasCustomerMessage = lines.some((line) => line.speaker === 'Customer');
-    if (!hasCustomerMessage) {
-      return jsonResponse(200, { ok: true, sent: false, reason: 'empty_thread' });
+    if (evaluation.outcome === 'blocked') {
+      await persistChatWorkflowEvent({
+        repos,
+        journeyId,
+        threadId,
+        eventName: 'lead_chat_handoff_blocked',
+        occurredAtMs: Date.now(),
+        recordedAtMs: Date.now(),
+        reason: evaluation.reason,
+        locale,
+        pageUrl,
+        userId: evaluation.threadUser ?? chatUser,
+        attribution,
+      });
+      return jsonResponse(200, { ok: true, sent: false, reason: evaluation.reason });
     }
 
-    const detectedContact = extractCustomerContact(lines, SHOP_PHONE_DIGITS);
-    if (!detectedContact.email && !detectedContact.phone) {
-      // Lead intake without a way to contact the customer is not actionable.
-      return jsonResponse(200, { ok: true, sent: false, reason: 'missing_contact' });
-    }
-
-    const lastMessageAt = latestActivityEpochSeconds(lines);
-    const currentEpoch = nowEpochSeconds();
-    if (lastMessageAt !== null && currentEpoch - lastMessageAt < LEAD_IDLE_DELAY_SECONDS) {
+    if (evaluation.outcome === 'deferred') {
+      const currentEpoch = nowEpochSeconds();
       const scheduledFor = Math.max(
-        lastMessageAt + LEAD_IDLE_DELAY_SECONDS + LEAD_RETRY_GRACE_SECONDS,
+        evaluation.lastMessageAt + LEAD_IDLE_DELAY_SECONDS + LEAD_RETRY_GRACE_SECONDS,
         currentEpoch + LEAD_RETRY_GRACE_SECONDS,
       );
       const retryScheduled = await upsertLeadRetrySchedule({
@@ -570,57 +193,37 @@ export const handler = async (
           threadId,
           locale,
           pageUrl,
-          user: threadUser ?? chatUser,
+          user: evaluation.threadUser ?? chatUser,
           reason: 'server_retry',
           attribution,
         },
       });
+      await persistChatWorkflowEvent({
+        repos,
+        journeyId,
+        threadId,
+        eventName: 'lead_chat_handoff_deferred',
+        occurredAtMs: Date.now(),
+        recordedAtMs: Date.now(),
+        reason: evaluation.reason,
+        locale,
+        pageUrl,
+        userId: evaluation.threadUser ?? chatUser,
+        attribution,
+      });
       return jsonResponse(200, {
         ok: true,
         sent: false,
-        reason: 'not_idle',
-        last_activity_at: lastMessageAt,
+        reason: evaluation.reason,
+        last_activity_at: evaluation.lastMessageAt,
         idle_seconds: LEAD_IDLE_DELAY_SECONDS,
-        seconds_since_last_activity: currentEpoch - lastMessageAt,
+        seconds_since_last_activity: evaluation.secondsSinceLastActivity,
         retry_scheduled: retryScheduled,
         scheduled_for: scheduledFor,
       });
     }
-
-    const leadSummary = await generateLeadSummary({
-      openai,
-      leadSummaryModel,
-      locale,
-      pageUrl,
-      transcript: lines,
-      shopName: SHOP_NAME,
-      shopPhoneDisplay: SHOP_PHONE_DISPLAY,
-    });
-
-    const shouldSendNow =
-      // All completion paths should meet a minimum quality bar before sending.
-      // This prevents premature lead emails from short pauses, explicit closes,
-      // or pagehide events from firing incomplete summaries.
-      leadSummary?.handoff_ready === true;
-
-    if (!shouldSendNow) {
-      return jsonResponse(200, {
-        ok: true,
-        sent: false,
-        reason: leadSummary?.handoff_reason || 'not_ready',
-        missing_info: leadSummary?.missing_info ?? [],
-      });
-    }
-
-    // If the model failed to extract contact details, fall back to simple detection from the transcript.
-    const hydratedLeadSummary =
-      leadSummary && (!leadSummary.customer_email || !leadSummary.customer_phone)
-        ? {
-            ...leadSummary,
-            customer_email: leadSummary.customer_email ?? detectedContact.email,
-            customer_phone: leadSummary.customer_phone ?? detectedContact.phone,
-          }
-        : leadSummary;
+    const { attachments, threadTitle, threadUser, lines, leadSummary, customerPhone, customerEmail, customerPhoneE164 } =
+      evaluation;
 
     // Acquire a per-thread lease before sending so we never email the shop twice for the same thread,
     // even if multiple devices or tab lifecycle events trigger this endpoint concurrently.
@@ -642,25 +245,37 @@ export const handler = async (
       return jsonResponse(200, { ok: true, sent: false, reason: 'in_progress' });
     }
 
+    let automatedTextSent = false;
+    let leadRecordId: string | null = null;
     try {
-      const messageId = await sendTranscriptEmail({
-        ses,
-        leadToEmail,
-        leadFromEmail,
+      const progress = await getLeadDedupeRecord(threadId);
+      const outreach = await runChatOutreach({
+        progress,
+        leaseId: lease.leaseId,
         threadId,
+        reason,
         locale,
         pageUrl,
         chatUser: threadUser ?? chatUser,
-        reason,
         threadTitle,
+        attachments,
         transcript: lines,
-        leadSummary: hydratedLeadSummary,
+        leadSummary,
         attribution,
+        customerPhone,
+        customerPhoneE164,
+        quoEnabled,
+        quoApiKey: quoApiKey ?? null,
+        quoFromPhoneNumberId: quoFromPhoneNumberId ?? null,
+        quoUserId: quoUserId ?? null,
+        leadToEmail,
+        leadFromEmail,
         shopName: SHOP_NAME,
         shopPhoneDisplay: SHOP_PHONE_DISPLAY,
         shopPhoneDigits: SHOP_PHONE_DIGITS,
         shopAddress: SHOP_ADDRESS,
-        leadInlineAttachmentMaxBytes: LEAD_INLINE_ATTACHMENT_MAX_BYTES,
+        leadEmailRawMessageMaxBytes: LEAD_EMAIL_RAW_MESSAGE_MAX_BYTES,
+        nowEpochSeconds,
         createMessageLinkUrl: (linkArgs) =>
           createMessageLinkTokenUrl({
             messageLinkDb,
@@ -673,31 +288,34 @@ export const handler = async (
             ttlDays: MESSAGE_LINK_TOKEN_TTL_DAYS,
             nowEpochSeconds,
           }),
+        ses,
       });
-      try {
-        await markLeadSent({ threadId, leaseId: lease.leaseId, messageId });
-      } catch (err: unknown) {
-        const { name, message } = getErrorDetails(err);
-        console.error('Lead dedupe mark sent failed', name, message);
-      }
+      automatedTextSent = outreach.automatedTextSent;
 
       try {
-        const detectedContact = extractCustomerContact(lines, SHOP_PHONE_DIGITS);
-        const customerPhone = hydratedLeadSummary?.customer_phone ?? detectedContact.phone ?? null;
-        const customerEmail = hydratedLeadSummary?.customer_email ?? detectedContact.email ?? null;
-        await storeLeadCase({
+        leadRecordId = await persistCapturedChatLead({
+          repos,
           threadId,
+          journeyId,
+          reason,
           locale,
           pageUrl,
-          chatUser: threadUser ?? chatUser,
-          reason,
+          userId: threadUser ?? chatUser,
           attribution,
+          leadSummary,
           customerPhone,
           customerEmail,
+          initialOutreach: outreach.initialOutreach,
+          nowEpochSeconds,
+          quoApiKey: quoApiKey ?? null,
+          quoLeadTagsFieldKey: quoLeadTagsFieldKey ?? null,
+          quoLeadTagsFieldName: quoLeadTagsFieldName ?? null,
+          quoContactSource: quoContactSource ?? null,
+          quoContactExternalIdPrefix: quoContactExternalIdPrefix ?? null,
         });
       } catch (err: unknown) {
         const { name, message } = getErrorDetails(err);
-        console.error('Lead attribution write failed', name, message);
+        console.error('Lead persistence failed', name, message);
       }
 
       await deleteLeadRetrySchedule(threadId);
@@ -716,10 +334,29 @@ export const handler = async (
       throw err;
     }
 
-    return jsonResponse(200, { ok: true, sent: true, reason });
+    return jsonResponse(200, {
+      ok: true,
+      sent: true,
+      reason,
+      automated_text_sent: automatedTextSent,
+      ...(leadRecordId ? { lead_record_id: leadRecordId } : {}),
+    });
   } catch (err: unknown) {
     const { name, message } = getErrorDetails(err);
     console.error('Lead email failed', name, message);
+    await persistChatWorkflowEvent({
+      repos,
+      journeyId,
+      threadId,
+      eventName: 'lead_chat_handoff_error',
+      occurredAtMs: Date.now(),
+      recordedAtMs: Date.now(),
+      reason: message ?? 'lead_email_failed',
+      locale,
+      pageUrl,
+      userId: chatUser,
+      attribution,
+    });
     return jsonResponse(500, { error: 'Failed to send lead email' });
   }
 };
