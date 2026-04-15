@@ -175,6 +175,49 @@
     }
   },
   {
+    "id": "boatUpholstery",
+    "navLabel": {
+      "en": "Boat Upholstery",
+      "es": "Tapicería náutica",
+      "vi": "Bọc nội thất thuyền",
+      "zh-hans": "船艇内饰",
+      "tl": "Tapiseriya ng bangka",
+      "id": "Upholstery kapal",
+      "ko": "보트 내장",
+      "hi": "बोट अपहोल्स्ट्री",
+      "pa": "ਬੋਟ ਅਪਹੋਲਸਟਰੀ",
+      "pt-br": "Estofamento náutico",
+      "zh-hant": "船艇內飾",
+      "ja": "ボート内装",
+      "ar": "تنجيد القوارب",
+      "ru": "Обивка лодок",
+      "ta": "படகு உள்வடிவம்",
+      "fa": "روکش قایق",
+      "te": "బోట్ అప్హోల్స్టరీ",
+      "fr": "Garnissage nautique"
+    },
+    "cardSummary": {
+      "en": "Seats, cushions, bolsters, and marine foam rebuilds.",
+      "es": "Asientos, cojines, bolsters y reconstrucción de espuma marina.",
+      "vi": "Ghế, đệm, gờ đỡ và làm lại mút cho thuyền.",
+      "zh-hans": "船椅、坐垫、护垫与海用泡棉重建。",
+      "tl": "Upuan, cushion, bolster, at ayos ng marine foam.",
+      "id": "Jok, bantalan, bolster, dan perbaikan foam untuk kebutuhan marine.",
+      "ko": "시트, 쿠션, 볼스터, 해양용 폼 복원.",
+      "hi": "सीटें, कुशन, बोल्स्टर और मरीन फोम रीबिल्ड.",
+      "pa": "ਸੀਟਾਂ, ਕੁਸ਼ਨ, ਬੋਲਸਟਰ ਅਤੇ ਮਰੀਨ ਫੋਮ ਰੀਬਿਲਡ.",
+      "pt-br": "Bancos, almofadas, bolsters e reconstrução de espuma náutica.",
+      "zh-hant": "船椅、坐墊、護墊與海用泡棉重建。",
+      "ja": "シート、クッション、ボルスター、マリンフォーム再生。",
+      "ar": "مقاعد ووسائد وحواجز وإعادة بناء الفوم البحري.",
+      "ru": "Сиденья, подушки, валики и восстановление морской пены.",
+      "ta": "இருக்கைகள், திண்டுகள், பக்க ஆதரவு, கடல் பயன்பாட்டு ஃபோம் மீளமைப்பு.",
+      "fa": "صندلی، کوسن، بولستر و بازسازی فوم دریایی.",
+      "te": "సీట్లు, కుషన్‌లు, బోల్స్టర్లు, మెరైన్ ఫోమ్ రీబిల్డ్.",
+      "fr": "Sièges, coussins, bourrelets et reprise de mousse marine."
+    }
+  },
+  {
     "id": "headliners",
     "navLabel": {
       "en": "Headliners",

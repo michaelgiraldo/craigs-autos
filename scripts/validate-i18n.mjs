@@ -5,7 +5,7 @@ import { LOCALES, LOCALE_ORDER } from '../src/lib/site-data.js';
 import { getPageKeys, getTranslations } from '../src/lib/site-data/page-registry.js';
 
 // Allow English-first launches for specific pages (translate later).
-const PARTIAL_LOCALE_PAGE_KEYS = new Set();
+const PARTIAL_LOCALE_PAGE_KEYS = new Set(['boatUpholstery']);
 const errors = [];
 const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const parseFrontmatter = (content, filePath) => {

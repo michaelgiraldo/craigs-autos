@@ -22,6 +22,7 @@ Security + architecture audit:
 - `docs/abc-parity-audit-2026-04-14.md`
 - `docs/clean-slate-rewrite-spec-2026-04-14.md`
 - `docs/browser-script-architecture.md`
+- `docs/boat-upholstery-copy-brief-2026-04-14.md`
 
 Redirects:
 

@@ -25,6 +25,7 @@ const SERVICE_RELATED_KEYS: Record<string, string[]> = {
 	autoUpholstery: ['carSeats', 'headliners', 'classicCars'],
 	carSeats: ['autoUpholstery', 'motorcycleSeats', 'classicCars'],
 	motorcycleSeats: ['carSeats', 'autoUpholstery', 'classicCars'],
+	boatUpholstery: ['motorcycleSeats', 'carSeats', 'autoUpholstery'],
 	headliners: ['autoUpholstery', 'convertibleTops', 'classicCars'],
 	convertibleTops: ['classicCars', 'autoUpholstery', 'headliners'],
 	classicCars: ['autoUpholstery', 'carSeats', 'convertibleTops'],

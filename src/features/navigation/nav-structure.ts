@@ -17,6 +17,7 @@ export const NAV_ITEM_ORDER = [
 	'autoUpholstery',
 	'carSeats',
 	'motorcycleSeats',
+	'boatUpholstery',
 	'headliners',
 	'convertibleTops',
 	'classicCars',
@@ -39,6 +40,7 @@ const SERVICES_NAV_KEYS = [
 
 const DESKTOP_NAV_ITEMS: NavItemDefinition[] = [
 	{ key: 'motorcycleSeats' },
+	{ key: 'boatUpholstery' },
 	{ key: 'gallery' },
 	{ key: 'upholsteryGuide' },
 	{ key: 'reviews' },
@@ -58,6 +60,7 @@ const MOBILE_SECONDARY_NAV_ITEMS: NavItemDefinition[] = [
 	{ key: 'classicCars' },
 	{ key: 'commercialFleet' },
 	{ key: 'motorcycleSeats' },
+	{ key: 'boatUpholstery' },
 	{ key: 'upholsteryGuide' },
 	{ key: 'gallery' },
 	{ key: 'reviews' },

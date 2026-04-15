@@ -43,7 +43,7 @@ const BANNED_TOKEN_RULES = {
   ],
 };
 
-const PARTIAL_LOCALE_PAGE_KEYS = new Set();
+const PARTIAL_LOCALE_PAGE_KEYS = new Set(['boatUpholstery']);
 const PAGE_FILE_PATTERN = /\.(md|mdx)$/u;
 
 const errors = [];
