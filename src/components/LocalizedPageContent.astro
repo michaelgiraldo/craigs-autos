@@ -1,16 +1,6 @@
 ---
-import { render } from 'astro:content';
-import type { PageEntry, PageModule, LocaleKey } from '../types/site';
-import ConvertibleTopMarqueAtlas from './ConvertibleTopMarqueAtlas.astro';
-import FaqSection from './FaqSection.astro';
-import FeaturedProject from './FeaturedProject.astro';
-import LocalizedLink from './LocalizedLink.astro';
-import PageHero from './PageHero.astro';
-import PageShowcaseSections from './PageShowcaseSections.astro';
-import ProjectPage from './ProjectPage.astro';
-import QuoteRequestCta from './QuoteRequestCta.astro';
-import QuoteRequestLanding from './QuoteRequestLanding.astro';
-import ServiceCards from './ServiceCards.astro';
+import type { PageEntry, LocaleKey } from '../types/site';
+import PageRenderer from '../features/page-rendering/PageRenderer.astro';
 
 interface Props {
 	entry: PageEntry;
@@ -22,76 +12,6 @@ const { entry, locale } = Astro.props as Props;
 if (!entry) {
 	throw new Error('LocalizedPageContent requires a content entry.');
 }
-
-const template = entry.data.template ?? 'standard';
-const usesStructuredTemplate = template === 'project' || Boolean(entry.data.hero);
-const showQuoteRequestPage = entry.data.pageKey === 'requestQuote';
-const showQuoteRequestCta = entry.data.pageKey === 'contact';
-
-const rendered = template === 'project' ? null : await render(entry);
-const RenderedContent = rendered?.Content ?? null;
-const contentComponents = {
-	ConvertibleTopMarqueAtlas,
-	FaqSection,
-	FeaturedProject,
-	LocalizedLink,
-	PageHero,
-	PageShowcaseSections,
-	ProjectPage,
-	ServiceCards,
-};
-const pageModules = (entry.data.pageModules ?? []) as PageModule[];
-const resolveReferenceId = (value: string | { id: string } | undefined) => {
-	if (typeof value === 'string') {
-		return value;
-	}
-
-	if (value?.id) {
-		return value.id;
-	}
-
-	throw new Error('Missing collection reference id.');
-};
 ---
 
-{template === 'project' && entry.data.project ? (
-	<ProjectPage projectId={resolveReferenceId(entry.data.project)} locale={locale} />
-) : usesStructuredTemplate ? (
-	<>
-		{entry.data.hero ? (
-			<PageHero
-				locale={locale}
-				title={entry.data.hero.title}
-				lead={entry.data.hero.lead}
-				kicker={entry.data.hero.kicker}
-				showTrust={entry.data.hero.showTrust}
-			/>
-		) : null}
-		{entry.data.showServiceCards !== false ? (
-			<ServiceCards locale={locale} currentKey={entry.data.serviceCardsCurrentKey} />
-		) : null}
-		{showQuoteRequestCta ? <QuoteRequestCta locale={locale} /> : null}
-		{showQuoteRequestPage ? <QuoteRequestLanding locale={locale} /> : null}
-		{pageModules.map((module: PageModule) => {
-			if (module.type === 'featuredProject') {
-				return <FeaturedProject projectId={resolveReferenceId(module.project)} locale={locale} />;
-			}
-
-			if (module.type === 'showcase') {
-				return <PageShowcaseSections locale={locale} showcaseId={resolveReferenceId(module.showcase)} />;
-			}
-
-			return <ConvertibleTopMarqueAtlas locale={locale} />;
-		})}
-		{RenderedContent ? <RenderedContent components={contentComponents} /> : null}
-		{entry.data.faq ? (
-			<FaqSection heading={entry.data.faq.heading} faqs={entry.data.faq.items} />
-		) : null}
-	</>
-) : RenderedContent ? (
-	<>
-		{showQuoteRequestCta ? <QuoteRequestCta locale={locale} /> : null}
-		{showQuoteRequestPage ? <QuoteRequestLanding locale={locale} /> : null}
-		<RenderedContent components={contentComponents} />
-	</>
-) : null}
+<PageRenderer entry={entry} locale={locale} />

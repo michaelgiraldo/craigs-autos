@@ -1,0 +1,18 @@
+---
+import ProjectPage from '../../../components/ProjectPage.astro';
+import type { LocaleKey, PageEntry } from '../../../types/site';
+import { resolveReferenceId } from '../page-types';
+
+interface Props {
+	entry: PageEntry;
+	locale: LocaleKey;
+}
+
+const { entry, locale } = Astro.props as Props;
+
+if (!entry.data.project) {
+	throw new Error('Project pages require a project reference.');
+}
+---
+
+<ProjectPage projectId={resolveReferenceId(entry.data.project)} locale={locale} />

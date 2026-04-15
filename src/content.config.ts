@@ -97,6 +97,10 @@ const beforeAfterSection = z.object({
 	title: localizedText.optional(),
 	gallery: reference('galleries'),
 });
+const pageType = z.enum(['home', 'service', 'contact', 'quote', 'project', 'reviews', 'gallery', 'guide']);
+const pageCtaConfig = z.object({
+	quotePrompt: z.enum(['none', 'inline']).optional(),
+});
 
 const pages = defineCollection({
 	loader: glob({
@@ -112,6 +116,8 @@ const pages = defineCollection({
 		locale: z.string(),
 		slug: z.string(),
 		template: z.enum(['standard', 'project']).optional(),
+		pageType: pageType.optional(),
+		ctaConfig: pageCtaConfig.optional(),
 		hero: z
 			.object({
 				title: z.string(),

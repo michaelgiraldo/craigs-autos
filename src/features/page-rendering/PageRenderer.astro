@@ -1,0 +1,26 @@
+---
+import type { LocaleKey, PageEntry } from '../../types/site';
+import { resolvePageType } from './page-types';
+import ContactPageRenderer from './renderers/ContactPageRenderer.astro';
+import ProjectPageRenderer from './renderers/ProjectPageRenderer.astro';
+import QuotePageRenderer from './renderers/QuotePageRenderer.astro';
+import StandardPageRenderer from './renderers/StandardPageRenderer.astro';
+
+interface Props {
+	entry: PageEntry;
+	locale: LocaleKey;
+}
+
+const { entry, locale } = Astro.props as Props;
+const pageType = resolvePageType(entry);
+---
+
+{pageType === 'project' ? (
+	<ProjectPageRenderer entry={entry} locale={locale} />
+) : pageType === 'quote' ? (
+	<QuotePageRenderer entry={entry} locale={locale} />
+) : pageType === 'contact' ? (
+	<ContactPageRenderer entry={entry} locale={locale} />
+) : (
+	<StandardPageRenderer entry={entry} locale={locale} />
+)}

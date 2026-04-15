@@ -1,0 +1,13 @@
+---
+import type { LocaleKey, PageEntry } from '../../../types/site';
+import StandardPageRenderer from './StandardPageRenderer.astro';
+
+interface Props {
+	entry: PageEntry;
+	locale: LocaleKey;
+}
+
+const { entry, locale } = Astro.props as Props;
+---
+
+<StandardPageRenderer entry={entry} locale={locale} />

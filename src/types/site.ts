@@ -26,6 +26,20 @@ export type SiteData = typeof import('../lib/site-data/core.js').SITE;
 export type UiCopy =
 	(typeof import('../lib/site-data/ui-copy.js').UI_COPY)[keyof typeof import('../lib/site-data/ui-copy.js').UI_COPY];
 
+export type PageType =
+	| 'home'
+	| 'service'
+	| 'contact'
+	| 'quote'
+	| 'project'
+	| 'reviews'
+	| 'gallery'
+	| 'guide';
+export type PageQuotePromptPlacement = 'none' | 'inline';
+export type PageCtaConfig = {
+	quotePrompt?: PageQuotePromptPlacement;
+};
+
 export type PageEntry = CollectionEntry<'pages'>;
 export type PageModule = NonNullable<PageEntry['data']['pageModules']>[number];
 export type PageFaqItem = NonNullable<NonNullable<PageEntry['data']['faq']>['items']>[number];

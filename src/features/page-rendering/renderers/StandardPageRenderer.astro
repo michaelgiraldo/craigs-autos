@@ -1,0 +1,18 @@
+---
+import QuotePageCta from '../../quote/components/QuotePageCta.astro';
+import type { LocaleKey, PageEntry } from '../../../types/site';
+import { resolvePageCtaConfig } from '../page-types';
+import StructuredPageRenderer from './StructuredPageRenderer.astro';
+
+interface Props {
+	entry: PageEntry;
+	locale: LocaleKey;
+}
+
+const { entry, locale } = Astro.props as Props;
+const ctaConfig = resolvePageCtaConfig(entry);
+---
+
+<StructuredPageRenderer entry={entry} locale={locale}>
+	{ctaConfig.quotePrompt === 'inline' ? <QuotePageCta slot="afterServiceCards" locale={locale} /> : null}
+</StructuredPageRenderer>

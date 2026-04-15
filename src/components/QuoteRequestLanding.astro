@@ -1,57 +1,12 @@
 ---
-import ContactLeadForm from './ContactLeadForm.jsx';
-import { SITE } from '../lib/site-data/core.js';
-import { QUOTE_PAGE_COPY } from '../lib/site-data/quote-page-copy.js';
-import { UI_COPY } from '../lib/site-data/ui-copy.js';
-import { getPagePath, resolveLocaleKey } from '../lib/site-data/page-registry.js';
 import type { LocaleKey } from '../types/site';
-import '../styles/quote-request-page.css';
+import QuotePage from '../features/quote/components/QuotePage.astro';
 
 interface Props {
-  locale: LocaleKey;
+	locale: LocaleKey;
 }
 
 const { locale } = Astro.props as Props;
-const resolvedLocale = resolveLocaleKey(locale) as LocaleKey;
-const copy = QUOTE_PAGE_COPY[resolvedLocale] ?? QUOTE_PAGE_COPY.en;
-const uiCopy = UI_COPY[resolvedLocale] ?? UI_COPY.en;
-const contactHref = getPagePath('contact', resolvedLocale);
 ---
 
-<section class="quote-request-page">
-  <div class="quote-request-page__intro">
-    <p>{copy.lead}</p>
-    <div class="quote-request-page__actions" aria-label={uiCopy.quickActionsLabel}>
-      <a class="quote-request-page__action" href={`tel:${SITE.phone}`}>{uiCopy.callCta}</a>
-      <a class="quote-request-page__action" href={`sms:${SITE.phone}`}>{uiCopy.textCta}</a>
-      <a class="quote-request-page__action" href={`mailto:${SITE.email}`}>{uiCopy.emailCta}</a>
-    </div>
-  </div>
-
-  <div class="quote-request-page__grid">
-    <section class="quote-request-page__card">
-      <h2>{copy.checklistTitle}</h2>
-      <ul>
-        {copy.checklist.map((item) => <li>{item}</li>)}
-      </ul>
-    </section>
-
-    <section class="quote-request-page__card">
-      <h2>{copy.languageTitle}</h2>
-      <p>{copy.languageBody}</p>
-    </section>
-
-    <section class="quote-request-page__card">
-      <h2>{copy.workflowTitle}</h2>
-      <p>{copy.workflowBody}</p>
-    </section>
-
-    <section class="quote-request-page__card quote-request-page__card--contact">
-      <h2>{copy.contactTitle}</h2>
-      <p>{copy.contactBody}</p>
-      <a class="quote-request-page__link" href={contactHref}>{copy.contactButton}</a>
-    </section>
-  </div>
-
-  <ContactLeadForm client:load locale={resolvedLocale} serviceKey="requestQuote" showHeader={false} />
-</section>
+<QuotePage locale={locale} />

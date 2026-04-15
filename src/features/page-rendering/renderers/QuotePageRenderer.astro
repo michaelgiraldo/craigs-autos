@@ -1,0 +1,16 @@
+---
+import QuotePage from '../../quote/components/QuotePage.astro';
+import type { LocaleKey, PageEntry } from '../../../types/site';
+import StructuredPageRenderer from './StructuredPageRenderer.astro';
+
+interface Props {
+	entry: PageEntry;
+	locale: LocaleKey;
+}
+
+const { entry, locale } = Astro.props as Props;
+---
+
+<StructuredPageRenderer entry={entry} locale={locale}>
+	<QuotePage slot="afterServiceCards" locale={locale} />
+</StructuredPageRenderer>

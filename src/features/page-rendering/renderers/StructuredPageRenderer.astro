@@ -1,0 +1,76 @@
+---
+import { render } from 'astro:content';
+import type { LocaleKey, PageEntry, PageModule } from '../../../types/site';
+import ConvertibleTopMarqueAtlas from '../../../components/ConvertibleTopMarqueAtlas.astro';
+import FaqSection from '../../../components/FaqSection.astro';
+import FeaturedProject from '../../../components/FeaturedProject.astro';
+import LocalizedLink from '../../../components/LocalizedLink.astro';
+import PageHero from '../../../components/PageHero.astro';
+import PageShowcaseSections from '../../../components/PageShowcaseSections.astro';
+import ProjectPage from '../../../components/ProjectPage.astro';
+import ServiceCards from '../../../components/ServiceCards.astro';
+import { resolveReferenceId } from '../page-types';
+
+interface Props {
+	entry: PageEntry;
+	locale: LocaleKey;
+}
+
+const { entry, locale } = Astro.props as Props;
+const template = entry.data.template ?? 'standard';
+const usesStructuredTemplate = template === 'project' || Boolean(entry.data.hero);
+const rendered = template === 'project' ? null : await render(entry);
+const RenderedContent = rendered?.Content ?? null;
+const contentComponents = {
+	ConvertibleTopMarqueAtlas,
+	FaqSection,
+	FeaturedProject,
+	LocalizedLink,
+	PageHero,
+	PageShowcaseSections,
+	ProjectPage,
+	ServiceCards,
+};
+const pageModules = (entry.data.pageModules ?? []) as PageModule[];
+---
+
+{usesStructuredTemplate ? (
+	<>
+		{entry.data.hero ? (
+			<PageHero
+				locale={locale}
+				title={entry.data.hero.title}
+				lead={entry.data.hero.lead}
+				kicker={entry.data.hero.kicker}
+				showTrust={entry.data.hero.showTrust}
+			/>
+		) : null}
+		<slot name="afterHero" />
+		{entry.data.showServiceCards !== false ? (
+			<ServiceCards locale={locale} currentKey={entry.data.serviceCardsCurrentKey} />
+		) : null}
+		<slot name="afterServiceCards" />
+		{pageModules.map((module: PageModule) => {
+			if (module.type === 'featuredProject') {
+				return <FeaturedProject projectId={resolveReferenceId(module.project)} locale={locale} />;
+			}
+
+			if (module.type === 'showcase') {
+				return <PageShowcaseSections locale={locale} showcaseId={resolveReferenceId(module.showcase)} />;
+			}
+
+			return <ConvertibleTopMarqueAtlas locale={locale} />;
+		})}
+		<slot name="beforeContent" />
+		{RenderedContent ? <RenderedContent components={contentComponents} /> : null}
+		<slot name="afterContent" />
+		{entry.data.faq ? <FaqSection heading={entry.data.faq.heading} faqs={entry.data.faq.items} /> : null}
+		<slot name="afterFaq" />
+	</>
+) : RenderedContent ? (
+	<>
+		<slot name="beforeContent" />
+		{RenderedContent ? <RenderedContent components={contentComponents} /> : null}
+		<slot name="afterContent" />
+	</>
+) : null}
