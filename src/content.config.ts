@@ -101,6 +101,12 @@ const pageType = z.enum(['home', 'service', 'contact', 'quote', 'project', 'revi
 const pageCtaConfig = z.object({
 	quotePrompt: z.enum(['none', 'inline']).optional(),
 });
+const pageCardDeckStrategy = z.enum(['explore', 'related', 'intent', 'none']);
+const pageCardDeckConfig = z.object({
+	strategy: pageCardDeckStrategy.optional(),
+	keys: z.array(z.string()).optional(),
+	limit: z.number().int().positive().optional(),
+});
 
 const pages = defineCollection({
 	loader: glob({
@@ -118,6 +124,7 @@ const pages = defineCollection({
 		template: z.enum(['standard', 'project']).optional(),
 		pageType: pageType.optional(),
 		ctaConfig: pageCtaConfig.optional(),
+		pageCardDeck: pageCardDeckConfig.optional(),
 		hero: z
 			.object({
 				title: z.string(),
@@ -126,8 +133,6 @@ const pages = defineCollection({
 				showTrust: z.boolean().optional(),
 			})
 			.optional(),
-		showServiceCards: z.boolean().optional(),
-		serviceCardsCurrentKey: z.string().optional(),
 		pageModules: z.array(pageModule).optional(),
 		faq: z
 			.object({
@@ -218,6 +223,7 @@ const pageMeta = defineCollection({
 	schema: z.object({
 		id: z.string(),
 		navLabel: localizedText,
+		cardSummary: localizedText.optional(),
 	}),
 });
 

@@ -43,6 +43,26 @@
       "fa": "روکش خودرو",
       "te": "ఆటో అప్హోల్స్టరీ",
       "fr": "Garnissage automobile"
+    },
+    "cardSummary": {
+      "en": "Full interiors or targeted repairs with careful matching.",
+      "es": "Interiores completos o reparaciones puntuales con buen match.",
+      "vi": "Nội thất trọn bộ hoặc sửa điểm, chú trọng độ khớp.",
+      "zh-hans": "整套内饰或局部修复，注重匹配与贴合。",
+      "tl": "Buong interior o target na ayos na maayos ang tugma.",
+      "id": "Perbaikan interior penuh atau titik tertentu dengan hasil rapi dan presisi.",
+      "fa": "بازسازی کامل یا تعمیر موضعی داخل خودرو با تطبیق دقیق.",
+      "te": "పూర్తి ఇంటీరియర్ పని లేదా లక్ష్యిత రిపేర్, మెటీరియల్ మ్యాచ్‌పై దృష్టితో.",
+      "fr": "Intérieurs complets ou réparations ciblées avec raccord soigné.",
+      "ko": "전체 내장 또는 부분 수리, 깔끔한 매칭.",
+      "hi": "पूरा इंटीरियर या लक्षित मरम्मत, साफ़ मैचिंग.",
+      "pa": "ਪੂਰਾ ਇੰਟੀਰੀਅਰ ਜਾਂ ਨਿਸ਼ਾਨਾ ਰਿਪੇਅਰ, ਸਾਫ਼ ਮੇਚ.",
+      "pt-br": "Interiores completos ou reparos pontuais com bom encaixe.",
+      "zh-hant": "全車內飾或局部修復，重視貼合與匹配。",
+      "ja": "全体内装または部分修理、自然なマッチング。",
+      "ar": "تنفيذ كامل أو إصلاحات موضعية مع مطابقة دقيقة.",
+      "ru": "Полный салон или точечный ремонт с точной стыковкой.",
+      "ta": "முழு உள்வடிவம் அல்லது பகுதி சீரமைப்பு, இயல்பான பொருத்தம்."
     }
   },
   {
@@ -89,6 +109,26 @@
       "fa": "صندلی خودرو",
       "te": "కార్ సీట్లు",
       "fr": "Sièges auto"
+    },
+    "cardSummary": {
+      "en": "Tears, seams, bolsters, and foam rebuilds.",
+      "es": "Roturas, costuras, refuerzos y espuma.",
+      "vi": "Rách, đường may, gờ đỡ và làm lại mút.",
+      "zh-hans": "撕裂、缝线、侧翼与泡棉重建。",
+      "tl": "Punit, tahi, bolster at ayos ng foam.",
+      "id": "Sobek, jahitan lepas, bolster aus, dan perbaikan foam jok.",
+      "fa": "پارگی، دوخت، کناره صندلی و بازسازی فوم.",
+      "te": "చిరుగులు, కుట్టు, బోల్స్టర్లు, ఫోమ్ రీబిల్డ్.",
+      "fr": "Déchirures, coutures, bourrelets et reprise de mousse.",
+      "ko": "찢김, 봉제선, 볼스터, 폼 복원.",
+      "hi": "फटे पैनल, सिलाई, बोल्स्टर, फोम रीबिल्ड.",
+      "pa": "ਫੱਟ, ਸਿਲਾਈ, ਬੋਲਸਟਰ, ਫੋਮ ਰੀਬਿਲਡ.",
+      "pt-br": "Rasgos, costuras, bolsters e espuma.",
+      "zh-hant": "破損、縫線、側翼與泡棉重建。",
+      "ja": "破れ、縫製、サイド補修、フォーム再生。",
+      "ar": "تمزقات، خياطة، جوانب، وإعادة بناء الفوم.",
+      "ru": "Порезы, швы, боковины и восстановление пены.",
+      "ta": "கிழிவு, தையல், பக்கம், ஃபோம் மீளமைப்பு."
     }
   },
   {
@@ -112,6 +152,26 @@
       "fa": "زین موتورسیکلت",
       "te": "మోటార్‌సైకిల్ సీట్లు",
       "fr": "Selles moto"
+    },
+    "cardSummary": {
+      "en": "Seat repair, recovering, and foam shaping.",
+      "es": "Reparación de asientos, retapizado y moldeado de espuma.",
+      "vi": "Sửa yên, bọc lại và tạo hình mút.",
+      "zh-hans": "座椅修复、重新包覆和泡棉塑形。",
+      "tl": "Ayos ng upuan, re-cover, at paghubog ng foam.",
+      "id": "Perbaikan jok motor, pelapisan ulang, dan pembentukan foam.",
+      "fa": "تعمیر زین، بازروکشی و فرم‌دهی فوم.",
+      "te": "సీటు రిపేర్, రీ-కవరింగ్, ఫోమ్ షేపింగ్.",
+      "fr": "Réparation de selle, regarnissage et mise en forme de mousse.",
+      "ko": "시트 수리, 재커버, 폼 성형.",
+      "hi": "सीट रिपेयर, री-कवर और फोम शेपिंग.",
+      "pa": "ਸੀਟ ਰਿਪੇਅਰ, ਰੀਕਵਰਿੰਗ ਅਤੇ ਫੋਮ ਸ਼ੇਪਿੰਗ.",
+      "pt-br": "Reparo de banco, reencapamento e moldagem de espuma.",
+      "zh-hant": "座椅修復、重新包覆與泡棉塑形。",
+      "ja": "シート修理、張り替え、フォーム成形。",
+      "ar": "إصلاح المقعد وإعادة التنجيد وتشكيل الإسفنج.",
+      "ru": "Ремонт сиденья, перетяжка и формовка поролона.",
+      "ta": "சீட் பழுது, மீள் கவர், ஃபோம் வடிவமைப்பு."
     }
   },
   {
@@ -135,6 +195,26 @@
       "fa": "سقف داخل",
       "te": "హెడ్‌లైనర్",
       "fr": "Ciel de toit"
+    },
+    "cardSummary": {
+      "en": "Sagging headliner replacement that stays tight.",
+      "es": "Techos interiores tensos y sin flacidez.",
+      "vi": "Trần xe căng phẳng, không bị võng.",
+      "zh-hans": "更换下垂顶棚，贴合平整。",
+      "tl": "Palit ng kisame na hindi bumabagsak.",
+      "id": "Penggantian plafon kabin melorot agar kembali rapat.",
+      "fa": "تعویض سقف داخلِ افتاده با نصب محکم.",
+      "te": "వదులైన హెడ్‌లైనర్‌కు గట్టిగా ఉండే రీప్లేస్‌మెంట్.",
+      "fr": "Remplacement de ciel de toit affaissé avec tenue durable.",
+      "ko": "처짐 없는 헤드라이너 교체.",
+      "hi": "झुका हेडलाइनर बदलना.",
+      "pa": "ਢਿੱਲੇ ਹੈਡਲਾਈਨਰ ਦੀ ਬਦਲੀ.",
+      "pt-br": "Troca de forro de teto sem descolamento.",
+      "zh-hant": "下垂頂棚更換，固定平整。",
+      "ja": "たるみ防止のヘッドライナー交換。",
+      "ar": "استبدال بطانة السقف المترهلة بثبات.",
+      "ru": "Замена провисшего потолка с плотной посадкой.",
+      "ta": "சாய்ந்த ஹெட்லைனரை திடமாக மாற்றுதல்."
     }
   },
   {
@@ -158,6 +238,26 @@
       "fa": "سقف کابریولت",
       "te": "కన్వర్టిబుల్ టాప్",
       "fr": "Capotes"
+    },
+    "cardSummary": {
+      "en": "Leaks, wear, and repair vs replacement guidance.",
+      "es": "Goteras, desgaste y guía de reparación vs reemplazo.",
+      "vi": "Rò rỉ, hao mòn, tư vấn sửa hay thay.",
+      "zh-hans": "漏水、磨损与修复/更换建议。",
+      "tl": "Tagas, kupas at gabay repair vs palit.",
+      "id": "Diagnosa kebocoran dan panduan perbaikan atau penggantian atap.",
+      "fa": "بررسی نشتی و فرسودگی، و راهنمایی تعمیر یا تعویض.",
+      "te": "లీకులు, వేర్, రిపేర్ లేదా రీప్లేస్‌మెంట్‌పై మార్గదర్శనం.",
+      "fr": "Fuites, usure et conseil réparation vs remplacement.",
+      "ko": "누수, 마모, 수리 vs 교체 안내.",
+      "hi": "लीक, घिसावट, मरम्मत बनाम बदलने का सुझाव.",
+      "pa": "ਲਿਕ, ਘਿਸਾਈ, ਰਿਪੇਅਰ ਵਿਰੁੱਧ ਬਦਲੀ.",
+      "pt-br": "Vazamentos, desgaste, reparo vs troca.",
+      "zh-hant": "漏水、磨損與修復/更換建議。",
+      "ja": "漏れ・摩耗・修理か交換の提案。",
+      "ar": "تسربات، تآكل، وإرشاد للإصلاح أو الاستبدال.",
+      "ru": "Протечки, износ и выбор ремонта/замены.",
+      "ta": "உழைப்பு, கசிவு, பழுது/மாற்று ஆலோசனை."
     }
   },
   {
@@ -181,6 +281,26 @@
       "fa": "خودروهای کلاسیک",
       "te": "క్లాసిక్ కార్లు",
       "fr": "Voitures classiques"
+    },
+    "cardSummary": {
+      "en": "Consistent, detail-focused classic interiors.",
+      "es": "Interiores clásicos consistentes y con detalle.",
+      "vi": "Nội thất xe cổ đồng bộ, chú ý chi tiết.",
+      "zh-hans": "经典车内饰，整体一致、细节到位。",
+      "tl": "Klasikong interior na pantay at detalyado.",
+      "id": "Interior mobil klasik yang konsisten dan detail.",
+      "fa": "داخل خودروهای کلاسیک با جزئیات دقیق و یکدست.",
+      "te": "వివరాలపై దృష్టి ఉన్న క్లాసిక్ కార్ ఇంటీరియర్స్.",
+      "fr": "Intérieurs de classiques cohérents et très détaillés.",
+      "ko": "클래식 인테리어 일관성.",
+      "hi": "क्लासिक इंटीरियर में एकरूपता.",
+      "pa": "ਕਲਾਸਿਕ ਇੰਟੀਰੀਅਰ ਦੀ ਇਕਸਾਰਤਾ.",
+      "pt-br": "Interiores clássicos consistentes.",
+      "zh-hant": "一致性與細節的經典內飾。",
+      "ja": "統一感のあるクラシック内装。",
+      "ar": "ديكورات كلاسيكية متناسقة بتفاصيل دقيقة.",
+      "ru": "Классические интерьеры с единым стилем.",
+      "ta": "ஒற்றுமையான கிளாசிக் உள்வடிவம்."
     }
   },
   {
@@ -204,6 +324,26 @@
       "fa": "ناوگان تجاری",
       "te": "వాణిజ్య ఫ్లీట్",
       "fr": "Flottes commerciales"
+    },
+    "cardSummary": {
+      "en": "Seat, panel, and interior work for trucks, buses, and work vehicles.",
+      "es": "Asientos, paneles e interiores para camiones, buses y vehículos de trabajo.",
+      "vi": "Ghế, ốp và nội thất cho xe tải, xe buýt và xe làm việc.",
+      "zh-hans": "卡车、巴士和作业车辆的座椅、内饰板与内饰修复。",
+      "tl": "Upuan, panel, at interior para sa truck, bus, at work vehicle.",
+      "id": "Jok, panel, dan interior untuk truk, bus, dan kendaraan kerja.",
+      "fa": "صندلی، پنل و داخل خودرو برای کامیون‌ها، اتوبوس‌ها و خودروهای کاری.",
+      "te": "ట్రక్కులు, బస్సులు, పని వాహనాల సీట్లు, ప్యానెల్లు, ఇంటీరియర్ పని.",
+      "fr": "Sièges, panneaux et intérieurs pour camions, bus et véhicules de travail.",
+      "ko": "트럭, 버스, 작업 차량의 시트, 패널, 실내 작업.",
+      "hi": "ट्रक, बस और कामकाजी वाहनों के सीट, पैनल और इंटीरियर काम.",
+      "pa": "ਟਰੱਕਾਂ, ਬੱਸਾਂ ਅਤੇ ਕੰਮ ਵਾਲੇ ਵਾਹਨਾਂ ਲਈ ਸੀਟ, ਪੈਨਲ ਅਤੇ ਇੰਟੀਰੀਅਰ ਕੰਮ।",
+      "pt-br": "Bancos, painéis e interior para caminhões, ônibus e veículos de trabalho.",
+      "zh-hant": "卡車、巴士與作業車輛的座椅、內飾板與內裝修復。",
+      "ja": "トラック、バス、業務車両のシート、パネル、内装作業。",
+      "ar": "مقاعد وألواح وأعمال داخلية للشاحنات والحافلات ومركبات العمل.",
+      "ru": "Сиденья, панели и интерьер для грузовиков, автобусов и рабочих машин.",
+      "ta": "லாரி, பேருந்து, வேலை வாகனங்களுக்கு சீட், பேனல், உள்வடிவ வேலை."
     }
   },
   {
@@ -227,6 +367,26 @@
       "fa": "نمونه کارها",
       "te": "మా పని చూడండి",
       "fr": "Nos réalisations"
+    },
+    "cardSummary": {
+      "en": "Work examples for seats, headliners, and tops.",
+      "es": "Fotos de trabajos: asientos, techos y capotas.",
+      "vi": "Ảnh công việc: ghế, trần và mui.",
+      "zh-hans": "作品照片：座椅、顶棚与敞篷顶。",
+      "tl": "Mga halimbawa ng trabaho: upuan, kisame, at top.",
+      "id": "Contoh hasil kerja jok, plafon, dan atap convertible.",
+      "fa": "نمونه‌کارهای واقعی صندلی، سقف و کابریولت.",
+      "te": "సీట్లు, హెడ్‌లైనర్లు, టాప్స్ పనుల ఉదాహరణలు.",
+      "fr": "Exemples de travaux: sièges, ciels de toit, capotes.",
+      "ko": "작업 사진: 시트, 헤드라이너, 탑.",
+      "hi": "काम की फोटो: सीट, हेडलाइनर, टॉप.",
+      "pa": "ਕੰਮ ਦੀਆਂ ਫੋਟੋਆਂ: ਸੀਟਾਂ, ਹੈਡਲਾਈਨਰ, ਟਾਪ.",
+      "pt-br": "Fotos de trabalhos: bancos, forros e capotas.",
+      "zh-hant": "作品照片：座椅、頂棚與敞篷頂。",
+      "ja": "施工写真：シート、ヘッドライナー、トップ。",
+      "ar": "صور الأعمال: المقاعد وبطانة السقف والسقف القابل للطي.",
+      "ru": "Фото работ: сиденья, потолки и крыши.",
+      "ta": "வேலைப் படங்கள்: சீட்கள், ஹெட்லைனர், டாப்."
     }
   },
   {
@@ -250,6 +410,26 @@
       "fa": "نظرات",
       "te": "సమీక్షలు",
       "fr": "Avis"
+    },
+    "cardSummary": {
+      "en": "Customer feedback on fit, finish, and durability.",
+      "es": "Opiniones de clientes sobre ajuste y acabado.",
+      "vi": "Đánh giá khách hàng về độ khớp và hoàn thiện.",
+      "zh-hans": "客户评价：贴合度与做工。",
+      "tl": "Mga review ng customer tungkol sa fit at finish.",
+      "id": "Ulasan pelanggan tentang presisi, detail, dan daya tahan.",
+      "fa": "نظر مشتریان درباره فیت، پرداخت و دوام.",
+      "te": "ఫిట్, ఫినిష్, నిలకడపై కస్టమర్ అభిప్రాయం.",
+      "fr": "Avis clients sur ajustement, finition et durabilité.",
+      "ko": "고객 후기: 맞춤과 마감 평가.",
+      "hi": "ग्राहक राय: फिट और फिनिश पर प्रतिक्रिया.",
+      "pa": "ਗਾਹਕ ਰਾਏ: ਫਿਟ ਅਤੇ ਫਿਨਿਸ਼ ਬਾਰੇ.",
+      "pt-br": "Avaliações de clientes sobre encaixe e acabamento.",
+      "zh-hant": "客戶評價：貼合度與做工。",
+      "ja": "お客様の声：フィット感と仕上げ。",
+      "ar": "آراء العملاء حول الملاءمة والتشطيب.",
+      "ru": "Отзывы клиентов о посадке и отделке.",
+      "ta": "வாடிக்கையாளர் விமர்சனங்கள்: பொருத்தம், முடிப்பு."
     }
   },
   {
@@ -273,6 +453,26 @@
       "fa": "تماس",
       "te": "సంప్రదించండి",
       "fr": "Contact"
+    },
+    "cardSummary": {
+      "en": "Call, text, email, hours, directions, and shop details.",
+      "es": "Llamadas, texto, correo, horarios, dirección y datos del taller.",
+      "vi": "Gọi điện, nhắn tin, email, giờ làm việc, chỉ đường và thông tin cửa hàng.",
+      "zh-hans": "电话、短信、邮箱、营业时间、路线和门店信息。",
+      "tl": "Tawag, text, email, oras, direksyon, at detalye ng shop.",
+      "id": "Telepon, pesan, email, jam operasional, arah, dan info bengkel.",
+      "fa": "تماس، پیامک، ایمیل، ساعت کاری، مسیر و اطلاعات کارگاه.",
+      "te": "కాల్, టెక్స్ట్, ఇమెయిల్, గంటలు, దిశలు, షాప్ వివరాలు.",
+      "fr": "Appel, SMS, email, horaires, itinéraire et infos atelier.",
+      "ko": "전화, 문자, 이메일, 영업시간, 길찾기, 매장 정보.",
+      "hi": "कॉल, टेक्स्ट, ईमेल, समय, दिशा और दुकान की जानकारी.",
+      "pa": "ਕਾਲ, ਟੈਕਸਟ, ਈਮੇਲ, ਸਮਾਂ, ਦਿਸ਼ਾਵਾਂ ਅਤੇ ਸ਼ਾਪ ਵੇਰਵੇ.",
+      "pt-br": "Ligação, mensagem, email, horário, rotas e dados da oficina.",
+      "zh-hant": "電話、簡訊、電子郵件、營業時間、路線與店家資訊。",
+      "ja": "電話、SMS、メール、営業時間、行き方、店舗情報。",
+      "ar": "الاتصال والرسائل والبريد وساعات العمل والاتجاهات ومعلومات الورشة.",
+      "ru": "Звонок, сообщение, email, часы работы, маршрут и данные мастерской.",
+      "ta": "அழைப்பு, குறுஞ்செய்தி, மின்னஞ்சல், நேரம், வழிகள், கடை விவரங்கள்."
     }
   },
   {

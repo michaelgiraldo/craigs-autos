@@ -39,6 +39,12 @@ export type PageQuotePromptPlacement = 'none' | 'inline';
 export type PageCtaConfig = {
 	quotePrompt?: PageQuotePromptPlacement;
 };
+export type PageCardDeckStrategy = 'explore' | 'related' | 'intent' | 'none';
+export type PageCardDeckConfig = {
+	strategy?: PageCardDeckStrategy;
+	keys?: string[];
+	limit?: number;
+};
 
 export type PageEntry = CollectionEntry<'pages'>;
 export type PageModule = NonNullable<PageEntry['data']['pageModules']>[number];
@@ -101,6 +107,13 @@ export type NavItem = {
 	href: string;
 	label: string;
 	tone?: 'default' | 'cta';
+};
+
+export type PageCardItem = {
+	key: string;
+	href: string;
+	label: string;
+	summary: string;
 };
 
 export type HreflangLink = {

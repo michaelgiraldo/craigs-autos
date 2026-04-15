@@ -8,7 +8,7 @@ import LocalizedLink from '../../../components/LocalizedLink.astro';
 import PageHero from '../../../components/PageHero.astro';
 import PageShowcaseSections from '../../../components/PageShowcaseSections.astro';
 import ProjectPage from '../../../components/ProjectPage.astro';
-import ServiceCards from '../../../components/ServiceCards.astro';
+import PageCardDeck from '../../page-cards/PageCardDeck.astro';
 import { resolveReferenceId } from '../page-types';
 
 interface Props {
@@ -34,8 +34,8 @@ const contentComponents = {
 	LocalizedLink,
 	PageHero,
 	PageShowcaseSections,
+	PageCardDeck,
 	ProjectPage,
-	ServiceCards,
 };
 const pageModules = (entry.data.pageModules ?? []) as PageModule[];
 ---
@@ -55,10 +55,8 @@ const pageModules = (entry.data.pageModules ?? []) as PageModule[];
 			/>
 		) : null}
 		<slot name="afterHero" />
-		{entry.data.showServiceCards !== false ? (
-			<ServiceCards locale={locale} currentKey={entry.data.serviceCardsCurrentKey} />
-		) : null}
-		<slot name="afterServiceCards" />
+		<PageCardDeck entry={entry} locale={locale} />
+		<slot name="afterPageCardDeck" />
 		{pageModules.map((module: PageModule) => {
 			if (module.type === 'featuredProject') {
 				return <FeaturedProject projectId={resolveReferenceId(module.project)} locale={locale} />;

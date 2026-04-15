@@ -1,0 +1,27 @@
+---
+import type { LocaleKey, PageEntry } from '../../types/site';
+import { resolvePageCardDeck } from './page-card-decks';
+
+interface Props {
+	entry: PageEntry;
+	locale: LocaleKey;
+}
+
+const { entry, locale } = Astro.props as Props;
+const deck = resolvePageCardDeck(entry, locale);
+---
+
+{deck.items.length ? (
+	<section class="service-cards full-bleed" data-card-deck={deck.strategy}>
+		<div class="container">
+			<div class="service-cards__grid">
+				{deck.items.map((item) => (
+					<a class="card" href={item.href}>
+						<p class="card__title">{item.label}</p>
+						<p class="card__desc">{item.summary}</p>
+					</a>
+				))}
+			</div>
+		</div>
+	</section>
+) : null}

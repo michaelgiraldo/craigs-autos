@@ -14,5 +14,5 @@ const ctaConfig = resolvePageCtaConfig(entry);
 ---
 
 <StructuredPageRenderer entry={entry} locale={locale}>
-	{ctaConfig.quotePrompt === 'inline' ? <QuotePageCta slot="afterServiceCards" locale={locale} /> : null}
+	{ctaConfig.quotePrompt === 'inline' ? <QuotePageCta slot="afterPageCardDeck" locale={locale} /> : null}
 </StructuredPageRenderer>
