@@ -1,5 +1,4 @@
 import { useState, type ChangeEvent, type FormEvent } from 'react';
-import { CHAT_COPY } from '../../../lib/site-data.js';
 import {
 	getAttributionForDataLayer,
 	getAttributionPayload,
@@ -9,12 +8,14 @@ import {
 import { resolveContactSubmitUrl } from '../../../lib/backend/amplify-outputs.ts';
 import type { LocaleKey } from '../../../types/site';
 import { createClientEventId, pushLeadDataLayerEvent } from '../../lead-tracking/form-events.ts';
+import { getQuoteFormCopy } from '../content/quote-form-copy.ts';
 import '../../../styles/contact-lead-form.css';
 
 type QuoteRequestFormProps = {
 	locale?: LocaleKey;
 	serviceKey?: string;
 	showHeader?: boolean;
+	compact?: boolean;
 };
 
 const initialForm = {
@@ -22,6 +23,7 @@ const initialForm = {
 	email: '',
 	phone: '',
 	vehicle: '',
+	service: '',
 	message: '',
 	company: '',
 };
@@ -38,20 +40,27 @@ export default function QuoteRequestForm({
 	locale = 'en',
 	serviceKey = 'requestQuote',
 	showHeader = true,
+	compact = false,
 }: QuoteRequestFormProps) {
-	const copy = CHAT_COPY[locale] ?? CHAT_COPY.en;
-	const [form, setForm] = useState(initialForm);
+	const copy = getQuoteFormCopy(locale);
+	const defaultService =
+		copy.serviceOptions.some((option) => option.value === serviceKey) ? serviceKey : '';
+	const [form, setForm] = useState(() => ({
+		...initialForm,
+		service: defaultService,
+	}));
 	const [submitState, setSubmitState] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
 	const [errorMessage, setErrorMessage] = useState('');
 
-	const hasContactMethod = Boolean(form.phone.trim()) || Boolean(form.email.trim());
 	const canSubmit =
 		Boolean(form.name.trim()) &&
-		hasContactMethod &&
+		Boolean(form.phone.trim()) &&
 		isEmailValid(form.email) &&
 		isPhoneValid(form.phone);
 
-	const onChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+	const onChange = (
+		event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+	) => {
 		const { name, value } = event.currentTarget;
 		setForm((current) => ({ ...current, [name]: value }));
 	};
@@ -71,7 +80,7 @@ export default function QuoteRequestForm({
 		if (!canSubmit) {
 			event.currentTarget.reportValidity();
 			setSubmitState('error');
-			setErrorMessage(copy.errorBody);
+			setErrorMessage(copy.validationInvalidInput);
 			pushLeadDataLayerEvent(
 				'lead_form_submit_error',
 				{
@@ -97,7 +106,7 @@ export default function QuoteRequestForm({
 		const endpoint = await resolveContactSubmitUrl();
 		if (!endpoint) {
 			setSubmitState('error');
-			setErrorMessage(copy.errorBody);
+			setErrorMessage(copy.validationMissingEndpoint);
 			pushLeadDataLayerEvent(
 				'lead_form_submit_error',
 				{
@@ -136,7 +145,7 @@ export default function QuoteRequestForm({
 					journey_id: journeyId,
 					locale,
 					pageUrl,
-					service: serviceKey,
+					service: form.service,
 					user: userId,
 				}),
 			});
@@ -160,7 +169,10 @@ export default function QuoteRequestForm({
 			}
 
 			setSubmitState('success');
-			setForm(initialForm);
+			setForm({
+				...initialForm,
+				service: defaultService,
+			});
 			pushLeadDataLayerEvent(
 				'lead_form_submit_success',
 				{
@@ -184,7 +196,9 @@ export default function QuoteRequestForm({
 		} catch (submitError) {
 			setSubmitState('error');
 			setErrorMessage(
-				submitError instanceof Error && submitError.message ? submitError.message : copy.errorBody,
+				submitError instanceof Error && submitError.message
+					? submitError.message
+					: copy.validationFallbackError,
 			);
 			pushLeadDataLayerEvent(
 				'lead_form_submit_error',
@@ -215,16 +229,16 @@ export default function QuoteRequestForm({
 
 	return (
 		<section
-			aria-label={showHeader ? undefined : copy.quoteTitle}
+			aria-label={showHeader ? undefined : copy.title}
 			aria-labelledby={showHeader ? 'contact-lead-form-title' : undefined}
-			className={`contact-lead-form-section${showHeader ? '' : ' contact-lead-form-section--compact'}`}
+			className={`contact-lead-form-section${!showHeader || compact ? ' contact-lead-form-section--compact' : ''}`}
 		>
 			<div className="contact-lead-form-shell">
 				{showHeader ? (
 					<div className="contact-lead-form-copy">
-						<p className="contact-lead-form-kicker">{copy.quoteCta}</p>
-						<h2 id="contact-lead-form-title">{copy.quoteTitle}</h2>
-						<p className="contact-lead-form-lead">{copy.detailsLabel}</p>
+						<p className="contact-lead-form-kicker">{copy.kicker}</p>
+						<h2 id="contact-lead-form-title">{copy.title}</h2>
+						<p className="contact-lead-form-lead">{copy.description}</p>
 					</div>
 				) : null}
 
@@ -236,6 +250,7 @@ export default function QuoteRequestForm({
 								autoComplete="name"
 								name="name"
 								onChange={onChange}
+								placeholder={copy.namePlaceholder}
 								required
 								type="text"
 								value={form.name}
@@ -243,36 +258,65 @@ export default function QuoteRequestForm({
 						</label>
 
 						<label className="contact-lead-form-field">
-							<span>{copy.emailLabel}</span>
-							<input
-								autoComplete="email"
-								name="email"
-								onChange={onChange}
-								type="email"
-								value={form.email}
-							/>
-						</label>
-
-						<label className="contact-lead-form-field">
 							<span>{copy.phoneLabel}</span>
 							<input
 								autoComplete="tel"
+								inputMode="tel"
 								name="phone"
 								onChange={onChange}
+								placeholder={copy.phonePlaceholder}
+								required
 								type="tel"
 								value={form.phone}
 							/>
 						</label>
 
 						<label className="contact-lead-form-field">
+							<span>{copy.emailLabel}</span>
+							<input
+								autoComplete="email"
+								inputMode="email"
+								name="email"
+								onChange={onChange}
+								placeholder={copy.emailPlaceholder}
+								type="email"
+								value={form.email}
+							/>
+						</label>
+
+						<label className="contact-lead-form-field">
 							<span>{copy.vehicleLabel}</span>
-							<input name="vehicle" onChange={onChange} type="text" value={form.vehicle} />
+							<input
+								name="vehicle"
+								onChange={onChange}
+								placeholder={copy.vehiclePlaceholder}
+								type="text"
+								value={form.vehicle}
+							/>
 						</label>
 					</div>
 
 					<label className="contact-lead-form-field contact-lead-form-field--full">
-						<span>{copy.detailsLabel}</span>
-						<textarea name="message" onChange={onChange} rows={5} value={form.message} />
+						<span>{copy.serviceLabel}</span>
+						<select name="service" onChange={onChange} value={form.service}>
+							<option value="">{copy.servicePlaceholder}</option>
+							{copy.serviceOptions.map((option) => (
+								<option key={option.value} value={option.value}>
+									{option.label}
+								</option>
+							))}
+						</select>
+					</label>
+
+					<label className="contact-lead-form-field contact-lead-form-field--full">
+						<span>{copy.messageLabel}</span>
+						<textarea
+							name="message"
+							onChange={onChange}
+							placeholder={copy.messagePlaceholder}
+							rows={5}
+							value={form.message}
+						/>
 					</label>
 
 					<label className="contact-lead-form-honeypot" aria-hidden="true">
@@ -289,7 +333,7 @@ export default function QuoteRequestForm({
 
 					<div className="contact-lead-form-actions">
 						<button disabled={submitState === 'submitting'} type="submit">
-							{submitState === 'submitting' ? copy.sendingLabel : copy.submitQuote}
+							{submitState === 'submitting' ? copy.submittingLabel : copy.submitLabel}
 						</button>
 					</div>
 

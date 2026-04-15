@@ -135,9 +135,9 @@ export function createContactSubmitHandler(deps: ContactSubmitDeps) {
         return jsonResponse(202, { ok: true });
       }
 
-      if (!name || (!phone && !email)) {
+      if (!name || !phone) {
         return jsonResponse(400, {
-          error: 'Name and either a phone number or email are required.',
+          error: 'Name and phone number are required.',
         });
       }
 

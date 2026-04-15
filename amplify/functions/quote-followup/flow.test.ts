@@ -88,7 +88,7 @@ test('async quote flow sends SMS first and notifies the owner end-to-end', async
   assert.equal(stored?.outreach_result, 'sms_sent');
 });
 
-test('async quote flow falls back to email when only email is provided end-to-end', async () => {
+test('async quote flow falls back to email when the stored submission has no phone number', async () => {
   const submissions = makeStore();
   const smsSends: Array<{ toE164: string; body: string }> = [];
   const customerEmails: string[] = [];
@@ -128,32 +128,48 @@ test('async quote flow falls back to email when only email is provided end-to-en
     },
   });
 
-  const contactSubmit = createContactSubmitHandler({
-    configValid: true,
-    createSubmissionId: () => 'submission-2',
-    nowEpochSeconds: () => 1_000,
-    siteLabel: 'cesar.autos',
-    queueSubmission: async (record) => {
-      submissions.set(record.submission_id, { ...record });
-    },
-    invokeFollowup: async (submissionId) => {
-      const result = await quoteFollowup({ submission_id: submissionId });
-      assert.equal(result.statusCode, 200);
-    },
+  submissions.set('submission-2', {
+    submission_id: 'submission-2',
+    status: 'queued',
+    created_at: 1_000,
+    updated_at: 1_000,
+    ttl: 99_999,
+    name: 'Customer',
+    email: 'customer@example.com',
+    phone: '',
+    vehicle: '1969 Camaro',
+    service: 'full-restoration',
+    message: 'Looking for interior restoration.',
+    origin: 'https://cesar.autos/en/request-a-quote',
+    site_label: 'cesar.autos',
+    journey_id: null,
+    lead_record_id: null,
+    contact_id: null,
+    locale: 'en',
+    page_url: 'https://cesar.autos/en/request-a-quote',
+    user_id: 'anon-customer',
+    attribution: null,
+    ai_status: null,
+    ai_model: '',
+    ai_error: '',
+    sms_body: '',
+    email_subject: '',
+    email_body: '',
+    missing_info: [],
+    sms_status: null,
+    sms_message_id: '',
+    sms_error: '',
+    email_status: null,
+    customer_email_message_id: '',
+    customer_email_error: '',
+    outreach_channel: null,
+    outreach_result: null,
+    owner_email_status: null,
+    owner_email_message_id: '',
+    owner_email_error: '',
   });
 
-  const result = await contactSubmit({
-    requestContext: { http: { method: 'POST' } },
-    headers: { origin: 'https://cesar.autos/en/contact' },
-    body: JSON.stringify({
-      name: 'Customer',
-      phone: '',
-      email: 'customer@example.com',
-      vehicle: '1969 Camaro',
-      service: 'full-restoration',
-      message: 'Looking for interior restoration.',
-    }),
-  });
+  const result = await quoteFollowup({ submission_id: 'submission-2' });
 
   assert.equal(result.statusCode, 200);
   assert.equal(smsSends.length, 0);

@@ -14,9 +14,15 @@ import { resolveReferenceId } from '../page-types';
 interface Props {
 	entry: PageEntry;
 	locale: LocaleKey;
+	heroDisplay?: {
+		showActions?: boolean;
+		showHelper?: boolean;
+		showMeta?: boolean;
+		showTrust?: boolean;
+	};
 }
 
-const { entry, locale } = Astro.props as Props;
+const { entry, locale, heroDisplay } = Astro.props as Props;
 const template = entry.data.template ?? 'standard';
 const usesStructuredTemplate = template === 'project' || Boolean(entry.data.hero);
 const rendered = template === 'project' ? null : await render(entry);
@@ -42,7 +48,10 @@ const pageModules = (entry.data.pageModules ?? []) as PageModule[];
 				title={entry.data.hero.title}
 				lead={entry.data.hero.lead}
 				kicker={entry.data.hero.kicker}
-				showTrust={entry.data.hero.showTrust}
+				showActions={heroDisplay?.showActions}
+				showHelper={heroDisplay?.showHelper}
+				showMeta={heroDisplay?.showMeta}
+				showTrust={heroDisplay?.showTrust ?? entry.data.hero.showTrust}
 			/>
 		) : null}
 		<slot name="afterHero" />

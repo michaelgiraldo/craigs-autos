@@ -11,6 +11,15 @@ interface Props {
 const { entry, locale } = Astro.props as Props;
 ---
 
-<StructuredPageRenderer entry={entry} locale={locale}>
+<StructuredPageRenderer
+	entry={entry}
+	locale={locale}
+	heroDisplay={{
+		showActions: false,
+		showHelper: false,
+		showMeta: false,
+		showTrust: false,
+	}}
+>
 	<QuotePage slot="afterServiceCards" locale={locale} />
 </StructuredPageRenderer>
