@@ -7,7 +7,7 @@
 
 ## Decision
 
-We should replace the current quote/contact lead implementation with a clean-slate architecture.
+We should replace the current quote/contact/lead implementation with a clean-slate architecture inside the existing multilingual Astro site framework.
 
 Keep:
 
@@ -15,27 +15,30 @@ Keep:
 - journey-first lead model
 - multilingual site support
 - ChatKit as the chat runtime
+- Astro content collections
+- localized slug routing
+- build-time i18n / OG / content guard scripts
+- centralized page rendering as a concept
+- the stable `src/lib/site-data` import surface for runtime and build tools
 
 Replace:
 
 - quote-specific branching inside generic page rendering
 - reused contact-form implementation for quote intake
 - scattered in-body quote CTA links as the primary funnel wiring
-- custom page-manifest filesystem scanning
 - legacy `chatkit-*` naming for backend resources that now serve the broader lead platform
+- the current quote/contact retrofit path through shared components
 
-## Why Rewrite Instead Of Iterating
+## Why Rewrite This Slice Instead Of Iterating
 
 The current implementation works, but it is structurally mixed:
 
 - quote behavior is hard-coded into the generic renderer in `src/components/LocalizedPageContent.astro`
 - quote-page copy is managed separately in `src/lib/site-data/quote-page-copy.js`
 - the primary intake UI is still `src/components/ContactLeadForm.jsx`
-- page translation/path lookup is partly driven by a custom filesystem manifest in `src/lib/site-data/page-manifest.js`
-- content is split across MDX, JSON, and JS wrappers under `src/content/` and `src/lib/site-data/`
 - backend resource names still center on `chatkit-*`, even though lead capture is now larger than chat
 
-That is the wrong long-term shape if the goal is clean development and lower operational drag. It increases:
+The current quote/contact/lead slice is the wrong long-term shape if the goal is clean development and lower operational drag. It increases:
 
 - content drift
 - naming drift
@@ -43,11 +46,24 @@ That is the wrong long-term shape if the goal is clean development and lower ope
 - onboarding cost for every future developer
 - risk when we add uploads, QUO, experiments, or new landing pages
 
+However, the broader multilingual site framework is not accidental drift. The audit shows it was introduced deliberately to support:
+
+- localized slug routing across all locales
+- build-time translation and parity checks
+- Open Graph generation based on localized page metadata
+- centralized rendering so page shell logic is not duplicated in hundreds of MDX files
+- a stable data import layer for Astro components, browser code, and Node build scripts
+
+So the rewrite target is narrow and intentional:
+
+- rewrite the quote/contact/lead architecture
+- preserve the multilingual content and build framework unless and until a clearly better replacement exists
+
 ## Rewrite Goals
 
 1. Make quote intake a first-class feature, not a retrofit.
 2. Put all localized quote behavior behind one structured content model.
-3. Remove custom filesystem manifest plumbing where Astro content collections already solve the problem.
+3. Preserve the existing localized Astro route/content/build system while cleaning the funnel architecture inside it.
 4. Rename lead infrastructure around the real domain instead of around ChatKit history.
 5. Make attachments/photos a first-class part of quote intake.
 6. Separate public capture, async follow-up, and admin concerns cleanly.
@@ -90,13 +106,27 @@ src/features/quote/
 
 The quote page should render from this feature boundary. Generic content rendering should not know anything about quote-specific UI.
 
-### 2. Route model
+### 2. Preserve the route layer, improve the renderer boundary
 
-Keep localized routes, but make the quote route a first-class route type:
+Keep the current localized routes:
 
 - `/en/request-a-quote/`
 - `/es/solicitar-cotizacion/`
 - etc.
+
+Keep the existing route files:
+
+- `src/pages/[lang]/index.astro`
+- `src/pages/[lang]/[...slug].astro`
+
+These are not the primary problem. They already provide a clean localized URL layer on top of the content collections.
+
+The improvement should happen one layer below routing:
+
+- keep route resolution
+- keep `pageKey`-based translation identity
+- add explicit `pageType`
+- replace quote-specific branching inside the shared renderer with a renderer dispatcher
 
 Do not branch inside shared page renderers with checks like `pageKey === "requestQuote"`.
 
@@ -161,23 +191,26 @@ That makes quote prompts injectable and testable without editing every locale pa
 
 ## Target Content Architecture
 
-### 1. Remove the custom page-manifest layer
+### 1. Keep Astro content collections as the source of truth
 
-Retire:
+Keep:
 
-- `src/lib/site-data/page-manifest.js`
+- `src/content.config.ts`
+- `src/content/pages/*`
+- the existing localized page-entry model
 
-The current implementation already uses `astro:content` in routes. Translation/path data should be derived from content collections, not from a separate filesystem parser that re-reads frontmatter from disk.
+The repo already uses Astro content collections successfully. The rewrite should build on that, not replace it.
 
 ### 2. Use typed content collections
 
-Adopt explicit content schemas for:
+Extend the existing collections with better page typing and feature metadata rather than inventing a second route/content system.
+
+Primary collection targets:
 
 - `pages`
-- `quote-pages`
 - `projects`
 - `showcases`
-- `shared-ui`
+- shared locale content JSON collections already under `src/content/`
 
 Each localized page entry should include typed fields such as:
 
@@ -190,24 +223,25 @@ Each localized page entry should include typed fields such as:
 - `modules`
 - `ctaConfig`
 
-### 3. Single source of truth for locale copy
+### 3. Keep the stable import surface
 
-Today the repo duplicates content across:
+The current `src/lib/site-data/*.js` files are not purely accidental duplication. They provide a stable import surface for:
 
-- `src/content/*.json`
-- `src/lib/site-data/*.js`
-- MDX files
+- Astro components
+- browser-facing runtime code
+- Node build scripts such as i18n validation and OG generation
 
-The rewrite should collapse that into:
+So the rewrite should be selective:
 
-- content collections for authorable localized copy
-- TypeScript constants only for true code constants
+- keep the stable import surface where it reduces call-site churn
+- remove quote-only or funnel-specific registries that are better expressed as feature-local data
+- only replace wrapper layers when there is a clear benefit and no build/runtime consumer penalty
 
 Rule:
 
 - content belongs in `src/content/`
 - code belongs in `src/features/` or `src/lib/`
-- JS wrapper mirrors around JSON files should be removed unless they add real logic
+- wrapper modules should remain only when they provide a meaningful compatibility boundary
 
 ## Target Lead Platform Architecture
 
@@ -396,11 +430,17 @@ Delete or replace:
 - `src/components/QuoteRequestCta.astro`
 - quote branching in `src/components/LocalizedPageContent.astro`
 - `src/lib/site-data/quote-page-copy.js`
+
+Keep for now:
+
+- `src/pages/[lang]/index.astro`
+- `src/pages/[lang]/[...slug].astro`
 - `src/lib/site-data/page-manifest.js`
+- `src/lib/site-data/page-registry.js`
+- `src/lib/site-data.js`
+- build scripts under `scripts/` that enforce locale/content/OG parity
 
-Reduce or remove duplicate wrapper layers under:
-
-- `src/lib/site-data/`
+Only replace these later if we build a clearly better build-time metadata source with equivalent guard coverage.
 
 ### Backend
 
@@ -421,11 +461,12 @@ Replace shared lead code root:
 
 ## Implementation Sequence
 
-### Phase 1. New foundations
+### Phase 1. New foundations inside the existing site framework
 
 - create `src/features/quote/`
 - create `src/features/lead-tracking/`
-- define content schemas for page types and quote pages
+- extend the existing `pages` collection with `pageType` and `ctaConfig`
+- add a page-rendering dispatcher behind the current route files
 - define new backend module names and tables
 
 ### Phase 2. New quote funnel
@@ -447,12 +488,18 @@ Replace shared lead code root:
 - port chat promotion into the renamed lead platform
 - keep ChatKit session logic separate but make handoff write into the same model
 
-### Phase 5. Cutover
+### Phase 5. Cutover the quote slice
 
 - deploy new resources
 - switch frontend to new endpoints
 - verify form/chat/admin end to end
-- remove legacy resources from code and AWS
+- remove legacy quote/contact retrofit resources from code and AWS
+
+### Phase 6. Secondary architecture cleanup
+
+- decide whether `page-manifest.js` should be replaced
+- decide whether broader `site-data` wrapper cleanup is worth the churn
+- decide whether broader chat/lead Lambda renaming should continue past the quote slice
 
 ## Cutover Rules
 
@@ -460,9 +507,11 @@ Replace shared lead code root:
 - no data migration
 - no legacy table preservation
 - no dual-write period
-- no reuse of legacy names just to minimize diff size
+- no reuse of legacy names inside the new quote/lead path just to minimize diff size
 
-This should be treated as a replacement project, not a migration project.
+Do not interpret these rules as permission to rewrite the multilingual site framework unnecessarily. Hard cutover applies to the lead platform slice, not to routing and content infrastructure that is already serving real operational needs.
+
+This should be treated as a replacement project for the lead funnel architecture, not a replacement project for the entire site framework.
 
 ## Why We Should Do This Now
 
@@ -473,22 +522,25 @@ Because the current moment is unusually favorable:
 - QUO is not fully live yet
 - the current code has already crossed from "small extension" into "structural retrofit"
 
-If we keep iterating on the current shape, we will keep paying for:
+If we keep iterating on the current quote/contact lead shape, we will keep paying for:
 
 - special cases in shared rendering
 - content drift across locales
 - ambiguous ownership between contact and quote flows
 - backend names that no longer match the domain
 
+But the audit also shows we do not need to pay the cost of replacing the multilingual route/content/build framework to fix those problems. That framework is already carrying real value.
+
 ## Recommended Next Step
 
-Start Phase 1 as a real rewrite, not as another patch set.
+Start Phase 1 as a targeted rewrite, not as another patch set.
 
 The first implementation slice should be:
 
-1. create the new feature folders and schemas
-2. create the new backend module/function names in parallel
-3. build the new quote page and quote form against those new boundaries
-4. only then remove the current retrofit components
+1. extend the existing `pages` collection with `pageType` and `ctaConfig`
+2. create the new feature folders and renderer dispatcher behind the current route layer
+3. create the new backend module/function names in parallel
+4. build the new quote page and quote form against those new boundaries
+5. only then remove the current retrofit components
 
 That sequence gives us a clean replacement path while keeping the final cutover controlled.
