@@ -39,14 +39,21 @@ test('contact-submit queues quote follow-up when phone is provided', async () =>
   assert.equal(invoked[0], 'submission-1');
 });
 
-test('contact-submit rejects requests without a phone number', async () => {
+test('contact-submit queues quote follow-up when email is provided without phone', async () => {
+  const queued: QuoteSubmissionRecord[] = [];
+  const invoked: string[] = [];
+
   const handler = createContactSubmitHandler({
     configValid: true,
     createSubmissionId: () => 'submission-2',
     nowEpochSeconds: () => 2_000,
     siteLabel: 'cesar.autos',
-    queueSubmission: async () => undefined,
-    invokeFollowup: async () => undefined,
+    queueSubmission: async (record) => {
+      queued.push(record);
+    },
+    invokeFollowup: async (submissionId) => {
+      invoked.push(submissionId);
+    },
   });
 
   const result = await handler({
@@ -58,8 +65,33 @@ test('contact-submit rejects requests without a phone number', async () => {
     }),
   });
 
+  assert.equal(result.statusCode, 200);
+  assert.equal(queued.length, 1);
+  assert.equal(queued[0]?.email, 'customer@example.com');
+  assert.equal(invoked[0], 'submission-2');
+});
+
+test('contact-submit rejects requests without a contact method', async () => {
+  const handler = createContactSubmitHandler({
+    configValid: true,
+    createSubmissionId: () => 'submission-3',
+    nowEpochSeconds: () => 3_000,
+    siteLabel: 'cesar.autos',
+    queueSubmission: async () => undefined,
+    invokeFollowup: async () => undefined,
+  });
+
+  const result = await handler({
+    requestContext: { http: { method: 'POST' } },
+    body: JSON.stringify({
+      name: 'Customer',
+      email: '',
+      phone: '',
+    }),
+  });
+
   assert.equal(result.statusCode, 400);
-  assert.match(result.body, /phone number/);
+  assert.match(result.body, /phone number or email/);
 });
 
 test('contact-submit returns benign success for honeypot submissions', async () => {

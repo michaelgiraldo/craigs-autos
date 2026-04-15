@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import {
 	getAttributionForDataLayer,
 	getAttributionPayload,
@@ -51,12 +51,20 @@ export default function QuoteRequestForm({
 	}));
 	const [submitState, setSubmitState] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
 	const [errorMessage, setErrorMessage] = useState('');
+	const phoneInputRef = useRef<HTMLInputElement>(null);
+	const emailInputRef = useRef<HTMLInputElement>(null);
+	const hasContactMethod = Boolean(form.phone.trim()) || Boolean(form.email.trim());
 
 	const canSubmit =
 		Boolean(form.name.trim()) &&
-		Boolean(form.phone.trim()) &&
+		hasContactMethod &&
 		isEmailValid(form.email) &&
 		isPhoneValid(form.phone);
+
+	useEffect(() => {
+		phoneInputRef.current?.setCustomValidity('');
+		emailInputRef.current?.setCustomValidity('');
+	}, [form.phone, form.email]);
 
 	const onChange = (
 		event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
@@ -78,9 +86,28 @@ export default function QuoteRequestForm({
 		const pagePath = window.location.pathname;
 
 		if (!canSubmit) {
+			if (!hasContactMethod) {
+				phoneInputRef.current?.setCustomValidity(copy.validationMissingContactMethod);
+				emailInputRef.current?.setCustomValidity(copy.validationMissingContactMethod);
+			} else {
+				if (form.phone.trim() && !isPhoneValid(form.phone)) {
+					phoneInputRef.current?.setCustomValidity(copy.validationInvalidPhone);
+				}
+				if (form.email.trim() && !isEmailValid(form.email)) {
+					emailInputRef.current?.setCustomValidity(copy.validationInvalidEmail);
+				}
+			}
 			event.currentTarget.reportValidity();
 			setSubmitState('error');
-			setErrorMessage(copy.validationInvalidInput);
+			setErrorMessage(
+				!hasContactMethod
+					? copy.validationMissingContactMethod
+					: form.phone.trim() && !isPhoneValid(form.phone)
+						? copy.validationInvalidPhone
+						: form.email.trim() && !isEmailValid(form.email)
+							? copy.validationInvalidEmail
+							: copy.validationInvalidInput,
+			);
 			pushLeadDataLayerEvent(
 				'lead_form_submit_error',
 				{
@@ -265,7 +292,7 @@ export default function QuoteRequestForm({
 								name="phone"
 								onChange={onChange}
 								placeholder={copy.phonePlaceholder}
-								required
+								ref={phoneInputRef}
 								type="tel"
 								value={form.phone}
 							/>
@@ -279,6 +306,7 @@ export default function QuoteRequestForm({
 								name="email"
 								onChange={onChange}
 								placeholder={copy.emailPlaceholder}
+								ref={emailInputRef}
 								type="email"
 								value={form.email}
 							/>
