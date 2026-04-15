@@ -13,9 +13,9 @@ interface Props {
 	languageLinks?: LanguageLink[];
 	localeBaseHref?: string;
 	mapsHref: string;
+	desktopNav?: NavItem[];
 	mobilePrimaryNav?: NavItem[];
 	mobileSecondaryNav?: NavItem[];
-	navItemsByKey?: Partial<Record<string, NavItem>>;
 	servicesLabel?: string;
 	servicesNav?: NavItem[];
 	site: SiteData;
@@ -32,9 +32,9 @@ const {
 	languageLinks = [],
 	localeBaseHref = '/en/',
 	mapsHref,
+	desktopNav = [],
 	mobilePrimaryNav = [],
 	mobileSecondaryNav = [],
-	navItemsByKey = {},
 	servicesLabel = 'Services',
 	servicesNav = [],
 	site,
@@ -149,7 +149,7 @@ const {
 				{mobilePrimaryNav.map((item: NavItem) => (
 					<li>
 						<a
-							class="site-nav__link"
+							class={`site-nav__link${item.tone === 'cta' ? ' site-nav__link--cta' : ''}`}
 							href={item.href}
 							aria-current={item.href === canonicalPath ? 'page' : undefined}
 						>
@@ -162,7 +162,7 @@ const {
 				{mobileSecondaryNav.map((item: NavItem) => (
 					<li>
 						<a
-							class="site-nav__link"
+							class={`site-nav__link${item.tone === 'cta' ? ' site-nav__link--cta' : ''}`}
 							href={item.href}
 							aria-current={item.href === canonicalPath ? 'page' : undefined}
 						>
@@ -200,65 +200,17 @@ const {
 						</details>
 					</li>
 				)}
-				{navItemsByKey.motorcycleSeats && (
+				{desktopNav.map((item: NavItem) => (
 					<li>
 						<a
-							class="site-nav__link"
-							href={navItemsByKey.motorcycleSeats.href}
-							aria-current={
-								navItemsByKey.motorcycleSeats.href === canonicalPath ? 'page' : undefined
-							}
+							class={`site-nav__link${item.tone === 'cta' ? ' site-nav__link--cta' : ''}`}
+							href={item.href}
+							aria-current={item.href === canonicalPath ? 'page' : undefined}
 						>
-							{navItemsByKey.motorcycleSeats.label}
+							{item.label}
 						</a>
 					</li>
-				)}
-				{navItemsByKey.gallery && (
-					<li>
-						<a
-							class="site-nav__link"
-							href={navItemsByKey.gallery.href}
-							aria-current={navItemsByKey.gallery.href === canonicalPath ? 'page' : undefined}
-						>
-							{navItemsByKey.gallery.label}
-						</a>
-					</li>
-				)}
-				{navItemsByKey.upholsteryGuide && (
-					<li>
-						<a
-							class="site-nav__link"
-							href={navItemsByKey.upholsteryGuide.href}
-							aria-current={
-								navItemsByKey.upholsteryGuide.href === canonicalPath ? 'page' : undefined
-							}
-						>
-							{navItemsByKey.upholsteryGuide.label}
-						</a>
-					</li>
-				)}
-				{navItemsByKey.reviews && (
-					<li>
-						<a
-							class="site-nav__link"
-							href={navItemsByKey.reviews.href}
-							aria-current={navItemsByKey.reviews.href === canonicalPath ? 'page' : undefined}
-						>
-							{navItemsByKey.reviews.label}
-						</a>
-					</li>
-				)}
-				{navItemsByKey.contact && (
-					<li>
-						<a
-							class="site-nav__link site-nav__link--cta"
-							href={navItemsByKey.contact.href}
-							aria-current={navItemsByKey.contact.href === canonicalPath ? 'page' : undefined}
-						>
-							{navItemsByKey.contact.label}
-						</a>
-					</li>
-				)}
+				))}
 			</ul>
 		</div>
 	</nav>

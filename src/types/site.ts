@@ -100,6 +100,7 @@ export type NavItem = {
 	key: string;
 	href: string;
 	label: string;
+	tone?: 'default' | 'cta';
 };
 
 export type HreflangLink = {

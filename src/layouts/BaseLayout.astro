@@ -28,6 +28,7 @@ import {
 	UI_COPY,
 } from '../lib/site-data.js';
 import { buildEstimateEmailHref } from '../lib/email-draft.js';
+import { buildHeaderNavStructure, NAV_ITEM_ORDER } from '../features/navigation/nav-structure';
 import {
 	getPageLabel,
 	getPagePath,
@@ -215,21 +216,8 @@ const currentLanguageLabel = LOCALES[locale]?.label ?? LOCALES.en.label;
 const textDirection = locale === 'ar' || locale === 'fa' ? 'rtl' : 'ltr';
 
 const navLabels = NAV_LABELS[locale] ?? NAV_LABELS.en;
-const navItemKeys = [
-	'autoUpholstery',
-	'carSeats',
-	'motorcycleSeats',
-	'headliners',
-	'convertibleTops',
-	'classicCars',
-	'commercialFleet',
-	'upholsteryGuide',
-	'gallery',
-	'reviews',
-	'contact',
-];
 const fallbackNavLabels = NAV_LABELS.en ?? {};
-const navItems: NavItem[] = navItemKeys.flatMap((key) => {
+const navItems: NavItem[] = [...NAV_ITEM_ORDER].flatMap((key) => {
 		const href = getPageTranslation(key, locale);
 		if (!href) {
 			return [];
@@ -244,31 +232,12 @@ const navItems: NavItem[] = navItemKeys.flatMap((key) => {
 const navItemsByKey: Partial<Record<string, NavItem>> = Object.fromEntries(
 	navItems.map((item) => [item.key, item]),
 );
+const resolvedHeaderNav = buildHeaderNavStructure(navItemsByKey);
 const servicesLabel = navLabels.services ?? fallbackNavLabels.services ?? 'Services';
-const servicesNav = [
-	'autoUpholstery',
-	'carSeats',
-	'headliners',
-	'convertibleTops',
-	'classicCars',
-	'commercialFleet',
-]
-	.map((key) => navItemsByKey[key])
-	.filter((item): item is NavItem => Boolean(item));
-const mobilePrimaryNav = ['autoUpholstery', 'carSeats', 'headliners', 'convertibleTops']
-	.map((key) => navItemsByKey[key])
-	.filter((item): item is NavItem => Boolean(item));
-const mobileSecondaryNav = [
-	'classicCars',
-	'commercialFleet',
-	'motorcycleSeats',
-	'upholsteryGuide',
-	'gallery',
-	'reviews',
-	'contact',
-]
-	.map((key) => navItemsByKey[key])
-	.filter((item): item is NavItem => Boolean(item));
+const servicesNav = resolvedHeaderNav.servicesNav;
+const desktopNav = resolvedHeaderNav.desktopNav;
+const mobilePrimaryNav = resolvedHeaderNav.mobilePrimaryNav;
+const mobileSecondaryNav = resolvedHeaderNav.mobileSecondaryNav;
 
 const business = BUSINESS_COPY[locale] ?? BUSINESS_COPY.en;
 const businessId = new URL('#business', site).toString();
@@ -448,9 +417,9 @@ const structuredData = {
 				languageLinks={languageLinks}
 				localeBaseHref={localeBaseHref}
 				mapsHref={mapsHref}
+				desktopNav={desktopNav}
 				mobilePrimaryNav={mobilePrimaryNav}
 				mobileSecondaryNav={mobileSecondaryNav}
-				navItemsByKey={navItemsByKey}
 				servicesLabel={servicesLabel}
 				servicesNav={servicesNav}
 				site={SITE}
