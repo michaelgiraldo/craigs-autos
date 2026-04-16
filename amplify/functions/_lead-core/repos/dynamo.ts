@@ -1,12 +1,19 @@
 import {
   DeleteCommand,
-  DynamoDBDocumentClient,
+  type DynamoDBDocumentClient,
   GetCommand,
   PutCommand,
   QueryCommand,
   ScanCommand,
 } from '@aws-sdk/lib-dynamodb';
-import type { LeadActionToken, Journey, JourneyEvent, LeadContact, LeadRecord, LeadRecordStatus } from '../domain/types.ts';
+import type {
+  LeadActionToken,
+  Journey,
+  JourneyEvent,
+  LeadContact,
+  LeadRecord,
+  LeadRecordStatus,
+} from '../domain/types.ts';
 import type { LeadActionTokensRepo } from './action-tokens-repo.ts';
 import type { LeadContactsRepo } from './contacts-repo.ts';
 import type { JourneyEventsRepo } from './events-repo.ts';
@@ -108,11 +115,7 @@ export class DynamoLeadContactsRepo implements LeadContactsRepo {
     await this.db.send(
       new PutCommand({
         TableName: this.tableName,
-        Item: removeNullKeys(contact, [
-          'normalized_phone',
-          'normalized_email',
-          'quo_contact_id',
-        ]),
+        Item: removeNullKeys(contact, ['normalized_phone', 'normalized_email', 'quo_contact_id']),
       }),
     );
   }
@@ -317,7 +320,15 @@ export class DynamoJourneyEventsRepo implements JourneyEventsRepo {
     await this.db.send(
       new PutCommand({
         TableName: this.tableName,
-        Item: removeNullKeys(event, ['client_event_id', 'lead_record_id', 'customer_action', 'workflow_outcome', 'capture_channel', 'lead_strength', 'verification_status']),
+        Item: removeNullKeys(event, [
+          'client_event_id',
+          'lead_record_id',
+          'customer_action',
+          'workflow_outcome',
+          'capture_channel',
+          'lead_strength',
+          'verification_status',
+        ]),
       }),
     );
   }

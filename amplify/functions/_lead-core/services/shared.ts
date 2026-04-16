@@ -121,8 +121,7 @@ export function applyJourneyStatusTransition(args: {
   const journeyStatus = mergeJourneyStatus(args.currentStatus, args.incomingStatus);
   return {
     journeyStatus,
-    statusReason:
-      journeyStatus === args.currentStatus ? args.currentReason : args.incomingReason,
+    statusReason: journeyStatus === args.currentStatus ? args.currentReason : args.incomingReason,
   };
 }
 

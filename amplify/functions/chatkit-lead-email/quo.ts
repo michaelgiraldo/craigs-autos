@@ -33,9 +33,7 @@ function asString(value: unknown): string | null {
 
 function asStringArray(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
-  return value
-    .map((item) => asString(item))
-    .filter((item): item is string => Boolean(item));
+  return value.map((item) => asString(item)).filter((item): item is string => Boolean(item));
 }
 
 async function readQuoJson(response: Response): Promise<Record<string, unknown> | null> {
@@ -215,7 +213,11 @@ export async function listQuoContacts(args: {
     const trimmed = source.trim();
     if (trimmed) url.searchParams.append('sources', trimmed);
   }
-  if (typeof args.maxResults === 'number' && Number.isFinite(args.maxResults) && args.maxResults > 0) {
+  if (
+    typeof args.maxResults === 'number' &&
+    Number.isFinite(args.maxResults) &&
+    args.maxResults > 0
+  ) {
     url.searchParams.set('maxResults', String(Math.min(Math.floor(args.maxResults), 100)));
   }
 

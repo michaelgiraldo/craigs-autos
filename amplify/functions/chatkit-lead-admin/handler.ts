@@ -1,5 +1,8 @@
 import { z } from 'zod';
-import { buildDefaultQualificationSnapshot, buildJourneyEvent } from '../_lead-core/services/shared.ts';
+import {
+  buildDefaultQualificationSnapshot,
+  buildJourneyEvent,
+} from '../_lead-core/services/shared.ts';
 import { deriveLeadRecordStatus } from '../_lead-core/services/outreach.ts';
 import {
   toLeadAdminJourneySummary,
@@ -215,7 +218,9 @@ const parsedEnv = adminEnvSchema.safeParse(process.env);
 const leadCoreRuntime = createLeadCoreRuntime(process.env);
 
 export const handler = createLeadAdminHandler({
-  configValid: Boolean(parsedEnv.success && parsedEnv.data.LEADS_ADMIN_PASSWORD && leadCoreRuntime.configValid),
+  configValid: Boolean(
+    parsedEnv.success && parsedEnv.data.LEADS_ADMIN_PASSWORD && leadCoreRuntime.configValid,
+  ),
   adminPassword: parsedEnv.success ? parsedEnv.data.LEADS_ADMIN_PASSWORD : '',
   listLeadRecords: async ({ limit, qualifiedFilter, cursor }) => {
     const repos = leadCoreRuntime.repos;
@@ -229,7 +234,9 @@ export const handler = createLeadAdminHandler({
 
     const contacts = await Promise.all(
       result.items.map((leadRecord) =>
-        leadRecord.contact_id ? repos.contacts.getById(leadRecord.contact_id) : Promise.resolve(null),
+        leadRecord.contact_id
+          ? repos.contacts.getById(leadRecord.contact_id)
+          : Promise.resolve(null),
       ),
     );
 

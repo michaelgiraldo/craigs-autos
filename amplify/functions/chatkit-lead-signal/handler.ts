@@ -56,7 +56,10 @@ type LeadSignalDeps = {
 
 function mergeJourney(current: Journey | null, incoming: Journey): Journey {
   if (!current) return incoming;
-  const actionTypes = dedupeStrings([...current.action_types, ...incoming.action_types]) as Journey['action_types'];
+  const actionTypes = dedupeStrings([
+    ...current.action_types,
+    ...incoming.action_types,
+  ]) as Journey['action_types'];
   const transition = applyJourneyStatusTransition({
     currentStatus: current.journey_status,
     currentReason: current.status_reason,
@@ -111,7 +114,9 @@ export function createLeadSignalHandler(deps: LeadSignalDeps) {
     try {
       const body = decodeBody(event);
       const parsed = body ? JSON.parse(body) : {};
-      const result = leadSignalPayloadSchema.safeParse(parsed && typeof parsed === 'object' ? parsed : {});
+      const result = leadSignalPayloadSchema.safeParse(
+        parsed && typeof parsed === 'object' ? parsed : {},
+      );
       if (!result.success) return json(400, { error: 'Invalid request payload' });
       payload = result.data;
     } catch {

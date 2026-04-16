@@ -2,7 +2,10 @@ import type { QuoteOutreachResult, QuoteSubmissionRecord } from '../_shared/quot
 import { escapeHtml } from '../chatkit-lead-email/text-utils.ts';
 
 function compact(value: string): string {
-  return value.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+  return value
+    .replace(/\r\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
 }
 
 export function buildQuoteContext(record: QuoteSubmissionRecord): string {
@@ -14,16 +17,16 @@ export function buildCustomerEmailHtml(body: string): string {
     <div style="font-family:Arial,sans-serif;color:#1a1a1a;line-height:1.6;">
       ${compact(body)
         .split('\n\n')
-        .map((paragraph) => `<p style="margin:0 0 16px;">${escapeHtml(paragraph).replace(/\n/g, '<br />')}</p>`)
+        .map(
+          (paragraph) =>
+            `<p style="margin:0 0 16px;">${escapeHtml(paragraph).replace(/\n/g, '<br />')}</p>`,
+        )
         .join('')}
     </div>
   `;
 }
 
-export function buildResultLabel(
-  result: QuoteOutreachResult,
-  smsConfigured: boolean,
-): string {
+export function buildResultLabel(result: QuoteOutreachResult, smsConfigured: boolean): string {
   switch (result) {
     case 'sms_sent':
       return 'SMS sent via QUO';

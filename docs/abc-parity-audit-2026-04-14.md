@@ -5,9 +5,16 @@
 - Audit basis: local source code, local docs, and saved reports only
 - Not yet verified live: AWS resources, Amplify secrets, GTM container inventory, GA4 dimensions/events, Lambda env, or current production table contents
 
+Status update, 2026-04-16:
+
+- This audit is historical context for the parity decision.
+- Craig's backend has since adopted the journey-first substrate (`Journey`, `JourneyEvent`, `LeadRecord`, `LeadContact`, `LeadActionToken`, `QuoteSubmission`).
+- The old flat `ChatkitLeadCasesTable` / `ChatkitLeadEventsTable` resources are retired from the active backend contract.
+- Remaining Google/marketing-ops gaps should be evaluated against the journey-first contract, not the old `lead_cases` model.
+
 ## Executive Summary
 
-Craig's is not missing only a form endpoint. It is on an older lead model.
+At the time of this audit, Craig's was not missing only a form endpoint. It was on an older lead model.
 
 ABC is already using the stronger journey-first platform:
 
@@ -18,7 +25,7 @@ ABC is already using the stronger journey-first platform:
 - `LeadActionToken`
 - `QuoteSubmission`
 
-Craig's still uses the older ChatKit-specific structure:
+At the time of this audit, Craig's still used the older ChatKit-specific structure:
 
 - lead event log
 - flat `lead_cases`
@@ -49,7 +56,7 @@ ABC backend provisions and uses:
 - `quote-followup` Lambda
 - shared `_lead-core` domain/services
 
-Craig's backend currently provisions and uses:
+At the time of this audit, Craig's backend provisioned and used:
 
 - `ChatkitLeadEventsTable`
 - `ChatkitLeadCasesTable`
@@ -154,7 +161,7 @@ ABC admin tooling is built around:
 - journeys
 - qualification updates that also append journey events
 
-Craig's admin tooling is built around:
+At the time of this audit, Craig's admin tooling was built around:
 
 - a flat `lead_cases` table
 - direct qualification toggles on `lead_id`
@@ -180,7 +187,7 @@ ABC marketing-ops already has:
 - a live-safe `journey_smoke_test.py`
 - current reports for readiness, tracking health, and journey smoke
 
-Craig's marketing-ops currently has:
+At the time of this audit, Craig's marketing-ops had:
 
 - older phase-one tracking automation
 - no measurement manifest equivalent

@@ -30,7 +30,10 @@ export type QuoteFollowupDeps = {
   }) => Promise<boolean>;
   saveSubmission: (record: QuoteSubmissionRecord) => Promise<void>;
   generateDrafts: (record: QuoteSubmissionRecord) => Promise<QuoteDraftGeneration>;
-  sendSms: (args: { toE164: string; body: string }) => Promise<{ id: string; status: string | null }>;
+  sendSms: (args: {
+    toE164: string;
+    body: string;
+  }) => Promise<{ id: string; status: string | null }>;
   sendCustomerEmail: (args: {
     to: string;
     subject: string;

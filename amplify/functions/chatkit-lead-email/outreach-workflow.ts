@@ -8,7 +8,12 @@ import type {
   LeadSummary,
   TranscriptLine,
 } from './lead-types';
-import { markLeadEmailSent, markLeadQuoError, markLeadQuoSent, markLeadSent } from './dedupe-store.ts';
+import {
+  markLeadEmailSent,
+  markLeadQuoError,
+  markLeadQuoSent,
+  markLeadSent,
+} from './dedupe-store.ts';
 import { sendQuoTextMessage } from './quo.ts';
 
 export type ChatOutreachResult = {
@@ -65,7 +70,7 @@ export async function runChatOutreach(args: RunChatOutreachArgs): Promise<ChatOu
     ...(args.customerPhone ? {} : { error: 'No customer phone number was captured.' }),
   };
 
-  if (Boolean(args.progress?.quo_sent_at)) {
+  if (args.progress?.quo_sent_at) {
     automatedTextSent = true;
     initialOutreach = {
       provider: 'quo',

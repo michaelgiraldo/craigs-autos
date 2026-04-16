@@ -59,7 +59,11 @@ export function normalizeStringList(value: unknown, maxItemLength = 256): string
   if (!Array.isArray(value)) return [];
   return dedupeStrings(
     value.map((item) =>
-      typeof item === 'string' ? (item.length <= maxItemLength ? item : item.slice(0, maxItemLength)) : null,
+      typeof item === 'string'
+        ? item.length <= maxItemLength
+          ? item
+          : item.slice(0, maxItemLength)
+        : null,
     ),
   );
 }

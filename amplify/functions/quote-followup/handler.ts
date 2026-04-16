@@ -13,7 +13,11 @@ import { createLeadCoreRuntime } from '../_lead-core/runtime.ts';
 import type { QuoteSubmissionRecord } from '../_shared/quote-submissions.ts';
 import { jsonResponse } from '../_shared/http.ts';
 import { sendQuoTextMessage } from '../chatkit-lead-email/quo.ts';
-import { buildCustomerEmailHtml, buildOwnerEmailContent, buildResultLabel } from './email-content.ts';
+import {
+  buildCustomerEmailHtml,
+  buildOwnerEmailContent,
+  buildResultLabel,
+} from './email-content.ts';
 import { generateQuoteDrafts } from './drafts.ts';
 import { applyQuoteFollowupToLeadRecord } from './lead-record-sync.ts';
 import type { LambdaResult, QuoteFollowupDeps, QuoteFollowupEvent } from './types.ts';
@@ -55,8 +59,7 @@ export function createQuoteFollowupHandler(deps: QuoteFollowupDeps) {
       return json(500, { error: 'Server missing configuration' });
     }
 
-    const submissionId =
-      typeof event?.submission_id === 'string' ? event.submission_id.trim() : '';
+    const submissionId = typeof event?.submission_id === 'string' ? event.submission_id.trim() : '';
     if (!submissionId) {
       return json(400, { error: 'Missing submission_id' });
     }
@@ -112,14 +115,13 @@ export function createQuoteFollowupHandler(deps: QuoteFollowupDeps) {
 }
 
 const parsedEnv = quoteFollowupEnvSchema.safeParse(process.env);
-const runtimeDb = parsedEnv.success
-  ? DynamoDBDocumentClient.from(new DynamoDBClient({}))
-  : null;
+const runtimeDb = parsedEnv.success ? DynamoDBDocumentClient.from(new DynamoDBClient({})) : null;
 const runtimeSes = parsedEnv.success ? new SESv2Client({}) : null;
 const leadCoreRuntime = createLeadCoreRuntime(process.env);
-const runtimeOpenAi = parsedEnv.success && parsedEnv.data.CHATKIT_OPENAI_API_KEY
-  ? new OpenAI({ apiKey: parsedEnv.data.CHATKIT_OPENAI_API_KEY })
-  : null;
+const runtimeOpenAi =
+  parsedEnv.success && parsedEnv.data.CHATKIT_OPENAI_API_KEY
+    ? new OpenAI({ apiKey: parsedEnv.data.CHATKIT_OPENAI_API_KEY })
+    : null;
 
 export const handler = createQuoteFollowupHandler({
   configValid:
@@ -281,12 +283,15 @@ export const handler = createQuoteFollowupHandler({
       repos,
       record,
       quoConfig: {
-        apiKey: parsedEnv.success ? parsedEnv.data.QUO_API_KEY ?? '' : '',
-        leadTagsFieldKey: parsedEnv.success ? parsedEnv.data.QUO_LEAD_TAGS_FIELD_KEY ?? '' : null,
-        leadTagsFieldName: parsedEnv.success ? parsedEnv.data.QUO_LEAD_TAGS_FIELD_NAME ?? '' : null,
-        source: parsedEnv.success ? parsedEnv.data.QUO_CONTACT_SOURCE ?? '' : null,
-        externalIdPrefix:
-          parsedEnv.success ? parsedEnv.data.QUO_CONTACT_EXTERNAL_ID_PREFIX ?? '' : null,
+        apiKey: parsedEnv.success ? (parsedEnv.data.QUO_API_KEY ?? '') : '',
+        leadTagsFieldKey: parsedEnv.success ? (parsedEnv.data.QUO_LEAD_TAGS_FIELD_KEY ?? '') : null,
+        leadTagsFieldName: parsedEnv.success
+          ? (parsedEnv.data.QUO_LEAD_TAGS_FIELD_NAME ?? '')
+          : null,
+        source: parsedEnv.success ? (parsedEnv.data.QUO_CONTACT_SOURCE ?? '') : null,
+        externalIdPrefix: parsedEnv.success
+          ? (parsedEnv.data.QUO_CONTACT_EXTERNAL_ID_PREFIX ?? '')
+          : null,
       },
     });
   },

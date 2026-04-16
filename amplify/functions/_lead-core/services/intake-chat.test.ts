@@ -32,6 +32,8 @@ test('buildChatLeadBundle emits a single handoff success event in the promotion 
     email: 'jordan@example.com',
   });
 
-  const handoffEvents = bundle.events.filter((event) => event.event_name === 'lead_chat_handoff_sent');
+  const handoffEvents = bundle.events.filter(
+    (event) => event.event_name === 'lead_chat_handoff_sent',
+  );
   assert.equal(handoffEvents.length, 1);
 });

@@ -5,11 +5,7 @@ import {
 } from '@aws-sdk/client-scheduler';
 import { getErrorDetails } from '../_shared/safe.ts';
 import type { LeadEmailRequest } from './lead-types.ts';
-import {
-  leadRetryScheduleGroupName,
-  leadRetrySchedulerRoleArn,
-  scheduler,
-} from './runtime.ts';
+import { leadRetryScheduleGroupName, leadRetrySchedulerRoleArn, scheduler } from './runtime.ts';
 
 function buildRetryScheduleName(threadId: string): string {
   const safeId = threadId.replace(/[^A-Za-z0-9_-]/g, '-');

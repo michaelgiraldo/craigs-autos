@@ -293,12 +293,15 @@ export const initAdminLeads = (app = document.getElementById('admin-leads-app'))
         const capture = item.capture_channel || '-';
         const title = item.title || '-';
         const device = item.device_type || '-';
-        const contactParts = [item.display_name, item.normalized_phone, item.normalized_email].filter(
-          (value): value is string => typeof value === 'string' && value.length > 0,
-        );
+        const contactParts = [
+          item.display_name,
+          item.normalized_phone,
+          item.normalized_email,
+        ].filter((value): value is string => typeof value === 'string' && value.length > 0);
         const contact = contactParts.length ? contactParts.join(' • ') : '-';
         const source = item.source_platform || item.utm_source || '-';
-        const actionPath = [item.first_action, item.latest_action].filter(Boolean).join(' -> ') || '-';
+        const actionPath =
+          [item.first_action, item.latest_action].filter(Boolean).join(' -> ') || '-';
         const qualified = item.qualified === true;
         const uploadedGoogleAds = item.uploaded_google_ads === true;
         const statusLabel = qualified ? 'Qualified' : item.status || 'New';
@@ -369,10 +372,13 @@ export const initAdminLeads = (app = document.getElementById('admin-leads-app'))
     } else {
       for (const journey of state.journeys) {
         const tr = document.createElement('tr');
-        const updated = journey.updated_at_ms ? new Date(journey.updated_at_ms).toLocaleString() : '-';
-        const actionList = Array.isArray(journey.action_types) && journey.action_types.length
-          ? journey.action_types.join(', ')
+        const updated = journey.updated_at_ms
+          ? new Date(journey.updated_at_ms).toLocaleString()
           : '-';
+        const actionList =
+          Array.isArray(journey.action_types) && journey.action_types.length
+            ? journey.action_types.join(', ')
+            : '-';
         const source =
           [journey.source_platform, journey.acquisition_class].filter(Boolean).join(' • ') ||
           journey.landing_page ||

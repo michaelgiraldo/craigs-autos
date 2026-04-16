@@ -84,7 +84,10 @@ test('quote-followup sends SMS first and still notifies the owner', async () => 
   assert.equal(current.email_status, 'skipped');
   assert.equal(current.owner_email_status, 'sent');
   assert.equal(current.outreach_result, 'sms_sent');
-  assert.equal(saved.some((record) => record.sms_message_id === 'sms-123'), true);
+  assert.equal(
+    saved.some((record) => record.sms_message_id === 'sms-123'),
+    true,
+  );
 });
 
 test('quote-followup falls back to customer email when phone is missing', async () => {
@@ -207,7 +210,7 @@ test('quote-followup marks phone-only submissions for manual follow-up when SMS 
       aiStatus: 'generated',
       drafts: {
         smsBody: 'Please text us 2-4 photos.',
-        emailSubject: 'Craig\'s Auto Upholstery - next steps',
+        emailSubject: "Craig's Auto Upholstery - next steps",
         emailBody: 'Please email us 2-4 photos.',
         missingInfo: [],
       },

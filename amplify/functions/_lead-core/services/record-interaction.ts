@@ -5,7 +5,6 @@ import type {
   AttributionSnapshot,
   Journey,
   JourneyEvent,
-  JourneyEventName,
   JourneyMetadata,
 } from '../domain/types.ts';
 import { buildJourneyEvent } from './shared.ts';

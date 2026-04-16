@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createLeadAdminHandler } from './handler.ts';
-import type { LeadAdminJourneySummary, LeadAdminRecordSummary } from '../_lead-core/services/admin.ts';
+import type {
+  LeadAdminJourneySummary,
+  LeadAdminRecordSummary,
+} from '../_lead-core/services/admin.ts';
 
 function authHeader(password: string) {
   return `Basic ${Buffer.from(`admin:${password}`).toString('base64')}`;

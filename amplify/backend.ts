@@ -38,31 +38,31 @@ function setLambdaDescription(resource: unknown, description: string): void {
 
 setLambdaDescription(
   backend.chatkitSession.resources.lambda,
-  'Creates ChatKit sessions and returns ephemeral client secrets with locale, page, user, and shop-time state.'
+  'Creates ChatKit sessions and returns ephemeral client secrets with locale, page, user, and shop-time state.',
 );
 setLambdaDescription(
   backend.chatkitLeadEmail.resources.lambda,
-  'Fetches ChatKit transcripts, generates internal lead summaries, enforces thread-level idempotency, and sends lead emails via SES.'
+  'Fetches ChatKit transcripts, generates internal lead summaries, enforces thread-level idempotency, and sends lead emails via SES.',
 );
 setLambdaDescription(
   backend.chatkitMessageLink.resources.lambda,
-  'Resolves tokenized message-link payloads into recipient phone and message body for the /message handoff page.'
+  'Resolves tokenized message-link payloads into recipient phone and message body for the /message handoff page.',
 );
 setLambdaDescription(
   backend.chatkitLeadSignal.resources.lambda,
-  'Logs actionable lead interaction events (call, text, email, directions) and writes normalized lead candidates to DynamoDB.'
+  'Logs actionable lead interaction events (call, text, email, directions) and writes normalized lead candidates to DynamoDB.',
 );
 setLambdaDescription(
   backend.chatkitLeadAdmin.resources.lambda,
-  'Password-protected admin API to list journeys and lead records and update qualification status for conversion workflows.'
+  'Password-protected admin API to list journeys and lead records and update qualification status for conversion workflows.',
 );
 setLambdaDescription(
   backend.contactSubmit.resources.lambda,
-  'Accepts public quote requests, stores them in DynamoDB, and asynchronously invokes the quote follow-up worker.'
+  'Accepts public quote requests, stores them in DynamoDB, and asynchronously invokes the quote follow-up worker.',
 );
 setLambdaDescription(
   backend.quoteFollowup.resources.lambda,
-  'Generates quote outreach drafts, sends SMS-first follow-up with email fallback, and emails the shop via SES.'
+  'Generates quote outreach drafts, sends SMS-first follow-up with email fallback, and emails the shop via SES.',
 );
 
 // Expose a lightweight HTTPS endpoint that creates ChatKit sessions.
@@ -85,7 +85,7 @@ const chatkitSessionUrl = new FunctionUrl(
       // Lambda Function URL CORS maxAge is capped at 86400 seconds.
       maxAge: Duration.days(1),
     },
-  }
+  },
 );
 
 // Expose an endpoint to email a transcript of a thread to the shop.
@@ -105,7 +105,7 @@ const chatkitLeadEmailUrl = new FunctionUrl(
       allowedHeaders: ['content-type'],
       maxAge: Duration.days(1),
     },
-  }
+  },
 );
 
 // Expose a lightweight endpoint used by `/message` to resolve a token into
@@ -126,7 +126,7 @@ const chatkitMessageLinkUrl = new FunctionUrl(
       allowedHeaders: ['content-type'],
       maxAge: Duration.days(1),
     },
-  }
+  },
 );
 
 // Expose a lightweight endpoint to log lead signals (tel/sms/directions clicks).
@@ -146,7 +146,7 @@ const chatkitLeadSignalUrl = new FunctionUrl(
       allowedHeaders: ['content-type'],
       maxAge: Duration.days(1),
     },
-  }
+  },
 );
 
 // Expose a lightweight admin endpoint for lead qualification (password protected in Lambda).
@@ -157,15 +157,12 @@ const chatkitLeadAdminUrl = new FunctionUrl(
     function: backend.chatkitLeadAdmin.resources.lambda,
     authType: FunctionUrlAuthType.NONE,
     cors: {
-      allowedOrigins: [
-        'https://craigs.autos',
-        'http://localhost:4321',
-      ],
+      allowedOrigins: ['https://craigs.autos', 'http://localhost:4321'],
       allowedMethods: [HttpMethod.GET, HttpMethod.POST],
       allowedHeaders: ['content-type', 'authorization'],
       maxAge: Duration.days(1),
     },
-  }
+  },
 );
 
 // Expose the public contact/quote submission endpoint.
@@ -185,21 +182,21 @@ const contactSubmitUrl = new FunctionUrl(
       allowedHeaders: ['content-type'],
       maxAge: Duration.days(1),
     },
-  }
+  },
 );
 
 backend.chatkitLeadEmail.resources.lambda.addToRolePolicy(
   new PolicyStatement({
     actions: ['ses:SendEmail', 'ses:SendRawEmail'],
     resources: ['*'],
-  })
+  }),
 );
 
 backend.quoteFollowup.resources.lambda.addToRolePolicy(
   new PolicyStatement({
     actions: ['ses:SendEmail', 'ses:SendRawEmail'],
     resources: ['*'],
-  })
+  }),
 );
 
 const chatkitLeadRetrySchedulerInvokeRole = new Role(
@@ -207,14 +204,14 @@ const chatkitLeadRetrySchedulerInvokeRole = new Role(
   'ChatkitLeadRetrySchedulerInvokeRole',
   {
     assumedBy: new ServicePrincipal('scheduler.amazonaws.com'),
-  }
+  },
 );
 
 chatkitLeadRetrySchedulerInvokeRole.addToPolicy(
   new PolicyStatement({
     actions: ['lambda:InvokeFunction'],
     resources: ['*'],
-  })
+  }),
 );
 
 backend.chatkitLeadEmail.resources.lambda.addToRolePolicy(
@@ -226,23 +223,23 @@ backend.chatkitLeadEmail.resources.lambda.addToRolePolicy(
       'scheduler:GetSchedule',
     ],
     resources: ['*'],
-  })
+  }),
 );
 
 backend.chatkitLeadEmail.resources.lambda.addToRolePolicy(
   new PolicyStatement({
     actions: ['iam:PassRole'],
     resources: [chatkitLeadRetrySchedulerInvokeRole.roleArn],
-  })
+  }),
 );
 
 (backend.chatkitLeadEmail.resources.lambda as any).addEnvironment(
   'LEAD_RETRY_SCHEDULER_ROLE_ARN',
-  chatkitLeadRetrySchedulerInvokeRole.roleArn
+  chatkitLeadRetrySchedulerInvokeRole.roleArn,
 );
 (backend.chatkitLeadEmail.resources.lambda as any).addEnvironment(
   'LEAD_RETRY_SCHEDULE_GROUP',
-  'default'
+  'default',
 );
 
 // Production-grade idempotency: ensure we only email one lead per ChatKit thread (`cthr_...`),
@@ -256,7 +253,7 @@ const chatkitLeadDedupeTable = new Table(
     timeToLiveAttribute: 'ttl',
     // Safe default for production; note that deleting the Amplify environment will retain this table.
     removalPolicy: RemovalPolicy.RETAIN,
-  }
+  },
 );
 
 chatkitLeadDedupeTable.grantReadWriteData(backend.chatkitLeadEmail.resources.lambda);
@@ -264,7 +261,7 @@ chatkitLeadDedupeTable.grantReadWriteData(backend.chatkitLeadEmail.resources.lam
 // Lambda construct supports it.
 (backend.chatkitLeadEmail.resources.lambda as any).addEnvironment(
   'LEAD_DEDUPE_TABLE_NAME',
-  chatkitLeadDedupeTable.tableName
+  chatkitLeadDedupeTable.tableName,
 );
 
 const quoteSubmissionsTable = new Table(
@@ -275,72 +272,24 @@ const quoteSubmissionsTable = new Table(
     partitionKey: { name: 'submission_id', type: AttributeType.STRING },
     timeToLiveAttribute: 'ttl',
     removalPolicy: RemovalPolicy.RETAIN,
-  }
+  },
 );
 
 quoteSubmissionsTable.grantReadWriteData(backend.contactSubmit.resources.lambda);
 quoteSubmissionsTable.grantReadWriteData(backend.quoteFollowup.resources.lambda);
 (backend.contactSubmit.resources.lambda as any).addEnvironment(
   'QUOTE_SUBMISSIONS_TABLE_NAME',
-  quoteSubmissionsTable.tableName
+  quoteSubmissionsTable.tableName,
 );
 (backend.quoteFollowup.resources.lambda as any).addEnvironment(
   'QUOTE_SUBMISSIONS_TABLE_NAME',
-  quoteSubmissionsTable.tableName
+  quoteSubmissionsTable.tableName,
 );
 
 backend.quoteFollowup.resources.lambda.grantInvoke(backend.contactSubmit.resources.lambda);
 (backend.contactSubmit.resources.lambda as any).addEnvironment(
   'QUOTE_FOLLOWUP_FUNCTION_NAME',
-  backend.quoteFollowup.resources.lambda.functionName
-);
-
-// Immutable lead event log for actionable first-party events.
-const chatkitLeadEventsTable = new Table(
-  Stack.of(backend.chatkitLeadEmail.resources.lambda),
-  'ChatkitLeadEventsTable',
-  {
-    billingMode: BillingMode.PAY_PER_REQUEST,
-    partitionKey: { name: 'event_id', type: AttributeType.STRING },
-    timeToLiveAttribute: 'ttl',
-    removalPolicy: RemovalPolicy.RETAIN,
-  }
-);
-
-chatkitLeadEventsTable.grantReadWriteData(backend.chatkitLeadSignal.resources.lambda);
-(backend.chatkitLeadSignal.resources.lambda as any).addEnvironment(
-  'LEAD_EVENTS_TABLE_NAME',
-  chatkitLeadEventsTable.tableName
-);
-
-// Lead cases back the admin portal, qualification workflow, and offline conversion uploads.
-const chatkitLeadCasesTable = new Table(
-  Stack.of(backend.chatkitLeadEmail.resources.lambda),
-  'ChatkitLeadCasesTable',
-  {
-    billingMode: BillingMode.PAY_PER_REQUEST,
-    partitionKey: { name: 'lead_id', type: AttributeType.STRING },
-    timeToLiveAttribute: 'ttl',
-    removalPolicy: RemovalPolicy.RETAIN,
-  }
-);
-
-chatkitLeadCasesTable.grantReadWriteData(backend.chatkitLeadEmail.resources.lambda);
-(backend.chatkitLeadEmail.resources.lambda as any).addEnvironment(
-  'LEAD_CASES_TABLE_NAME',
-  chatkitLeadCasesTable.tableName
-);
-
-chatkitLeadCasesTable.grantReadWriteData(backend.chatkitLeadSignal.resources.lambda);
-(backend.chatkitLeadSignal.resources.lambda as any).addEnvironment(
-  'LEAD_CASES_TABLE_NAME',
-  chatkitLeadCasesTable.tableName
-);
-
-chatkitLeadCasesTable.grantReadWriteData(backend.chatkitLeadAdmin.resources.lambda);
-(backend.chatkitLeadAdmin.resources.lambda as any).addEnvironment(
-  'LEAD_CASES_TABLE_NAME',
-  chatkitLeadCasesTable.tableName
+  backend.quoteFollowup.resources.lambda.functionName,
 );
 
 // Used by tokenized message handoff links in lead emails.
@@ -352,7 +301,7 @@ const chatkitMessageLinkTokenTable = new Table(
     partitionKey: { name: 'token', type: AttributeType.STRING },
     timeToLiveAttribute: 'ttl',
     removalPolicy: RemovalPolicy.RETAIN,
-  }
+  },
 );
 
 chatkitMessageLinkTokenTable.grantReadData(backend.chatkitMessageLink.resources.lambda);
@@ -360,11 +309,11 @@ chatkitMessageLinkTokenTable.grantReadWriteData(backend.chatkitLeadEmail.resourc
 
 (backend.chatkitMessageLink.resources.lambda as any).addEnvironment(
   'MESSAGE_LINK_TOKEN_TABLE_NAME',
-  chatkitMessageLinkTokenTable.tableName
+  chatkitMessageLinkTokenTable.tableName,
 );
 (backend.chatkitLeadEmail.resources.lambda as any).addEnvironment(
   'MESSAGE_LINK_TOKEN_TABLE_NAME',
-  chatkitMessageLinkTokenTable.tableName
+  chatkitMessageLinkTokenTable.tableName,
 );
 
 // Journey-first lead substrate used by click, chat, and upcoming form capture flows.
@@ -464,13 +413,10 @@ for (const lambda of [
   (lambda as any).addEnvironment('LEAD_JOURNEYS_TABLE_NAME', leadJourneysTable.tableName);
   (lambda as any).addEnvironment(
     'LEAD_JOURNEY_EVENTS_TABLE_NAME',
-    leadJourneyEventsTable.tableName
+    leadJourneyEventsTable.tableName,
   );
   (lambda as any).addEnvironment('LEAD_RECORDS_TABLE_NAME', leadRecordsTable.tableName);
-  (lambda as any).addEnvironment(
-    'LEAD_ACTION_TOKENS_TABLE_NAME',
-    leadActionTokensTable.tableName
-  );
+  (lambda as any).addEnvironment('LEAD_ACTION_TOKENS_TABLE_NAME', leadActionTokensTable.tableName);
 }
 
 backend.addOutput({

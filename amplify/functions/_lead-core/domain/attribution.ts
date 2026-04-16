@@ -56,7 +56,9 @@ function isSmsSource(value: string): boolean {
 }
 
 function isGoogleBusinessProfileSource(value: string): boolean {
-  return value === 'google_business_profile' || value === 'google-business-profile' || value === 'gbp';
+  return (
+    value === 'google_business_profile' || value === 'google-business-profile' || value === 'gbp'
+  );
 }
 
 export function extractHostname(value: string | null | undefined): string | null {
@@ -106,7 +108,8 @@ export function inferSourcePlatform(attribution: AttributionSnapshot): string | 
   if (referrerHost.includes('google.')) return 'organic_google';
   if (referrerHost.includes('yelp.')) return 'yelp';
   if (referrerHost.includes('bing.com')) return 'organic_bing';
-  if (referrerHost.includes('facebook.com') || referrerHost.includes('instagram.com')) return 'meta';
+  if (referrerHost.includes('facebook.com') || referrerHost.includes('instagram.com'))
+    return 'meta';
   if (referrerHost.includes('reddit.com')) return 'reddit';
   if (referrerHost.includes('tiktok.com')) return 'tiktok';
   if (!referrerHost) return 'direct';
@@ -114,7 +117,9 @@ export function inferSourcePlatform(attribution: AttributionSnapshot): string | 
 }
 
 export function inferAcquisitionClass(attribution: AttributionSnapshot): AcquisitionClass | null {
-  const sourcePlatform = normalizeToken(attribution.source_platform || inferSourcePlatform(attribution));
+  const sourcePlatform = normalizeToken(
+    attribution.source_platform || inferSourcePlatform(attribution),
+  );
   const utmMedium = normalizeToken(attribution.utm_medium);
 
   if (
@@ -205,7 +210,9 @@ export function sanitizeAttributionSnapshot(input: unknown): AttributionSnapshot
   return hasAny ? payload : null;
 }
 
-function attributionFromUrl(urlValue: unknown): Partial<Record<UrlAttributionKey, string | null>> | null {
+function attributionFromUrl(
+  urlValue: unknown,
+): Partial<Record<UrlAttributionKey, string | null>> | null {
   const raw = trimToNull(urlValue, 2_000);
   if (!raw) return null;
 

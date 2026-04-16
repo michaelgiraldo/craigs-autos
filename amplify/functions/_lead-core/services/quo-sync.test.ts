@@ -171,9 +171,18 @@ test('syncQuoLeadContact upserts Quo contacts and persists remote tags', async (
     assert.equal(savedContacts.length, 1);
     assert.equal(savedContacts[0]?.quo_contact_id, 'CT_123');
     assert.deepEqual(savedContacts[0]?.quo_tags, ['Form Lead', 'Chat Lead']);
-    assert.equal(appendedEvents.some((event) => event.event_name === 'lead_quo_contact_synced'), true);
-    assert.equal(requests.some((url) => url.includes('/contact-custom-fields')), true);
-    assert.equal(requests.some((url) => url.includes('/contacts/CT_123')), true);
+    assert.equal(
+      appendedEvents.some((event) => event.event_name === 'lead_quo_contact_synced'),
+      true,
+    );
+    assert.equal(
+      requests.some((url) => url.includes('/contact-custom-fields')),
+      true,
+    );
+    assert.equal(
+      requests.some((url) => url.includes('/contacts/CT_123')),
+      true,
+    );
   } finally {
     globalThis.fetch = originalFetch;
   }

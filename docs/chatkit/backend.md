@@ -22,6 +22,8 @@ Related docs:
     - CORS configuration
     - SES IAM permissions
     - DynamoDB idempotency table
+    - Journey-first lead tables
+    - Quote submission queue table
     - Build outputs (`custom.chatkit_*_url`)
 
 - Session minting function:
@@ -70,15 +72,31 @@ Idempotency wiring (injected by `amplify/backend.ts`):
 - `LEAD_DEDUPE_TABLE_NAME`
 - `MESSAGE_LINK_TOKEN_TABLE_NAME` (for both `chatkit-message-link` and `chatkit-lead-email`)
 
+Journey-first lead wiring (injected by `amplify/backend.ts`):
+
+- `LEAD_CONTACTS_TABLE_NAME`
+- `LEAD_JOURNEYS_TABLE_NAME`
+- `LEAD_JOURNEY_EVENTS_TABLE_NAME`
+- `LEAD_RECORDS_TABLE_NAME`
+- `LEAD_ACTION_TOKENS_TABLE_NAME`
+
+Quote form wiring (injected by `amplify/backend.ts`):
+
+- `QUOTE_SUBMISSIONS_TABLE_NAME`
+- `QUOTE_FOLLOWUP_FUNCTION_NAME`
+
 ## Endpoints and discovery
 
 The backend uses Lambda Function URLs, not API Gateway.
 
-Three Function URLs are used by the messaging flow in `amplify/backend.ts`:
+Function URLs are defined in `amplify/backend.ts`:
 
 - Session URL (`chatkit-session`)
 - Lead email URL (`chatkit-lead-email`)
 - Message link URL (`chatkit-message-link`)
+- Lead signal URL (`chatkit-lead-signal`)
+- Lead admin URL (`chatkit-lead-admin`)
+- Contact submit URL (`contact-submit`)
 
 During Amplify builds, `ampx pipeline-deploy` writes `public/amplify_outputs.json`.
 The frontend fetches `/amplify_outputs.json` and reads:
@@ -86,6 +104,9 @@ The frontend fetches `/amplify_outputs.json` and reads:
 - `custom.chatkit_session_url`
 - `custom.chatkit_lead_email_url`
 - `custom.chatkit_message_link_url`
+- `custom.chatkit_lead_signal_url`
+- `custom.chatkit_lead_admin_url`
+- `custom.contact_submit_url`
 
 This avoids hardcoding per-branch function URLs.
 

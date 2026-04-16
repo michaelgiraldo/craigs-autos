@@ -70,7 +70,11 @@ type ContactSubmitDeps = {
     submissionId: string;
     user: string;
     vehicle: string;
-  }) => Promise<{ journeyId: string; leadRecordId: string | null; contactId: string | null } | null>;
+  }) => Promise<{
+    journeyId: string;
+    leadRecordId: string | null;
+    contactId: string | null;
+  } | null>;
   queueSubmission: (record: QuoteSubmissionRecord) => Promise<void>;
   invokeFollowup: (submissionId: string) => Promise<void>;
 };

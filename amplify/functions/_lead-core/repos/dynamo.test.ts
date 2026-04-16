@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { PutCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
+import type { PutCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { DynamoJourneysRepo, DynamoLeadContactsRepo, DynamoLeadRecordsRepo } from './dynamo.ts';
 import type { LeadContact, LeadRecord } from '../domain/types.ts';
 

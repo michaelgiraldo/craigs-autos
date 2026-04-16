@@ -1,5 +1,14 @@
-import { createClientEventId, createStableJourneyId, createStableLeadRecordId } from '../domain/ids.ts';
-import { buildLeadTitle, normalizeLocale, normalizeStringList, trimToNull } from '../domain/normalize.ts';
+import {
+  createClientEventId,
+  createStableJourneyId,
+  createStableLeadRecordId,
+} from '../domain/ids.ts';
+import {
+  buildLeadTitle,
+  normalizeLocale,
+  normalizeStringList,
+  trimToNull,
+} from '../domain/normalize.ts';
 import type {
   AttributionSnapshot,
   CustomerAction,
@@ -10,7 +19,11 @@ import type {
   LeadQualificationSnapshot,
 } from '../domain/types.ts';
 import { createDefaultOutreachSnapshot, deriveLeadRecordStatus } from './outreach.ts';
-import { buildDefaultQualificationSnapshot, buildJourneyEvent, buildLeadContact } from './shared.ts';
+import {
+  buildDefaultQualificationSnapshot,
+  buildJourneyEvent,
+  buildLeadContact,
+} from './shared.ts';
 
 export type FormLeadIntakeInput = {
   submissionId: string;

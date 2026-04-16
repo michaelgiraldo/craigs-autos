@@ -54,7 +54,10 @@ export function buildQuoContactUpsert(args: {
   const externalId = buildQuoExternalId(args.contact, args.externalIdPrefix);
   if (!externalId) return null;
 
-  const mergedTags = mergeQuoTags(args.existingTags ?? args.contact.quo_tags, args.leadRecord.capture_channel);
+  const mergedTags = mergeQuoTags(
+    args.existingTags ?? args.contact.quo_tags,
+    args.leadRecord.capture_channel,
+  );
   const defaultFields: QuoContactUpsertPayload['defaultFields'] = {};
 
   if (args.contact.first_name) defaultFields.firstName = args.contact.first_name;
@@ -96,26 +99,29 @@ function normalizeFieldName(value: string): string {
   return value.trim().toLowerCase();
 }
 
-function findCustomFieldValue(customFields: Array<{ key: string; value: string[] }>, key: string): string[] {
+function findCustomFieldValue(
+  customFields: Array<{ key: string; value: string[] }>,
+  key: string,
+): string[] {
   const match = customFields.find((field) => field.key === key);
   return match ? dedupeStrings(match.value) : [];
 }
 
 async function resolveLeadTagsFieldKey(args: QuoLeadSyncConfig): Promise<string> {
-  const configuredKey = typeof args.leadTagsFieldKey === 'string' ? args.leadTagsFieldKey.trim() : '';
+  const configuredKey =
+    typeof args.leadTagsFieldKey === 'string' ? args.leadTagsFieldKey.trim() : '';
   if (configuredKey) return configuredKey;
 
   const configuredNames = dedupeStrings(
-    [
-      args.leadTagsFieldName ?? '',
-      'Lead Tags',
-      'Lead Tag',
-      'Tags',
-    ].filter((value): value is string => typeof value === 'string' && value.trim().length > 0),
+    [args.leadTagsFieldName ?? '', 'Lead Tags', 'Lead Tag', 'Tags'].filter(
+      (value): value is string => typeof value === 'string' && value.trim().length > 0,
+    ),
   ).map(normalizeFieldName);
 
   const customFields = await listQuoContactCustomFields({ apiKey: args.apiKey });
-  const exact = customFields.find((field) => configuredNames.includes(normalizeFieldName(field.name)));
+  const exact = customFields.find((field) =>
+    configuredNames.includes(normalizeFieldName(field.name)),
+  );
   if (exact) return exact.key;
 
   const multiSelectFields = customFields.filter((field) => field.type === 'multi-select');
@@ -134,9 +140,10 @@ async function upsertQuoLeadContact(args: {
   contact: LeadContact;
   leadRecord: LeadRecord;
 }): Promise<{ quoContactId: string; quoTags: string[]; leadTagsFieldKey: string }> {
-  const source = typeof args.config.source === 'string' && args.config.source.trim()
-    ? args.config.source.trim()
-    : 'craigs-auto-upholstery-web';
+  const source =
+    typeof args.config.source === 'string' && args.config.source.trim()
+      ? args.config.source.trim()
+      : 'craigs-auto-upholstery-web';
   const externalIdPrefix =
     typeof args.config.externalIdPrefix === 'string' && args.config.externalIdPrefix.trim()
       ? args.config.externalIdPrefix.trim()
@@ -163,7 +170,9 @@ async function upsertQuoLeadContact(args: {
   const existingContact =
     existingContacts.find(
       (contact) => contact.externalId === payloadBase.externalId && contact.source === source,
-    ) ?? existingContacts[0] ?? null;
+    ) ??
+    existingContacts[0] ??
+    null;
   const existingTags = existingContact
     ? findCustomFieldValue(existingContact.customFields, leadTagsFieldKey)
     : args.contact.quo_tags;
@@ -195,7 +204,7 @@ async function upsertQuoLeadContact(args: {
     quoContactId: syncedContact.id,
     quoTags: findCustomFieldValue(syncedContact.customFields, leadTagsFieldKey).length
       ? findCustomFieldValue(syncedContact.customFields, leadTagsFieldKey)
-      : payload.customFields[0]?.value ?? [],
+      : (payload.customFields[0]?.value ?? []),
     leadTagsFieldKey,
   };
 }
@@ -208,9 +217,9 @@ function shouldSyncQuoLead(args: {
   if (!args.contact) return false;
   if (!args.config.apiKey.trim()) return false;
   return (
-        args.leadRecord.latest_outreach.provider === 'quo' &&
-        args.leadRecord.latest_outreach.channel === 'sms' &&
-        args.leadRecord.latest_outreach.status === 'sent'
+    args.leadRecord.latest_outreach.provider === 'quo' &&
+    args.leadRecord.latest_outreach.channel === 'sms' &&
+    args.leadRecord.latest_outreach.status === 'sent'
   );
 }
 
@@ -256,7 +265,10 @@ export async function syncQuoLeadContact(args: {
       ...contact,
       quo_contact_id: synced.quoContactId,
       quo_tags: synced.quoTags,
-      updated_at_ms: Math.max(existingContact?.updated_at_ms ?? contact.updated_at_ms, args.occurredAtMs),
+      updated_at_ms: Math.max(
+        existingContact?.updated_at_ms ?? contact.updated_at_ms,
+        args.occurredAtMs,
+      ),
     });
     await args.repos.contacts.put(nextContact);
     await args.repos.journeyEvents.append(

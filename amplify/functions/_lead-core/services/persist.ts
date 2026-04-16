@@ -50,7 +50,10 @@ function chooseLonger(current: string | null, incoming: string | null): string |
 }
 
 function mergeLeadRecords(current: LeadRecord, incoming: LeadRecord): LeadRecord {
-  const actionTypes = dedupeStrings([...current.action_types, ...incoming.action_types]) as LeadRecord['action_types'];
+  const actionTypes = dedupeStrings([
+    ...current.action_types,
+    ...incoming.action_types,
+  ]) as LeadRecord['action_types'];
   return {
     ...current,
     journey_id: current.journey_id || incoming.journey_id,
@@ -91,7 +94,10 @@ function mergeLeadRecords(current: LeadRecord, incoming: LeadRecord): LeadRecord
 }
 
 function mergeJourneys(current: Journey, incoming: Journey): Journey {
-  const actionTypes = dedupeStrings([...current.action_types, ...incoming.action_types]) as Journey['action_types'];
+  const actionTypes = dedupeStrings([
+    ...current.action_types,
+    ...incoming.action_types,
+  ]) as Journey['action_types'];
   const transition = applyJourneyStatusTransition({
     currentStatus: current.journey_status,
     currentReason: current.status_reason,
@@ -122,7 +128,10 @@ function mergeJourneys(current: Journey, incoming: Journey): Journey {
   };
 }
 
-async function findExistingContact(repos: LeadCoreRepos, contact: LeadContact): Promise<LeadContact | null> {
+async function findExistingContact(
+  repos: LeadCoreRepos,
+  contact: LeadContact,
+): Promise<LeadContact | null> {
   if (contact.normalized_phone) {
     const byPhone = await repos.contacts.findByNormalizedPhone(contact.normalized_phone);
     if (byPhone) return byPhone;
@@ -141,7 +150,9 @@ export async function upsertLeadBundle(
   let persistedContact = bundle.contact;
   if (bundle.contact) {
     const existingContact = await findExistingContact(repos, bundle.contact);
-    persistedContact = existingContact ? mergeLeadContacts(existingContact, bundle.contact) : bundle.contact;
+    persistedContact = existingContact
+      ? mergeLeadContacts(existingContact, bundle.contact)
+      : bundle.contact;
     await repos.contacts.put(persistedContact);
   }
 
@@ -185,7 +196,9 @@ export async function upsertLeadBundle(
   };
 
   const existingJourney = await repos.journeys.getById(nextJourney.journey_id);
-  const persistedJourney = existingJourney ? mergeJourneys(existingJourney, nextJourney) : nextJourney;
+  const persistedJourney = existingJourney
+    ? mergeJourneys(existingJourney, nextJourney)
+    : nextJourney;
   await repos.journeys.put(persistedJourney);
 
   const persistedEvents: JourneyEvent[] = bundle.events.map((event) => ({

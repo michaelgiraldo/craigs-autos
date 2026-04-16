@@ -37,7 +37,6 @@ export type PrepareAttachmentResult = PrepareAttachmentFailure | PrepareAttachme
 
 const EMAIL_SAFE_INLINE_MIME = new Set(['image/jpeg', 'image/png']);
 const NORMALIZED_OUTPUT_MIME = 'image/jpeg';
-const NORMALIZED_OUTPUT_EXTENSION = '.jpg';
 const NORMALIZED_DEFAULT_QUALITY = 82;
 const COMPACTED_QUALITY = 74;
 const COMPACTED_MAX_DIMENSION = 1600;
@@ -69,11 +68,7 @@ export function sanitizeAttachmentFilename(value: string, mimeType: string): str
 }
 
 function pickAttachmentMime(mime: string | null): string {
-  const normalized = (mime ?? '')
-    .trim()
-    .toLowerCase()
-    .split(';')[0]
-    ?.trim() ?? '';
+  const normalized = (mime ?? '').trim().toLowerCase().split(';')[0]?.trim() ?? '';
   if (normalized.startsWith('image/')) return normalized;
   return 'image/jpeg';
 }
@@ -145,10 +140,7 @@ export function buildResolutionFromOmission(
   };
 }
 
-async function normalizeToJpeg(
-  bytes: Buffer,
-  compact: boolean,
-): Promise<Buffer> {
+async function normalizeToJpeg(bytes: Buffer, compact: boolean): Promise<Buffer> {
   let pipeline = sharp(bytes, { failOn: 'none' }).rotate();
   if (compact) {
     pipeline = pipeline.resize({
@@ -232,7 +224,10 @@ export async function prepareInlineAttachment(
       return { attachment, detail: 'empty_attachment', ok: false };
     }
 
-    const responseMimeType = normalizeContentType(response.headers.get('content-type'), declaredMimeType);
+    const responseMimeType = normalizeContentType(
+      response.headers.get('content-type'),
+      declaredMimeType,
+    );
     const inlineAttachment = await maybeNormalizeAttachment(attachment, {
       bytes,
       compact: false,

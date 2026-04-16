@@ -35,10 +35,7 @@ function joinTextParts(parts: Array<{ text: string }>): string {
     .join('\n');
 }
 
-function formatAttachmentLine(attachment: {
-  name: string;
-  mime_type: string;
-}): string {
+function formatAttachmentLine(attachment: { name: string; mime_type: string }): string {
   return `Attachment: ${attachment.name}${attachment.mime_type ? ` (${attachment.mime_type})` : ''}`;
 }
 

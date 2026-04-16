@@ -58,7 +58,9 @@ function buildLatestOutreach(initialOutreach: InitialOutreachState, nowEpochSeco
   };
 }
 
-export async function persistCapturedChatLead(args: PersistCapturedChatLeadArgs): Promise<string | null> {
+export async function persistCapturedChatLead(
+  args: PersistCapturedChatLeadArgs,
+): Promise<string | null> {
   const repos = args.repos;
   if (!repos) return null;
 

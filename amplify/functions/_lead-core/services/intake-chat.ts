@@ -1,4 +1,8 @@
-import { createClientEventId, createStableJourneyId, createStableLeadRecordId } from '../domain/ids.ts';
+import {
+  createClientEventId,
+  createStableJourneyId,
+  createStableLeadRecordId,
+} from '../domain/ids.ts';
 import { buildLeadTitle, normalizeLocale, trimToNull } from '../domain/normalize.ts';
 import type {
   AttributionSnapshot,
@@ -9,7 +13,11 @@ import type {
   LeadQualificationSnapshot,
 } from '../domain/types.ts';
 import { createDefaultOutreachSnapshot, deriveLeadRecordStatus } from './outreach.ts';
-import { buildDefaultQualificationSnapshot, buildJourneyEvent, buildLeadContact } from './shared.ts';
+import {
+  buildDefaultQualificationSnapshot,
+  buildJourneyEvent,
+  buildLeadContact,
+} from './shared.ts';
 
 export type ChatLeadIntakeInput = {
   threadId: string;

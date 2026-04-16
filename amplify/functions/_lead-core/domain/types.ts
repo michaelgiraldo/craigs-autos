@@ -52,12 +52,7 @@ export type JourneyEventName =
   | 'lead_record_qualified'
   | 'lead_record_unqualified';
 
-export type EventClass =
-  | 'customer_action'
-  | 'diagnostic'
-  | 'workflow'
-  | 'verification'
-  | 'system';
+export type EventClass = 'customer_action' | 'diagnostic' | 'workflow' | 'verification' | 'system';
 
 export type AcquisitionClass = 'paid' | 'organic' | 'owned' | 'referral' | 'direct';
 
@@ -225,7 +220,11 @@ export type LeadRecord = {
   updated_at_ms: number;
 };
 
-export type LeadActionTokenAction = 'reply_sms' | 'reply_email' | 'review_lead_record' | 'open_admin';
+export type LeadActionTokenAction =
+  | 'reply_sms'
+  | 'reply_email'
+  | 'review_lead_record'
+  | 'open_admin';
 
 export type LeadActionToken = {
   token: string;

@@ -32,9 +32,15 @@ function renderQuickActions(actions: LeadEmailAction[]): string {
 
 function renderAttachmentsHtml(viewModel: LeadEmailViewModel): string {
   if (!viewModel.attachments.length) return '';
-  const attachedCount = viewModel.attachments.filter((attachment) => attachment.status === 'attached').length;
-  const omittedCount = viewModel.attachments.filter((attachment) => attachment.status === 'omitted').length;
-  const failedCount = viewModel.attachments.filter((attachment) => attachment.status === 'failed').length;
+  const attachedCount = viewModel.attachments.filter(
+    (attachment) => attachment.status === 'attached',
+  ).length;
+  const omittedCount = viewModel.attachments.filter(
+    (attachment) => attachment.status === 'omitted',
+  ).length;
+  const failedCount = viewModel.attachments.filter(
+    (attachment) => attachment.status === 'failed',
+  ).length;
   const summaryBits = [`${attachedCount} attached`];
   if (omittedCount) summaryBits.push(`${omittedCount} omitted`);
   if (failedCount) summaryBits.push(`${failedCount} failed`);
@@ -53,8 +59,8 @@ function renderAttachmentsHtml(viewModel: LeadEmailViewModel): string {
              const preview =
                attachment.status === 'attached' && attachment.contentId
                  ? `<div style="margin:8px 0 10px"><img src="cid:${attachment.contentId}" alt="${escapeHtml(
-                   attachment.name,
-                 )}" style="max-width:100%;height:auto;border:1px solid #e5e7eb;border-radius:8px" /></div>`
+                     attachment.name,
+                   )}" style="max-width:100%;height:auto;border:1px solid #e5e7eb;border-radius:8px" /></div>`
                  : '';
              return `<li style="margin:0 0 12px"><span style="color:#111827">${escapeHtml(
                label,

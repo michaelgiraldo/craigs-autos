@@ -60,6 +60,10 @@ Confirm it contains:
 
 - `custom.chatkit_session_url`
 - `custom.chatkit_lead_email_url`
+- `custom.chatkit_message_link_url`
+- `custom.chatkit_lead_signal_url`
+- `custom.chatkit_lead_admin_url`
+- `custom.contact_submit_url`
 
 If these are missing or wrong, the frontend may be calling a placeholder URL.
 
@@ -251,6 +255,11 @@ Potential causes:
 
 - Dedupe table not configured (LEAD_DEDUPE_TABLE_NAME missing) in that environment.
 - A forced re-send happened (table item deleted).
+
+Note:
+
+- The dedupe table is still active infrastructure even though Craig's lead storage is now journey-first.
+- Do not delete `ChatkitLeadDedupeTable` unless the chat-email idempotency implementation is replaced.
 
 ## Scenario E: Wrong language / wrong hours / wrong agent behavior
 

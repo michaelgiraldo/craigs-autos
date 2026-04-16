@@ -233,7 +233,7 @@ test('async quote flow marks phone-only submissions for manual follow-up when SM
       aiStatus: 'generated',
       drafts: {
         smsBody: 'Please text us 2-4 photos.',
-        emailSubject: 'Craig\'s Auto Upholstery - next steps',
+        emailSubject: "Craig's Auto Upholstery - next steps",
         emailBody: 'Please email us 2-4 photos.',
         missingInfo: ['photos'],
       },

@@ -60,7 +60,10 @@ type EvaluateChatLeadArgs = {
   currentEpochSeconds: number;
 };
 
-function hydrateLeadSummary(leadSummary: LeadSummary | null, detectedContact: ContactDetection): LeadSummary | null {
+function hydrateLeadSummary(
+  leadSummary: LeadSummary | null,
+  detectedContact: ContactDetection,
+): LeadSummary | null {
   if (!leadSummary) return null;
   if (leadSummary.customer_email && leadSummary.customer_phone) return leadSummary;
   return {
@@ -102,10 +105,7 @@ export async function evaluateChatLead(args: EvaluateChatLeadArgs): Promise<Chat
   }
 
   const lastMessageAt = latestActivityEpochSeconds(lines);
-  if (
-    lastMessageAt !== null &&
-    args.currentEpochSeconds - lastMessageAt < args.idleDelaySeconds
-  ) {
+  if (lastMessageAt !== null && args.currentEpochSeconds - lastMessageAt < args.idleDelaySeconds) {
     return {
       attachments,
       outcome: 'deferred',

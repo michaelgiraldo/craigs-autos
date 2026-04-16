@@ -4,16 +4,8 @@ import { sanitizeAttributionSnapshot } from '../_lead-core/domain/attribution.ts
 import { createLeadCoreRuntime } from '../_lead-core/runtime.ts';
 import { decodeBody, emptyResponse, getHttpMethod, jsonResponse } from '../_shared/http.ts';
 import { getErrorDetails } from '../_shared/safe.ts';
-import {
-  acquireLeadSendLease,
-  getLeadDedupeRecord,
-  markLeadError,
-} from './dedupe-store.ts';
-import type {
-  LeadEmailRequest,
-  LambdaEvent,
-  LambdaResult,
-} from './lead-types';
+import { acquireLeadSendLease, getLeadDedupeRecord, markLeadError } from './dedupe-store.ts';
+import type { LeadEmailRequest, LambdaEvent, LambdaResult } from './lead-types';
 import { createMessageLinkUrl as createMessageLinkTokenUrl } from './message-link';
 import { deleteLeadRetrySchedule, upsertLeadRetrySchedule } from './retry-scheduler.ts';
 import {
@@ -136,7 +128,8 @@ export const handler = async (
           sent_at: record.sent_at ?? null,
         });
       }
-      const lockExpiresAt = typeof record?.lock_expires_at === 'number' ? record.lock_expires_at : 0;
+      const lockExpiresAt =
+        typeof record?.lock_expires_at === 'number' ? record.lock_expires_at : 0;
       if (record?.status === 'sending' && lockExpiresAt > now) {
         return jsonResponse(200, { ok: true, sent: false, reason: 'in_progress' });
       }
@@ -222,8 +215,16 @@ export const handler = async (
         scheduled_for: scheduledFor,
       });
     }
-    const { attachments, threadTitle, threadUser, lines, leadSummary, customerPhone, customerEmail, customerPhoneE164 } =
-      evaluation;
+    const {
+      attachments,
+      threadTitle,
+      threadUser,
+      lines,
+      leadSummary,
+      customerPhone,
+      customerEmail,
+      customerPhoneE164,
+    } = evaluation;
 
     // Acquire a per-thread lease before sending so we never email the shop twice for the same thread,
     // even if multiple devices or tab lifecycle events trigger this endpoint concurrently.

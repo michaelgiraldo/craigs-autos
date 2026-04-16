@@ -19,7 +19,12 @@ import {
   type BuildMessageLinkUrl,
   type InitialOutreachState,
 } from './email-view-model.ts';
-import type { LeadAttachment, LeadAttributionPayload, LeadSummary, TranscriptLine } from './lead-types.ts';
+import type {
+  LeadAttachment,
+  LeadAttributionPayload,
+  LeadSummary,
+  TranscriptLine,
+} from './lead-types.ts';
 
 export type { InitialOutreachState } from './email-view-model.ts';
 
@@ -194,7 +199,9 @@ async function fitAttachmentsToBudget(
   });
 
   const compactedAttachments = await Promise.all(
-    selectedAttachments.map(async (attachment) => (await compactInlineAttachment(attachment)) ?? attachment),
+    selectedAttachments.map(
+      async (attachment) => (await compactInlineAttachment(attachment)) ?? attachment,
+    ),
   );
   selectedAttachments = compactedAttachments;
   rendered = await render(selectedAttachments);

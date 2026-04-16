@@ -169,8 +169,7 @@ export async function markLeadQuoError(args: {
     new UpdateCommand({
       TableName: leadDedupeTableName,
       Key: { thread_id: args.threadId },
-      UpdateExpression:
-        'SET #quo_last_error = :quo_last_error, #updated_at = :now, #ttl = :ttl',
+      UpdateExpression: 'SET #quo_last_error = :quo_last_error, #updated_at = :now, #ttl = :ttl',
       ExpressionAttributeNames: {
         '#quo_last_error': 'quo_last_error',
         '#updated_at': 'updated_at',

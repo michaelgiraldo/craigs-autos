@@ -1,6 +1,10 @@
 import type { LeadContact, LeadRecord, Journey } from '../_lead-core/domain/types.ts';
 import type { LeadCoreRepos } from '../_lead-core/repos/dynamo.ts';
-import { deriveLeadRecordStatus, deriveLegacyQuoteOutreach, buildLegacyQuoteOutreachEvents } from '../_lead-core/services/outreach.ts';
+import {
+  deriveLeadRecordStatus,
+  deriveLegacyQuoteOutreach,
+  buildLegacyQuoteOutreachEvents,
+} from '../_lead-core/services/outreach.ts';
 import { upsertLeadBundle } from '../_lead-core/services/persist.ts';
 import { syncQuoLeadContact } from '../_lead-core/services/quo-sync.ts';
 import type { QuoteSubmissionRecord } from '../_shared/quote-submissions.ts';
@@ -23,8 +27,9 @@ async function resolveLeadContext(
   repos: LeadCoreRepos,
   record: QuoteSubmissionRecord,
 ): Promise<ResolvedLeadContext | null> {
-  const directLeadRecord =
-    record.lead_record_id ? await repos.leadRecords.getById(record.lead_record_id) : null;
+  const directLeadRecord = record.lead_record_id
+    ? await repos.leadRecords.getById(record.lead_record_id)
+    : null;
   const directJourney = record.journey_id ? await repos.journeys.getById(record.journey_id) : null;
 
   const leadRecord =

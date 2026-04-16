@@ -1,6 +1,11 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { buildLeadTitle, normalizeEmail, normalizePhoneE164, splitDisplayName } from './normalize.ts';
+import {
+  buildLeadTitle,
+  normalizeEmail,
+  normalizePhoneE164,
+  splitDisplayName,
+} from './normalize.ts';
 
 test('normalizePhoneE164 keeps NANP normalization aligned for lead-contact identity', () => {
   assert.equal(normalizePhoneE164('(408) 555-0101'), '+14085550101');

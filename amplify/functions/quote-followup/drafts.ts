@@ -11,7 +11,10 @@ type QuoteDraftGenerationResult = {
 };
 
 function compact(value: string): string {
-  return value.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+  return value
+    .replace(/\r\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
 }
 
 function missingInfoForSubmission(record: QuoteSubmissionRecord): string[] {
@@ -55,8 +58,7 @@ function sanitizeDraftOutput(input: unknown): QuoteDrafts | null {
   if (!input || typeof input !== 'object') return null;
   const data = input as Record<string, unknown>;
   const smsBody = typeof data.sms_body === 'string' ? compact(data.sms_body) : '';
-  const emailSubject =
-    typeof data.email_subject === 'string' ? compact(data.email_subject) : '';
+  const emailSubject = typeof data.email_subject === 'string' ? compact(data.email_subject) : '';
   const emailBody = typeof data.email_body === 'string' ? compact(data.email_body) : '';
   const missingInfo = Array.isArray(data.missing_info)
     ? data.missing_info

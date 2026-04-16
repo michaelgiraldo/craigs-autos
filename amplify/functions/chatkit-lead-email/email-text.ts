@@ -10,7 +10,9 @@ export function renderLeadEmailText(viewModel: LeadEmailViewModel): string {
 
   if (viewModel.hasLeadSummary) {
     bodyParts.push('At a glance');
-    bodyParts.push(...renderRowsText(viewModel.atAGlanceRows.filter((row) => row.label !== 'Photos')));
+    bodyParts.push(
+      ...renderRowsText(viewModel.atAGlanceRows.filter((row) => row.label !== 'Photos')),
+    );
     bodyParts.push('');
   }
 
@@ -87,7 +89,9 @@ export function renderLeadEmailText(viewModel: LeadEmailViewModel): string {
   bodyParts.push('');
 
   bodyParts.push('Diagnostics');
-  bodyParts.push(...renderRowsText(viewModel.diagnosticRows.map((row) => ({ ...row, href: null }))));
+  bodyParts.push(
+    ...renderRowsText(viewModel.diagnosticRows.map((row) => ({ ...row, href: null }))),
+  );
   bodyParts.push(`OpenAI logs: ${viewModel.openAiLogsHref}`);
 
   return bodyParts.join('\n\n');

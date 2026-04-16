@@ -177,7 +177,10 @@ test('applyQuoteFollowupToLeadRecord updates the existing lead record without re
   assert.ok(syncedLeadRecord);
   assert.equal(syncedLeadRecord.lead_record_id, 'lead-record-1');
   assert.equal(syncedLeadRecord.latest_outreach.status, 'sent');
-  assert.equal(appended.some((event) => event.event_name === 'lead_form_submit_success'), false);
+  assert.equal(
+    appended.some((event) => event.event_name === 'lead_form_submit_success'),
+    false,
+  );
   assert.deepEqual(
     appended.map((event) => event.event_name),
     ['lead_outreach_sms_sent'],

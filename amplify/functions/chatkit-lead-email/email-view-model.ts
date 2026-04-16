@@ -124,8 +124,10 @@ function buildAttributionRows(attribution: LeadAttributionPayload | null): LeadE
   if (!attribution) return [];
 
   const rows: LeadEmailRow[] = [];
-  if (attribution.source_platform) rows.push({ label: 'Source platform', value: attribution.source_platform });
-  if (attribution.acquisition_class) rows.push({ label: 'Acquisition class', value: attribution.acquisition_class });
+  if (attribution.source_platform)
+    rows.push({ label: 'Source platform', value: attribution.source_platform });
+  if (attribution.acquisition_class)
+    rows.push({ label: 'Acquisition class', value: attribution.acquisition_class });
   if (attribution.device_type) rows.push({ label: 'Device', value: attribution.device_type });
   if (attribution.gclid) rows.push({ label: 'GCLID', value: attribution.gclid });
   if (attribution.gbraid) rows.push({ label: 'GBRAID', value: attribution.gbraid });
@@ -145,11 +147,15 @@ function buildAttributionRows(attribution: LeadAttributionPayload | null): LeadE
     .join(' | ');
   if (utm) rows.push({ label: 'UTM', value: utm });
 
-  if (attribution.landing_page) rows.push({ label: 'Landing page', value: attribution.landing_page });
+  if (attribution.landing_page)
+    rows.push({ label: 'Landing page', value: attribution.landing_page });
   if (attribution.referrer) rows.push({ label: 'Referrer', value: attribution.referrer });
-  if (attribution.referrer_host) rows.push({ label: 'Referrer host', value: attribution.referrer_host });
-  if (attribution.first_touch_ts) rows.push({ label: 'First touch', value: attribution.first_touch_ts });
-  if (attribution.last_touch_ts) rows.push({ label: 'Last touch', value: attribution.last_touch_ts });
+  if (attribution.referrer_host)
+    rows.push({ label: 'Referrer host', value: attribution.referrer_host });
+  if (attribution.first_touch_ts)
+    rows.push({ label: 'First touch', value: attribution.first_touch_ts });
+  if (attribution.last_touch_ts)
+    rows.push({ label: 'Last touch', value: attribution.last_touch_ts });
 
   return rows;
 }
@@ -228,15 +234,25 @@ export async function buildLeadEmailViewModel(args: {
     ? mailtoWithDraft(customerEmail, emailDraftSubject, emailDraftBody)
     : null;
 
-  const attachedPhotoCount = attachments.filter((attachment) => attachment.status === 'attached').length;
-  const omittedPhotoCount = attachments.filter((attachment) => attachment.status === 'omitted').length;
-  const failedPhotoCount = attachments.filter((attachment) => attachment.status === 'failed').length;
+  const attachedPhotoCount = attachments.filter(
+    (attachment) => attachment.status === 'attached',
+  ).length;
+  const omittedPhotoCount = attachments.filter(
+    (attachment) => attachment.status === 'omitted',
+  ).length;
+  const failedPhotoCount = attachments.filter(
+    (attachment) => attachment.status === 'failed',
+  ).length;
 
   const atAGlanceRows: LeadEmailRow[] = [];
-  if (leadSummary?.customer_name) atAGlanceRows.push({ label: 'Customer', value: leadSummary.customer_name });
-  if (customerPhone) atAGlanceRows.push({ label: 'Phone', value: customerPhone, href: customerTelHref });
-  if (customerEmail) atAGlanceRows.push({ label: 'Email', value: customerEmail, href: customerMailHref });
-  if (leadSummary?.customer_location) atAGlanceRows.push({ label: 'Location', value: leadSummary.customer_location });
+  if (leadSummary?.customer_name)
+    atAGlanceRows.push({ label: 'Customer', value: leadSummary.customer_name });
+  if (customerPhone)
+    atAGlanceRows.push({ label: 'Phone', value: customerPhone, href: customerTelHref });
+  if (customerEmail)
+    atAGlanceRows.push({ label: 'Email', value: customerEmail, href: customerMailHref });
+  if (leadSummary?.customer_location)
+    atAGlanceRows.push({ label: 'Location', value: leadSummary.customer_location });
   if (leadSummary?.vehicle) atAGlanceRows.push({ label: 'Vehicle', value: leadSummary.vehicle });
   if (leadSummary?.project) atAGlanceRows.push({ label: 'Project', value: leadSummary.project });
   if (leadSummary?.timeline) atAGlanceRows.push({ label: 'Timeline', value: leadSummary.timeline });
@@ -262,7 +278,10 @@ export async function buildLeadEmailViewModel(args: {
       });
     }
     if (effectiveInitialOutreach.messageId) {
-      initialOutreachRows.push({ label: 'QUO message ID', value: effectiveInitialOutreach.messageId });
+      initialOutreachRows.push({
+        label: 'QUO message ID',
+        value: effectiveInitialOutreach.messageId,
+      });
     }
   } else if (effectiveInitialOutreach.status === 'failed') {
     initialOutreachRows.push({ label: 'Status', value: 'Initial outreach failed' });
@@ -279,7 +298,8 @@ export async function buildLeadEmailViewModel(args: {
   const diagnosticRows: LeadEmailRow[] = [];
   if (locale) diagnosticRows.push({ label: 'Locale', value: locale });
   if (customerLanguage) diagnosticRows.push({ label: 'Language', value: customerLanguage });
-  if (attribution?.device_type) diagnosticRows.push({ label: 'Device', value: attribution.device_type });
+  if (attribution?.device_type)
+    diagnosticRows.push({ label: 'Device', value: attribution.device_type });
   if (pageHref) diagnosticRows.push({ label: 'Page', value: pageHref, href: pageHref });
   diagnosticRows.push({ label: 'Thread', value: threadId, href: openAiLogsHref });
   if (reason) diagnosticRows.push({ label: 'Trigger', value: reason });

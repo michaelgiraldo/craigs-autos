@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import sharp from 'sharp';
-import { SendEmailCommand } from '@aws-sdk/client-sesv2';
+import type { SendEmailCommand } from '@aws-sdk/client-sesv2';
 import { sendTranscriptEmail, type InitialOutreachState } from './email-delivery.ts';
 import type { LeadAttachment, LeadSummary, TranscriptLine } from './lead-types.ts';
 
@@ -92,7 +92,7 @@ async function createImageBuffer(args: {
   height: number;
   width: number;
 }): Promise<Buffer> {
-  let pipeline = sharp({
+  const pipeline = sharp({
     create: {
       background: { alpha: 1, b: 180, g: 120, r: 70 },
       channels: 3,
@@ -365,6 +365,12 @@ test('sendTranscriptEmail omits attachments when the final raw email budget is t
   );
 
   assert.equal(inlineAttachmentCount, 0);
-  assert.match(textBody, /first\.jpg \(image\/jpeg\): omitted - Omitted to fit the email size budget\./);
-  assert.match(textBody, /second\.jpg \(image\/jpeg\): omitted - Omitted to fit the email size budget\./);
+  assert.match(
+    textBody,
+    /first\.jpg \(image\/jpeg\): omitted - Omitted to fit the email size budget\./,
+  );
+  assert.match(
+    textBody,
+    /second\.jpg \(image\/jpeg\): omitted - Omitted to fit the email size budget\./,
+  );
 });

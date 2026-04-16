@@ -9,29 +9,28 @@ export function getOutreachResult(record: QuoteSubmissionRecord): QuoteOutreachR
 
   if (record.sms_status === 'sent') return 'sms_sent';
   if (record.email_status === 'sent') return 'email_sent_fallback';
-  if (hasPhone && record.sms_status === 'skipped' && record.sms_error === 'manual_followup_required') {
+  if (
+    hasPhone &&
+    record.sms_status === 'skipped' &&
+    record.sms_error === 'manual_followup_required'
+  ) {
     return 'manual_followup_required';
   }
   if (!hasPhone && !hasEmail) return 'no_customer_contact_method';
-  if (hasPhone && record.sms_status === 'failed' && !hasEmail) return 'sms_failed_no_email_fallback';
+  if (hasPhone && record.sms_status === 'failed' && !hasEmail)
+    return 'sms_failed_no_email_fallback';
   if (record.sms_status === 'failed' || record.email_status === 'failed') {
     return 'customer_outreach_failed';
   }
   return null;
 }
 
-async function persistRecord(
-  deps: QuoteFollowupDeps,
-  record: QuoteSubmissionRecord,
-) {
+async function persistRecord(deps: QuoteFollowupDeps, record: QuoteSubmissionRecord) {
   record.updated_at = deps.nowEpochSeconds();
   await deps.saveSubmission(record);
 }
 
-async function ensureDrafts(
-  deps: QuoteFollowupDeps,
-  record: QuoteSubmissionRecord,
-) {
+async function ensureDrafts(deps: QuoteFollowupDeps, record: QuoteSubmissionRecord) {
   if (record.sms_body && record.email_subject && record.email_body) {
     return;
   }
@@ -90,7 +89,9 @@ async function attemptEmailFallback(
   const shouldSendEmailFallback =
     usableEmail &&
     record.email_status !== 'sent' &&
-    ((Boolean(usablePhone) && (record.sms_status === 'failed' || record.sms_status === 'skipped')) || !usablePhone);
+    ((Boolean(usablePhone) &&
+      (record.sms_status === 'failed' || record.sms_status === 'skipped')) ||
+      !usablePhone);
 
   if (shouldSendEmailFallback) {
     try {
