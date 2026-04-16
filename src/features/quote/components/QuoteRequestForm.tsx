@@ -269,7 +269,7 @@ export default function QuoteRequestForm({
 					</div>
 				) : null}
 
-				<form className="contact-lead-form-card" onSubmit={handleSubmit} noValidate>
+				<form className="contact-lead-form-card" method="post" onSubmit={handleSubmit} noValidate>
 					<div className="contact-lead-form-grid">
 						<label className="contact-lead-form-field">
 							<span>{copy.nameLabel}</span>

@@ -1,5 +1,6 @@
 import { CHAT_COPY } from '../../../lib/site-data.js';
-import { getPageLabel, resolveLocaleKey } from '../../../lib/site-data/page-registry.js';
+import { LOCALES } from '../../../lib/site-data/core.js';
+import { PAGE_LABELS } from '../../../lib/site-data/page-meta.js';
 import type { LocaleKey } from '../../../types/site';
 
 type QuoteFormLocaleCopy = {
@@ -549,6 +550,15 @@ const SERVICE_OPTION_KEYS = [
 	{ value: 'commercial-fleet', pageKey: 'commercialFleet' },
 	{ value: 'motorcycle-seats', pageKey: 'motorcycleSeats' },
 ] as const;
+
+function resolveLocaleKey(locale: LocaleKey): LocaleKey {
+	return (LOCALES[locale] ? locale : 'en') as LocaleKey;
+}
+
+function getPageLabel(pageKey: string, locale: LocaleKey): string | null {
+	const labelsByLocale = PAGE_LABELS as Record<string, Record<string, string>>;
+	return labelsByLocale[locale]?.[pageKey] ?? null;
+}
 
 export function getQuoteFormCopy(locale: LocaleKey): QuoteFormCopy {
 	const resolvedLocale = resolveLocaleKey(locale) as LocaleKey;
