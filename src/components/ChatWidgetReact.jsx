@@ -273,9 +273,10 @@ export default function ChatWidgetReact({
       pushLeadDataLayer('lead_chat_first_message_sent', {
         event_class: 'customer_action',
         customer_action: 'chat_first_message_sent',
+        capture_channel: 'chat',
         lead_strength: 'soft_intent',
         verification_status: 'unverified',
-        locale,
+        lead_locale: locale,
         journey_id: journeyId,
         client_event_id: clientEventId,
         occurred_at_ms: occurredAtMs,
@@ -363,8 +364,12 @@ export default function ChatWidgetReact({
         if (!response.ok) {
           if (isDev) console.error('ChatKit lead email error', response.status, text);
           pushLeadDataLayer('lead_chat_handoff_error', {
-            lead_method: 'chat',
-            lead_intent_type: 'chat',
+            event_class: 'diagnostic',
+            customer_action: 'chat_first_message_sent',
+            workflow_outcome: 'chat_handoff_error',
+            capture_channel: 'chat',
+            lead_strength: 'soft_intent',
+            verification_status: 'unverified',
             lead_locale: locale,
             lead_request_reason: reason,
             thread_id: activeThreadId,
@@ -381,8 +386,12 @@ export default function ChatWidgetReact({
           data = text ? JSON.parse(text) : {};
         } catch {
           pushLeadDataLayer('lead_chat_handoff_error', {
-            lead_method: 'chat',
-            lead_intent_type: 'chat',
+            event_class: 'diagnostic',
+            customer_action: 'chat_first_message_sent',
+            workflow_outcome: 'chat_handoff_error',
+            capture_channel: 'chat',
+            lead_strength: 'soft_intent',
+            verification_status: 'unverified',
             lead_locale: locale,
             lead_request_reason: reason,
             thread_id: activeThreadId,
@@ -398,8 +407,12 @@ export default function ChatWidgetReact({
         if (data?.sent === true) {
           globalThis.localStorage?.setItem(sentKey, 'true');
           pushLeadDataLayer('lead_chat_handoff_sent', {
-            lead_method: 'chat',
-            lead_intent_type: 'chat',
+            event_class: 'workflow',
+            customer_action: 'chat_first_message_sent',
+            workflow_outcome: 'chat_handoff_sent',
+            capture_channel: 'chat',
+            lead_strength: 'captured_lead',
+            verification_status: 'unverified',
             lead_locale: locale,
             lead_request_reason: reason,
             lead_reason: backendReason || reason,
@@ -409,9 +422,17 @@ export default function ChatWidgetReact({
             page_path: window.location.pathname,
           });
         } else if (data?.sent === false) {
-          pushLeadDataLayer(classifyChatHandoffReason(backendReason || 'unknown'), {
-            lead_method: 'chat',
-            lead_intent_type: 'chat',
+          const handoffEventName = classifyChatHandoffReason(backendReason || 'unknown');
+          pushLeadDataLayer(handoffEventName, {
+            event_class: 'workflow',
+            customer_action: 'chat_first_message_sent',
+            workflow_outcome:
+              handoffEventName === 'lead_chat_handoff_blocked'
+                ? 'chat_handoff_blocked'
+                : 'chat_handoff_deferred',
+            capture_channel: 'chat',
+            lead_strength: 'soft_intent',
+            verification_status: 'unverified',
             lead_locale: locale,
             lead_request_reason: reason,
             lead_reason: backendReason || 'unknown',
@@ -424,8 +445,12 @@ export default function ChatWidgetReact({
       } catch (err) {
         if (isDev) console.error('ChatKit lead email request failed', err);
         pushLeadDataLayer('lead_chat_handoff_error', {
-          lead_method: 'chat',
-          lead_intent_type: 'chat',
+          event_class: 'diagnostic',
+          customer_action: 'chat_first_message_sent',
+          workflow_outcome: 'chat_handoff_error',
+          capture_channel: 'chat',
+          lead_strength: 'soft_intent',
+          verification_status: 'unverified',
           lead_locale: locale,
           lead_request_reason: reason,
           thread_id: threadId,
