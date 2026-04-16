@@ -1,0 +1,1826 @@
+[
+  {
+    "pageKey": "autoUpholstery",
+    "template": "service",
+    "locales": {
+      "en": {
+        "eyebrow": "Auto Upholstery",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Full interiors or targeted repairs with careful matching.",
+        "alt": "Auto Upholstery | Craig's Auto Upholstery"
+      },
+      "es": {
+        "eyebrow": "Tapicería automotriz",
+        "headline": "Tapicería Automotriz Craig's",
+        "summary": "Interiores completos o reparaciones puntuales con buen match.",
+        "alt": "Tapicería automotriz | Tapicería Automotriz Craig's"
+      },
+      "vi": {
+        "eyebrow": "Bọc nội thất ô tô",
+        "headline": "Bọc Nội Thất Ô Tô Craig's",
+        "summary": "Nội thất trọn bộ hoặc sửa điểm, chú trọng độ khớp.",
+        "alt": "Bọc nội thất ô tô | Bọc Nội Thất Ô Tô Craig's"
+      },
+      "zh-hans": {
+        "eyebrow": "汽车内饰",
+        "headline": "Craig's 汽车内饰",
+        "summary": "整套内饰或局部修复，注重匹配与贴合。",
+        "alt": "汽车内饰 | Craig's 汽车内饰"
+      },
+      "tl": {
+        "eyebrow": "Tapiseriya ng sasakyan",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Buong interior o target na ayos na maayos ang tugma.",
+        "alt": "Tapiseriya ng sasakyan | Craig's Auto Upholstery"
+      },
+      "id": {
+        "eyebrow": "Upholstery mobil",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Perbaikan interior penuh atau titik tertentu dengan hasil rapi dan presisi.",
+        "alt": "Upholstery mobil | Craig's Auto Upholstery"
+      },
+      "fa": {
+        "eyebrow": "روکش خودرو",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "بازسازی کامل یا تعمیر موضعی داخل خودرو با تطبیق دقیق.",
+        "alt": "روکش خودرو | Craig's Auto Upholstery"
+      },
+      "te": {
+        "eyebrow": "ఆటో అప్హోల్స్టరీ",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "పూర్తి ఇంటీరియర్ పని లేదా లక్ష్యిత రిపేర్, మెటీరియల్ మ్యాచ్‌పై దృష్టితో.",
+        "alt": "ఆటో అప్హోల్స్టరీ | Craig's Auto Upholstery"
+      },
+      "fr": {
+        "eyebrow": "Garnissage automobile",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Intérieurs complets ou réparations ciblées avec raccord soigné.",
+        "alt": "Garnissage automobile | Craig's Auto Upholstery"
+      },
+      "ko": {
+        "eyebrow": "자동차 내장",
+        "headline": "Craig's 자동차 내장",
+        "summary": "전체 내장 또는 부분 수리, 깔끔한 매칭.",
+        "alt": "자동차 내장 | Craig's 자동차 내장"
+      },
+      "hi": {
+        "eyebrow": "ऑटो अपहोल्स्ट्री",
+        "headline": "Craig's ऑटो अपहोल्स्ट्री",
+        "summary": "पूरा इंटीरियर या लक्षित मरम्मत, साफ़ मैचिंग.",
+        "alt": "ऑटो अपहोल्स्ट्री | Craig's ऑटो अपहोल्स्ट्री"
+      },
+      "pa": {
+        "eyebrow": "ਆਟੋ ਅਪਹੋਲਸਟਰੀ",
+        "headline": "Craig's ਆਟੋ ਅਪਹੋਲਸਟਰੀ",
+        "summary": "ਪੂਰਾ ਇੰਟੀਰੀਅਰ ਜਾਂ ਨਿਸ਼ਾਨਾ ਰਿਪੇਅਰ, ਸਾਫ਼ ਮੇਚ.",
+        "alt": "ਆਟੋ ਅਪਹੋਲਸਟਰੀ | Craig's ਆਟੋ ਅਪਹੋਲਸਟਰੀ"
+      },
+      "pt-br": {
+        "eyebrow": "Estofamento automotivo",
+        "headline": "Estofamento Automotivo Craig's",
+        "summary": "Interiores completos ou reparos pontuais com bom encaixe.",
+        "alt": "Estofamento automotivo | Estofamento Automotivo Craig's"
+      },
+      "zh-hant": {
+        "eyebrow": "汽車內飾",
+        "headline": "Craig's 汽車內飾",
+        "summary": "全車內飾或局部修復，重視貼合與匹配。",
+        "alt": "汽車內飾 | Craig's 汽車內飾"
+      },
+      "ja": {
+        "eyebrow": "自動車内装",
+        "headline": "Craig's 自動車内装",
+        "summary": "全体内装または部分修理、自然なマッチング。",
+        "alt": "自動車内装 | Craig's 自動車内装"
+      },
+      "ar": {
+        "eyebrow": "تنجيد السيارات",
+        "headline": "Craig's تنجيد السيارات",
+        "summary": "تنفيذ كامل أو إصلاحات موضعية مع مطابقة دقيقة.",
+        "alt": "تنجيد السيارات | Craig's تنجيد السيارات"
+      },
+      "ru": {
+        "eyebrow": "Автообивка",
+        "headline": "Craig's Автообивка",
+        "summary": "Полный салон или точечный ремонт с точной стыковкой.",
+        "alt": "Автообивка | Craig's Автообивка"
+      },
+      "ta": {
+        "eyebrow": "கார் உள்வடிவம்",
+        "headline": "Craig's கார் உள்வடிவம்",
+        "summary": "முழு உள்வடிவம் அல்லது பகுதி சீரமைப்பு, இயல்பான பொருத்தம்.",
+        "alt": "கார் உள்வடிவம் | Craig's கார் உள்வடிவம்"
+      }
+    }
+  },
+  {
+    "pageKey": "boatUpholstery",
+    "template": "service",
+    "locales": {
+      "en": {
+        "eyebrow": "Boat Upholstery",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Seats, cushions, bolsters, and marine foam rebuilds.",
+        "alt": "Boat Upholstery | Craig's Auto Upholstery"
+      },
+      "es": {
+        "eyebrow": "Tapicería náutica",
+        "headline": "Tapicería Automotriz Craig's",
+        "summary": "Asientos, cojines, bolsters y reconstrucción de espuma marina.",
+        "alt": "Tapicería náutica | Tapicería Automotriz Craig's"
+      },
+      "vi": {
+        "eyebrow": "Bọc nội thất thuyền",
+        "headline": "Bọc Nội Thất Ô Tô Craig's",
+        "summary": "Ghế, đệm, gờ đỡ và làm lại mút cho thuyền.",
+        "alt": "Bọc nội thất thuyền | Bọc Nội Thất Ô Tô Craig's"
+      },
+      "zh-hans": {
+        "eyebrow": "船艇内饰",
+        "headline": "Craig's 汽车内饰",
+        "summary": "船椅、坐垫、护垫与海用泡棉重建。",
+        "alt": "船艇内饰 | Craig's 汽车内饰"
+      },
+      "tl": {
+        "eyebrow": "Tapiseriya ng bangka",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Upuan, cushion, bolster, at ayos ng marine foam.",
+        "alt": "Tapiseriya ng bangka | Craig's Auto Upholstery"
+      },
+      "id": {
+        "eyebrow": "Upholstery kapal",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Jok, bantalan, bolster, dan perbaikan foam untuk kebutuhan marine.",
+        "alt": "Upholstery kapal | Craig's Auto Upholstery"
+      },
+      "fa": {
+        "eyebrow": "روکش قایق",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "صندلی، کوسن، بولستر و بازسازی فوم دریایی.",
+        "alt": "روکش قایق | Craig's Auto Upholstery"
+      },
+      "te": {
+        "eyebrow": "బోట్ అప్హోల్స్టరీ",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "సీట్లు, కుషన్‌లు, బోల్స్టర్లు, మెరైన్ ఫోమ్ రీబిల్డ్.",
+        "alt": "బోట్ అప్హోల్స్టరీ | Craig's Auto Upholstery"
+      },
+      "fr": {
+        "eyebrow": "Garnissage nautique",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Sièges, coussins, bourrelets et reprise de mousse marine.",
+        "alt": "Garnissage nautique | Craig's Auto Upholstery"
+      },
+      "ko": {
+        "eyebrow": "보트 내장",
+        "headline": "Craig's 자동차 내장",
+        "summary": "시트, 쿠션, 볼스터, 해양용 폼 복원.",
+        "alt": "보트 내장 | Craig's 자동차 내장"
+      },
+      "hi": {
+        "eyebrow": "बोट अपहोल्स्ट्री",
+        "headline": "Craig's ऑटो अपहोल्स्ट्री",
+        "summary": "सीटें, कुशन, बोल्स्टर और मरीन फोम रीबिल्ड.",
+        "alt": "बोट अपहोल्स्ट्री | Craig's ऑटो अपहोल्स्ट्री"
+      },
+      "pa": {
+        "eyebrow": "ਬੋਟ ਅਪਹੋਲਸਟਰੀ",
+        "headline": "Craig's ਆਟੋ ਅਪਹੋਲਸਟਰੀ",
+        "summary": "ਸੀਟਾਂ, ਕੁਸ਼ਨ, ਬੋਲਸਟਰ ਅਤੇ ਮਰੀਨ ਫੋਮ ਰੀਬਿਲਡ.",
+        "alt": "ਬੋਟ ਅਪਹੋਲਸਟਰੀ | Craig's ਆਟੋ ਅਪਹੋਲਸਟਰੀ"
+      },
+      "pt-br": {
+        "eyebrow": "Estofamento náutico",
+        "headline": "Estofamento Automotivo Craig's",
+        "summary": "Bancos, almofadas, bolsters e reconstrução de espuma náutica.",
+        "alt": "Estofamento náutico | Estofamento Automotivo Craig's"
+      },
+      "zh-hant": {
+        "eyebrow": "船艇內飾",
+        "headline": "Craig's 汽車內飾",
+        "summary": "船椅、坐墊、護墊與海用泡棉重建。",
+        "alt": "船艇內飾 | Craig's 汽車內飾"
+      },
+      "ja": {
+        "eyebrow": "ボート内装",
+        "headline": "Craig's 自動車内装",
+        "summary": "シート、クッション、ボルスター、マリンフォーム再生。",
+        "alt": "ボート内装 | Craig's 自動車内装"
+      },
+      "ar": {
+        "eyebrow": "تنجيد القوارب",
+        "headline": "Craig's تنجيد السيارات",
+        "summary": "مقاعد ووسائد وحواجز وإعادة بناء الفوم البحري.",
+        "alt": "تنجيد القوارب | Craig's تنجيد السيارات"
+      },
+      "ru": {
+        "eyebrow": "Обивка лодок",
+        "headline": "Craig's Автообивка",
+        "summary": "Сиденья, подушки, валики и восстановление морской пены.",
+        "alt": "Обивка лодок | Craig's Автообивка"
+      },
+      "ta": {
+        "eyebrow": "படகு உள்வடிவம்",
+        "headline": "Craig's கார் உள்வடிவம்",
+        "summary": "இருக்கைகள், திண்டுகள், பக்க ஆதரவு, கடல் பயன்பாட்டு ஃபோம் மீளமைப்பு.",
+        "alt": "படகு உள்வடிவம் | Craig's கார் உள்வடிவம்"
+      }
+    }
+  },
+  {
+    "pageKey": "buickEight",
+    "template": "project",
+    "locales": {
+      "en": {
+        "eyebrow": "Classic Interior Project",
+        "headline": "Buick Eight Restoration",
+        "summary": "Two-tone upholstery, headliner, carpet, and trunk finish.",
+        "alt": "Buick Eight Restoration | Craig's Auto Upholstery"
+      },
+      "es": {
+        "eyebrow": "Proyecto destacado",
+        "headline": "Restauración del interior del Buick Eight",
+        "summary": "Construcción personalizada de interior clásico con tapicería bicolor, alfombra, cielo raso y acabado de maletero.",
+        "alt": "Restauración del interior del Buick Eight | Tapicería Automotriz Craig's"
+      },
+      "vi": {
+        "eyebrow": "Dự án nổi bật",
+        "headline": "Phục hồi nội thất Buick Eight",
+        "summary": "Thi công nội thất cổ điển theo yêu cầu với bọc hai tông màu, thảm, trần xe và hoàn thiện khoang cốp.",
+        "alt": "Phục hồi nội thất Buick Eight | Bọc Nội Thất Ô Tô Craig's"
+      },
+      "zh-hans": {
+        "eyebrow": "精选项目",
+        "headline": "Buick Eight 内饰翻新",
+        "summary": "定制经典内饰，包含双色座椅、地毯、顶棚与后备箱饰面。",
+        "alt": "Buick Eight 内饰翻新 | Craig's 汽车内饰"
+      },
+      "tl": {
+        "eyebrow": "Tampok na proyekto",
+        "headline": "Pagpapanumbalik ng interior ng Buick Eight",
+        "summary": "Custom na classic interior na may dalawang kulay na upholstery, carpet, headliner, at trunk finish.",
+        "alt": "Pagpapanumbalik ng interior ng Buick Eight | Craig's Auto Upholstery"
+      },
+      "id": {
+        "eyebrow": "Proyek unggulan",
+        "headline": "Restorasi Interior Buick Eight",
+        "summary": "Proyek interior klasik kustom dengan upholstery dua warna, karpet, plafon kabin, dan finishing bagasi.",
+        "alt": "Restorasi Interior Buick Eight | Craig's Auto Upholstery"
+      },
+      "fa": {
+        "eyebrow": "پروژه ویژه",
+        "headline": "بازسازی داخل Buick Eight",
+        "summary": "پروژه داخل کلاسیک سفارشی با روکش دو رنگ، کف‌پوش، سقف داخل و پرداخت صندوق.",
+        "alt": "بازسازی داخل Buick Eight | Craig's Auto Upholstery"
+      },
+      "te": {
+        "eyebrow": "ప్రత్యేక ప్రాజెక్ట్",
+        "headline": "Buick Eight ఇంటీరియర్ పునరుద్ధరణ",
+        "summary": "రెండు టోన్ అప్హోల్స్టరీ, కార్పెట్, హెడ్‌లైనర్, ట్రంక్ ఫినిష్‌తో కస్టమ్ క్లాసిక్ ఇంటీరియర్ నిర్మాణం.",
+        "alt": "Buick Eight ఇంటీరియర్ పునరుద్ధరణ | Craig's Auto Upholstery"
+      },
+      "fr": {
+        "eyebrow": "Projet vedette",
+        "headline": "Restauration intérieure Buick Eight",
+        "summary": "Projet intérieur classique sur mesure avec garnissage bicolore, moquette, ciel de toit et finition du coffre.",
+        "alt": "Restauration intérieure Buick Eight | Craig's Auto Upholstery"
+      },
+      "ko": {
+        "eyebrow": "추천 프로젝트",
+        "headline": "Buick Eight 실내 복원",
+        "summary": "투톤 내장, 카펫, 헤드라이너, 트렁크 마감이 포함된 맞춤 클래식 인테리어 작업.",
+        "alt": "Buick Eight 실내 복원 | Craig's 자동차 내장"
+      },
+      "hi": {
+        "eyebrow": "प्रमुख प्रोजेक्ट",
+        "headline": "Buick Eight इंटीरियर रेस्टोरेशन",
+        "summary": "दो‑टोन अपहोल्स्ट्री, कार्पेट, हेडलाइनर और ट्रंक फिनिश के साथ कस्टम क्लासिक इंटीरियर काम.",
+        "alt": "Buick Eight इंटीरियर रेस्टोरेशन | Craig's ऑटो अपहोल्स्ट्री"
+      },
+      "pa": {
+        "eyebrow": "ਮੁੱਖ ਪਰੋਜੈਕਟ",
+        "headline": "Buick Eight ਇੰਟੀਰੀਅਰ ਰੀਸਟੋਰੇਸ਼ਨ",
+        "summary": "ਦੋ‑ਟੋਨ ਅਪਹੋਲਸਟਰੀ, ਕਾਰਪੇਟ, ਹੈਡਲਾਈਨਰ ਅਤੇ ਟਰੰਕ ਫਿਨਿਸ਼ ਨਾਲ ਕਸਟਮ ਕਲਾਸਿਕ ਇੰਟੀਰੀਅਰ ਕੰਮ।",
+        "alt": "Buick Eight ਇੰਟੀਰੀਅਰ ਰੀਸਟੋਰੇਸ਼ਨ | Craig's ਆਟੋ ਅਪਹੋਲਸਟਰੀ"
+      },
+      "pt-br": {
+        "eyebrow": "Projeto em destaque",
+        "headline": "Restauração do interior do Buick Eight",
+        "summary": "Projeto clássico sob medida com estofamento em dois tons, carpete, forro de teto e acabamento do porta‑malas.",
+        "alt": "Restauração do interior do Buick Eight | Estofamento Automotivo Craig's"
+      },
+      "zh-hant": {
+        "eyebrow": "精選專案",
+        "headline": "Buick Eight 內裝翻新",
+        "summary": "經典內裝客製，包含雙色座椅、地毯、頂棚與後行李廂飾面。",
+        "alt": "Buick Eight 內裝翻新 | Craig's 汽車內飾"
+      },
+      "ja": {
+        "eyebrow": "注目プロジェクト",
+        "headline": "Buick Eight 内装レストア",
+        "summary": "ツートーンの内装、カーペット、ヘッドライナー、トランク仕上げを含むカスタムクラシック内装。",
+        "alt": "Buick Eight 内装レストア | Craig's 自動車内装"
+      },
+      "ar": {
+        "eyebrow": "مشروع مميز",
+        "headline": "ترميم مقصورة Buick Eight",
+        "summary": "تجديد داخلي كلاسيكي مخصص بتنجيد ثنائي اللون وسجاد وبطانة سقف وتشطيب صندوق الأمتعة.",
+        "alt": "ترميم مقصورة Buick Eight | Craig's تنجيد السيارات"
+      },
+      "ru": {
+        "eyebrow": "Избранный проект",
+        "headline": "Реставрация салона Buick Eight",
+        "summary": "Классический интерьер под заказ: двухцветная обивка, ковролин, потолок и отделка багажника.",
+        "alt": "Реставрация салона Buick Eight | Craig's Автообивка"
+      },
+      "ta": {
+        "eyebrow": "முன்னிலை திட்டம்",
+        "headline": "Buick Eight உள்வடிவ மறுசீரமைப்பு",
+        "summary": "இரண்டு நிற உள்வடிவு, கார்பெட், ஹெட்லைனர் மற்றும் ட்ரங்க் ஃபினிஷுடன் தனிப்பயன் கிளாசிக் இன்டீரியர்.",
+        "alt": "Buick Eight உள்வடிவ மறுசீரமைப்பு | Craig's கார் உள்வடிவம்"
+      }
+    }
+  },
+  {
+    "pageKey": "carSeats",
+    "template": "service",
+    "locales": {
+      "en": {
+        "eyebrow": "Car Seats",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Tears, seams, bolsters, and foam rebuilds.",
+        "alt": "Car Seats | Craig's Auto Upholstery"
+      },
+      "es": {
+        "eyebrow": "Asientos",
+        "headline": "Tapicería Automotriz Craig's",
+        "summary": "Roturas, costuras, refuerzos y espuma.",
+        "alt": "Asientos | Tapicería Automotriz Craig's"
+      },
+      "vi": {
+        "eyebrow": "Ghế xe",
+        "headline": "Bọc Nội Thất Ô Tô Craig's",
+        "summary": "Rách, đường may, gờ đỡ và làm lại mút.",
+        "alt": "Ghế xe | Bọc Nội Thất Ô Tô Craig's"
+      },
+      "zh-hans": {
+        "eyebrow": "汽车座椅",
+        "headline": "Craig's 汽车内饰",
+        "summary": "撕裂、缝线、侧翼与泡棉重建。",
+        "alt": "汽车座椅 | Craig's 汽车内饰"
+      },
+      "tl": {
+        "eyebrow": "Upuan",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Punit, tahi, bolster at ayos ng foam.",
+        "alt": "Upuan | Craig's Auto Upholstery"
+      },
+      "id": {
+        "eyebrow": "Jok mobil",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Sobek, jahitan lepas, bolster aus, dan perbaikan foam jok.",
+        "alt": "Jok mobil | Craig's Auto Upholstery"
+      },
+      "fa": {
+        "eyebrow": "صندلی خودرو",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "پارگی، دوخت، کناره صندلی و بازسازی فوم.",
+        "alt": "صندلی خودرو | Craig's Auto Upholstery"
+      },
+      "te": {
+        "eyebrow": "కార్ సీట్లు",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "చిరుగులు, కుట్టు, బోల్స్టర్లు, ఫోమ్ రీబిల్డ్.",
+        "alt": "కార్ సీట్లు | Craig's Auto Upholstery"
+      },
+      "fr": {
+        "eyebrow": "Sièges auto",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Déchirures, coutures, bourrelets et reprise de mousse.",
+        "alt": "Sièges auto | Craig's Auto Upholstery"
+      },
+      "ko": {
+        "eyebrow": "시트",
+        "headline": "Craig's 자동차 내장",
+        "summary": "찢김, 봉제선, 볼스터, 폼 복원.",
+        "alt": "시트 | Craig's 자동차 내장"
+      },
+      "hi": {
+        "eyebrow": "कार सीटें",
+        "headline": "Craig's ऑटो अपहोल्स्ट्री",
+        "summary": "फटे पैनल, सिलाई, बोल्स्टर, फोम रीबिल्ड.",
+        "alt": "कार सीटें | Craig's ऑटो अपहोल्स्ट्री"
+      },
+      "pa": {
+        "eyebrow": "ਕਾਰ ਸੀਟਾਂ",
+        "headline": "Craig's ਆਟੋ ਅਪਹੋਲਸਟਰੀ",
+        "summary": "ਫੱਟ, ਸਿਲਾਈ, ਬੋਲਸਟਰ, ਫੋਮ ਰੀਬਿਲਡ.",
+        "alt": "ਕਾਰ ਸੀਟਾਂ | Craig's ਆਟੋ ਅਪਹੋਲਸਟਰੀ"
+      },
+      "pt-br": {
+        "eyebrow": "Bancos",
+        "headline": "Estofamento Automotivo Craig's",
+        "summary": "Rasgos, costuras, bolsters e espuma.",
+        "alt": "Bancos | Estofamento Automotivo Craig's"
+      },
+      "zh-hant": {
+        "eyebrow": "汽車座椅",
+        "headline": "Craig's 汽車內飾",
+        "summary": "破損、縫線、側翼與泡棉重建。",
+        "alt": "汽車座椅 | Craig's 汽車內飾"
+      },
+      "ja": {
+        "eyebrow": "シート",
+        "headline": "Craig's 自動車内装",
+        "summary": "破れ、縫製、サイド補修、フォーム再生。",
+        "alt": "シート | Craig's 自動車内装"
+      },
+      "ar": {
+        "eyebrow": "مقاعد السيارات",
+        "headline": "Craig's تنجيد السيارات",
+        "summary": "تمزقات، خياطة، جوانب، وإعادة بناء الفوم.",
+        "alt": "مقاعد السيارات | Craig's تنجيد السيارات"
+      },
+      "ru": {
+        "eyebrow": "Сиденья",
+        "headline": "Craig's Автообивка",
+        "summary": "Порезы, швы, боковины и восстановление пены.",
+        "alt": "Сиденья | Craig's Автообивка"
+      },
+      "ta": {
+        "eyebrow": "கார் இருக்கைகள்",
+        "headline": "Craig's கார் உள்வடிவம்",
+        "summary": "கிழிவு, தையல், பக்கம், ஃபோம் மீளமைப்பு.",
+        "alt": "கார் இருக்கைகள் | Craig's கார் உள்வடிவம்"
+      }
+    }
+  },
+  {
+    "pageKey": "classicCars",
+    "template": "service",
+    "locales": {
+      "en": {
+        "eyebrow": "Classic Cars",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Consistent, detail-focused classic interiors.",
+        "alt": "Classic Cars | Craig's Auto Upholstery"
+      },
+      "es": {
+        "eyebrow": "Autos clásicos",
+        "headline": "Tapicería Automotriz Craig's",
+        "summary": "Interiores clásicos consistentes y con detalle.",
+        "alt": "Autos clásicos | Tapicería Automotriz Craig's"
+      },
+      "vi": {
+        "eyebrow": "Xe cổ",
+        "headline": "Bọc Nội Thất Ô Tô Craig's",
+        "summary": "Nội thất xe cổ đồng bộ, chú ý chi tiết.",
+        "alt": "Xe cổ | Bọc Nội Thất Ô Tô Craig's"
+      },
+      "zh-hans": {
+        "eyebrow": "经典汽车",
+        "headline": "Craig's 汽车内饰",
+        "summary": "经典车内饰，整体一致、细节到位。",
+        "alt": "经典汽车 | Craig's 汽车内饰"
+      },
+      "tl": {
+        "eyebrow": "Klasikong sasakyan",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Klasikong interior na pantay at detalyado.",
+        "alt": "Klasikong sasakyan | Craig's Auto Upholstery"
+      },
+      "id": {
+        "eyebrow": "Mobil klasik",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Interior mobil klasik yang konsisten dan detail.",
+        "alt": "Mobil klasik | Craig's Auto Upholstery"
+      },
+      "fa": {
+        "eyebrow": "خودروهای کلاسیک",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "داخل خودروهای کلاسیک با جزئیات دقیق و یکدست.",
+        "alt": "خودروهای کلاسیک | Craig's Auto Upholstery"
+      },
+      "te": {
+        "eyebrow": "క్లాసిక్ కార్లు",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "వివరాలపై దృష్టి ఉన్న క్లాసిక్ కార్ ఇంటీరియర్స్.",
+        "alt": "క్లాసిక్ కార్లు | Craig's Auto Upholstery"
+      },
+      "fr": {
+        "eyebrow": "Voitures classiques",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Intérieurs de classiques cohérents et très détaillés.",
+        "alt": "Voitures classiques | Craig's Auto Upholstery"
+      },
+      "ko": {
+        "eyebrow": "클래식카",
+        "headline": "Craig's 자동차 내장",
+        "summary": "클래식 인테리어 일관성.",
+        "alt": "클래식카 | Craig's 자동차 내장"
+      },
+      "hi": {
+        "eyebrow": "क्लासिक कारें",
+        "headline": "Craig's ऑटो अपहोल्स्ट्री",
+        "summary": "क्लासिक इंटीरियर में एकरूपता.",
+        "alt": "क्लासिक कारें | Craig's ऑटो अपहोल्स्ट्री"
+      },
+      "pa": {
+        "eyebrow": "ਕਲਾਸਿਕ ਕਾਰਾਂ",
+        "headline": "Craig's ਆਟੋ ਅਪਹੋਲਸਟਰੀ",
+        "summary": "ਕਲਾਸਿਕ ਇੰਟੀਰੀਅਰ ਦੀ ਇਕਸਾਰਤਾ.",
+        "alt": "ਕਲਾਸਿਕ ਕਾਰਾਂ | Craig's ਆਟੋ ਅਪਹੋਲਸਟਰੀ"
+      },
+      "pt-br": {
+        "eyebrow": "Carros clássicos",
+        "headline": "Estofamento Automotivo Craig's",
+        "summary": "Interiores clássicos consistentes.",
+        "alt": "Carros clássicos | Estofamento Automotivo Craig's"
+      },
+      "zh-hant": {
+        "eyebrow": "經典汽車",
+        "headline": "Craig's 汽車內飾",
+        "summary": "一致性與細節的經典內飾。",
+        "alt": "經典汽車 | Craig's 汽車內飾"
+      },
+      "ja": {
+        "eyebrow": "クラシックカー",
+        "headline": "Craig's 自動車内装",
+        "summary": "統一感のあるクラシック内装。",
+        "alt": "クラシックカー | Craig's 自動車内装"
+      },
+      "ar": {
+        "eyebrow": "السيارات الكلاسيكية",
+        "headline": "Craig's تنجيد السيارات",
+        "summary": "ديكورات كلاسيكية متناسقة بتفاصيل دقيقة.",
+        "alt": "السيارات الكلاسيكية | Craig's تنجيد السيارات"
+      },
+      "ru": {
+        "eyebrow": "Классические авто",
+        "headline": "Craig's Автообивка",
+        "summary": "Классические интерьеры с единым стилем.",
+        "alt": "Классические авто | Craig's Автообивка"
+      },
+      "ta": {
+        "eyebrow": "கிளாசிக் கார்கள்",
+        "headline": "Craig's கார் உள்வடிவம்",
+        "summary": "ஒற்றுமையான கிளாசிக் உள்வடிவம்.",
+        "alt": "கிளாசிக் கார்கள் | Craig's கார் உள்வடிவம்"
+      }
+    }
+  },
+  {
+    "pageKey": "commercialFleet",
+    "template": "service",
+    "locales": {
+      "en": {
+        "eyebrow": "Commercial Fleets",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Seat, panel, and interior work for trucks, buses, and work vehicles.",
+        "alt": "Commercial Fleets | Craig's Auto Upholstery"
+      },
+      "es": {
+        "eyebrow": "Flotas comerciales",
+        "headline": "Tapicería Automotriz Craig's",
+        "summary": "Asientos, paneles e interiores para camiones, buses y vehículos de trabajo.",
+        "alt": "Flotas comerciales | Tapicería Automotriz Craig's"
+      },
+      "vi": {
+        "eyebrow": "Đội xe thương mại",
+        "headline": "Bọc Nội Thất Ô Tô Craig's",
+        "summary": "Ghế, ốp và nội thất cho xe tải, xe buýt và xe làm việc.",
+        "alt": "Đội xe thương mại | Bọc Nội Thất Ô Tô Craig's"
+      },
+      "zh-hans": {
+        "eyebrow": "商用车队",
+        "headline": "Craig's 汽车内饰",
+        "summary": "卡车、巴士和作业车辆的座椅、内饰板与内饰修复。",
+        "alt": "商用车队 | Craig's 汽车内饰"
+      },
+      "tl": {
+        "eyebrow": "Komersyal na fleet",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Upuan, panel, at interior para sa truck, bus, at work vehicle.",
+        "alt": "Komersyal na fleet | Craig's Auto Upholstery"
+      },
+      "id": {
+        "eyebrow": "Armada komersial",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Jok, panel, dan interior untuk truk, bus, dan kendaraan kerja.",
+        "alt": "Armada komersial | Craig's Auto Upholstery"
+      },
+      "fa": {
+        "eyebrow": "ناوگان تجاری",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "صندلی، پنل و داخل خودرو برای کامیون‌ها، اتوبوس‌ها و خودروهای کاری.",
+        "alt": "ناوگان تجاری | Craig's Auto Upholstery"
+      },
+      "te": {
+        "eyebrow": "వాణిజ్య ఫ్లీట్",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "ట్రక్కులు, బస్సులు, పని వాహనాల సీట్లు, ప్యానెల్లు, ఇంటీరియర్ పని.",
+        "alt": "వాణిజ్య ఫ్లీట్ | Craig's Auto Upholstery"
+      },
+      "fr": {
+        "eyebrow": "Flottes commerciales",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Sièges, panneaux et intérieurs pour camions, bus et véhicules de travail.",
+        "alt": "Flottes commerciales | Craig's Auto Upholstery"
+      },
+      "ko": {
+        "eyebrow": "상업용 플릿",
+        "headline": "Craig's 자동차 내장",
+        "summary": "트럭, 버스, 작업 차량의 시트, 패널, 실내 작업.",
+        "alt": "상업용 플릿 | Craig's 자동차 내장"
+      },
+      "hi": {
+        "eyebrow": "वाणिज्यिक फ्लीट",
+        "headline": "Craig's ऑटो अपहोल्स्ट्री",
+        "summary": "ट्रक, बस और कामकाजी वाहनों के सीट, पैनल और इंटीरियर काम.",
+        "alt": "वाणिज्यिक फ्लीट | Craig's ऑटो अपहोल्स्ट्री"
+      },
+      "pa": {
+        "eyebrow": "ਵਪਾਰਕ ਫਲੀਟ",
+        "headline": "Craig's ਆਟੋ ਅਪਹੋਲਸਟਰੀ",
+        "summary": "ਟਰੱਕਾਂ, ਬੱਸਾਂ ਅਤੇ ਕੰਮ ਵਾਲੇ ਵਾਹਨਾਂ ਲਈ ਸੀਟ, ਪੈਨਲ ਅਤੇ ਇੰਟੀਰੀਅਰ ਕੰਮ।",
+        "alt": "ਵਪਾਰਕ ਫਲੀਟ | Craig's ਆਟੋ ਅਪਹੋਲਸਟਰੀ"
+      },
+      "pt-br": {
+        "eyebrow": "Frotas comerciais",
+        "headline": "Estofamento Automotivo Craig's",
+        "summary": "Bancos, painéis e interior para caminhões, ônibus e veículos de trabalho.",
+        "alt": "Frotas comerciais | Estofamento Automotivo Craig's"
+      },
+      "zh-hant": {
+        "eyebrow": "商用車隊",
+        "headline": "Craig's 汽車內飾",
+        "summary": "卡車、巴士與作業車輛的座椅、內飾板與內裝修復。",
+        "alt": "商用車隊 | Craig's 汽車內飾"
+      },
+      "ja": {
+        "eyebrow": "商用フリート",
+        "headline": "Craig's 自動車内装",
+        "summary": "トラック、バス、業務車両のシート、パネル、内装作業。",
+        "alt": "商用フリート | Craig's 自動車内装"
+      },
+      "ar": {
+        "eyebrow": "الأساطيل التجارية",
+        "headline": "Craig's تنجيد السيارات",
+        "summary": "مقاعد وألواح وأعمال داخلية للشاحنات والحافلات ومركبات العمل.",
+        "alt": "الأساطيل التجارية | Craig's تنجيد السيارات"
+      },
+      "ru": {
+        "eyebrow": "Коммерческий автопарк",
+        "headline": "Craig's Автообивка",
+        "summary": "Сиденья, панели и интерьер для грузовиков, автобусов и рабочих машин.",
+        "alt": "Коммерческий автопарк | Craig's Автообивка"
+      },
+      "ta": {
+        "eyebrow": "வணிக வாகனப் படை",
+        "headline": "Craig's கார் உள்வடிவம்",
+        "summary": "லாரி, பேருந்து, வேலை வாகனங்களுக்கு சீட், பேனல், உள்வடிவ வேலை.",
+        "alt": "வணிக வாகனப் படை | Craig's கார் உள்வடிவம்"
+      }
+    }
+  },
+  {
+    "pageKey": "contact",
+    "template": "contact",
+    "locales": {
+      "en": {
+        "eyebrow": "Contact",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Call, text, email, hours, directions, and shop details.",
+        "alt": "Contact | Craig's Auto Upholstery"
+      },
+      "es": {
+        "eyebrow": "Contacto",
+        "headline": "Tapicería Automotriz Craig's",
+        "summary": "Llamadas, texto, correo, horarios, dirección y datos del taller.",
+        "alt": "Contacto | Tapicería Automotriz Craig's"
+      },
+      "vi": {
+        "eyebrow": "Liên hệ",
+        "headline": "Bọc Nội Thất Ô Tô Craig's",
+        "summary": "Gọi điện, nhắn tin, email, giờ làm việc, chỉ đường và thông tin cửa hàng.",
+        "alt": "Liên hệ | Bọc Nội Thất Ô Tô Craig's"
+      },
+      "zh-hans": {
+        "eyebrow": "联系",
+        "headline": "Craig's 汽车内饰",
+        "summary": "电话、短信、邮箱、营业时间、路线和门店信息。",
+        "alt": "联系 | Craig's 汽车内饰"
+      },
+      "tl": {
+        "eyebrow": "Ugnayan",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Tawag, text, email, oras, direksyon, at detalye ng shop.",
+        "alt": "Ugnayan | Craig's Auto Upholstery"
+      },
+      "id": {
+        "eyebrow": "Kontak",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Telepon, pesan, email, jam operasional, arah, dan info bengkel.",
+        "alt": "Kontak | Craig's Auto Upholstery"
+      },
+      "fa": {
+        "eyebrow": "تماس",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "تماس، پیامک، ایمیل، ساعت کاری، مسیر و اطلاعات کارگاه.",
+        "alt": "تماس | Craig's Auto Upholstery"
+      },
+      "te": {
+        "eyebrow": "సంప్రదించండి",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "కాల్, టెక్స్ట్, ఇమెయిల్, గంటలు, దిశలు, షాప్ వివరాలు.",
+        "alt": "సంప్రదించండి | Craig's Auto Upholstery"
+      },
+      "fr": {
+        "eyebrow": "Contact",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Appel, SMS, email, horaires, itinéraire et infos atelier.",
+        "alt": "Contact | Craig's Auto Upholstery"
+      },
+      "ko": {
+        "eyebrow": "문의",
+        "headline": "Craig's 자동차 내장",
+        "summary": "전화, 문자, 이메일, 영업시간, 길찾기, 매장 정보.",
+        "alt": "문의 | Craig's 자동차 내장"
+      },
+      "hi": {
+        "eyebrow": "संपर्क",
+        "headline": "Craig's ऑटो अपहोल्स्ट्री",
+        "summary": "कॉल, टेक्स्ट, ईमेल, समय, दिशा और दुकान की जानकारी.",
+        "alt": "संपर्क | Craig's ऑटो अपहोल्स्ट्री"
+      },
+      "pa": {
+        "eyebrow": "ਸੰਪਰਕ",
+        "headline": "Craig's ਆਟੋ ਅਪਹੋਲਸਟਰੀ",
+        "summary": "ਕਾਲ, ਟੈਕਸਟ, ਈਮੇਲ, ਸਮਾਂ, ਦਿਸ਼ਾਵਾਂ ਅਤੇ ਸ਼ਾਪ ਵੇਰਵੇ.",
+        "alt": "ਸੰਪਰਕ | Craig's ਆਟੋ ਅਪਹੋਲਸਟਰੀ"
+      },
+      "pt-br": {
+        "eyebrow": "Contato",
+        "headline": "Estofamento Automotivo Craig's",
+        "summary": "Ligação, mensagem, email, horário, rotas e dados da oficina.",
+        "alt": "Contato | Estofamento Automotivo Craig's"
+      },
+      "zh-hant": {
+        "eyebrow": "聯絡",
+        "headline": "Craig's 汽車內飾",
+        "summary": "電話、簡訊、電子郵件、營業時間、路線與店家資訊。",
+        "alt": "聯絡 | Craig's 汽車內飾"
+      },
+      "ja": {
+        "eyebrow": "お問い合わせ",
+        "headline": "Craig's 自動車内装",
+        "summary": "電話、SMS、メール、営業時間、行き方、店舗情報。",
+        "alt": "お問い合わせ | Craig's 自動車内装"
+      },
+      "ar": {
+        "eyebrow": "اتصل بنا",
+        "headline": "Craig's تنجيد السيارات",
+        "summary": "الاتصال والرسائل والبريد وساعات العمل والاتجاهات ومعلومات الورشة.",
+        "alt": "اتصل بنا | Craig's تنجيد السيارات"
+      },
+      "ru": {
+        "eyebrow": "Контакты",
+        "headline": "Craig's Автообивка",
+        "summary": "Звонок, сообщение, email, часы работы, маршрут и данные мастерской.",
+        "alt": "Контакты | Craig's Автообивка"
+      },
+      "ta": {
+        "eyebrow": "தொடர்பு",
+        "headline": "Craig's கார் உள்வடிவம்",
+        "summary": "அழைப்பு, குறுஞ்செய்தி, மின்னஞ்சல், நேரம், வழிகள், கடை விவரங்கள்.",
+        "alt": "தொடர்பு | Craig's கார் உள்வடிவம்"
+      }
+    }
+  },
+  {
+    "pageKey": "convertibleTops",
+    "template": "service",
+    "locales": {
+      "en": {
+        "eyebrow": "Convertible Tops",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Leaks, wear, and repair vs replacement guidance.",
+        "alt": "Convertible Tops | Craig's Auto Upholstery"
+      },
+      "es": {
+        "eyebrow": "Capotas",
+        "headline": "Tapicería Automotriz Craig's",
+        "summary": "Goteras, desgaste y guía de reparación vs reemplazo.",
+        "alt": "Capotas | Tapicería Automotriz Craig's"
+      },
+      "vi": {
+        "eyebrow": "Mui xe",
+        "headline": "Bọc Nội Thất Ô Tô Craig's",
+        "summary": "Rò rỉ, hao mòn, tư vấn sửa hay thay.",
+        "alt": "Mui xe | Bọc Nội Thất Ô Tô Craig's"
+      },
+      "zh-hans": {
+        "eyebrow": "敞篷车顶",
+        "headline": "Craig's 汽车内饰",
+        "summary": "漏水、磨损与修复/更换建议。",
+        "alt": "敞篷车顶 | Craig's 汽车内饰"
+      },
+      "tl": {
+        "eyebrow": "Bubong ng kabriolet",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Tagas, kupas at gabay repair vs palit.",
+        "alt": "Bubong ng kabriolet | Craig's Auto Upholstery"
+      },
+      "id": {
+        "eyebrow": "Atap convertible",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Diagnosa kebocoran dan panduan perbaikan atau penggantian atap.",
+        "alt": "Atap convertible | Craig's Auto Upholstery"
+      },
+      "fa": {
+        "eyebrow": "سقف کابریولت",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "بررسی نشتی و فرسودگی، و راهنمایی تعمیر یا تعویض.",
+        "alt": "سقف کابریولت | Craig's Auto Upholstery"
+      },
+      "te": {
+        "eyebrow": "కన్వర్టిబుల్ టాప్",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "లీకులు, వేర్, రిపేర్ లేదా రీప్లేస్‌మెంట్‌పై మార్గదర్శనం.",
+        "alt": "కన్వర్టిబుల్ టాప్ | Craig's Auto Upholstery"
+      },
+      "fr": {
+        "eyebrow": "Capotes",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Fuites, usure et conseil réparation vs remplacement.",
+        "alt": "Capotes | Craig's Auto Upholstery"
+      },
+      "ko": {
+        "eyebrow": "컨버터블 탑",
+        "headline": "Craig's 자동차 내장",
+        "summary": "누수, 마모, 수리 vs 교체 안내.",
+        "alt": "컨버터블 탑 | Craig's 자동차 내장"
+      },
+      "hi": {
+        "eyebrow": "कन्वर्टिबल टॉप",
+        "headline": "Craig's ऑटो अपहोल्स्ट्री",
+        "summary": "लीक, घिसावट, मरम्मत बनाम बदलने का सुझाव.",
+        "alt": "कन्वर्टिबल टॉप | Craig's ऑटो अपहोल्स्ट्री"
+      },
+      "pa": {
+        "eyebrow": "ਕਨਵਰਟੀਬਲ ਟਾਪ",
+        "headline": "Craig's ਆਟੋ ਅਪਹੋਲਸਟਰੀ",
+        "summary": "ਲਿਕ, ਘਿਸਾਈ, ਰਿਪੇਅਰ ਵਿਰੁੱਧ ਬਦਲੀ.",
+        "alt": "ਕਨਵਰਟੀਬਲ ਟਾਪ | Craig's ਆਟੋ ਅਪਹੋਲਸਟਰੀ"
+      },
+      "pt-br": {
+        "eyebrow": "Capota conversível",
+        "headline": "Estofamento Automotivo Craig's",
+        "summary": "Vazamentos, desgaste, reparo vs troca.",
+        "alt": "Capota conversível | Estofamento Automotivo Craig's"
+      },
+      "zh-hant": {
+        "eyebrow": "敞篷車頂",
+        "headline": "Craig's 汽車內飾",
+        "summary": "漏水、磨損與修復/更換建議。",
+        "alt": "敞篷車頂 | Craig's 汽車內飾"
+      },
+      "ja": {
+        "eyebrow": "コンバーチブルトップ",
+        "headline": "Craig's 自動車内装",
+        "summary": "漏れ・摩耗・修理か交換の提案。",
+        "alt": "コンバーチブルトップ | Craig's 自動車内装"
+      },
+      "ar": {
+        "eyebrow": "السقف القابل للطي",
+        "headline": "Craig's تنجيد السيارات",
+        "summary": "تسربات، تآكل، وإرشاد للإصلاح أو الاستبدال.",
+        "alt": "السقف القابل للطي | Craig's تنجيد السيارات"
+      },
+      "ru": {
+        "eyebrow": "Крыша кабриолета",
+        "headline": "Craig's Автообивка",
+        "summary": "Протечки, износ и выбор ремонта/замены.",
+        "alt": "Крыша кабриолета | Craig's Автообивка"
+      },
+      "ta": {
+        "eyebrow": "கன்வர்டிபிள் டாப்",
+        "headline": "Craig's கார் உள்வடிவம்",
+        "summary": "உழைப்பு, கசிவு, பழுது/மாற்று ஆலோசனை.",
+        "alt": "கன்வர்டிபிள் டாப் | Craig's கார் உள்வடிவம்"
+      }
+    }
+  },
+  {
+    "pageKey": "gallery",
+    "template": "gallery",
+    "locales": {
+      "en": {
+        "eyebrow": "See Our Work",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Work examples for seats, headliners, and tops.",
+        "alt": "See Our Work | Craig's Auto Upholstery"
+      },
+      "es": {
+        "eyebrow": "Ver nuestro trabajo",
+        "headline": "Tapicería Automotriz Craig's",
+        "summary": "Fotos de trabajos: asientos, techos y capotas.",
+        "alt": "Ver nuestro trabajo | Tapicería Automotriz Craig's"
+      },
+      "vi": {
+        "eyebrow": "Xem công việc của chúng tôi",
+        "headline": "Bọc Nội Thất Ô Tô Craig's",
+        "summary": "Ảnh công việc: ghế, trần và mui.",
+        "alt": "Xem công việc của chúng tôi | Bọc Nội Thất Ô Tô Craig's"
+      },
+      "zh-hans": {
+        "eyebrow": "查看我们的作品",
+        "headline": "Craig's 汽车内饰",
+        "summary": "作品照片：座椅、顶棚与敞篷顶。",
+        "alt": "查看我们的作品 | Craig's 汽车内饰"
+      },
+      "tl": {
+        "eyebrow": "Tingnan ang aming trabaho",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Mga halimbawa ng trabaho: upuan, kisame, at top.",
+        "alt": "Tingnan ang aming trabaho | Craig's Auto Upholstery"
+      },
+      "id": {
+        "eyebrow": "Lihat hasil kerja",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Contoh hasil kerja jok, plafon, dan atap convertible.",
+        "alt": "Lihat hasil kerja | Craig's Auto Upholstery"
+      },
+      "fa": {
+        "eyebrow": "نمونه کارها",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "نمونه‌کارهای واقعی صندلی، سقف و کابریولت.",
+        "alt": "نمونه کارها | Craig's Auto Upholstery"
+      },
+      "te": {
+        "eyebrow": "మా పని చూడండి",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "సీట్లు, హెడ్‌లైనర్లు, టాప్స్ పనుల ఉదాహరణలు.",
+        "alt": "మా పని చూడండి | Craig's Auto Upholstery"
+      },
+      "fr": {
+        "eyebrow": "Nos réalisations",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Exemples de travaux: sièges, ciels de toit, capotes.",
+        "alt": "Nos réalisations | Craig's Auto Upholstery"
+      },
+      "ko": {
+        "eyebrow": "작업 사례 보기",
+        "headline": "Craig's 자동차 내장",
+        "summary": "작업 사진: 시트, 헤드라이너, 탑.",
+        "alt": "작업 사례 보기 | Craig's 자동차 내장"
+      },
+      "hi": {
+        "eyebrow": "हमारा काम देखें",
+        "headline": "Craig's ऑटो अपहोल्स्ट्री",
+        "summary": "काम की फोटो: सीट, हेडलाइनर, टॉप.",
+        "alt": "हमारा काम देखें | Craig's ऑटो अपहोल्स्ट्री"
+      },
+      "pa": {
+        "eyebrow": "ਸਾਡਾ ਕੰਮ ਵੇਖੋ",
+        "headline": "Craig's ਆਟੋ ਅਪਹੋਲਸਟਰੀ",
+        "summary": "ਕੰਮ ਦੀਆਂ ਫੋਟੋਆਂ: ਸੀਟਾਂ, ਹੈਡਲਾਈਨਰ, ਟਾਪ.",
+        "alt": "ਸਾਡਾ ਕੰਮ ਵੇਖੋ | Craig's ਆਟੋ ਅਪਹੋਲਸਟਰੀ"
+      },
+      "pt-br": {
+        "eyebrow": "Veja nosso trabalho",
+        "headline": "Estofamento Automotivo Craig's",
+        "summary": "Fotos de trabalhos: bancos, forros e capotas.",
+        "alt": "Veja nosso trabalho | Estofamento Automotivo Craig's"
+      },
+      "zh-hant": {
+        "eyebrow": "查看我們的作品",
+        "headline": "Craig's 汽車內飾",
+        "summary": "作品照片：座椅、頂棚與敞篷頂。",
+        "alt": "查看我們的作品 | Craig's 汽車內飾"
+      },
+      "ja": {
+        "eyebrow": "施工事例を見る",
+        "headline": "Craig's 自動車内装",
+        "summary": "施工写真：シート、ヘッドライナー、トップ。",
+        "alt": "施工事例を見る | Craig's 自動車内装"
+      },
+      "ar": {
+        "eyebrow": "شاهد أعمالنا",
+        "headline": "Craig's تنجيد السيارات",
+        "summary": "صور الأعمال: المقاعد وبطانة السقف والسقف القابل للطي.",
+        "alt": "شاهد أعمالنا | Craig's تنجيد السيارات"
+      },
+      "ru": {
+        "eyebrow": "Наши работы",
+        "headline": "Craig's Автообивка",
+        "summary": "Фото работ: сиденья, потолки и крыши.",
+        "alt": "Наши работы | Craig's Автообивка"
+      },
+      "ta": {
+        "eyebrow": "எங்கள் பணிகளைப் பாருங்கள்",
+        "headline": "Craig's கார் உள்வடிவம்",
+        "summary": "வேலைப் படங்கள்: சீட்கள், ஹெட்லைனர், டாப்.",
+        "alt": "எங்கள் பணிகளைப் பாருங்கள் | Craig's கார் உள்வடிவம்"
+      }
+    }
+  },
+  {
+    "pageKey": "headliners",
+    "template": "service",
+    "locales": {
+      "en": {
+        "eyebrow": "Headliners",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Sagging headliner replacement that stays tight.",
+        "alt": "Headliners | Craig's Auto Upholstery"
+      },
+      "es": {
+        "eyebrow": "Techos interiores",
+        "headline": "Tapicería Automotriz Craig's",
+        "summary": "Techos interiores tensos y sin flacidez.",
+        "alt": "Techos interiores | Tapicería Automotriz Craig's"
+      },
+      "vi": {
+        "eyebrow": "Trần xe",
+        "headline": "Bọc Nội Thất Ô Tô Craig's",
+        "summary": "Trần xe căng phẳng, không bị võng.",
+        "alt": "Trần xe | Bọc Nội Thất Ô Tô Craig's"
+      },
+      "zh-hans": {
+        "eyebrow": "车顶内衬",
+        "headline": "Craig's 汽车内饰",
+        "summary": "更换下垂顶棚，贴合平整。",
+        "alt": "车顶内衬 | Craig's 汽车内饰"
+      },
+      "tl": {
+        "eyebrow": "Kisame",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Palit ng kisame na hindi bumabagsak.",
+        "alt": "Kisame | Craig's Auto Upholstery"
+      },
+      "id": {
+        "eyebrow": "Plafon kabin",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Penggantian plafon kabin melorot agar kembali rapat.",
+        "alt": "Plafon kabin | Craig's Auto Upholstery"
+      },
+      "fa": {
+        "eyebrow": "سقف داخل",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "تعویض سقف داخلِ افتاده با نصب محکم.",
+        "alt": "سقف داخل | Craig's Auto Upholstery"
+      },
+      "te": {
+        "eyebrow": "హెడ్‌లైనర్",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "వదులైన హెడ్‌లైనర్‌కు గట్టిగా ఉండే రీప్లేస్‌మెంట్.",
+        "alt": "హెడ్‌లైనర్ | Craig's Auto Upholstery"
+      },
+      "fr": {
+        "eyebrow": "Ciel de toit",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Remplacement de ciel de toit affaissé avec tenue durable.",
+        "alt": "Ciel de toit | Craig's Auto Upholstery"
+      },
+      "ko": {
+        "eyebrow": "헤드라이너",
+        "headline": "Craig's 자동차 내장",
+        "summary": "처짐 없는 헤드라이너 교체.",
+        "alt": "헤드라이너 | Craig's 자동차 내장"
+      },
+      "hi": {
+        "eyebrow": "हेडलाइ너",
+        "headline": "Craig's ऑटो अपहोल्स्ट्री",
+        "summary": "झुका हेडलाइनर बदलना.",
+        "alt": "हेडलाइ너 | Craig's ऑटो अपहोल्स्ट्री"
+      },
+      "pa": {
+        "eyebrow": "ਹੈਡਲਾਈਨਰ",
+        "headline": "Craig's ਆਟੋ ਅਪਹੋਲਸਟਰੀ",
+        "summary": "ਢਿੱਲੇ ਹੈਡਲਾਈਨਰ ਦੀ ਬਦਲੀ.",
+        "alt": "ਹੈਡਲਾਈਨਰ | Craig's ਆਟੋ ਅਪਹੋਲਸਟਰੀ"
+      },
+      "pt-br": {
+        "eyebrow": "Forro do teto",
+        "headline": "Estofamento Automotivo Craig's",
+        "summary": "Troca de forro de teto sem descolamento.",
+        "alt": "Forro do teto | Estofamento Automotivo Craig's"
+      },
+      "zh-hant": {
+        "eyebrow": "車頂內襯",
+        "headline": "Craig's 汽車內飾",
+        "summary": "下垂頂棚更換，固定平整。",
+        "alt": "車頂內襯 | Craig's 汽車內飾"
+      },
+      "ja": {
+        "eyebrow": "ヘッドライナー",
+        "headline": "Craig's 自動車内装",
+        "summary": "たるみ防止のヘッドライナー交換。",
+        "alt": "ヘッドライナー | Craig's 自動車内装"
+      },
+      "ar": {
+        "eyebrow": "بطانة السقف",
+        "headline": "Craig's تنجيد السيارات",
+        "summary": "استبدال بطانة السقف المترهلة بثبات.",
+        "alt": "بطانة السقف | Craig's تنجيد السيارات"
+      },
+      "ru": {
+        "eyebrow": "Потолок",
+        "headline": "Craig's Автообивка",
+        "summary": "Замена провисшего потолка с плотной посадкой.",
+        "alt": "Потолок | Craig's Автообивка"
+      },
+      "ta": {
+        "eyebrow": "ஹெட்லைனர்",
+        "headline": "Craig's கார் உள்வடிவம்",
+        "summary": "சாய்ந்த ஹெட்லைனரை திடமாக மாற்றுதல்.",
+        "alt": "ஹெட்லைனர் | Craig's கார் உள்வடிவம்"
+      }
+    }
+  },
+  {
+    "pageKey": "home",
+    "template": "home",
+    "locales": {
+      "en": {
+        "eyebrow": "Auto Services",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Seat tears, sagging headliners, and worn interiors repaired with clean matching, solid foam support, and durable materials for daily use.",
+        "alt": "Auto Services | Craig's Auto Upholstery"
+      },
+      "es": {
+        "eyebrow": "Servicios automotrices",
+        "headline": "Tapicería Automotriz Craig's",
+        "summary": "Tapicería automotriz en San José con más de 60 años de experiencia: asientos, techos, capotas e interiores clásicos con materiales duraderos.",
+        "alt": "Servicios automotrices | Tapicería Automotriz Craig's"
+      },
+      "vi": {
+        "eyebrow": "Dịch vụ ô tô",
+        "headline": "Bọc Nội Thất Ô Tô Craig's",
+        "summary": "Bọc nội thất ô tô tại San Jose với hơn 60 năm kinh nghiệm, phục hồi ghế, trần, mui trần và nội thất xe cổ chuẩn xác và bền bỉ.",
+        "alt": "Dịch vụ ô tô | Bọc Nội Thất Ô Tô Craig's"
+      },
+      "zh-hans": {
+        "eyebrow": "汽车服务",
+        "headline": "Craig's 汽车内饰",
+        "summary": "圣何塞家族经营汽车内饰专家，专注座椅、顶棚及敞篷顶修复，结合60多年经验打造耐用美观内饰。",
+        "alt": "汽车服务 | Craig's 汽车内饰"
+      },
+      "tl": {
+        "eyebrow": "Serbisyong pang-sasakyan",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Pamilya sa San Jose na nag-aayos ng upuan, kisame, bubong ng kabriolet, at klasikong interior gamit ang matibay at maayos na materyales para sa araw-araw na gamit.",
+        "alt": "Serbisyong pang-sasakyan | Craig's Auto Upholstery"
+      },
+      "id": {
+        "eyebrow": "Layanan mobil",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Layanan upholstery mobil keluarga di San Jose dengan pengalaman 60+ tahun, meliputi perbaikan jok, plafon, atap convertible, dan interior klasik yang tahan lama.",
+        "alt": "Layanan mobil | Craig's Auto Upholstery"
+      },
+      "fa": {
+        "eyebrow": "خدمات خودرو",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "کارگاه خانوادگی در سن‌خوزه با بیش از ۶۰ سال تجربه در تعمیر و بازسازی روکش صندلی، سقف داخل و داخل خودروهای کلاسیک.",
+        "alt": "خدمات خودرو | Craig's Auto Upholstery"
+      },
+      "te": {
+        "eyebrow": "ఆటో సేవలు",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "సాన్ హోసేలో కుటుంబ ఆధారిత ఆటో అప్హోల్స్టరీ: సీట్లు, హెడ్‌లైనర్, ఇంటీరియర్ నాణ్యమైన మెటీరియల్స్‌తో మరమ్మతులు.",
+        "alt": "ఆటో సేవలు | Craig's Auto Upholstery"
+      },
+      "fr": {
+        "eyebrow": "Services auto",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Atelier familial à San Jose avec 60 ans d’expérience en garnissage auto : réparation de sièges, ciels de toit, capotes et intérieurs classiques avec savoir-faire durable.",
+        "alt": "Services auto | Craig's Auto Upholstery"
+      },
+      "ko": {
+        "eyebrow": "자동차 서비스",
+        "headline": "Craig's 자동차 내장",
+        "summary": "샌호세 가족 운영 자동차 내장 전문점, 시트와 헤드라이너부터 클래식 인테리어까지 정교하게 수리합니다.",
+        "alt": "자동차 서비스 | Craig's 자동차 내장"
+      },
+      "hi": {
+        "eyebrow": "ऑटो सेवाएँ",
+        "headline": "Craig's ऑटो अपहोल्स्ट्री",
+        "summary": "San Jose की पारिवारिक ऑटो इंटीरियर शॉप जहां सीट, हेडलाइनर और क्लासिक इंटीरियर की मरम्मत सटीकता और टिकाऊपन के साथ होती है।",
+        "alt": "ऑटो सेवाएँ | Craig's ऑटो अपहोल्स्ट्री"
+      },
+      "pa": {
+        "eyebrow": "ਆਟੋ ਸੇਵਾਵਾਂ",
+        "headline": "Craig's ਆਟੋ ਅਪਹੋਲਸਟਰੀ",
+        "summary": "San Jose ਵਿੱਚ ਪਰਿਵਾਰਕ ਆਟੋ ਅਪਹੋਲਸਟਰੀ: ਸੀਟਾਂ, ਹੈਡਲਾਈਨਰ ਅਤੇ ਕਨਵਰਟੀਬਲ ਟਾਪ ਦੀ ਮੁਰੰਮਤ ਤੇ ਨਵੀਨੀਕਰਨ, ਮਜ਼ਬੂਤ ਸਮੱਗਰੀ ਨਾਲ।",
+        "alt": "ਆਟੋ ਸੇਵਾਵਾਂ | Craig's ਆਟੋ ਅਪਹੋਲਸਟਰੀ"
+      },
+      "pt-br": {
+        "eyebrow": "Serviços automotivos",
+        "headline": "Estofamento Automotivo Craig's",
+        "summary": "Oficina familiar em San Jose especializada em bancos, forro, capotas e interiores clássicos com acabamento durável e detalhado.",
+        "alt": "Serviços automotivos | Estofamento Automotivo Craig's"
+      },
+      "zh-hant": {
+        "eyebrow": "汽車服務",
+        "headline": "Craig's 汽車內飾",
+        "summary": "聖荷西專業汽車內飾維修，修補座椅破損與車頂下垂，採用耐用材料與精準工藝，延長內裝壽命。",
+        "alt": "汽車服務 | Craig's 汽車內飾"
+      },
+      "ja": {
+        "eyebrow": "自動車サービス",
+        "headline": "Craig's 自動車内装",
+        "summary": "サンノゼの家族経営店がシート破れやヘッドライナーのたるみを耐久性ある素材で美しく修復します。",
+        "alt": "自動車サービス | Craig's 自動車内装"
+      },
+      "ar": {
+        "eyebrow": "خدمات السيارات",
+        "headline": "Craig's تنجيد السيارات",
+        "summary": "ورشة عائلية في سان خوسيه متخصصة في إصلاح وتنجيد مقاعد السيارات، بطانة السقف، والأسقف القابلة للطي بمواد متينة ودعم فوم متين.",
+        "alt": "خدمات السيارات | Craig's تنجيد السيارات"
+      },
+      "ru": {
+        "eyebrow": "Автоуслуги",
+        "headline": "Craig's Автообивка",
+        "summary": "Семейная мастерская в Сан-Хосе: ремонт сидений, потолочной обивки и классических интерьеров с точной подгонкой и долговечными материалами.",
+        "alt": "Автоуслуги | Craig's Автообивка"
+      },
+      "ta": {
+        "eyebrow": "வாகன சேவைகள்",
+        "headline": "Craig's கார் உள்வடிவம்",
+        "summary": "சான் ஹோசேவில் குடும்பம் நடத்தும் கார் உள்வடிவ சேவை: கிழிந்த இருக்கைகள், சாய்ந்த ஹெட்லைனர், கன்வர்டிபிள் டாப் மற்றும் கிளாசிக் உள்வடிவங்களை நுணுக்கமாக பழுது பார்க்கிறோம்.",
+        "alt": "வாகன சேவைகள் | Craig's கார் உள்வடிவம்"
+      }
+    }
+  },
+  {
+    "pageKey": "motorcycleSeats",
+    "template": "service",
+    "locales": {
+      "en": {
+        "eyebrow": "Motorcycle Seats",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Seat repair, recovering, and foam shaping.",
+        "alt": "Motorcycle Seats | Craig's Auto Upholstery"
+      },
+      "es": {
+        "eyebrow": "Asientos de motocicleta",
+        "headline": "Tapicería Automotriz Craig's",
+        "summary": "Reparación de asientos, retapizado y moldeado de espuma.",
+        "alt": "Asientos de motocicleta | Tapicería Automotriz Craig's"
+      },
+      "vi": {
+        "eyebrow": "Yên xe máy",
+        "headline": "Bọc Nội Thất Ô Tô Craig's",
+        "summary": "Sửa yên, bọc lại và tạo hình mút.",
+        "alt": "Yên xe máy | Bọc Nội Thất Ô Tô Craig's"
+      },
+      "zh-hans": {
+        "eyebrow": "摩托车座椅",
+        "headline": "Craig's 汽车内饰",
+        "summary": "座椅修复、重新包覆和泡棉塑形。",
+        "alt": "摩托车座椅 | Craig's 汽车内饰"
+      },
+      "tl": {
+        "eyebrow": "Upuan ng motorsiklo",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Ayos ng upuan, re-cover, at paghubog ng foam.",
+        "alt": "Upuan ng motorsiklo | Craig's Auto Upholstery"
+      },
+      "id": {
+        "eyebrow": "Jok motor",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Perbaikan jok motor, pelapisan ulang, dan pembentukan foam.",
+        "alt": "Jok motor | Craig's Auto Upholstery"
+      },
+      "fa": {
+        "eyebrow": "زین موتورسیکلت",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "تعمیر زین، بازروکشی و فرم‌دهی فوم.",
+        "alt": "زین موتورسیکلت | Craig's Auto Upholstery"
+      },
+      "te": {
+        "eyebrow": "మోటార్‌సైకిల్ సీట్లు",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "సీటు రిపేర్, రీ-కవరింగ్, ఫోమ్ షేపింగ్.",
+        "alt": "మోటార్‌సైకిల్ సీట్లు | Craig's Auto Upholstery"
+      },
+      "fr": {
+        "eyebrow": "Selles moto",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Réparation de selle, regarnissage et mise en forme de mousse.",
+        "alt": "Selles moto | Craig's Auto Upholstery"
+      },
+      "ko": {
+        "eyebrow": "오토바이 시트",
+        "headline": "Craig's 자동차 내장",
+        "summary": "시트 수리, 재커버, 폼 성형.",
+        "alt": "오토바이 시트 | Craig's 자동차 내장"
+      },
+      "hi": {
+        "eyebrow": "मोटरसाइकिल सीटें",
+        "headline": "Craig's ऑटो अपहोल्स्ट्री",
+        "summary": "सीट रिपेयर, री-कवर और फोम शेपिंग.",
+        "alt": "मोटरसाइकिल सीटें | Craig's ऑटो अपहोल्स्ट्री"
+      },
+      "pa": {
+        "eyebrow": "ਮੋਟਰਸਾਈਕਲ ਸੀਟਾਂ",
+        "headline": "Craig's ਆਟੋ ਅਪਹੋਲਸਟਰੀ",
+        "summary": "ਸੀਟ ਰਿਪੇਅਰ, ਰੀਕਵਰਿੰਗ ਅਤੇ ਫੋਮ ਸ਼ੇਪਿੰਗ.",
+        "alt": "ਮੋਟਰਸਾਈਕਲ ਸੀਟਾਂ | Craig's ਆਟੋ ਅਪਹੋਲਸਟਰੀ"
+      },
+      "pt-br": {
+        "eyebrow": "Bancos de moto",
+        "headline": "Estofamento Automotivo Craig's",
+        "summary": "Reparo de banco, reencapamento e moldagem de espuma.",
+        "alt": "Bancos de moto | Estofamento Automotivo Craig's"
+      },
+      "zh-hant": {
+        "eyebrow": "摩托車座椅",
+        "headline": "Craig's 汽車內飾",
+        "summary": "座椅修復、重新包覆與泡棉塑形。",
+        "alt": "摩托車座椅 | Craig's 汽車內飾"
+      },
+      "ja": {
+        "eyebrow": "バイクシート",
+        "headline": "Craig's 自動車内装",
+        "summary": "シート修理、張り替え、フォーム成形。",
+        "alt": "バイクシート | Craig's 自動車内装"
+      },
+      "ar": {
+        "eyebrow": "مقاعد الدراجات النارية",
+        "headline": "Craig's تنجيد السيارات",
+        "summary": "إصلاح المقعد وإعادة التنجيد وتشكيل الإسفنج.",
+        "alt": "مقاعد الدراجات النارية | Craig's تنجيد السيارات"
+      },
+      "ru": {
+        "eyebrow": "Мото‑сиденья",
+        "headline": "Craig's Автообивка",
+        "summary": "Ремонт сиденья, перетяжка и формовка поролона.",
+        "alt": "Мото‑сиденья | Craig's Автообивка"
+      },
+      "ta": {
+        "eyebrow": "மோட்டார் சைக்கிள் சீட்கள்",
+        "headline": "Craig's கார் உள்வடிவம்",
+        "summary": "சீட் பழுது, மீள் கவர், ஃபோம் வடிவமைப்பு.",
+        "alt": "மோட்டார் சைக்கிள் சீட்கள் | Craig's கார் உள்வடிவம்"
+      }
+    }
+  },
+  {
+    "pageKey": "porscheBoxsterSSeatProject",
+    "template": "project",
+    "locales": {
+      "en": {
+        "eyebrow": "Seat Project",
+        "headline": "Porsche Boxster S",
+        "summary": "Saddle leather bolsters, houndstooth inserts, matched door panels.",
+        "alt": "Porsche Boxster S | Craig's Auto Upholstery"
+      },
+      "es": {
+        "eyebrow": "Proyecto de asientos",
+        "headline": "Porsche Boxster S",
+        "summary": "Retapizado personalizado de asientos Boxster S con bolsters de cuero color saddle e insertos de pata de gallo, a juego con los paneles de puerta.",
+        "alt": "Porsche Boxster S | Tapicería Automotriz Craig's"
+      },
+      "vi": {
+        "eyebrow": "Dự án ghế",
+        "headline": "Porsche Boxster S",
+        "summary": "Bọc lại ghế Boxster S theo yêu cầu với ốp hông da màu yên ngựa và miếng chèn răng sói, đồng bộ với ốp cửa.",
+        "alt": "Porsche Boxster S | Bọc Nội Thất Ô Tô Craig's"
+      },
+      "zh-hans": {
+        "eyebrow": "座椅项目",
+        "headline": "Porsche Boxster S",
+        "summary": "为 Boxster S 座椅定制翻新：马鞍色皮革侧翼与千鸟格嵌片，并与门板匹配。",
+        "alt": "Porsche Boxster S | Craig's 汽车内饰"
+      },
+      "tl": {
+        "eyebrow": "Proyektong upuan",
+        "headline": "Porsche Boxster S",
+        "summary": "Custom na reupholstery ng Boxster S seats na may saddle brown leather bolsters at houndstooth inserts, tugma sa door panels.",
+        "alt": "Porsche Boxster S | Craig's Auto Upholstery"
+      },
+      "id": {
+        "eyebrow": "Proyek jok",
+        "headline": "Porsche Boxster S",
+        "summary": "Pelapisan ulang jok Boxster S dengan bolster kulit warna saddle dan insert houndstooth yang diselaraskan dengan panel pintu.",
+        "alt": "Porsche Boxster S | Craig's Auto Upholstery"
+      },
+      "fa": {
+        "eyebrow": "پروژه صندلی",
+        "headline": "Porsche Boxster S",
+        "summary": "بازروکشی سفارشی صندلی‌های Boxster S با کناره‌های چرمی رنگ saddle و اینسرت houndstooth هماهنگ با پنل در.",
+        "alt": "Porsche Boxster S | Craig's Auto Upholstery"
+      },
+      "te": {
+        "eyebrow": "సీటు ప్రాజెక్ట్",
+        "headline": "Porsche Boxster S",
+        "summary": "సాడిల్ లెదర్ బోల్స్టర్లు మరియు హౌండ్స్‌టూత్ ఇన్సర్ట్లతో Boxster S సీటు రీ-అప్హోల్స్టరీ, డోర్ ప్యానెల్‌కు మ్యాచ్‌గా.",
+        "alt": "Porsche Boxster S | Craig's Auto Upholstery"
+      },
+      "fr": {
+        "eyebrow": "Projet sièges",
+        "headline": "Porsche Boxster S",
+        "summary": "Réfection sur mesure des sièges Boxster S avec bourrelets cuir ton saddle et inserts pied-de-poule, assortis aux panneaux de porte.",
+        "alt": "Porsche Boxster S | Craig's Auto Upholstery"
+      },
+      "ko": {
+        "eyebrow": "시트 프로젝트",
+        "headline": "Porsche Boxster S",
+        "summary": "새들 브라운 가죽 볼스터와 하운드투스 인서트를 적용한 Boxster S 시트 재커버, 도어 패널과 매칭.",
+        "alt": "Porsche Boxster S | Craig's 자동차 내장"
+      },
+      "hi": {
+        "eyebrow": "सीट प्रोजेक्ट",
+        "headline": "Porsche Boxster S",
+        "summary": "सैडल ब्राउन लेदर बोल्स्टर्स और हाउंडस्टूथ इंसर्ट्स के साथ Boxster S सीट रि‑अपहोल्स्ट्री, डोर पैनल्स से मैच की गई।",
+        "alt": "Porsche Boxster S | Craig's ऑटो अपहोल्स्ट्री"
+      },
+      "pa": {
+        "eyebrow": "ਸੀਟ ਪ੍ਰੋਜੈਕਟ",
+        "headline": "Porsche Boxster S",
+        "summary": "ਸੈਡਲ ਬ੍ਰਾਊਨ ਲੈਦਰ ਬੋਲਸਟਰ ਅਤੇ ਹਾਊਂਡਸਟੂਥ ਇਨਸਰਟ ਨਾਲ Boxster S ਸੀਟ ਰੀ‑ਅਪਹੋਲਸਟਰੀ, ਡੋਰ ਪੈਨਲ ਨਾਲ ਮੇਚ ਕੀਤੀ।",
+        "alt": "Porsche Boxster S | Craig's ਆਟੋ ਅਪਹੋਲਸਟਰੀ"
+      },
+      "pt-br": {
+        "eyebrow": "Projeto de bancos",
+        "headline": "Porsche Boxster S",
+        "summary": "Reestofamento personalizado dos bancos do Boxster S com bolsters de couro marrom sela e inserções pied‑de‑poule, combinando com os painéis de porta.",
+        "alt": "Porsche Boxster S | Estofamento Automotivo Craig's"
+      },
+      "zh-hant": {
+        "eyebrow": "座椅專案",
+        "headline": "Porsche Boxster S",
+        "summary": "Boxster S 座椅客製翻新：馬鞍色皮革側翼與千鳥格嵌片，並與門板搭配。",
+        "alt": "Porsche Boxster S | Craig's 汽車內飾"
+      },
+      "ja": {
+        "eyebrow": "シートプロジェクト",
+        "headline": "Porsche Boxster S",
+        "summary": "サドルブラウンのレザーボルスターと千鳥格子インサートを使った Boxster S シート張り替え。ドアパネルともマッチ。",
+        "alt": "Porsche Boxster S | Craig's 自動車内装"
+      },
+      "ar": {
+        "eyebrow": "مشروع مقاعد",
+        "headline": "Porsche Boxster S",
+        "summary": "إعادة تنجيد مخصصة لمقاعد Boxster S بدعامات جلد بلون السرج وإدخالات قدم الغراب، مع مطابقة ألواح الأبواب.",
+        "alt": "Porsche Boxster S | Craig's تنجيد السيارات"
+      },
+      "ru": {
+        "eyebrow": "Проект по сиденьям",
+        "headline": "Porsche Boxster S",
+        "summary": "Кастомная перетяжка сидений Boxster S с боковыми валиками из кожи цвета saddle и вставками «гусиная лапка», в тон дверным панелям.",
+        "alt": "Porsche Boxster S | Craig's Автообивка"
+      },
+      "ta": {
+        "eyebrow": "சீட் திட்டம்",
+        "headline": "Porsche Boxster S",
+        "summary": "சேடில் பிரவுன் லெதர் போல்ஸ்டர் மற்றும் ஹவுண்ட்ஸூத் இன்சர்ட் கொண்ட Boxster S சீட் மறுஅப்போல்ஸ்டரி, கதவு பேனல்களுடன் பொருந்தும்.",
+        "alt": "Porsche Boxster S | Craig's கார் உள்வடிவம்"
+      }
+    }
+  },
+  {
+    "pageKey": "requestQuote",
+    "template": "quote",
+    "locales": {
+      "en": {
+        "eyebrow": "Request a Quote",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Send your vehicle details and photos to request an upholstery quote from Craig's Auto Upholstery in San Jose. Every submission is reviewed manually.",
+        "alt": "Request a Quote | Craig's Auto Upholstery"
+      },
+      "es": {
+        "eyebrow": "Solicitar cotización",
+        "headline": "Tapicería Automotriz Craig's",
+        "summary": "Envía los datos del vehículo y las fotos para solicitar una cotización de tapicería en Craig's Auto Upholstery. Cada solicitud se revisa manualmente.",
+        "alt": "Solicitar cotización | Tapicería Automotriz Craig's"
+      },
+      "vi": {
+        "eyebrow": "Yêu cầu báo giá",
+        "headline": "Bọc Nội Thất Ô Tô Craig's",
+        "summary": "Gửi thông tin xe và ảnh để yêu cầu báo giá bọc nội thất tại Craig's Auto Upholstery. Mỗi yêu cầu đều được xem thủ công.",
+        "alt": "Yêu cầu báo giá | Bọc Nội Thất Ô Tô Craig's"
+      },
+      "zh-hans": {
+        "eyebrow": "获取报价",
+        "headline": "Craig's 汽车内饰",
+        "summary": "发送车辆信息和照片，向 Craig's Auto Upholstery 申请内饰报价。每份提交都会由人工审核。",
+        "alt": "获取报价 | Craig's 汽车内饰"
+      },
+      "tl": {
+        "eyebrow": "Humiling ng quote",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Ipadala ang detalye ng sasakyan at mga larawan para humiling ng quote sa Craig's Auto Upholstery. Mano-manong sinusuri ang bawat request.",
+        "alt": "Humiling ng quote | Craig's Auto Upholstery"
+      },
+      "id": {
+        "eyebrow": "Minta estimasi",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Kirim detail kendaraan dan foto untuk meminta estimasi upholstery dari Craig's Auto Upholstery. Setiap permintaan ditinjau manual.",
+        "alt": "Minta estimasi | Craig's Auto Upholstery"
+      },
+      "fa": {
+        "eyebrow": "درخواست برآورد",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "برای دریافت برآورد روکش خودرو از Craig's Auto Upholstery، مشخصات خودرو و عکس‌ها را ارسال کنید. هر درخواست به‌صورت دستی بررسی می‌شود.",
+        "alt": "درخواست برآورد | Craig's Auto Upholstery"
+      },
+      "te": {
+        "eyebrow": "కోట్ అభ్యర్థన",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Craig's Auto Upholstery నుండి అప్హోల్స్టరీ కోట్ పొందడానికి వాహనం వివరాలు మరియు ఫోటోలు పంపండి. ప్రతి సబ్మిషన్‌ను మాన్యువల్‌గా సమీక్షిస్తాం.",
+        "alt": "కోట్ అభ్యర్థన | Craig's Auto Upholstery"
+      },
+      "fr": {
+        "eyebrow": "Demander un devis",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Envoyez les détails du véhicule et des photos pour demander un devis chez Craig's Auto Upholstery. Chaque demande est relue manuellement.",
+        "alt": "Demander un devis | Craig's Auto Upholstery"
+      },
+      "ko": {
+        "eyebrow": "견적 요청",
+        "headline": "Craig's 자동차 내장",
+        "summary": "Craig's Auto Upholstery에 차량 정보와 사진을 보내 견적을 요청하세요. 모든 제출은 수동으로 검토됩니다.",
+        "alt": "견적 요청 | Craig's 자동차 내장"
+      },
+      "hi": {
+        "eyebrow": "कोट अनुरोध",
+        "headline": "Craig's ऑटो अपहोल्स्ट्री",
+        "summary": "Craig's Auto Upholstery से अपहोल्स्ट्री कोट पाने के लिए वाहन की जानकारी और फोटो भेजें। हर अनुरोध को मैन्युअल रूप से देखा जाता है.",
+        "alt": "कोट अनुरोध | Craig's ऑटो अपहोल्स्ट्री"
+      },
+      "pa": {
+        "eyebrow": "ਕੋਟ ਬੇਨਤੀ",
+        "headline": "Craig's ਆਟੋ ਅਪਹੋਲਸਟਰੀ",
+        "summary": "Craig's Auto Upholstery ਤੋਂ ਕੋਟ ਲੈਣ ਲਈ ਵਾਹਨ ਦੇ ਵੇਰਵੇ ਅਤੇ ਫੋਟੋਆਂ ਭੇਜੋ। ਹਰ ਬੇਨਤੀ ਹੱਥੋਂ ਵੇਖੀ ਜਾਂਦੀ ਹੈ.",
+        "alt": "ਕੋਟ ਬੇਨਤੀ | Craig's ਆਟੋ ਅਪਹੋਲਸਟਰੀ"
+      },
+      "pt-br": {
+        "eyebrow": "Solicitar orçamento",
+        "headline": "Estofamento Automotivo Craig's",
+        "summary": "Envie os dados do veículo e as fotos para solicitar um orçamento de estofamento na Craig's Auto Upholstery. Cada envio é revisado manualmente.",
+        "alt": "Solicitar orçamento | Estofamento Automotivo Craig's"
+      },
+      "zh-hant": {
+        "eyebrow": "取得報價",
+        "headline": "Craig's 汽車內飾",
+        "summary": "傳送車輛資訊和照片，向 Craig's Auto Upholstery 申請內飾報價。每份提交都會由人工審核。",
+        "alt": "取得報價 | Craig's 汽車內飾"
+      },
+      "ja": {
+        "eyebrow": "見積もり依頼",
+        "headline": "Craig's 自動車内装",
+        "summary": "Craig's Auto Upholstery に車両情報と写真を送って見積もりを依頼できます。すべての送信内容は手動で確認されます。",
+        "alt": "見積もり依頼 | Craig's 自動車内装"
+      },
+      "ar": {
+        "eyebrow": "طلب عرض سعر",
+        "headline": "Craig's تنجيد السيارات",
+        "summary": "أرسل معلومات السيارة والصور لطلب عرض سعر من Craig's Auto Upholstery. تتم مراجعة كل طلب يدويًا.",
+        "alt": "طلب عرض سعر | Craig's تنجيد السيارات"
+      },
+      "ru": {
+        "eyebrow": "Запрос оценки",
+        "headline": "Craig's Автообивка",
+        "summary": "Отправьте данные автомобиля и фотографии, чтобы запросить оценку у Craig's Auto Upholstery. Каждая заявка проверяется вручную.",
+        "alt": "Запрос оценки | Craig's Автообивка"
+      },
+      "ta": {
+        "eyebrow": "மதிப்பீடு கோரிக்கை",
+        "headline": "Craig's கார் உள்வடிவம்",
+        "summary": "Craig's Auto Upholstery-க்கு வாகன விவரங்கள் மற்றும் புகைப்படங்களை அனுப்பி உள்வடிவ மதிப்பீட்டை கேளுங்கள். ஒவ்வொரு கோரிக்கையும் கையால் பரிசீலிக்கப்படுகிறது.",
+        "alt": "மதிப்பீடு கோரிக்கை | Craig's கார் உள்வடிவம்"
+      }
+    }
+  },
+  {
+    "pageKey": "reviews",
+    "template": "review",
+    "locales": {
+      "en": {
+        "eyebrow": "Reviews",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Customer feedback on fit, finish, and durability.",
+        "alt": "Reviews | Craig's Auto Upholstery"
+      },
+      "es": {
+        "eyebrow": "Opiniones",
+        "headline": "Tapicería Automotriz Craig's",
+        "summary": "Opiniones de clientes sobre ajuste y acabado.",
+        "alt": "Opiniones | Tapicería Automotriz Craig's"
+      },
+      "vi": {
+        "eyebrow": "Đánh giá",
+        "headline": "Bọc Nội Thất Ô Tô Craig's",
+        "summary": "Đánh giá khách hàng về độ khớp và hoàn thiện.",
+        "alt": "Đánh giá | Bọc Nội Thất Ô Tô Craig's"
+      },
+      "zh-hans": {
+        "eyebrow": "评价",
+        "headline": "Craig's 汽车内饰",
+        "summary": "客户评价：贴合度与做工。",
+        "alt": "评价 | Craig's 汽车内饰"
+      },
+      "tl": {
+        "eyebrow": "Mga Review",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Mga review ng customer tungkol sa fit at finish.",
+        "alt": "Mga Review | Craig's Auto Upholstery"
+      },
+      "id": {
+        "eyebrow": "Ulasan",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Ulasan pelanggan tentang presisi, detail, dan daya tahan.",
+        "alt": "Ulasan | Craig's Auto Upholstery"
+      },
+      "fa": {
+        "eyebrow": "نظرات",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "نظر مشتریان درباره فیت، پرداخت و دوام.",
+        "alt": "نظرات | Craig's Auto Upholstery"
+      },
+      "te": {
+        "eyebrow": "సమీక్షలు",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "ఫిట్, ఫినిష్, నిలకడపై కస్టమర్ అభిప్రాయం.",
+        "alt": "సమీక్షలు | Craig's Auto Upholstery"
+      },
+      "fr": {
+        "eyebrow": "Avis",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Avis clients sur ajustement, finition et durabilité.",
+        "alt": "Avis | Craig's Auto Upholstery"
+      },
+      "ko": {
+        "eyebrow": "리뷰",
+        "headline": "Craig's 자동차 내장",
+        "summary": "고객 후기: 맞춤과 마감 평가.",
+        "alt": "리뷰 | Craig's 자동차 내장"
+      },
+      "hi": {
+        "eyebrow": "समीक्षाएं",
+        "headline": "Craig's ऑटो अपहोल्स्ट्री",
+        "summary": "ग्राहक राय: फिट और फिनिश पर प्रतिक्रिया.",
+        "alt": "समीक्षाएं | Craig's ऑटो अपहोल्स्ट्री"
+      },
+      "pa": {
+        "eyebrow": "ਸਮੀਖਿਆਵਾਂ",
+        "headline": "Craig's ਆਟੋ ਅਪਹੋਲਸਟਰੀ",
+        "summary": "ਗਾਹਕ ਰਾਏ: ਫਿਟ ਅਤੇ ਫਿਨਿਸ਼ ਬਾਰੇ.",
+        "alt": "ਸਮੀਖਿਆਵਾਂ | Craig's ਆਟੋ ਅਪਹੋਲਸਟਰੀ"
+      },
+      "pt-br": {
+        "eyebrow": "Avaliações",
+        "headline": "Estofamento Automotivo Craig's",
+        "summary": "Avaliações de clientes sobre encaixe e acabamento.",
+        "alt": "Avaliações | Estofamento Automotivo Craig's"
+      },
+      "zh-hant": {
+        "eyebrow": "評價",
+        "headline": "Craig's 汽車內飾",
+        "summary": "客戶評價：貼合度與做工。",
+        "alt": "評價 | Craig's 汽車內飾"
+      },
+      "ja": {
+        "eyebrow": "口コミ",
+        "headline": "Craig's 自動車内装",
+        "summary": "お客様の声：フィット感と仕上げ。",
+        "alt": "口コミ | Craig's 自動車内装"
+      },
+      "ar": {
+        "eyebrow": "التقييمات",
+        "headline": "Craig's تنجيد السيارات",
+        "summary": "آراء العملاء حول الملاءمة والتشطيب.",
+        "alt": "التقييمات | Craig's تنجيد السيارات"
+      },
+      "ru": {
+        "eyebrow": "Отзывы",
+        "headline": "Craig's Автообивка",
+        "summary": "Отзывы клиентов о посадке и отделке.",
+        "alt": "Отзывы | Craig's Автообивка"
+      },
+      "ta": {
+        "eyebrow": "விமர்சனங்கள்",
+        "headline": "Craig's கார் உள்வடிவம்",
+        "summary": "வாடிக்கையாளர் விமர்சனங்கள்: பொருத்தம், முடிப்பு.",
+        "alt": "விமர்சனங்கள் | Craig's கார் உள்வடிவம்"
+      }
+    }
+  },
+  {
+    "pageKey": "upholsteryGuide",
+    "template": "guide",
+    "locales": {
+      "en": {
+        "eyebrow": "Upholstery Guide",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Learn how to choose repair vs reupholstery, compare leather-vinyl-cloth tradeoffs, and understand pricing drivers before requesting a quote.",
+        "alt": "Upholstery Guide | Craig's Auto Upholstery"
+      },
+      "es": {
+        "eyebrow": "Guía de tapicería",
+        "headline": "Tapicería Automotriz Craig's",
+        "summary": "Guía completa para elegir tapicería automotriz: materiales, alcance, precios y consejos para decidir entre reparación o retapizado.",
+        "alt": "Guía de tapicería | Tapicería Automotriz Craig's"
+      },
+      "vi": {
+        "eyebrow": "Hướng dẫn bọc nội thất",
+        "headline": "Bọc Nội Thất Ô Tô Craig's",
+        "summary": "Hướng dẫn chọn bọc nội thất ô tô: so sánh vật liệu, phạm vi dịch vụ và giá cả để quyết định sửa chữa hay làm mới hiệu quả.",
+        "alt": "Hướng dẫn bọc nội thất | Bọc Nội Thất Ô Tô Craig's"
+      },
+      "zh-hans": {
+        "eyebrow": "内饰指南",
+        "headline": "Craig's 汽车内饰",
+        "summary": "全面内饰选购指南，解析修复与重包区别，材料优劣及价格构成，助您明智决策。",
+        "alt": "内饰指南 | Craig's 汽车内饰"
+      },
+      "tl": {
+        "eyebrow": "Gabay sa tapiseriya",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Alamin kung kailan ayusin o ipalit ang tapiseriya, paghahambing ng leather, vinyl, at tela, pati na ang mga salik sa presyo bago humingi ng estimate.",
+        "alt": "Gabay sa tapiseriya | Craig's Auto Upholstery"
+      },
+      "id": {
+        "eyebrow": "Panduan upholstery",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Panduan lengkap upholstery mobil: kenali masalah umum, pilihan bahan, lingkup kerja, biaya, dan proses agar dapat memilih solusi tepat.",
+        "alt": "Panduan upholstery | Craig's Auto Upholstery"
+      },
+      "fa": {
+        "eyebrow": "راهنمای روکش",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "راهنمای جامع انتخاب بین تعمیر و بازروکشی، مقایسه متریال و آشنایی با عوامل موثر بر قیمت پیش از درخواست قیمت.",
+        "alt": "راهنمای روکش | Craig's Auto Upholstery"
+      },
+      "te": {
+        "eyebrow": "అప్హోల్స్టరీ గైడ్",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "ఆటో అప్హోల్స్టరీ ఎంపికలో సహాయం: రిపేర్ vs రీప్లేస్‌మెంట్, మెటీరియల్స్, ధరలు, ప్రాసెస్ వివరాలు.",
+        "alt": "అప్హోల్స్టరీ గైడ్ | Craig's Auto Upholstery"
+      },
+      "fr": {
+        "eyebrow": "Guide garnissage",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Guide complet pour choisir entre réparation et regarnissage auto : matériaux, étendue des travaux, tarifs et étapes pour une décision éclairée.",
+        "alt": "Guide garnissage | Craig's Auto Upholstery"
+      },
+      "ko": {
+        "eyebrow": "내장 가이드",
+        "headline": "Craig's 자동차 내장",
+        "summary": "자동차 내장 수리와 재커버링 선택법, 소재별 특징과 가격 요소를 이해하는 실용 가이드입니다.",
+        "alt": "내장 가이드 | Craig's 자동차 내장"
+      },
+      "hi": {
+        "eyebrow": "अपहोल्स्ट्री गाइड",
+        "headline": "Craig's ऑटो अपहोल्स्ट्री",
+        "summary": "अपहोल्स्ट्री गाइड: मरम्मत और रि-अपहोल्स्ट्री के बीच चयन, सामग्री के फायदे-नुकसान और कीमत समझें।",
+        "alt": "अपहोल्स्ट्री गाइड | Craig's ऑटो अपहोल्स्ट्री"
+      },
+      "pa": {
+        "eyebrow": "ਅਪਹੋਲਸਟਰੀ ਗਾਈਡ",
+        "headline": "Craig's ਆਟੋ ਅਪਹੋਲਸਟਰੀ",
+        "summary": "ਅਪਹੋਲਸਟਰੀ ਲਈ ਮੁਰੰਮਤ ਜਾਂ ਰੀਅਪਹੋਲਸਟਰੀ ਚੁਣਨ ਦਾ ਤਰੀਕਾ, ਸਮੱਗਰੀਆਂ ਦੇ ਫਾਇਦੇ-ਨੁਕਸਾਨ ਅਤੇ ਕੀਮਤਾਂ ਬਾਰੇ ਜਾਣਕਾਰੀ।",
+        "alt": "ਅਪਹੋਲਸਟਰੀ ਗਾਈਡ | Craig's ਆਟੋ ਅਪਹੋਲਸਟਰੀ"
+      },
+      "pt-br": {
+        "eyebrow": "Guia de estofamento",
+        "headline": "Estofamento Automotivo Craig's",
+        "summary": "Guia completo para escolher entre reparo e reestofamento, comparando materiais e entendendo preços antes do orçamento.",
+        "alt": "Guia de estofamento | Estofamento Automotivo Craig's"
+      },
+      "zh-hant": {
+        "eyebrow": "內飾指南",
+        "headline": "Craig's 汽車內飾",
+        "summary": "深入了解汽車內飾修復與重包選擇，解析皮革、乙烯基與布料優缺點及價格影響因素。",
+        "alt": "內飾指南 | Craig's 汽車內飾"
+      },
+      "ja": {
+        "eyebrow": "内装ガイド",
+        "headline": "Craig's 自動車内装",
+        "summary": "自動車内装の素材選びや修理範囲、価格のポイントをわかりやすく解説するガイドです。",
+        "alt": "内装ガイド | Craig's 自動車内装"
+      },
+      "ar": {
+        "eyebrow": "دليل التنجيد",
+        "headline": "Craig's تنجيد السيارات",
+        "summary": "دليل شامل لاختيار أفضل حلول التنجيد، مقارنة المواد، تحديد نطاق العمل، وفهم الأسعار قبل طلب عرض سعر.",
+        "alt": "دليل التنجيد | Craig's تنجيد السيارات"
+      },
+      "ru": {
+        "eyebrow": "Руководство по обивке",
+        "headline": "Craig's Автообивка",
+        "summary": "Полезное руководство по автообивке: выбор между ремонтом и перетяжкой, материалы и цены для правильного решения.",
+        "alt": "Руководство по обивке | Craig's Автообивка"
+      },
+      "ta": {
+        "eyebrow": "உள்வடிவ வழிகாட்டி",
+        "headline": "Craig's கார் உள்வடிவம்",
+        "summary": "உள்வடிவம் வாங்குவதற்கு முன்னர் பழுது மற்றும் மறுஅப்போல்ஸ்டரி தேர்வு, பொருட்கள் மற்றும் விலை விவரங்களை தெளிவாக அறிய உதவும் வழிகாட்டி.",
+        "alt": "உள்வடிவ வழிகாட்டி | Craig's கார் உள்வடிவம்"
+      }
+    }
+  }
+]

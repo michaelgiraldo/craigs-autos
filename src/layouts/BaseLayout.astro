@@ -28,6 +28,7 @@ import {
 	UI_COPY,
 } from '../lib/site-data.js';
 import { buildEstimateEmailHref } from '../lib/email-draft.js';
+import { getPageSocialCard } from '../lib/social-cards/getPageSocialCard.js';
 import { buildHeaderNavStructure, NAV_ITEM_ORDER } from '../features/navigation/nav-structure';
 import {
 	getPageLabel,
@@ -72,27 +73,12 @@ const pageDescription =
 	typeof description === 'string' && description.trim().length > 0
 		? description.trim()
 		: (BUSINESS_COPY[locale] ?? BUSINESS_COPY.en).description;
-const socialBusiness = BUSINESS_COPY[locale] ?? BUSINESS_COPY.en;
-const truncateSocialText = (value: string | null | undefined, maxChars: number) => {
-	const text = String(value ?? '').replace(/\s+/g, ' ').trim();
-	if (!text || text.length <= maxChars) {
-		return text;
-	}
-	return `${text.slice(0, Math.max(0, maxChars - 1)).replace(/[ ,.;:!?，。！？、：；-]+$/u, '')}…`;
-};
-const socialPageLabel = pageKey ? getPageLabel(pageKey, locale) : null;
-const socialTitle = truncateSocialText(
-	socialPageLabel && pageKey !== 'home'
-		? `${socialPageLabel} · ${socialBusiness.name ?? BRAND_NAME}`
-		: (socialBusiness.name ?? BRAND_NAME),
-	72,
-);
-const socialDescription = truncateSocialText(
-	socialPageLabel && pageKey !== 'home'
-		? `${socialPageLabel}. ${socialBusiness.description ?? pageDescription}`
-		: (socialBusiness.description ?? pageDescription),
-	180,
-);
+const socialCard = getPageSocialCard({
+	pageKey: noindex ? 'home' : (pageKey ?? 'home'),
+	locale,
+});
+const socialTitle = socialCard.title;
+const socialDescription = socialCard.description;
 const site = Astro.site ?? new URL(SITE.url);
 const localeKeys = LOCALE_ORDER as LocaleKey[];
 const pageTranslations: LocaleMap<string> = translations ?? getTranslations(pageKey ?? 'home');
@@ -113,14 +99,8 @@ const businessImages = Array.from(
 		].map((image) => new URL(image.src, site).toString()),
 	),
 );
-const defaultOgImagePath = getPageTranslation('home', locale) ? `/og/${locale}/home.jpg` : '/og/en/home.jpg';
-const localizedOgImagePath =
-	pageKey && getPageTranslation(pageKey, locale) ? `/og/${locale}/${pageKey}.jpg` : defaultOgImagePath;
-const ogImageUrl = new URL(localizedOgImagePath, site).toString();
-const ogImageAltBase = (socialTitle || title || BRAND_NAME).trim();
-const ogImageAlt = ogImageAltBase.toLowerCase().includes(BRAND_NAME.toLowerCase())
-	? ogImageAltBase
-	: `${ogImageAltBase} | ${BRAND_NAME}`;
+const ogImageUrl = new URL(socialCard.imagePath, site).toString();
+const ogImageAlt = socialCard.imageAlt;
 const ogImageWidth = '1200';
 const ogImageHeight = '630';
 const ogLocaleByKey: Partial<Record<LocaleKey, string>> = {

@@ -1,4 +1,4 @@
-These fonts are used by `scripts/generate-og-images.mjs` to render localized Open Graph cards consistently across environments.
+These fonts are used by `scripts/generate-social-images.mjs` to render localized social preview cards consistently across environments.
 
 Included fonts:
 

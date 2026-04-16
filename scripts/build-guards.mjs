@@ -2,6 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { LOCALE_ORDER, LOCALES } from '../src/lib/site-data.js';
+import { getPageSocialCard } from '../src/lib/social-cards/getPageSocialCard.js';
+import { validateSocialCards } from '../src/lib/social-cards/validateSocialCards.js';
 import { getPageKeys, getTranslations } from '../src/lib/site-data/page-registry.js';
 import { getPageEntry } from '../src/lib/site-data/page-manifest.js';
 
@@ -46,6 +48,7 @@ const BANNED_TOKEN_RULES = {
 const PAGE_FILE_PATTERN = /\.(md|mdx)$/u;
 
 const errors = [];
+errors.push(...validateSocialCards());
 
 function assertExists(targetPath, label) {
   if (!fs.existsSync(targetPath)) {
@@ -163,6 +166,38 @@ for (const pageKey of pageKeys) {
       assertExists(manifestEntry.filePath, `Content page for ${pageKey} (${locale})`);
     }
     assertExists(ogPath, `OG image for ${pageKey} (${locale})`);
+
+    if (manifestEntry) {
+      const socialCard = getPageSocialCard({
+        pageKey,
+        locale,
+      });
+      const expectedOgImagePath = `/og/${locale}/${pageKey}.jpg`;
+
+      if (socialCard.imagePath !== expectedOgImagePath) {
+        errors.push(
+          `Social card image mismatch for ${pageKey} (${locale}): ${socialCard.imagePath} !== ${expectedOgImagePath}`,
+        );
+      }
+      if (!socialCard.title) {
+        errors.push(`Social card missing meta title for ${pageKey} (${locale})`);
+      }
+      if (!socialCard.description) {
+        errors.push(`Social card missing meta description for ${pageKey} (${locale})`);
+      }
+      if (!socialCard.imageAlt) {
+        errors.push(`Social card missing image alt for ${pageKey} (${locale})`);
+      }
+      if (!socialCard.render.eyebrow) {
+        errors.push(`Social card missing render eyebrow for ${pageKey} (${locale})`);
+      }
+      if (!socialCard.render.headline) {
+        errors.push(`Social card missing render headline for ${pageKey} (${locale})`);
+      }
+      if (!socialCard.render.summary) {
+        errors.push(`Social card missing render summary for ${pageKey} (${locale})`);
+      }
+    }
   }
 }
 
@@ -236,5 +271,5 @@ if (errors.length > 0) {
 }
 
 console.log(
-  `Build guards passed: ${LOCALE_ORDER.length} locales, ${pageKeys.length} page keys, OG/content parity verified.`,
+  `Build guards passed: ${LOCALE_ORDER.length} locales, ${pageKeys.length} page keys, social-card content and OG parity verified.`,
 );
