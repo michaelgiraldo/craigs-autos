@@ -18,13 +18,10 @@ frontend:
         - npm ci
     build:
       commands:
+        - npm run predeploy
         - |
-          echo "Deploying Amplify Gen 2 backend + generating amplify_outputs.json"
-          # Deploy/update the Amplify Gen 2 backend for this branch and write branch-specific
-          # `amplify_outputs.json` into `public/` so the site can discover backend endpoints.
           APP_ID="${AWS_APP_ID:-d3du4u03f75wsu}"
           BRANCH="${AWS_BRANCH:-main}"
-          npm run predeploy
           NODE_OPTIONS="--localstorage-file=$HOME/.node-localstorage" npx ampx pipeline-deploy \
             --app-id "$APP_ID" \
             --branch "$BRANCH" \
@@ -43,19 +40,4 @@ frontend:
 redirects:
   - source: /
     target: https://craigs.autos/en/
-    status: 301
-  - source: /index.html
-    target: https://craigs.autos/en/
-    status: 301
-  - source: /contact
-    target: https://craigs.autos/en/contact/
-    status: 301
-  - source: /gallery
-    target: https://craigs.autos/en/gallery/
-    status: 301
-  - source: /about-us
-    target: https://craigs.autos/en/
-    status: 301
-  - source: /auto-and-marine-upholstery
-    target: https://craigs.autos/en/auto-upholstery/
     status: 301
