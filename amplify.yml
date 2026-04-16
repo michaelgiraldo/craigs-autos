@@ -37,7 +37,3 @@ frontend:
   cache:
     paths:
       - node_modules/**/*
-redirects:
-  - source: /
-    target: https://craigs.autos/en/
-    status: 301

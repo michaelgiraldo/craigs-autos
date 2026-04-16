@@ -26,6 +26,8 @@
     "predeploy": "npm run typecheck && npm run test:backend && npm run lint && npm run format:check",
     "build": "rm -rf dist && astro build",
     "smoke:chatkit": "node scripts/smoke-chatkit.mjs",
+    "sync:amplify-redirects": "node scripts/sync-amplify-redirects.mjs",
+    "check:amplify-redirects": "node scripts/sync-amplify-redirects.mjs --check",
     "indexnow:submit": "node scripts/indexnow-submit.mjs",
     "preview": "astro preview",
     "astro": "astro"

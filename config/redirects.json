@@ -1,0 +1,36 @@
+{
+  "appId": "d3du4u03f75wsu",
+  "region": "us-west-1",
+  "rules": [
+    {
+      "source": "/",
+      "target": "https://craigs.autos/en/",
+      "status": "301"
+    },
+    {
+      "source": "/index.html",
+      "target": "https://craigs.autos/en/",
+      "status": "301"
+    },
+    {
+      "source": "/contact",
+      "target": "https://craigs.autos/en/contact/",
+      "status": "301"
+    },
+    {
+      "source": "/gallery",
+      "target": "https://craigs.autos/en/gallery/",
+      "status": "301"
+    },
+    {
+      "source": "/about-us",
+      "target": "https://craigs.autos/en/",
+      "status": "301"
+    },
+    {
+      "source": "/auto-and-marine-upholstery",
+      "target": "https://craigs.autos/en/auto-upholstery/",
+      "status": "301"
+    }
+  ]
+}

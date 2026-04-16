@@ -1,7 +1,18 @@
-# Redirect Map (Legacy → New)
+# Redirect Map (Legacy -> New)
 
-This document mirrors the active Amplify Hosting custom rules. The **Amplify Console** rules
-are the source of truth for live redirects; keep this file in sync for versioned reference.
+`config/redirects.json` is the source of truth for production redirects.
+AWS Amplify Hosting `customRules` are the applied runtime state and should be
+updated from the repo with:
+
+```bash
+npm run sync:amplify-redirects
+```
+
+To verify AWS matches the repo without changing anything:
+
+```bash
+npm run check:amplify-redirects
+```
 
 ## Canonical domains
 
@@ -27,5 +38,7 @@ are the source of truth for live redirects; keep this file in sync for versioned
 
 ## Notes
 
-- These rules are configured in **AWS Amplify → Hosting → Rewrites & redirects**.
+- `amplify.yml` is intentionally build-only and should not contain duplicate
+  redirect rules.
+- These rules are applied to **AWS Amplify -> Hosting -> Rewrites & redirects**.
 - Do not attempt path redirects in Route 53 (DNS cannot issue HTTP status codes).
