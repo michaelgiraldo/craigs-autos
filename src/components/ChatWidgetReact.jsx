@@ -1,120 +1,21 @@
 import React from 'react';
-import { ChatKit, useChatKit } from '@openai/chatkit-react';
 import { BRAND_NAME, CHAT_COPY } from '../lib/site-data.js';
 import { getAttributionPayload, getJourneyId } from '../lib/attribution.js';
 import { sendSignal } from '../scripts/analytics/transport.ts';
-import {
-  fetchAmplifyOutputsUrls,
-  isPlaceholderUrl,
-  postLeadEmail,
-  requestClientSecret,
-  resolveLeadEmailEndpoint,
-  resolveSessionEndpoint,
-  shouldLoadAmplifyOutputs,
-} from './chatwidget/api-client.js';
+import { requestClientSecret, resolveSessionEndpoint } from './chatwidget/api-client.js';
+import { ChatKitErrorBoundary, ChatKitWithHooks } from './chatwidget/chatkit-shell.jsx';
 import {
   CHATKIT_ATTACHMENT_ACCEPT,
   CHATKIT_LOCALE_MAP,
   CHATKIT_MAX_ATTACHMENTS,
   CHATKIT_MAX_ATTACHMENT_BYTES,
   FIRST_MESSAGE_SENT_KEY_PREFIX,
-  LEAD_SENT_KEY_PREFIX,
-  OPEN_KEY,
-  THREAD_STORAGE_KEY,
-  USER_KEY,
 } from './chatwidget/constants.js';
 import { pushLeadDataLayer } from './chatwidget/data-layer.js';
-import { ensureChatkitRuntime } from './chatwidget/runtime-loader.js';
+import { getLocalStorage, getStorageValue, setStorageValue } from './chatwidget/storage.js';
+import { useChatLeadHandoff } from './chatwidget/use-chat-lead-handoff.js';
+import { useChatWidgetState } from './chatwidget/use-chat-widget-state.js';
 import { useLeadTriggers } from './chatwidget/triggers.js';
-
-class ChatKitErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { error: null };
-    this.reset = this.reset.bind(this);
-  }
-
-  static getDerivedStateFromError(error) {
-    return { error };
-  }
-
-  reset() {
-    this.setState({ error: null });
-    this.props.onReset?.();
-  }
-
-  render() {
-    const { error } = this.state;
-    if (error) return this.props.fallback?.(error, this.reset) ?? null;
-    return this.props.children;
-  }
-}
-
-function ChatKitWithHooks({
-  options,
-  onReady,
-  onError,
-  onLog,
-  onThreadChange,
-  onResponseStart,
-  onResponseEnd,
-  onChat,
-}) {
-  const chat = useChatKit({
-    ...options,
-    onReady,
-    onError,
-    onLog,
-    onThreadChange,
-    onResponseStart,
-    onResponseEnd,
-  });
-
-  React.useEffect(() => {
-    onChat?.(chat);
-  }, [chat, onChat]);
-
-  return <ChatKit control={chat.control} className="chat-frame" />;
-}
-
-function getOrCreateUserId() {
-  const existing = globalThis.localStorage?.getItem(USER_KEY);
-  if (existing) return existing;
-  const value = `anon_${globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2)}`;
-  globalThis.localStorage?.setItem(USER_KEY, value);
-  return value;
-}
-
-const BLOCKED_HANDOFF_REASONS = new Set(['empty_thread', 'missing_contact', 'not_ready']);
-
-function classifyChatHandoffReason(reason) {
-  return BLOCKED_HANDOFF_REASONS.has(reason) ? 'lead_chat_handoff_blocked' : 'lead_chat_handoff_deferred';
-}
-
-function lockBodyScroll() {
-  const scrollY = window.scrollY || document.documentElement.scrollTop;
-  document.body.dataset.chatScrollY = String(scrollY);
-  document.body.style.position = 'fixed';
-  document.body.style.top = `-${scrollY}px`;
-  document.body.style.left = '0';
-  document.body.style.right = '0';
-  document.body.style.width = '100%';
-}
-
-function unlockBodyScroll() {
-  const scrollY = parseInt(document.body.dataset.chatScrollY || '0', 10);
-  document.body.style.position = '';
-  document.body.style.top = '';
-  document.body.style.left = '';
-  document.body.style.right = '';
-  document.body.style.width = '';
-  delete document.body.dataset.chatScrollY;
-  window.scrollTo(0, scrollY);
-}
-
-function isMobile() {
-  return window.matchMedia('(max-width: 900px)').matches;
-}
 
 function createClientEventId(prefix) {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
@@ -131,119 +32,39 @@ export default function ChatWidgetReact({
   const copy = CHAT_COPY[locale] ?? CHAT_COPY.en;
   const chatkitLocale = CHATKIT_LOCALE_MAP[locale] ?? 'en';
   const dir = locale === 'ar' || locale === 'fa' ? 'rtl' : 'ltr';
+  const isDev = import.meta.env.DEV;
+  const {
+    open,
+    setOpen,
+    userId,
+    userIdRef,
+    threadId,
+    threadIdRef,
+    setActiveThreadId,
+    clearStoredThread,
+    resolvedSessionUrl,
+    setResolvedSessionUrl,
+    setResolvedLeadEmailUrl,
+    chatMountId,
+    setChatMountId,
+    chatkitReady,
+    setChatkitReady,
+    runtimeReady,
+    runtimeError,
+    chatkitError,
+    setChatkitError,
+    chatInstance,
+    setChatInstance,
+    chatRef,
+    localeRef,
+    leadEmailUrlRef,
+    chatPanelRef,
+    hasUserInteractedRef,
+  } = useChatWidgetState({ isDev, leadEmailUrl, locale, sessionUrl });
 
-  const [open, setOpen] = React.useState(false);
-  const [openInitialized, setOpenInitialized] = React.useState(false);
-  const [userId, setUserId] = React.useState(null);
-  const [threadId, setThreadId] = React.useState(null);
-  const [resolvedSessionUrl, setResolvedSessionUrl] = React.useState(sessionUrl);
-  const [resolvedLeadEmailUrl, setResolvedLeadEmailUrl] = React.useState(leadEmailUrl);
-  const [chatMountId, setChatMountId] = React.useState(0);
-  const [chatkitReady, setChatkitReady] = React.useState(false);
-  const [runtimeReady, setRuntimeReady] = React.useState(false);
-  const [runtimeError, setRuntimeError] = React.useState(null);
-  const [chatkitError, setChatkitError] = React.useState(null);
-  const [chatInstance, setChatInstance] = React.useState(null);
-  const chatRef = React.useRef(null);
-  const threadIdRef = React.useRef(null);
-  const chatPanelRef = React.useRef(null);
-  const leadEmailInFlightRef = React.useRef(false);
-  const hasUserInteractedRef = React.useRef(false);
   const pendingFirstMessageRef = React.useRef(false);
   const pendingFirstMessageTimerRef = React.useRef(null);
   const suppressNextThreadFirstMessageRef = React.useRef(false);
-  const isDev = import.meta.env.DEV;
-
-  React.useEffect(() => {
-    setUserId(getOrCreateUserId());
-    setThreadId(sessionStorage.getItem(THREAD_STORAGE_KEY));
-  }, []);
-
-  React.useEffect(() => {
-    threadIdRef.current = threadId;
-  }, [threadId]);
-
-  React.useEffect(() => {
-    // Keep SSR hydration stable by rendering closed first, then applying per-device default after mount.
-    let nextOpen = !isMobile();
-    try {
-      const saved = sessionStorage.getItem(OPEN_KEY);
-      if (saved === 'true') {
-        nextOpen = true;
-      }
-      if (saved === 'false') {
-        nextOpen = false;
-      }
-    } catch {
-      // Ignore storage access issues; fall back to device default.
-    }
-    setOpen(nextOpen);
-    setOpenInitialized(true);
-  }, []);
-
-  React.useEffect(() => {
-    setResolvedSessionUrl(sessionUrl);
-  }, [sessionUrl]);
-
-  React.useEffect(() => {
-    setResolvedLeadEmailUrl(leadEmailUrl);
-  }, [leadEmailUrl]);
-
-  React.useEffect(() => {
-    // In production, prefer the backend URL from Amplify outputs when available.
-    // This avoids hard-coding a session endpoint URL per branch.
-    if (isDev) return;
-    if (!shouldLoadAmplifyOutputs({ sessionUrl, leadEmailUrl })) return;
-
-    let cancelled = false;
-    (async () => {
-      const outputs = await fetchAmplifyOutputsUrls();
-      if (!outputs || cancelled) return;
-      if (outputs.sessionUrl) {
-        setResolvedSessionUrl(outputs.sessionUrl);
-      }
-      if (outputs.leadEmailUrl) {
-        setResolvedLeadEmailUrl(outputs.leadEmailUrl);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [isDev, leadEmailUrl, sessionUrl]);
-
-  React.useEffect(() => {
-    let cancelled = false;
-    ensureChatkitRuntime()
-      .then(() => {
-        if (cancelled) return;
-        setRuntimeReady(true);
-      })
-      .catch((err) => {
-        if (cancelled) return;
-        console.error(err);
-        setRuntimeError(err);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  React.useEffect(() => {
-    if (!openInitialized) return;
-    try {
-      sessionStorage.setItem(OPEN_KEY, open ? 'true' : 'false');
-    } catch {
-      // Ignore storage access issues.
-    }
-
-    if (!open) {
-      unlockBodyScroll();
-      return;
-    }
-    if (isMobile()) lockBodyScroll();
-    return () => unlockBodyScroll();
-  }, [open, openInitialized]);
 
   const clearPendingFirstMessageTimer = React.useCallback(() => {
     if (typeof pendingFirstMessageTimerRef.current === 'number') {
@@ -258,12 +79,17 @@ export default function ChatWidgetReact({
       pendingFirstMessageRef.current = false;
 
       const activeThreadId = trackedThreadId ?? threadIdRef.current ?? null;
+      const activeLocale = localeRef.current ?? locale;
+      const activeUserId = userIdRef.current ?? null;
+      const pagePath = globalThis.location?.pathname ?? '';
+      const pageUrl = globalThis.location?.href ?? '';
       if (activeThreadId) {
+        const localStorage = getLocalStorage();
         const sentKey = `${FIRST_MESSAGE_SENT_KEY_PREFIX}${activeThreadId}`;
-        if (globalThis.localStorage?.getItem(sentKey) === 'true') {
+        if (getStorageValue(localStorage, sentKey) === 'true') {
           return;
         }
-        globalThis.localStorage?.setItem(sentKey, 'true');
+        setStorageValue(localStorage, sentKey, 'true');
       }
 
       const occurredAtMs = Date.now();
@@ -276,14 +102,14 @@ export default function ChatWidgetReact({
         capture_channel: 'chat',
         lead_strength: 'soft_intent',
         verification_status: 'unverified',
-        locale,
+        locale: activeLocale,
         journey_id: journeyId,
         client_event_id: clientEventId,
         occurred_at_ms: occurredAtMs,
-        page_path: window.location.pathname,
-        page_url: window.location.href,
+        page_path: pagePath,
+        page_url: pageUrl,
         thread_id: activeThreadId,
-        user_id: userId ?? null,
+        user_id: activeUserId,
       });
 
       sendSignal({
@@ -291,15 +117,15 @@ export default function ChatWidgetReact({
         journey_id: journeyId,
         client_event_id: clientEventId,
         occurred_at_ms: occurredAtMs,
-        pageUrl: window.location.href,
-        pagePath: window.location.pathname,
-        user: userId ?? null,
-        locale,
+        pageUrl,
+        pagePath,
+        user: activeUserId,
+        locale: activeLocale,
         threadId: activeThreadId,
         attribution: getAttributionPayload(),
       });
     },
-    [clearPendingFirstMessageTimer, locale, userId]
+    [clearPendingFirstMessageTimer, locale, localeRef, threadIdRef, userIdRef],
   );
 
   const trackFirstChatMessage = React.useCallback(() => {
@@ -329,142 +155,15 @@ export default function ChatWidgetReact({
     };
   }, [clearPendingFirstMessageTimer]);
 
-  const sendLeadEmail = React.useCallback(
-    async ({ reason = 'chat_closed' } = {}) => {
-      if (leadEmailInFlightRef.current) return;
-      if (!hasUserInteractedRef.current) return;
-      const activeThreadId = threadId;
-      if (!activeThreadId) return;
-      if (typeof resolvedLeadEmailUrl !== 'string' || !resolvedLeadEmailUrl.trim()) return;
-      if (isPlaceholderUrl(resolvedLeadEmailUrl)) return;
-
-      const endpoint = await resolveLeadEmailEndpoint({
-        isDev,
-        endpoint: resolvedLeadEmailUrl.trim(),
-        onLeadEmailUrl: setResolvedLeadEmailUrl,
-      });
-      if (endpoint.startsWith('/')) return;
-
-      const sentKey = `${LEAD_SENT_KEY_PREFIX}${activeThreadId}`;
-      if (globalThis.localStorage?.getItem(sentKey) === 'true') return;
-
-      try {
-        leadEmailInFlightRef.current = true;
-        const { response, text } = await postLeadEmail({
-          endpoint,
-          payload: {
-            threadId: activeThreadId,
-            locale,
-            user: userId ?? 'anonymous',
-            pageUrl: window.location.href,
-            reason,
-            attribution: getAttributionPayload(),
-          },
-        });
-        if (!response.ok) {
-          if (isDev) console.error('ChatKit lead email error', response.status, text);
-          pushLeadDataLayer('lead_chat_handoff_error', {
-            event_class: 'diagnostic',
-            customer_action: 'chat_first_message_sent',
-            workflow_outcome: 'chat_handoff_error',
-            capture_channel: 'chat',
-            lead_strength: 'soft_intent',
-            verification_status: 'unverified',
-            locale,
-            lead_request_reason: reason,
-            thread_id: activeThreadId,
-            user_id: userId ?? 'anonymous',
-            page_url: window.location.href,
-            page_path: window.location.pathname,
-            error_code: `http_${response.status}`,
-          });
-          return;
-        }
-
-        let data = {};
-        try {
-          data = text ? JSON.parse(text) : {};
-        } catch {
-          pushLeadDataLayer('lead_chat_handoff_error', {
-            event_class: 'diagnostic',
-            customer_action: 'chat_first_message_sent',
-            workflow_outcome: 'chat_handoff_error',
-            capture_channel: 'chat',
-            lead_strength: 'soft_intent',
-            verification_status: 'unverified',
-            locale,
-            lead_request_reason: reason,
-            thread_id: activeThreadId,
-            user_id: userId ?? 'anonymous',
-            page_url: window.location.href,
-            page_path: window.location.pathname,
-            error_code: 'parse_error',
-          });
-          return;
-        }
-
-        const backendReason = typeof data?.reason === 'string' ? data.reason : '';
-        if (data?.sent === true) {
-          globalThis.localStorage?.setItem(sentKey, 'true');
-          pushLeadDataLayer('lead_chat_handoff_sent', {
-            event_class: 'workflow',
-            customer_action: 'chat_first_message_sent',
-            workflow_outcome: 'chat_handoff_sent',
-            capture_channel: 'chat',
-            lead_strength: 'captured_lead',
-            verification_status: 'unverified',
-            locale,
-            lead_request_reason: reason,
-            lead_reason: backendReason || reason,
-            thread_id: activeThreadId,
-            user_id: userId ?? 'anonymous',
-            page_url: window.location.href,
-            page_path: window.location.pathname,
-          });
-        } else if (data?.sent === false) {
-          const handoffEventName = classifyChatHandoffReason(backendReason || 'unknown');
-          pushLeadDataLayer(handoffEventName, {
-            event_class: 'workflow',
-            customer_action: 'chat_first_message_sent',
-            workflow_outcome:
-              handoffEventName === 'lead_chat_handoff_blocked'
-                ? 'chat_handoff_blocked'
-                : 'chat_handoff_deferred',
-            capture_channel: 'chat',
-            lead_strength: 'soft_intent',
-            verification_status: 'unverified',
-            locale,
-            lead_request_reason: reason,
-            lead_reason: backendReason || 'unknown',
-            thread_id: activeThreadId,
-            user_id: userId ?? 'anonymous',
-            page_url: window.location.href,
-            page_path: window.location.pathname,
-          });
-        }
-      } catch (err) {
-        if (isDev) console.error('ChatKit lead email request failed', err);
-        pushLeadDataLayer('lead_chat_handoff_error', {
-          event_class: 'diagnostic',
-          customer_action: 'chat_first_message_sent',
-          workflow_outcome: 'chat_handoff_error',
-          capture_channel: 'chat',
-          lead_strength: 'soft_intent',
-          verification_status: 'unverified',
-          locale,
-          lead_request_reason: reason,
-          thread_id: threadId,
-          user_id: userId ?? 'anonymous',
-          page_url: window.location.href,
-          page_path: window.location.pathname,
-          error_code: 'network_error',
-        });
-      } finally {
-        leadEmailInFlightRef.current = false;
-      }
-    },
-    [isDev, locale, resolvedLeadEmailUrl, threadId, userId]
-  );
+  const sendLeadEmail = useChatLeadHandoff({
+    isDev,
+    hasUserInteractedRef,
+    leadEmailUrlRef,
+    localeRef,
+    setResolvedLeadEmailUrl,
+    threadIdRef,
+    userIdRef,
+  });
 
   React.useEffect(() => {
     const onKeyDown = (event) => {
@@ -490,10 +189,9 @@ export default function ChatWidgetReact({
     clearPendingFirstMessageTimer();
     pendingFirstMessageRef.current = false;
     suppressNextThreadFirstMessageRef.current = false;
-    sessionStorage.removeItem(THREAD_STORAGE_KEY);
-    setThreadId(null);
+    clearStoredThread();
     chatRef.current?.setThreadId?.(null);
-  }, [clearPendingFirstMessageTimer]);
+  }, [chatRef, clearPendingFirstMessageTimer, clearStoredThread]);
 
   const resetChat = React.useCallback(() => {
     clearPendingFirstMessageTimer();
@@ -520,9 +218,9 @@ export default function ChatWidgetReact({
         return await requestClientSecret({
           endpoint,
           current,
-          locale,
-          userId,
-          pageUrl: window.location.href,
+          locale: localeRef.current ?? locale,
+          userId: userIdRef.current ?? userId,
+          pageUrl: globalThis.location?.href ?? '',
         });
       },
     };
@@ -586,15 +284,13 @@ export default function ChatWidgetReact({
     copy.startGreeting,
     copy.startPrompts,
     locale,
+    localeRef,
     resolvedSessionUrl,
     threadId,
     userId,
+    userIdRef,
     isDev,
   ]);
-
-  React.useEffect(() => {
-    chatRef.current = chatInstance;
-  }, [chatInstance]);
 
   React.useEffect(() => {
     if (!open || !chatkitReady || !chatInstance) return;
@@ -627,9 +323,7 @@ export default function ChatWidgetReact({
           <div className="chat-panel__body">
             {runtimeError ? (
               <div className="chat-fallback" role="status">
-                <p className="chat-fallback__title">
-                  {copy.errorTitle ?? 'Something went wrong.'}
-                </p>
+                <p className="chat-fallback__title">{copy.errorTitle ?? 'Something went wrong.'}</p>
                 <p className="chat-fallback__body">{copy.errorBody ?? 'Please try again.'}</p>
                 {isDev ? (
                   <p className="chat-fallback__detail">{String(runtimeError?.message ?? '')}</p>
@@ -687,8 +381,7 @@ export default function ChatWidgetReact({
                     onThreadChange={(detail) => {
                       const nextId = detail?.threadId;
                       if (!nextId) return;
-                      sessionStorage.setItem(THREAD_STORAGE_KEY, nextId);
-                      setThreadId(nextId);
+                      setActiveThreadId(nextId);
                       hasUserInteractedRef.current = true;
                       if (pendingFirstMessageRef.current) {
                         suppressNextThreadFirstMessageRef.current = false;

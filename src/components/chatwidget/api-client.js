@@ -46,12 +46,7 @@ export async function fetchAmplifyOutputsUrls() {
   }
 }
 
-export async function resolveSessionEndpoint({
-  isDev,
-  endpoint,
-  onSessionUrl,
-  onLeadEmailUrl,
-}) {
+export async function resolveSessionEndpoint({ isDev, endpoint, onSessionUrl, onLeadEmailUrl }) {
   let resolvedEndpoint = endpoint;
 
   if (
@@ -86,16 +81,19 @@ export async function resolveLeadEmailEndpoint({ isDev, endpoint, onLeadEmailUrl
 }
 
 export async function requestClientSecret({ endpoint, current, locale, userId, pageUrl }) {
-  const response = await fetch(endpoint, withFetchTimeout({
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      current,
-      locale,
-      user: userId ?? 'anonymous',
-      pageUrl,
+  const response = await fetch(
+    endpoint,
+    withFetchTimeout({
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        current,
+        locale,
+        user: userId ?? 'anonymous',
+        pageUrl,
+      }),
     }),
-  }));
+  );
 
   const text = await response.text();
   if (!response.ok) {
@@ -105,16 +103,22 @@ export async function requestClientSecret({ endpoint, current, locale, userId, p
   }
 
   const data = text ? JSON.parse(text) : {};
+  if (typeof data.client_secret !== 'string' || !data.client_secret.trim()) {
+    throw new Error('Chat session response missing client_secret');
+  }
   return data.client_secret;
 }
 
 export async function postLeadEmail({ endpoint, payload }) {
-  const response = await fetch(endpoint, withFetchTimeout({
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    keepalive: true,
-    body: JSON.stringify(payload),
-  }));
+  const response = await fetch(
+    endpoint,
+    withFetchTimeout({
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      keepalive: true,
+      body: JSON.stringify(payload),
+    }),
+  );
 
   const text = await response.text();
   return { response, text };
