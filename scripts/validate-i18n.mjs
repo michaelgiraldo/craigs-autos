@@ -4,8 +4,6 @@ import { glob } from 'glob';
 import { LOCALES, LOCALE_ORDER } from '../src/lib/site-data.js';
 import { getPageKeys, getTranslations } from '../src/lib/site-data/page-registry.js';
 
-// Allow English-first launches for specific pages (translate later).
-const PARTIAL_LOCALE_PAGE_KEYS = new Set(['boatUpholstery']);
 const errors = [];
 const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const parseFrontmatter = (content, filePath) => {
@@ -69,12 +67,6 @@ const pageKeys = getPageKeys();
 
 for (const pageKey of pageKeys) {
   const translations = getTranslations(pageKey);
-  if (PARTIAL_LOCALE_PAGE_KEYS.has(pageKey)) {
-    if (!translations?.en) {
-      errors.push(`Page manifest for ${pageKey} must include an en path`);
-    }
-    continue;
-  }
   for (const locale of LOCALE_ORDER) {
     if (!translations?.[locale]) {
       errors.push(`Page manifest for ${pageKey} missing locale ${locale}`);
@@ -136,12 +128,6 @@ for (const file of files) {
 }
 
 for (const [pageKey, localeSet] of pagesByKey.entries()) {
-  if (PARTIAL_LOCALE_PAGE_KEYS.has(pageKey)) {
-    if (!localeSet.has('en')) {
-      errors.push(`Missing en translation for pageKey ${pageKey}`);
-    }
-    continue;
-  }
   for (const locale of LOCALE_ORDER) {
     if (!localeSet.has(locale)) {
       errors.push(`Missing ${locale} translation for pageKey ${pageKey}`);

@@ -43,7 +43,6 @@ const BANNED_TOKEN_RULES = {
   ],
 };
 
-const PARTIAL_LOCALE_PAGE_KEYS = new Set(['boatUpholstery']);
 const PAGE_FILE_PATTERN = /\.(md|mdx)$/u;
 
 const errors = [];
@@ -149,8 +148,7 @@ const pageKeys = getPageKeys();
 
 for (const pageKey of pageKeys) {
   const translations = getTranslations(pageKey);
-  const requiredLocales = PARTIAL_LOCALE_PAGE_KEYS.has(pageKey) ? ['en'] : LOCALE_ORDER;
-  for (const locale of requiredLocales) {
+  for (const locale of LOCALE_ORDER) {
     const mappedPath = translations?.[locale];
     if (!mappedPath) {
       errors.push(`Page manifest for ${pageKey} missing locale mapping: ${locale}`);
