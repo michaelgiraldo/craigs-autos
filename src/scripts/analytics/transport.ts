@@ -17,10 +17,19 @@ const resolveEndpoint = (): Promise<string | null> => {
         endpointCache = url.trim();
         return endpointCache;
       }
+      endpointPromise = null;
       return null;
     })
-    .catch(() => null);
+    .catch(() => {
+      endpointPromise = null;
+      return null;
+    });
   return endpointPromise;
+};
+
+export const resetSignalEndpointCache = () => {
+  endpointCache = null;
+  endpointPromise = null;
 };
 
 export const sendSignal = (payload: Record<string, unknown>) => {
