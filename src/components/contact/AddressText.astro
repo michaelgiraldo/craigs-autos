@@ -1,0 +1,13 @@
+---
+import { SITE } from '../../lib/site-data.js';
+
+interface Props {
+	class?: string;
+}
+
+const { class: className } = Astro.props as Props;
+---
+
+<span class:list={['contact-address', 'contact-link__value', className]} dir="ltr">
+	{SITE.address.street}, {SITE.address.city}, {SITE.address.region} {SITE.address.postalCode}
+</span>

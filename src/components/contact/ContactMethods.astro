@@ -1,0 +1,44 @@
+---
+import type { LocaleKey } from '../../types/site';
+import { UI_COPY } from '../../lib/site-data.js';
+import AddressText from './AddressText.astro';
+import EmailLink from './EmailLink.astro';
+import PhoneLink from './PhoneLink.astro';
+import SmsLink from './SmsLink.astro';
+
+interface Props {
+	locale?: LocaleKey;
+	layout?: 'inline' | 'stack';
+	includeEmail?: boolean;
+	includeAddress?: boolean;
+}
+
+const { locale = 'en', layout = 'inline', includeEmail = false, includeAddress = false } = Astro.props as Props;
+const ui = UI_COPY[locale] ?? UI_COPY.en;
+---
+
+<span class:list={['contact-methods', `contact-methods--${layout}`]}>
+	<span class="contact-methods__item">
+		<strong>{ui.callCta ?? 'Call'}:</strong> <PhoneLink />
+	</span>
+	<span class="contact-methods__separator" aria-hidden="true">·</span>
+	<span class="contact-methods__item">
+		<strong>{ui.textCta ?? 'Text'}:</strong> <SmsLink />
+	</span>
+	{includeEmail ? (
+		<>
+			<span class="contact-methods__separator" aria-hidden="true">·</span>
+			<span class="contact-methods__item">
+				<strong>{ui.emailCta ?? 'Email'}:</strong> <EmailLink />
+			</span>
+		</>
+	) : null}
+	{includeAddress ? (
+		<>
+			<span class="contact-methods__separator" aria-hidden="true">·</span>
+			<span class="contact-methods__item">
+				<strong>{ui.directionsCta ?? 'Directions'}:</strong> <AddressText />
+			</span>
+		</>
+	) : null}
+</span>

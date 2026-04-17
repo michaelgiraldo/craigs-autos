@@ -155,6 +155,28 @@
 	margin: 2rem 0;
 }
 
+.contact-link__value {
+	direction: ltr;
+	unicode-bidi: isolate;
+	white-space: nowrap;
+}
+
+.contact-methods {
+	display: inline-flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 0.15rem 0.45rem;
+}
+
+.contact-methods--stack {
+	display: grid;
+	gap: 0.25rem;
+}
+
+.contact-methods--stack .contact-methods__separator {
+	display: none;
+}
+
 .toc {
 	margin: 1.25rem 0 0;
 	padding: 1rem 1rem 1.05rem;

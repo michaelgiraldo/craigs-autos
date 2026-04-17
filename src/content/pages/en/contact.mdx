@@ -14,13 +14,13 @@ hero:
 <aside class="callout" aria-label="Contact options">
   <p class="callout__title">Best ways to reach us</p>
   <p>
-    <strong>Call:</strong> <a href="tel:+14083793820">(408) 379-3820</a>
+    <strong>Call:</strong> <PhoneLink />
   </p>
   <p>
-    <strong>Text:</strong> <a href="sms:+14083793820">(408) 379-3820</a>
+    <strong>Text:</strong> <SmsLink />
   </p>
   <p>
-    <strong>Email:</strong> <a href="mailto:contact@craigs.autos">contact@craigs.autos</a>
+    <strong>Email:</strong> <EmailLink />
   </p>
 </aside>
 
@@ -62,7 +62,7 @@ when we see it.
 
 If texting is easier, send:
 
-Text us at <a href="sms:+14083793820">(408) 379-3820</a> (or <a href="tel:+14083793820">call</a> if that’s easier), then send:
+Text us at <SmsLink /> (or <PhoneLink label="call" showNumber={false} /> if that’s easier), then send:
 
 - Year / make / model
 - What’s wrong (seat tear, seam split, sagging headliner, leaking top, etc.)
@@ -153,13 +153,13 @@ We primarily do automotive upholstery, but we take select marine, furniture, and
 projects when it’s a good fit. Ask us. If it’s inside the vehicle and it needs to look right
 and last, you’re in the right place.
 
-**Call:** [(408) 379-3820](tel:+14083793820)
+**Call:** <PhoneLink />
 
 ---
 
 ## Shop address & directions
 
-271 Bestor St, San Jose, CA 95112
+<AddressText />
 
 **Hours:** Mon–Fri 8:00 AM–5:00 PM · Sat 8:00 AM–2:00 PM · Sun Closed  
 If you’re about to drive over, call first so we can confirm availability.

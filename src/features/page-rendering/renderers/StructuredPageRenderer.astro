@@ -8,6 +8,11 @@ import LocalizedLink from '../../../components/LocalizedLink.astro';
 import PageHero from '../../../components/PageHero.astro';
 import PageShowcaseSections from '../../../components/PageShowcaseSections.astro';
 import ProjectPage from '../../../components/ProjectPage.astro';
+import AddressText from '../../../components/contact/AddressText.astro';
+import ContactMethods from '../../../components/contact/ContactMethods.astro';
+import EmailLink from '../../../components/contact/EmailLink.astro';
+import PhoneLink from '../../../components/contact/PhoneLink.astro';
+import SmsLink from '../../../components/contact/SmsLink.astro';
 import PageCardDeck from '../../page-cards/PageCardDeck.astro';
 import { resolveReferenceId } from '../page-types';
 
@@ -28,14 +33,19 @@ const usesStructuredTemplate = template === 'project' || Boolean(entry.data.hero
 const rendered = template === 'project' ? null : await render(entry);
 const RenderedContent = rendered?.Content ?? null;
 const contentComponents = {
+	AddressText,
+	ContactMethods,
 	ConvertibleTopMarqueAtlas,
+	EmailLink,
 	FaqSection,
 	FeaturedProject,
 	LocalizedLink,
 	PageHero,
 	PageShowcaseSections,
+	PhoneLink,
 	PageCardDeck,
 	ProjectPage,
+	SmsLink,
 };
 const pageModules = (entry.data.pageModules ?? []) as PageModule[];
 ---

@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { LOCALE_ORDER, LOCALES } from '../src/lib/site-data.js';
+import { LOCALE_ORDER, LOCALES, SITE } from '../src/lib/site-data.js';
 import { getPageSocialCard } from '../src/lib/social-cards/getPageSocialCard.js';
 import { validateSocialCards } from '../src/lib/social-cards/validateSocialCards.js';
 import { getPageKeys, getTranslations } from '../src/lib/site-data/page-registry.js';
@@ -46,6 +46,38 @@ const BANNED_TOKEN_RULES = {
 };
 
 const PAGE_FILE_PATTERN = /\.(md|mdx)$/u;
+const SITE_DISPLAY_ADDRESS = `${SITE.address.street}, ${SITE.address.city}, ${SITE.address.region} ${SITE.address.postalCode}`;
+
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&');
+}
+
+const CONTACT_CONTENT_RULES = [
+  {
+    label: `raw telephone href for ${SITE.phone}`,
+    pattern: new RegExp(`tel:${escapeRegExp(SITE.phone)}`, 'u'),
+  },
+  {
+    label: `raw SMS href for ${SITE.phone}`,
+    pattern: new RegExp(`sms:${escapeRegExp(SITE.phone)}`, 'u'),
+  },
+  {
+    label: `raw email href for ${SITE.email}`,
+    pattern: new RegExp(`mailto:${escapeRegExp(SITE.email)}`, 'u'),
+  },
+  {
+    label: `display phone ${SITE.displayPhone}`,
+    pattern: new RegExp(escapeRegExp(SITE.displayPhone), 'u'),
+  },
+  {
+    label: `display email ${SITE.email}`,
+    pattern: new RegExp(escapeRegExp(SITE.email), 'u'),
+  },
+  {
+    label: `display address ${SITE_DISPLAY_ADDRESS}`,
+    pattern: new RegExp(escapeRegExp(SITE_DISPLAY_ADDRESS), 'u'),
+  },
+];
 
 const errors = [];
 errors.push(...validateSocialCards());
@@ -256,6 +288,31 @@ for (const [locale, tokenRules] of Object.entries(BANNED_TOKEN_RULES)) {
       if (tokenRule.pattern.test(content)) {
         errors.push(
           `Mixed-language token (${tokenRule.label}) in ${path.relative(ROOT, filePath)}. Localize this token.`,
+        );
+      }
+    }
+  }
+}
+
+for (const locale of LOCALE_ORDER) {
+  const localeDir = path.join(CONTENT_ROOT, locale);
+  if (!fs.existsSync(localeDir)) {
+    continue;
+  }
+  const files = fs
+    .readdirSync(localeDir)
+    .filter((entry) => PAGE_FILE_PATTERN.test(entry))
+    .map((entry) => path.join(localeDir, entry));
+
+  for (const filePath of files) {
+    const content = fs.readFileSync(filePath, 'utf-8');
+    for (const contactRule of CONTACT_CONTENT_RULES) {
+      if (contactRule.pattern.test(content)) {
+        errors.push(
+          `Hardcoded contact value (${contactRule.label}) in ${path.relative(
+            ROOT,
+            filePath,
+          )}. Use PhoneLink, SmsLink, EmailLink, or ContactMethods instead.`,
         );
       }
     }

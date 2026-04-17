@@ -1,0 +1,21 @@
+---
+import { SITE } from '../../lib/site-data.js';
+
+interface Props {
+	label?: string;
+	showAddress?: boolean;
+	class?: string;
+}
+
+const { label, showAddress = true, class: className } = Astro.props as Props;
+---
+
+<a class:list={['contact-link', 'contact-link--email', className]} href={`mailto:${SITE.email}`}>
+	{label ? <span>{label}</span> : null}
+	{label && showAddress ? ' ' : null}
+	{showAddress ? (
+		<span class="contact-link__value" dir="ltr">
+			{SITE.email}
+		</span>
+	) : null}
+</a>

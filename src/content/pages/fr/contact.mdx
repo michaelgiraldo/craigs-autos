@@ -14,13 +14,13 @@ hero:
 <aside class="callout" aria-label="Options de contact">
   <p class="callout__title">Les meilleurs moyens de nous joindre</p>
   <p>
-    <strong>Appel :</strong> <a href="tel:+14083793820">(408) 379-3820</a>
+    <strong>Appel :</strong> <PhoneLink />
   </p>
   <p>
-    <strong>SMS :</strong> <a href="sms:+14083793820">(408) 379-3820</a>
+    <strong>SMS :</strong> <SmsLink />
   </p>
   <p>
-    <strong>Email :</strong> <a href="mailto:contact@craigs.autos">contact@craigs.autos</a>
+    <strong>Email :</strong> <EmailLink />
   </p>
 </aside>
 
@@ -61,7 +61,7 @@ Si vous ne savez pas si c’est du cuir, du vinyle ou du tissu, ce n’est pas u
 
 Si le SMS est plus simple, envoyez :
 
-Écrivez-nous au <a href="sms:+14083793820">(408) 379-3820</a> (ou <a href="tel:+14083793820">appelez</a>), puis :
+Écrivez-nous au <SmsLink /> (ou <PhoneLink label="appelez" showNumber={false} />), puis :
 
 - Année / marque / modèle
 - Le problème (déchirure, couture, ciel qui tombe, fuite de capote, etc.)
@@ -152,13 +152,13 @@ Nous faisons principalement du garnissage automobile, mais nous acceptons certai
 mobilier et commercial lorsqu’ils correspondent à notre atelier. Si c’est dans le véhicule et que
 le résultat doit être propre et durable, vous êtes au bon endroit.
 
-**Appeler :** [(408) 379-3820](tel:+14083793820)
+**Appeler :** <PhoneLink />
 
 ---
 
 ## Adresse atelier et itinéraire
 
-271 Bestor St, San Jose, CA 95112
+<AddressText />
 
 **Horaires :** Lun–Ven 8h00–17h00 · Sam 8h00–14h00 · Dim fermé  
 Si vous êtes en route, appelez avant pour confirmer la disponibilité.

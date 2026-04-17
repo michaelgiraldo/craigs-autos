@@ -14,13 +14,13 @@ hero:
 <aside class="callout" aria-label="Opciones de contacto">
   <p class="callout__title">Formas de contacto</p>
   <p>
-    <strong>Llamar:</strong> <a href="tel:+14083793820">(408) 379-3820</a>
+    <strong>Llamar:</strong> <PhoneLink />
   </p>
   <p>
-    <strong>Texto:</strong> <a href="sms:+14083793820">(408) 379-3820</a>
+    <strong>Texto:</strong> <SmsLink />
   </p>
   <p>
-    <strong>Email:</strong> <a href="mailto:contact@craigs.autos">contact@craigs.autos</a>
+    <strong>Email:</strong> <EmailLink />
   </p>
 </aside>
 
@@ -61,7 +61,7 @@ Si no sabes si es cuero, vinil o tela, es normal — lo identificamos en la insp
 
 Si es más fácil por texto:
 
-Escríbenos al <a href="sms:+14083793820">(408) 379-3820</a> (o <a href="tel:+14083793820">llama</a> si te es más cómodo), y envía:
+Escríbenos al <SmsLink /> (o <PhoneLink label="llama" showNumber={false} /> si te es más cómodo), y envía:
 
 - Año / marca / modelo
 - Qué está mal (rasgadura, costura abierta, techo caído, fuga en capota, etc.)
@@ -152,13 +152,13 @@ Principalmente hacemos tapicería automotriz, pero tomamos proyectos selectos n�
 muebles y comerciales cuando encajan. Pregúntanos. Si es interior y debe verse bien y durar,
 estás en el lugar correcto.
 
-**Llamar:** [(408) 379-3820](tel:+14083793820)
+**Llamar:** <PhoneLink />
 
 ---
 
 ## Dirección y cómo llegar
 
-271 Bestor St, San Jose, CA 95112
+<AddressText />
 
 **Horario:** Lun–Vie 8:00–17:00 · Sáb 8:00–14:00 · Dom Cerrado  
 Si vas a venir, llama antes para confirmar disponibilidad.
