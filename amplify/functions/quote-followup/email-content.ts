@@ -1,5 +1,5 @@
 import type { QuoteOutreachResult, QuoteSubmissionRecord } from '../_shared/quote-submissions.ts';
-import { escapeHtml } from '../chatkit-lead-email/text-utils.ts';
+import { escapeHtml } from '../chat-lead-handoff/text-utils.ts';
 
 function compact(value: string): string {
   return value

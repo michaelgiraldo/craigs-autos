@@ -18,7 +18,7 @@ function sanitizeLeadDedupeRecord(item: unknown): LeadDedupeRecord | null {
   const thread_id = typeof record.thread_id === 'string' ? record.thread_id : '';
   const status = record.status as LeadDedupeStatus;
   if (!thread_id) return null;
-  if (status !== 'sending' && status !== 'sent' && status !== 'error') return null;
+  if (status !== 'processing' && status !== 'completed' && status !== 'error') return null;
   return record as LeadDedupeRecord;
 }
 
@@ -33,7 +33,7 @@ export async function getLeadDedupeRecord(threadId: string): Promise<LeadDedupeR
   return sanitizeLeadDedupeRecord(result.Item);
 }
 
-export async function acquireLeadSendLease(args: {
+export async function acquireLeadHandoffLease(args: {
   threadId: string;
   reason: string;
 }): Promise<
@@ -53,7 +53,7 @@ export async function acquireLeadSendLease(args: {
         TableName: leadDedupeTableName,
         Key: { thread_id: args.threadId },
         UpdateExpression:
-          'SET #status = :sending, #lease_id = :lease_id, #lock_expires_at = :lock_expires_at, #updated_at = :now, #created_at = if_not_exists(#created_at, :now), #last_reason = :reason, #ttl = :ttl, #attempts = if_not_exists(#attempts, :zero) + :one',
+          'SET #status = :processing, #lease_id = :lease_id, #lock_expires_at = :lock_expires_at, #updated_at = :now, #created_at = if_not_exists(#created_at, :now), #last_reason = :reason, #ttl = :ttl, #attempts = if_not_exists(#attempts, :zero) + :one',
         ExpressionAttributeNames: {
           '#status': 'status',
           '#lease_id': 'lease_id',
@@ -65,8 +65,8 @@ export async function acquireLeadSendLease(args: {
           '#attempts': 'attempts',
         },
         ExpressionAttributeValues: {
-          ':sending': 'sending',
-          ':sent': 'sent',
+          ':processing': 'processing',
+          ':completed': 'completed',
           ':lease_id': leaseId,
           ':lock_expires_at': now + LEAD_DEDUPE_LEASE_SECONDS,
           ':now': now,
@@ -76,7 +76,7 @@ export async function acquireLeadSendLease(args: {
           ':one': 1,
         },
         ConditionExpression:
-          'attribute_not_exists(thread_id) OR (#status <> :sent AND (attribute_not_exists(#lock_expires_at) OR #lock_expires_at < :now))',
+          'attribute_not_exists(thread_id) OR (#status <> :completed AND (attribute_not_exists(#lock_expires_at) OR #lock_expires_at < :now))',
       }),
     );
     return { acquired: true, leaseId };
@@ -187,7 +187,7 @@ export async function markLeadQuoError(args: {
   );
 }
 
-export async function markLeadSent(args: { threadId: string; leaseId: string }) {
+export async function markLeadHandoffCompleted(args: { threadId: string; leaseId: string }) {
   if (!leadDedupeDb || !leadDedupeTableName) return;
   const now = nowEpochSeconds();
   const ttl = ttlSecondsFromNow(LEAD_DEDUPE_TTL_DAYS);
@@ -196,17 +196,17 @@ export async function markLeadSent(args: { threadId: string; leaseId: string }) 
       TableName: leadDedupeTableName,
       Key: { thread_id: args.threadId },
       UpdateExpression:
-        'SET #status = :sent, #sent_at = :now, #updated_at = :now, #ttl = :ttl REMOVE #lease_id, #last_error',
+        'SET #status = :completed, #completed_at = :now, #updated_at = :now, #ttl = :ttl REMOVE #lease_id, #last_error',
       ExpressionAttributeNames: {
         '#status': 'status',
-        '#sent_at': 'sent_at',
+        '#completed_at': 'completed_at',
         '#updated_at': 'updated_at',
         '#lease_id': 'lease_id',
         '#last_error': 'last_error',
         '#ttl': 'ttl',
       },
       ExpressionAttributeValues: {
-        ':sent': 'sent',
+        ':completed': 'completed',
         ':now': now,
         ':ttl': ttl,
         ':lease_id': args.leaseId,
@@ -216,7 +216,7 @@ export async function markLeadSent(args: { threadId: string; leaseId: string }) 
   );
 }
 
-export async function markLeadError(args: {
+export async function markLeadHandoffError(args: {
   threadId: string;
   leaseId: string;
   errorMessage: string;

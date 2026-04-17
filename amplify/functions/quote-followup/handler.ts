@@ -12,7 +12,7 @@ import { z } from 'zod';
 import { createLeadCoreRuntime } from '../_lead-core/runtime.ts';
 import type { QuoteSubmissionRecord } from '../_shared/quote-submissions.ts';
 import { jsonResponse } from '../_shared/http.ts';
-import { sendQuoTextMessage } from '../chatkit-lead-email/quo.ts';
+import { sendQuoTextMessage } from '../chat-lead-handoff/quo.ts';
 import {
   buildCustomerEmailHtml,
   buildOwnerEmailContent,

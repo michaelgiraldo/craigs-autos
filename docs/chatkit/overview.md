@@ -1,7 +1,8 @@
 # ChatKit lead intake - overview
 
 This repo runs a production lead-intake chat for Craig's Auto Upholstery.
-Customers chat on the website. The shop receives an email containing:
+Customers chat on the website. When the chat is ready, the backend hands the
+conversation into the lead workflow. The shop notification email contains:
 
 - The full chat transcript
 - An internal AI summary (for shop staff)
@@ -11,7 +12,8 @@ Customers chat on the website. The shop receives an email containing:
 
 The Chat UI is rendered by OpenAI ChatKit in the browser. The AWS backend mints
 ephemeral session secrets (so the OpenAI API key never ships to the browser),
-and sends the lead email via AWS SES.
+then performs the chat lead handoff: transcript evaluation, journey persistence,
+shop email, and QUO SMS when enabled.
 
 ## Start here
 
@@ -31,8 +33,8 @@ Goals:
 - Support all locales on the site; assistant replies in the page language.
 - Capture enough lead details for a real follow-up (project + contact).
 - Never provide prices or quote ranges in chat.
-- Email the shop without requiring customers to click "end chat".
-- Be reliable: avoid duplicate emails, and catch abandoned chats.
+- Hand off qualified chat leads without requiring customers to click "end chat".
+- Be reliable: avoid duplicate handoffs/emails, and catch abandoned chats.
 - Keep secrets server-side (OpenAI key, workflow id).
 
 Non-goals (current scope):
@@ -69,7 +71,7 @@ as your system-of-record key for everything downstream (email, dedupe, debug).
   - Created by ChatKit as the user chats.
   - Canonical conversation id for:
     - fetching transcript
-    - idempotency ("send once")
+    - idempotency ("complete once")
     - debugging (OpenAI logs link)
 
 - User id: `anon_...`
@@ -83,16 +85,17 @@ as your system-of-record key for everything downstream (email, dedupe, debug).
 Browser (chat.craigs.autos)
   - ChatKit runtime renders UI
   - Requests a client_secret from our backend
-  - Calls our lead-email endpoint with threadId (cthr_...)
+  - Calls our chat lead handoff endpoint with threadId (cthr_...)
 
 AWS Amplify Gen2 backend
   - Lambda Function URL: chatkit-session
       - calls OpenAI: chatkit.sessions.create
       - returns client_secret
-  - Lambda Function URL: chatkit-lead-email
+  - Lambda Function URL: chat-lead-handoff
       - calls OpenAI: chatkit.threads.retrieve + listItems
       - generates internal summary (Responses.parse)
-      - sends email via SES
+      - persists lead journey
+      - sends shop email via SES and QUO SMS when enabled
       - uses DynamoDB for idempotency per threadId
 
 OpenAI
@@ -124,22 +127,22 @@ Notes:
 - The backend also injects server-computed shop time state variables so the agent
   can answer "what day is it / are you open" without guessing.
 
-## Sequence diagram: lead email send + idempotency
+## Sequence diagram: chat lead handoff + idempotency
 
-The lead-email endpoint may be called multiple times (idle/pagehide/close).
-Server-side DynamoDB enforces "send once per thread".
+The chat lead handoff endpoint may be called multiple times (idle/pagehide/close).
+Server-side DynamoDB enforces "complete once per thread".
 
 ```
-Browser            chatkit-lead-email Lambda        DynamoDB             SES         OpenAI ChatKit
+Browser            chat-lead-handoff Lambda        DynamoDB             SES         OpenAI ChatKit
   |                        |                        |                   |               |
-  | POST /lead             |                        |                   |               |
+  | POST /chat/lead-handoff|                        |                   |               |
   | { threadId, reason }   |                        |                   |               |
   |----------------------->|                        |                   |               |
   |                        | Get(threadId)          |                   |               |
   |                        |----------------------->|                   |               |
-  |                        | status? (sent/sending) |                   |               |
+  |                        | status? (completed/processing)             |               |
   |                        |<-----------------------|                   |               |
-  |                        | if already sent -> 200 |                   |               |
+  |                        | if completed -> 200    |                   |               |
   |                        | else acquire lease     |                   |               |
   |                        | Update(threadId, lease)|                   |               |
   |                        |----------------------->|                   |               |
@@ -153,13 +156,14 @@ Browser            chatkit-lead-email Lambda        DynamoDB             SES    
   |                        |-------------------------------------------->|               |
   |                        | summary json                                 |               |
   |                        |<--------------------------------------------|               |
-  |                        | SES SendEmail                                |               |
+  |                        | SES SendEmail / QUO SMS                     |               |
   |                        |------------------------------->|            |               |
-  |                        | MessageId                     |            |               |
+  |                        | MessageId(s)                  |            |               |
   |                        |<------------------------------|            |               |
-  |                        | Update(threadId = sent)       |            |               |
+  |                        | Persist lead journey                         |               |
+  |                        | Update(threadId = completed)  |            |               |
   |                        |----------------------->|                   |               |
-  | 200 { sent: true }     |                        |                   |               |
+  | 200 { completed: true }|                        |                   |               |
   |<-----------------------|                        |                   |               |
 ```
 
@@ -180,6 +184,6 @@ Always start by getting the thread id (`cthr_...`). Once you have it:
 
 - OpenAI logs: `https://platform.openai.com/logs/cthr_...`
 - Dedupe record: DynamoDB item keyed by `thread_id = cthr_...`
-- Lead email body includes `Thread: cthr_...` in Diagnostics
+- Shop notification email body includes `Thread: cthr_...` in Diagnostics
 
 For step-by-step debugging, see `docs/chatkit/runbook.md`.

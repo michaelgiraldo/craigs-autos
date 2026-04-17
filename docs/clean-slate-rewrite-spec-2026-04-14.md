@@ -272,7 +272,7 @@ Proposed public functions:
 
 This is cleaner than carrying forward names such as:
 
-- `chatkit-lead-email`
+- `chat-lead-handoff`
 - `chatkit-lead-signal`
 - `chatkit-message-link`
 - `contact-submit`
@@ -449,7 +449,7 @@ Delete or replace current lead-facing function surfaces:
 - `amplify/functions/contact-submit/`
 - `amplify/functions/quote-followup/`
 - `amplify/functions/chatkit-lead-signal/`
-- `amplify/functions/chatkit-lead-email/`
+- `amplify/functions/chat-lead-handoff/`
 - `amplify/functions/chatkit-message-link/`
 - `amplify/functions/chatkit-attachment-upload/`
 - `amplify/functions/chatkit-lead-admin/`

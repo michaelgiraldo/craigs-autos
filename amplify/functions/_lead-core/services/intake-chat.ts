@@ -141,7 +141,7 @@ export function buildChatLeadBundle(input: ChatLeadIntakeInput): JourneyBundle {
     buildJourneyEvent({
       journeyId,
       leadRecordId,
-      eventName: 'lead_chat_handoff_sent',
+      eventName: 'lead_chat_handoff_completed',
       occurredAtMs,
       recordedAtMs,
       actor: 'system',

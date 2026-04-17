@@ -33,7 +33,7 @@ test('buildChatLeadBundle emits a single handoff success event in the promotion 
   });
 
   const handoffEvents = bundle.events.filter(
-    (event) => event.event_name === 'lead_chat_handoff_sent',
+    (event) => event.event_name === 'lead_chat_handoff_completed',
   );
   assert.equal(handoffEvents.length, 1);
 });

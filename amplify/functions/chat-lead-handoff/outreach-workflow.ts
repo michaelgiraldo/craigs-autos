@@ -10,9 +10,9 @@ import type {
 } from './lead-types';
 import {
   markLeadEmailSent,
+  markLeadHandoffCompleted,
   markLeadQuoError,
   markLeadQuoSent,
-  markLeadSent,
 } from './dedupe-store.ts';
 import { sendQuoTextMessage } from './quo.ts';
 
@@ -198,12 +198,7 @@ export async function runChatOutreach(args: RunChatOutreachArgs): Promise<ChatOu
     }
   }
 
-  try {
-    await markLeadSent({ threadId: args.threadId, leaseId: args.leaseId });
-  } catch (err: unknown) {
-    const { name, message } = getErrorDetails(err);
-    console.error('Lead dedupe mark sent failed', name, message);
-  }
+  await markLeadHandoffCompleted({ threadId: args.threadId, leaseId: args.leaseId });
 
   return {
     automatedTextSent,

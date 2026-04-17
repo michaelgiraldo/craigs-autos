@@ -31,7 +31,7 @@ What we found:
 
 - `authType: FunctionUrlAuthType.NONE` is used for multiple endpoints in `amplify/backend.ts`:
   - session URL at line 28
-  - lead email URL at line 50
+  - chat lead handoff URL at line 50
   - sms link URL at line 71
   - lead signal URL at line 92
   - lead admin URL at line 112
@@ -94,10 +94,10 @@ What improves:
 
 What we found:
 
-- URL checker accepts any `http/https` URL in `amplify/functions/chatkit-lead-email/handler.ts:571-576`
-- Server fetches that URL in `amplify/functions/chatkit-lead-email/handler.ts:656-663`
-- Attachment lines are parsed from transcript text in `amplify/functions/chatkit-lead-email/handler.ts:952-986`
-- Attachment lines are also constructed in transcript content in `amplify/functions/chatkit-lead-email/handler.ts:1172-1183`
+- URL checker accepts any `http/https` URL in `amplify/functions/chat-lead-handoff/handler.ts:571-576`
+- Server fetches that URL in `amplify/functions/chat-lead-handoff/handler.ts:656-663`
+- Attachment lines are parsed from transcript text in `amplify/functions/chat-lead-handoff/handler.ts:952-986`
+- Attachment lines are also constructed in transcript content in `amplify/functions/chat-lead-handoff/handler.ts:1172-1183`
 
 Why this matters (plain language):
 

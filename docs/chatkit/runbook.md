@@ -17,8 +17,8 @@ Pick the symptom that best matches:
 
 - A) Chat UI does not load / no input box
 - B) Chat loads, but messages fail (session errors)
-- C) Shop did not receive the lead email
-- D) Duplicate lead emails
+- C) Chat lead handoff did not complete / shop did not receive notification
+- D) Duplicate chat lead handoffs
 - E) Wrong language / wrong hours / wrong agent behavior
 
 ## Check this first (always)
@@ -29,7 +29,7 @@ You need the thread id to debug anything.
 
 Ways to get it:
 
-- From the lead email body:
+- From the shop notification email body:
   - In **Diagnostics**, copy `Thread: cthr_...`.
 
 - From the browser:
@@ -59,7 +59,7 @@ Open the site and fetch:
 Confirm it contains:
 
 - `custom.chatkit_session_url`
-- `custom.chatkit_lead_email_url`
+- `custom.chat_lead_handoff_url`
 - `custom.chatkit_message_link_url`
 - `custom.chatkit_lead_signal_url`
 - `custom.chatkit_lead_admin_url`
@@ -67,18 +67,18 @@ Confirm it contains:
 
 If these are missing or wrong, the frontend may be calling a placeholder URL.
 
-### 4) Check DynamoDB idempotency record (send once per thread)
+### 4) Check DynamoDB idempotency record (complete once per thread)
 
-The lead email system uses DynamoDB to ensure only one email is sent per `cthr_...`.
+The chat lead handoff system uses DynamoDB to ensure only one handoff completes per `cthr_...`.
 
 Goal:
 
-- Determine whether the backend thinks it already sent.
+- Determine whether the backend thinks it already completed the handoff.
 
 How to find the table name:
 
 - In AWS Lambda console:
-  - Function: `chatkit-lead-email`
+  - Function: `chat-lead-handoff`
   - Configuration -> Environment variables -> `LEAD_DEDUPE_TABLE_NAME`
 
 Once you have the table name, you can query by thread id:
@@ -94,12 +94,12 @@ aws dynamodb get-item \
 
 Interpretation:
 
-- `status = sent`:
-  - The backend believes the email was already sent.
-  - Look at `sent_at` and `message_id`.
+- `status = completed`:
+  - The backend believes the handoff completed.
+  - Look at `completed_at`, `email_sent_at`, `email_message_id`, `quo_sent_at`, and `quo_message_id`.
 
-- `status = sending` and `lock_expires_at` in the future:
-  - A send is in progress (or a client died mid-send).
+- `status = processing` and `lock_expires_at` in the future:
+  - A handoff is in progress (or a client died mid-handoff).
   - Wait ~2 minutes (lease default) and retry.
 
 - `status = error` and `lock_expires_at` in the future:
@@ -111,7 +111,7 @@ Interpretation:
 The two main Lambda functions:
 
 - `chatkit-session` (session minting)
-- `chatkit-lead-email` (transcript + email)
+- `chat-lead-handoff` (transcript evaluation + handoff)
 
 In AWS Console:
 
@@ -122,10 +122,11 @@ What to search for:
 - Session:
   - "ChatKit session create failed"
 
-- Lead email:
-  - "Lead email failed"
+- Chat lead handoff:
+  - "Chat lead handoff failed"
   - "Lead summary generation failed"
-  - "Lead dedupe mark sent failed"
+  - "Lead dedupe mark handoff completed failed"
+  - "Lead dedupe mark email sent failed"
   - SES errors and throttles
 
 AWS CLI example (requires function name):
@@ -144,7 +145,7 @@ In AWS SES console (same region as the backend):
 
 If you do not see send attempts:
 
-- The lead-email Lambda may not be getting invoked, or may be exiting early due to
+- The chat lead handoff Lambda may not be getting invoked, or may be exiting early due to
   missing contact info or "not_ready".
 
 ## Scenario A: Chat UI does not load / no input box
@@ -204,7 +205,7 @@ Common fixes:
 - Wrong workflow id: update `CHATKIT_WORKFLOW_ID` in Amplify Secrets.
 - Workflow deleted/renamed: workflow id is what matters; verify it still exists.
 
-## Scenario C: Shop did not receive the lead email
+## Scenario C: Chat lead handoff did not complete / shop did not receive notification
 
 Symptoms:
 
@@ -213,30 +214,30 @@ Symptoms:
 Checks (in order):
 
 1) Get the thread id (`cthr_...`) and open OpenAI logs.
-2) Check if the lead-email endpoint was called:
-   - Browser DevTools -> Network -> look for POST to `custom.chatkit_lead_email_url`.
+2) Check if the chat lead handoff endpoint was called:
+   - Browser DevTools -> Network -> look for POST to `custom.chat_lead_handoff_url`.
 3) Check DynamoDB record:
-   - If `sent`, the backend believes it sent. Confirm SES delivery.
+   - If `completed`, the backend believes the handoff completed. Confirm SES/QUO delivery fields.
    - If missing, the endpoint may not have been hit or may have crashed before writing.
-4) CloudWatch logs for `chatkit-lead-email`.
+4) CloudWatch logs for `chat-lead-handoff`.
 5) SES console:
    - look for sends, bounces, or sandbox restrictions.
 
 Common causes:
 
 - Contact info was never captured (backend requires phone or email in CUSTOMER messages).
-- Lead email was sent before the customer provided later details (snapshot timing).
+- The handoff completed before the customer provided later details (snapshot timing).
 - SES sender not verified, or SES sandbox restrictions.
 - Lambda errors (OpenAI API failures, parsing failures).
 
 Notes on "handoff_ready":
 
 - `handoff_ready` is produced by the summary model as a convenience field.
-- Current send triggers are `idle`, `pagehide`, and `chat_closed` (once contact exists).
+- Current handoff triggers are `idle`, `pagehide`, and `chat_closed` (once contact exists).
 - If you see `last_reason = "auto"` in DynamoDB, you're likely looking at an older deployment
-  (see `docs/chatkit/lead-email-before-after.md`).
+  (see `docs/chatkit/chat-lead-handoff-before-after.md`).
 
-## Scenario D: Duplicate lead emails
+## Scenario D: Duplicate chat lead handoffs
 
 Duplicates should not occur because DynamoDB dedupe is keyed by `thread_id`.
 
@@ -249,7 +250,7 @@ If you see duplicates, check:
    - Verify `status` transitions and `attempts`.
 
 3) Multiple environments:
-   - Are two different backends sending (ex: staging + prod)?
+   - Are two different backends completing handoff (ex: staging + prod)?
 
 Potential causes:
 
@@ -259,7 +260,7 @@ Potential causes:
 Note:
 
 - The dedupe table is still active infrastructure even though Craig's lead storage is now journey-first.
-- Do not delete `ChatkitLeadDedupeTable` unless the chat-email idempotency implementation is replaced.
+- Do not delete `ChatLeadHandoffDedupeTable` unless the chat handoff idempotency implementation is replaced.
 
 ## Scenario E: Wrong language / wrong hours / wrong agent behavior
 

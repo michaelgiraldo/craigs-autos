@@ -1,19 +1,19 @@
-# Lead Email Triggering: Before vs After
+# Chat Lead Handoff Triggering: Before vs After
 
-This doc records an important behavior change in how the shop lead email is sent.
+This doc records an important behavior change in how the chat lead handoff is completed.
 It exists to prevent regressions and to make debugging "missing fields" issues
 much easier.
 
 ## Terms
 
 - ChatKit thread id: `cthr_...` (canonical conversation id)
-- Lead email endpoint: `chatkit-lead-email` (Lambda Function URL)
+- Chat lead handoff endpoint: `chat-lead-handoff` (Lambda Function URL)
 - Triggers (reason): values passed from frontend -> backend:
   - `idle`
   - `pagehide`
   - `chat_closed`
   - (historical) `auto`
-- Dedupe: DynamoDB record keyed by `thread_id = cthr_...` ensures "send once per thread"
+- Dedupe: DynamoDB record keyed by `thread_id = cthr_...` ensures "complete once per thread"
 
 ## Before (historical behavior)
 
@@ -21,7 +21,7 @@ Frontend triggers (`src/components/ChatWidgetReact.jsx`):
 
 1) `reason = "auto"`
    - Fired on every assistant message completion (`chatkit.response.end`)
-   - Intended to send the lead as soon as the chat became actionable
+   - Intended to hand off the lead as soon as the chat became actionable
 
 2) `reason = "idle"`
    - Fired after ~90s of inactivity (while chat open)
@@ -32,13 +32,13 @@ Frontend triggers (`src/components/ChatWidgetReact.jsx`):
 4) `reason = "chat_closed"`
    - Fired when the user closed the chat panel
 
-Backend behavior (`amplify/functions/chatkit-lead-email/handler.ts`):
+Backend behavior (`amplify/functions/chat-lead-handoff/handler.ts`):
 
 - Every trigger call fetched the thread and generated a structured lead summary.
-- For `reason = "auto"`, the backend only sent the email when the summary returned:
+- For `reason = "auto"`, the backend only completed handoff when the summary returned:
   `handoff_ready === true` (model-decided).
-- Once an email was successfully sent, DynamoDB was marked `status = "sent"`, so
-  later triggers would not re-fetch or re-send.
+- Once the handoff successfully completed, DynamoDB was marked `status = "completed"`, so
+  later triggers would not re-fetch or re-run side effects.
 
 ### The failure mode: "snapshot too early"
 
@@ -57,14 +57,14 @@ Result:
 Example (real thread):
 
 - `cthr_6977ba5715448195b09e9353b2052d450a0911e90bd04fff`
-  - dedupe record: `last_reason = "auto"`, `sent_at = 2026-01-26T19:05:14Z`
-  - customer replied with location after the send timestamp
+  - dedupe record: `last_reason = "auto"`, historical `sent_at = 2026-01-26T19:05:14Z`
+  - customer replied with location after the handoff timestamp
 
 ASCII timeline:
 
 ```text
 11:05:02 assistant asks "What city are you located in?"
-11:05:14 lead email sent (reason=auto) -> transcript ends at the assistant question
+11:05:14 handoff completed (reason=auto) -> transcript ends at the assistant question
 11:05:16 customer replies "Oakland, yes"
 11:05:30 customer provides timeline "three months"
 ```
@@ -74,7 +74,7 @@ messages at send time.
 
 ## After (current behavior)
 
-We removed `auto` sending to avoid mid-conversation snapshots.
+We removed the `auto` trigger to avoid mid-conversation snapshots.
 
 Frontend triggers (`src/components/ChatWidgetReact.jsx`):
 
@@ -94,25 +94,26 @@ Frontend triggers (`src/components/ChatWidgetReact.jsx`):
 
 Backend behavior (unchanged at a high level):
 
-- On each trigger call (until `status = "sent"`), the backend:
+- On each trigger call (until `status = "completed"`), the backend:
   - fetches thread items from OpenAI
   - builds transcript lines
   - generates a structured lead summary via `responses.parse(...)`
-  - emails via SES
-  - records `sent` in DynamoDB (idempotent)
+  - runs handoff side effects (QUO SMS when enabled, shop email via SES, lead persistence)
+  - records `completed` in DynamoDB (idempotent)
 
 Key difference:
 
-- We now wait for a "quiet period" (idle/pagehide/close) before sending, which
-  makes the email much more likely to include the complete, up-to-date transcript.
+- We now wait for a "quiet period" (idle/pagehide/close) before completing handoff,
+  which makes the shop notification much more likely to include the complete,
+  up-to-date transcript.
 
 ASCII flow:
 
 ```text
 Any activity in chat panel -> reset idle timer (300s)
 
-Idle timer expires -> POST /lead (reason=idle)
-                   -> backend applies readiness gate and sends when ready
+Idle timer expires -> POST /chat/lead-handoff (reason=idle)
+                   -> backend applies readiness gate and completes when ready
 ```
 
 Current readiness gate (applies to all non-auto paths in practice):
@@ -122,17 +123,17 @@ Current readiness gate (applies to all non-auto paths in practice):
 
 If the summary is not yet ready, the response includes:
 
-- `sent: false`
+- `completed: false`
 - `reason: handoff_reason or 'not_ready'`
 - `missing_info` (from model output when available)
 
 ## What stayed the same (important)
 
-- The backend can still be called multiple times; DynamoDB enforces "send once".
-- The summary model can be executed multiple times BEFORE the first successful send
+- The backend can still be called multiple times; DynamoDB enforces "complete once".
+- The summary model can be executed multiple times BEFORE the first successful handoff
   (once per trigger call).
-- AFTER a successful send (`status = "sent"`), the backend returns early and does
-  not recompute or resend.
+- AFTER a successful handoff (`status = "completed"`), the backend returns early and does
+  not recompute or re-run side effects.
 
 ## Notes for future improvements
 
@@ -142,5 +143,5 @@ tab hide does not bypass completeness checks.
 
 If we ever re-introduce a near-real-time trigger, it must either:
 
-- support "final update" sends (store a sent watermark and allow one update on close/pagehide), or
+- support "final update" handoffs (store a completion watermark and allow one update on close/pagehide), or
 - use an explicit agent signal (client tool) to indicate the wrap-up moment.

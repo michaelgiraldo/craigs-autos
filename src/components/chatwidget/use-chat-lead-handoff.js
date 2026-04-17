@@ -1,7 +1,7 @@
 import React from 'react';
 import { getAttributionPayload, getJourneyId } from '../../lib/attribution.js';
-import { isPlaceholderUrl, postLeadEmail, resolveLeadEmailEndpoint } from './api-client.js';
-import { LEAD_SENT_KEY_PREFIX } from './constants.js';
+import { isPlaceholderUrl, postLeadHandoff, resolveLeadHandoffEndpoint } from './api-client.js';
+import { LEAD_HANDOFF_COMPLETED_KEY_PREFIX } from './constants.js';
 import { pushLeadDataLayer } from './data-layer.js';
 import { getLocalStorage, getStorageValue, setStorageValue } from './storage.js';
 
@@ -30,37 +30,29 @@ function getPageLocation() {
 export function useChatLeadHandoff({
   isDev,
   hasUserInteractedRef,
-  leadEmailUrlRef,
+  leadHandoffUrlRef,
   localeRef,
-  setResolvedLeadEmailUrl,
+  setActiveLeadHandoffUrl,
   threadIdRef,
   userIdRef,
 }) {
-  const leadEmailInFlightRef = React.useRef(false);
-
-  const updateResolvedLeadEmailUrl = React.useCallback(
-    (nextLeadEmailUrl) => {
-      leadEmailUrlRef.current = nextLeadEmailUrl;
-      setResolvedLeadEmailUrl(nextLeadEmailUrl);
-    },
-    [leadEmailUrlRef, setResolvedLeadEmailUrl],
-  );
+  const leadHandoffInFlightRef = React.useRef(false);
 
   return React.useCallback(
     async ({ reason = 'chat_closed' } = {}) => {
-      if (leadEmailInFlightRef.current) return;
+      if (leadHandoffInFlightRef.current) return;
       if (!hasUserInteractedRef.current) return;
 
       const activeThreadId = threadIdRef.current;
       if (!activeThreadId) return;
 
-      const configuredLeadEmailUrl =
-        typeof leadEmailUrlRef.current === 'string' ? leadEmailUrlRef.current.trim() : '';
-      if (!configuredLeadEmailUrl || isPlaceholderUrl(configuredLeadEmailUrl)) return;
+      const configuredLeadHandoffUrl =
+        typeof leadHandoffUrlRef.current === 'string' ? leadHandoffUrlRef.current.trim() : '';
+      if (!configuredLeadHandoffUrl) return;
 
       const localStorage = getLocalStorage();
-      const sentKey = `${LEAD_SENT_KEY_PREFIX}${activeThreadId}`;
-      if (getStorageValue(localStorage, sentKey) === 'true') return;
+      const completedKey = `${LEAD_HANDOFF_COMPLETED_KEY_PREFIX}${activeThreadId}`;
+      if (getStorageValue(localStorage, completedKey) === 'true') return;
 
       const activeLocale = localeRef.current ?? 'en';
       const activeUserId = userIdRef.current ?? 'anonymous';
@@ -85,16 +77,22 @@ export function useChatLeadHandoff({
       };
 
       try {
-        leadEmailInFlightRef.current = true;
-        const endpoint = await resolveLeadEmailEndpoint({
+        leadHandoffInFlightRef.current = true;
+        const endpoint = await resolveLeadHandoffEndpoint({
           isDev,
-          endpoint: configuredLeadEmailUrl,
-          onLeadEmailUrl: updateResolvedLeadEmailUrl,
+          endpoint: configuredLeadHandoffUrl,
+          onLeadHandoffUrl: setActiveLeadHandoffUrl,
         });
         const resolvedEndpoint = typeof endpoint === 'string' ? endpoint.trim() : '';
-        if (!resolvedEndpoint || resolvedEndpoint.startsWith('/')) return;
+        if (
+          !resolvedEndpoint ||
+          isPlaceholderUrl(resolvedEndpoint) ||
+          resolvedEndpoint.startsWith('/')
+        ) {
+          return;
+        }
 
-        const { response, text } = await postLeadEmail({
+        const { response, text } = await postLeadHandoff({
           endpoint: resolvedEndpoint,
           payload: {
             threadId: activeThreadId,
@@ -108,7 +106,7 @@ export function useChatLeadHandoff({
         });
 
         if (!response.ok) {
-          if (isDev) console.error('ChatKit lead email error', response.status, text);
+          if (isDev) console.error('Chat lead handoff error', response.status, text);
           pushLeadDataLayer('lead_chat_handoff_error', {
             ...baseEvent,
             event_class: 'diagnostic',
@@ -134,16 +132,16 @@ export function useChatLeadHandoff({
         }
 
         const backendReason = typeof data?.reason === 'string' ? data.reason : '';
-        if (data?.sent === true) {
-          setStorageValue(localStorage, sentKey, 'true');
-          pushLeadDataLayer('lead_chat_handoff_sent', {
+        if (data?.completed === true) {
+          setStorageValue(localStorage, completedKey, 'true');
+          pushLeadDataLayer('lead_chat_handoff_completed', {
             ...baseEvent,
             event_class: 'workflow',
-            workflow_outcome: 'chat_handoff_sent',
+            workflow_outcome: 'chat_handoff_completed',
             lead_strength: 'captured_lead',
             lead_reason: backendReason || reason,
           });
-        } else if (data?.sent === false) {
+        } else if (data?.completed === false) {
           const handoffEventName = classifyChatHandoffReason(backendReason || 'unknown');
           pushLeadDataLayer(handoffEventName, {
             ...baseEvent,
@@ -157,7 +155,7 @@ export function useChatLeadHandoff({
           });
         }
       } catch (err) {
-        if (isDev) console.error('ChatKit lead email request failed', err);
+        if (isDev) console.error('Chat lead handoff request failed', err);
         pushLeadDataLayer('lead_chat_handoff_error', {
           ...baseEvent,
           event_class: 'diagnostic',
@@ -166,16 +164,16 @@ export function useChatLeadHandoff({
           error_code: 'network_error',
         });
       } finally {
-        leadEmailInFlightRef.current = false;
+        leadHandoffInFlightRef.current = false;
       }
     },
     [
       hasUserInteractedRef,
       isDev,
-      leadEmailUrlRef,
+      leadHandoffUrlRef,
       localeRef,
+      setActiveLeadHandoffUrl,
       threadIdRef,
-      updateResolvedLeadEmailUrl,
       userIdRef,
     ],
   );

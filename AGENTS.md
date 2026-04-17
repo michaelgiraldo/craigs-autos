@@ -70,7 +70,7 @@ Local ChatKit dev API:
 
 - Implemented in `server/chatkit-dev.mjs`
 - Session endpoint: `http://localhost:8787/api/chatkit/session`
-- Lead endpoint: `http://localhost:8787/api/chatkit/lead` (dev_noop; no SES)
+- Chat lead handoff endpoint: `http://localhost:8787/api/chat/lead-handoff` (dev_noop; no SES)
 
 ## Production configuration
 
@@ -91,7 +91,7 @@ Local ChatKit dev API:
 - The frontend reads `/amplify_outputs.json` at runtime to discover:
   - `custom.contact_submit_url`
   - `custom.chatkit_session_url`
-  - `custom.chatkit_lead_email_url`
+  - `custom.chat_lead_handoff_url`
 
 ### Secrets
 
@@ -106,7 +106,7 @@ Do not store these in the frontend or in git.
 
 - SES must be configured in the same region as the Amplify backend.
 - Sender identity must be verified.
-- Defaults live in `amplify/functions/chatkit-lead-email/resource.ts`:
+- Defaults live in `amplify/functions/chat-lead-handoff/resource.ts`:
   - `LEAD_TO_EMAIL` (recipient, default `leads@craigs.autos`)
   - `LEAD_FROM_EMAIL` (sender, default `leads@craigs.autos`)
 - Quote follow-up defaults live in `amplify/functions/quote-followup/resource.ts`:
@@ -151,8 +151,8 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
   - Change `amplify/functions/chatkit-session/handler.ts` (deploy required).
   - Also update the local mirror in `server/chatkit-dev.mjs`.
 
-- Lead email logic / template / idempotency:
-  - Change `amplify/functions/chatkit-lead-email/handler.ts` and/or `amplify/backend.ts`.
+- Chat lead handoff / notification email / idempotency:
+  - Change `amplify/functions/chat-lead-handoff/*` and/or `amplify/backend.ts`.
 
 - Quote form follow-up workflow:
   - Change `amplify/functions/contact-submit/handler.ts`
@@ -191,7 +191,7 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
 
 ### Update email template
 
-- Edit: `amplify/functions/chatkit-lead-email/handler.ts` (`sendTranscriptEmail`)
+- Edit: `amplify/functions/chat-lead-handoff/email-delivery.ts` (`sendTranscriptEmail`)
 - Keep both:
   - HTML readable in Gmail desktop + mobile
   - text version useful for quick scanning
@@ -216,12 +216,12 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
 
 ### Change idempotency timing (lease/cooldown/ttl)
 
-- Edit constants in `amplify/functions/chatkit-lead-email/handler.ts`:
+- Edit constants in `amplify/functions/chat-lead-handoff/handler.ts`:
   - `LEAD_DEDUPE_LEASE_SECONDS`
   - `LEAD_DEDUPE_ERROR_COOLDOWN_SECONDS`
   - `LEAD_DEDUPE_TTL_DAYS`
 - Validate:
-  - no duplicate emails for the same `cthr_...`
+  - no duplicate handoffs/emails for the same `cthr_...`
   - errors do not cause retry storms
 
 ### Change triggers (idle/pagehide/close)
@@ -231,14 +231,14 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
   - `idle`, `pagehide`, `chat_closed`
 - Confirm behavior:
   - `idle` fires after a quiet period (timer resets on in-chat activity)
-  - backend sends once contact exists
-  - DynamoDB enforces "send once per thread"
+  - backend completes handoff once contact exists and readiness gates pass
+  - DynamoDB enforces "complete once per thread"
 
 ## Security and privacy
 
 - Never commit `.env.local` or any secrets.
 - Do not paste live API keys into issues, logs, or commits.
-- Treat transcripts and lead emails as containing PII.
+- Treat transcripts and lead notification emails as containing PII.
 - Avoid logging full transcripts in CloudWatch.
 
 ## Git / workflow notes

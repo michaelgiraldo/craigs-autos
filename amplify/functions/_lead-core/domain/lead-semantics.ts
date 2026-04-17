@@ -47,14 +47,14 @@ const EVENT_SEMANTICS: Record<JourneyEventName, JourneyEventSemantics> = {
     verificationStatus: 'unverified',
     workflowOutcome: null,
   },
-  lead_chat_handoff_sent: {
+  lead_chat_handoff_completed: {
     captureChannel: 'chat',
     customerAction: null,
     eventClass: 'workflow',
     journeyStatus: 'captured',
     leadStrength: 'captured_lead',
     verificationStatus: 'unverified',
-    workflowOutcome: 'chat_handoff_sent',
+    workflowOutcome: 'chat_handoff_completed',
   },
   lead_chat_handoff_blocked: {
     captureChannel: null,

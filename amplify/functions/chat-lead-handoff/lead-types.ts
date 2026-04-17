@@ -16,7 +16,7 @@ export type LambdaResult = {
   body: string;
 };
 
-export type LeadEmailRequest = {
+export type ChatLeadHandoffRequest = {
   threadId?: unknown;
   journey_id?: unknown;
   locale?: unknown;
@@ -58,7 +58,7 @@ export type LeadSummary = {
   missing_info: string[];
 };
 
-export type LeadDedupeStatus = 'sending' | 'sent' | 'error';
+export type LeadDedupeStatus = 'processing' | 'completed' | 'error';
 
 export type LeadDedupeRecord = {
   thread_id: string;
@@ -68,7 +68,7 @@ export type LeadDedupeRecord = {
   created_at?: number;
   updated_at?: number;
   attempts?: number;
-  sent_at?: number;
+  completed_at?: number;
   message_id?: string;
   email_sent_at?: number;
   email_message_id?: string;

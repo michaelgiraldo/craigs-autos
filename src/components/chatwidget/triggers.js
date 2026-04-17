@@ -1,21 +1,16 @@
 import React from 'react';
 import { LEAD_QUIET_SEND_MS } from './constants.js';
 
-export function useLeadTriggers({
-  open,
-  chatPanelRef,
-  sendLeadEmail,
-  hasUserInteractedRef,
-}) {
+export function useLeadTriggers({ open, chatPanelRef, requestLeadHandoff, hasUserInteractedRef }) {
   const idleTimerRef = React.useRef(null);
 
   const bumpIdleTimer = React.useCallback(() => {
     if (!hasUserInteractedRef.current) return;
     if (idleTimerRef.current) window.clearTimeout(idleTimerRef.current);
     idleTimerRef.current = window.setTimeout(() => {
-      void sendLeadEmail({ reason: 'idle' });
+      void requestLeadHandoff({ reason: 'idle' });
     }, LEAD_QUIET_SEND_MS);
-  }, [hasUserInteractedRef, sendLeadEmail]);
+  }, [hasUserInteractedRef, requestLeadHandoff]);
 
   React.useEffect(() => {
     return () => {
@@ -52,7 +47,7 @@ export function useLeadTriggers({
 
   React.useEffect(() => {
     const sendOnPageHide = () => {
-      void sendLeadEmail({ reason: 'pagehide' });
+      void requestLeadHandoff({ reason: 'pagehide' });
     };
 
     window.addEventListener('pagehide', sendOnPageHide);
@@ -65,7 +60,7 @@ export function useLeadTriggers({
       window.removeEventListener('pagehide', sendOnPageHide);
       document.removeEventListener('visibilitychange', onVisibility);
     };
-  }, [sendLeadEmail]);
+  }, [requestLeadHandoff]);
 
   return { bumpIdleTimer };
 }

@@ -18,7 +18,7 @@ export type CustomerAction =
   | 'click_directions';
 
 export type WorkflowOutcome =
-  | 'chat_handoff_sent'
+  | 'chat_handoff_completed'
   | 'chat_handoff_blocked'
   | 'chat_handoff_deferred'
   | 'chat_handoff_error'
@@ -35,7 +35,7 @@ export type JourneyEventName =
   | 'lead_form_submit_success'
   | 'lead_form_submit_error'
   | 'lead_chat_first_message_sent'
-  | 'lead_chat_handoff_sent'
+  | 'lead_chat_handoff_completed'
   | 'lead_chat_handoff_blocked'
   | 'lead_chat_handoff_deferred'
   | 'lead_chat_handoff_error'

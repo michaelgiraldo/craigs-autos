@@ -4,7 +4,7 @@ import {
   UpdateScheduleCommand,
 } from '@aws-sdk/client-scheduler';
 import { getErrorDetails } from '../_shared/safe.ts';
-import type { LeadEmailRequest } from './lead-types.ts';
+import type { ChatLeadHandoffRequest } from './lead-types.ts';
 import { leadRetryScheduleGroupName, leadRetrySchedulerRoleArn, scheduler } from './runtime.ts';
 
 function buildRetryScheduleName(threadId: string): string {
@@ -21,7 +21,7 @@ export async function upsertLeadRetrySchedule(args: {
   threadId: string;
   runAtEpochSeconds: number;
   functionArn: string;
-  payload: LeadEmailRequest;
+  payload: ChatLeadHandoffRequest;
 }): Promise<boolean> {
   if (!scheduler || !args.functionArn || !leadRetrySchedulerRoleArn) return false;
 

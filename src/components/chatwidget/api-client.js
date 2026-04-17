@@ -13,14 +13,14 @@ export function isPlaceholderUrl(value) {
   return typeof value === 'string' && value.includes('<your-backend>');
 }
 
-export function shouldLoadAmplifyOutputs({ sessionUrl, leadEmailUrl }) {
+export function shouldLoadAmplifyOutputs({ sessionUrl, leadHandoffUrl }) {
   return (
     typeof sessionUrl !== 'string' ||
     isPlaceholderUrl(sessionUrl) ||
     sessionUrl.startsWith('/') ||
-    typeof leadEmailUrl !== 'string' ||
-    isPlaceholderUrl(leadEmailUrl) ||
-    leadEmailUrl.startsWith('/')
+    typeof leadHandoffUrl !== 'string' ||
+    isPlaceholderUrl(leadHandoffUrl) ||
+    leadHandoffUrl.startsWith('/')
   );
 }
 
@@ -31,14 +31,14 @@ export async function fetchAmplifyOutputsUrls() {
     const data = await response.json();
 
     const sessionCandidate = data?.custom?.chatkit_session_url;
-    const leadCandidate = data?.custom?.chatkit_lead_email_url;
+    const leadCandidate = data?.custom?.chat_lead_handoff_url;
 
     return {
       sessionUrl:
         typeof sessionCandidate === 'string' && sessionCandidate.trim()
           ? sessionCandidate.trim()
           : null,
-      leadEmailUrl:
+      leadHandoffUrl:
         typeof leadCandidate === 'string' && leadCandidate.trim() ? leadCandidate.trim() : null,
     };
   } catch {
@@ -46,7 +46,7 @@ export async function fetchAmplifyOutputsUrls() {
   }
 }
 
-export async function resolveSessionEndpoint({ isDev, endpoint, onSessionUrl, onLeadEmailUrl }) {
+export async function resolveSessionEndpoint({ isDev, endpoint, onSessionUrl, onLeadHandoffUrl }) {
   let resolvedEndpoint = endpoint;
 
   if (
@@ -60,21 +60,26 @@ export async function resolveSessionEndpoint({ isDev, endpoint, onSessionUrl, on
       resolvedEndpoint = outputs.sessionUrl;
       onSessionUrl?.(outputs.sessionUrl);
     }
-    if (outputs?.leadEmailUrl) {
-      onLeadEmailUrl?.(outputs.leadEmailUrl);
+    if (outputs?.leadHandoffUrl) {
+      onLeadHandoffUrl?.(outputs.leadHandoffUrl);
     }
   }
 
   return resolvedEndpoint;
 }
 
-export async function resolveLeadEmailEndpoint({ isDev, endpoint, onLeadEmailUrl }) {
+export async function resolveLeadHandoffEndpoint({ isDev, endpoint, onLeadHandoffUrl }) {
   let resolvedEndpoint = endpoint;
-  if (!isDev && typeof resolvedEndpoint === 'string' && resolvedEndpoint.startsWith('/')) {
+  if (
+    !isDev &&
+    (typeof resolvedEndpoint !== 'string' ||
+      isPlaceholderUrl(resolvedEndpoint) ||
+      resolvedEndpoint.startsWith('/'))
+  ) {
     const outputs = await fetchAmplifyOutputsUrls();
-    if (outputs?.leadEmailUrl) {
-      resolvedEndpoint = outputs.leadEmailUrl;
-      onLeadEmailUrl?.(outputs.leadEmailUrl);
+    if (outputs?.leadHandoffUrl) {
+      resolvedEndpoint = outputs.leadHandoffUrl;
+      onLeadHandoffUrl?.(outputs.leadHandoffUrl);
     }
   }
   return resolvedEndpoint;
@@ -109,7 +114,7 @@ export async function requestClientSecret({ endpoint, current, locale, userId, p
   return data.client_secret;
 }
 
-export async function postLeadEmail({ endpoint, payload }) {
+export async function postLeadHandoff({ endpoint, payload }) {
   const response = await fetch(
     endpoint,
     withFetchTimeout({

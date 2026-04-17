@@ -11,7 +11,7 @@ import { decodeBody, emptyResponse, getHttpMethod, jsonResponse } from '../_shar
 import type { QuoteSubmissionRecord } from '../_shared/quote-submissions.ts';
 import { normalizeString } from '../_shared/quote-submissions.ts';
 import { getErrorDetails } from '../_shared/safe.ts';
-import { isPlausiblePhone } from '../chatkit-lead-email/text-utils.ts';
+import { isPlausiblePhone } from '../chat-lead-handoff/text-utils.ts';
 
 const QUOTE_SUBMISSION_TTL_DAYS = 180;
 

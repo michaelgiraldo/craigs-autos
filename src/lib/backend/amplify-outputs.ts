@@ -47,8 +47,8 @@ export function resolveChatkitSessionUrl() {
   return resolveBackendUrl('chatkit_session_url');
 }
 
-export function resolveChatkitLeadEmailUrl() {
-  return resolveBackendUrl('chatkit_lead_email_url');
+export function resolveChatLeadHandoffUrl() {
+  return resolveBackendUrl('chat_lead_handoff_url');
 }
 
 export function resolveChatkitLeadSignalUrl() {

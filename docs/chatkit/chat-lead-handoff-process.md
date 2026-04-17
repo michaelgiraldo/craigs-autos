@@ -1,4 +1,4 @@
-# Craig’s Auto Upholstery Lead Email Process
+# Craig’s Auto Upholstery Chat Lead Handoff Process
 
 This document captures the current lead handoff design for chat leads and is meant to
 be maintained as the process evolves.  
@@ -8,18 +8,18 @@ Scope:
 
 - Chat frontend trigger behavior
 - Backend readiness checks and idempotency
-- How attachments/photos are attached to lead emails
-- How this supports the owner workflow (single high-quality handoff email)
+- How attachments/photos are attached to lead notification emails
+- How this supports the owner workflow (single high-quality handoff with email/QUO side effects)
 
 ## AWS components and purpose
 
 - `amplify/functions/chatkit-session` (Lambda): creates short-lived OpenAI session secrets for the browser.
-- `amplify/functions/chatkit-lead-email` (Lambda): builds transcript, summarizes, and sends lead email.
+- `amplify/functions/chat-lead-handoff` (Lambda): evaluates transcript, persists the lead journey, sends the shop notification email, and runs QUO SMS when configured.
 - `amplify/functions/chatkit-attachment-upload` (Lambda): receives user files and stores them in S3.
 - `amplify/functions/chatkit-message-link` (Lambda): resolves short-lived token links used by
-  message handoff actions in lead emails (SMS entry).
+  message handoff actions in lead notification emails (SMS entry).
 - `S3 bucket (chatkit-attachment-bucket)`: stores uploaded attachments and serves them with preview URLs.
-- `DynamoDB (ChatkitLeadDedupeTable)`: enforces one send per thread and tracks lease/error state.
+- `DynamoDB (ChatLeadHandoffDedupeTable)`: enforces one completed handoff per thread and tracks lease/error state.
 - `DynamoDB (ChatkitLeadAttributionTable)`: stores lead metadata for offline conversion use.
 - `DynamoDB (ChatkitMessageLinkTokenTable)`: stores message draft links with TTL.
 - `SES`: sends the final email (raw MIME with optional inline image parts).
@@ -32,8 +32,8 @@ Current retention in this repo:
 - Attachments (`S3`):
   - Kept in `chatkit-attachments/<id>.ext` objects under `chatkit-attachment-bucket`.
   - Bucket lifecycle rule is set to **365 days** in `Website/amplify/backend.ts`.
-- Dedupe leads (`DynamoDB`):
-  - `thread_id` state (`sending/sent/error`) with `ttl` from `LEAD_DEDUPE_TTL_DAYS`.
+- Handoff dedupe (`DynamoDB`):
+  - `thread_id` state (`processing/completed/error`) with `ttl` from `LEAD_DEDUPE_TTL_DAYS`.
   - Current TTL is **30 days** (`LEAD_DEDUPE_TTL_DAYS` in `handler.ts`).
 - Lead attribution metadata (`DynamoDB`):
   - `ChatkitLeadAttributionTable` uses `LEAD_ATTRIBUTION_TTL_DAYS`.
@@ -52,17 +52,17 @@ Current retention in this repo:
 
 - Primary trigger is still fully automatic (no button click required by customer).
 - The quiet-window timer on the frontend is now 5 minutes (`300_000` ms).
-- The backend only sends when the summary model returns `handoff_ready = true`.
+- The backend only completes the handoff when the summary model returns `handoff_ready = true`.
 - The email body now inlines small preview images so photos are visible inline in
   the owner email, no extra clicks needed.
-- Lead email quick actions include `Send via SMS` for one-click text handoff.
+- Lead notification email quick actions include `Send via SMS` for manual fallback text handoff.
 - Legacy SMS-named link contracts were removed in this phase (breaking change).
 - No new AWS service was introduced. This is implemented with existing Lambdas,
   S3, SES, and DynamoDB plus existing chat runtime behavior.
 
 ## Problem this solved
 
-The previous behavior could send lead email while the chat was still active.
+The previous behavior could complete the handoff while the chat was still active.
 A user might receive another follow-up message after the send and that message would
 not be included in the transcript used for summarization.
 
@@ -75,7 +75,7 @@ This caused:
 For small traffic clients (e.g., roughly a few chats per week), the goal is quality
 over speed:
 
-- One reliable email
+- One reliable handoff
 - Fuller context
 - Better follow-up readiness for the owner
 
@@ -92,21 +92,21 @@ over speed:
 ```
 Customer chats in ChatKit
   └─> Frontend tracks activity and interaction
-      ├─> After 5 min inactivity while open -> POST /lead { reason: "idle" }
-      ├─> On tab hide/visibility change -> POST /lead { reason: "pagehide" }
-      └─> On panel close -> POST /lead { reason: "chat_closed" }
+      ├─> After 5 min inactivity while open -> POST /chat/lead-handoff { reason: "idle" }
+      ├─> On tab hide/visibility change -> POST /chat/lead-handoff { reason: "pagehide" }
+      └─> On panel close -> POST /chat/lead-handoff { reason: "chat_closed" }
              |
              v
-Backend /lead handler
+Backend chat lead handoff handler
   ├─> build transcript from OpenAI thread
   ├─> require at least one customer contact (phone or email)
   ├─> run model summary parse
   ├─> require handoff_ready == true
-  ├─> acquire send lease in DynamoDB (thread-keyed)
+  ├─> acquire handoff lease in DynamoDB (thread-keyed)
   ├─> fetch attachments via preview URLs when possible
   ├─> build multipart MIME raw email (text + html + inline image parts)
   ├─> send via SES v2 SendEmail (Raw content)
-  └─> mark sent + message id (or cool-down on failure)
+  └─> mark completed (or cool-down on failure)
 ```
 
 ## Before vs after (with root cause mapping)
@@ -135,8 +135,9 @@ Chat activity -> no auto send path
          |             - handoff_ready from model
          |
          +--> only if all pass and lease acquired:
-                  build final email with inline photos + summary
-                  send once per thread
+                  persist lead journey
+                  send shop email / QUO SMS side effects
+                  complete once per thread
          +--> otherwise:
                   return reason (missing_contact, not_ready, not_idle, etc.)
 ```
@@ -146,27 +147,27 @@ Chat activity -> no auto send path
 - Frontend lead trigger timing and reasons
   - `Website/src/components/ChatWidgetReact.jsx`
     - `LEAD_QUIET_SEND_MS` (`300_000`)
-    - `bumpIdleTimer` → `sendLeadEmail({ reason: 'idle' })`
+    - `bumpIdleTimer` → `requestLeadHandoff({ reason: 'idle' })`
     - `pagehide`/`visibilitychange` and `chat_closed` trigger paths
 
 - Backend lead processing and safety gates
-  - `Website/amplify/functions/chatkit-lead-email/handler.ts`
+  - `Website/amplify/functions/chat-lead-handoff/handler.ts`
     - Contact extraction + empty-thread guard
     - `LEAD_IDLE_DELAY_SECONDS = 300`
     - summary parse requirement `leadSummary?.handoff_ready === true`
-    - idempotent lease + sent/error states in DynamoDB
-    - response reasons: `already_sent`, `missing_contact`, `not_ready`, `not_idle`, etc.
+    - idempotent lease + completed/error states in DynamoDB
+    - response reasons: `already_completed`, `missing_contact`, `not_ready`, `not_idle`, etc.
 
 - Attachment preview + inline embedding
-  - `Website/amplify/functions/chatkit-lead-email/email-delivery.ts`
-  - `Website/amplify/functions/chatkit-lead-email/attachments.ts`
-  - `Website/amplify/functions/chatkit-lead-email/email-mime.ts`
+  - `Website/amplify/functions/chat-lead-handoff/email-delivery.ts`
+  - `Website/amplify/functions/chat-lead-handoff/attachments.ts`
+  - `Website/amplify/functions/chat-lead-handoff/email-mime.ts`
     - `extractAttachments` parses transcript attachment lines
     - `fetchInlineAttachment` fetches preview URL into bytes
     - `buildRawEmail` generates MIME `multipart/mixed` with `multipart/alternative`
     - send via `new SendEmailCommand(...)` using SES v2 raw content
   - `Website/amplify/backend.ts`
-    - provides both `chatkit_attachment_upload_url` and `chatkit_lead_email_url` to the frontend via outputs
+    - provides both `chatkit_attachment_upload_url` and `chat_lead_handoff_url` to the frontend via outputs
   - `Website/amplify/functions/chatkit-attachment-upload/handler.ts`
     - attachments are saved in `chatkit-attachments/` keys in S3
     - GET `?id=<key>` returns binary attachment payload
@@ -189,7 +190,7 @@ Chat activity -> no auto send path
 - Raw email allows richer rendering but requires strict MIME formatting.
 - Existing `LEAD_INLINE_ATTACHMENT_MAX_BYTES` and attachment MIME checks reduce malformed
   or non-image inline payload issues.
-- Bucket retention is conservative but independent from the lead email process itself.
+- Bucket retention is conservative but independent from the chat lead handoff process itself.
   If you need shorter/longer retention, update the lifecycle rule in `backend.ts` and
   corresponding business runbook expectations.
 
@@ -197,8 +198,8 @@ Chat activity -> no auto send path
 
 - SES raw message size limits still apply globally.
 - If an image is too large or fails download, fallback link remains available.
-- If customer keeps chatting after an `idle` send attempt, a later `chat_closed`
-  path still re-enters and can only send if summary is `handoff_ready`.
+- If customer keeps chatting after an `idle` handoff attempt, a later `chat_closed`
+  path still re-enters and can only complete if summary is `handoff_ready`.
 
 ## Troubleshooting quick references
 
@@ -212,7 +213,7 @@ Backend:
 
 - OpenAI logs and DynamoDB dedupe record are still the main source of truth
   (`cthr_...`).
-- Raw email delivery issues will show up in SES send logs and CloudWatch (`chatkit-lead-email`).
+- Raw email delivery issues will show up in SES send logs and CloudWatch (`chat-lead-handoff`).
 
 ## If process behavior changes
 

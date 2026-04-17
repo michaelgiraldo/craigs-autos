@@ -13,13 +13,12 @@ import {
   unlockBodyScroll,
 } from './storage.js';
 
-export function useChatWidgetState({ isDev, leadEmailUrl, locale, sessionUrl }) {
+export function useChatWidgetState({ isDev, leadHandoffUrl, locale, sessionUrl }) {
   const [open, setOpen] = React.useState(false);
   const [openInitialized, setOpenInitialized] = React.useState(false);
   const [userId, setUserId] = React.useState(null);
   const [threadId, setThreadId] = React.useState(null);
   const [resolvedSessionUrl, setResolvedSessionUrl] = React.useState(sessionUrl);
-  const [resolvedLeadEmailUrl, setResolvedLeadEmailUrl] = React.useState(leadEmailUrl);
   const [chatMountId, setChatMountId] = React.useState(0);
   const [chatkitReady, setChatkitReady] = React.useState(false);
   const [runtimeReady, setRuntimeReady] = React.useState(false);
@@ -31,7 +30,7 @@ export function useChatWidgetState({ isDev, leadEmailUrl, locale, sessionUrl }) 
   const threadIdRef = React.useRef(null);
   const userIdRef = React.useRef(null);
   const localeRef = React.useRef(locale);
-  const leadEmailUrlRef = React.useRef(leadEmailUrl);
+  const leadHandoffUrlRef = React.useRef(leadHandoffUrl);
   const chatPanelRef = React.useRef(null);
   const hasUserInteractedRef = React.useRef(false);
 
@@ -60,9 +59,9 @@ export function useChatWidgetState({ isDev, leadEmailUrl, locale, sessionUrl }) 
     localeRef.current = locale;
   }, [locale]);
 
-  React.useEffect(() => {
-    leadEmailUrlRef.current = resolvedLeadEmailUrl;
-  }, [resolvedLeadEmailUrl]);
+  const setActiveLeadHandoffUrl = React.useCallback((nextLeadHandoffUrl) => {
+    leadHandoffUrlRef.current = nextLeadHandoffUrl;
+  }, []);
 
   React.useEffect(() => {
     // Keep SSR hydration stable by rendering closed first, then applying per-device default after mount.
@@ -75,15 +74,14 @@ export function useChatWidgetState({ isDev, leadEmailUrl, locale, sessionUrl }) 
   }, [sessionUrl]);
 
   React.useEffect(() => {
-    leadEmailUrlRef.current = leadEmailUrl;
-    setResolvedLeadEmailUrl(leadEmailUrl);
-  }, [leadEmailUrl]);
+    setActiveLeadHandoffUrl(leadHandoffUrl);
+  }, [leadHandoffUrl, setActiveLeadHandoffUrl]);
 
   React.useEffect(() => {
     // In production, prefer the backend URL from Amplify outputs when available.
     // This avoids hard-coding a session endpoint URL per branch.
     if (isDev) return;
-    if (!shouldLoadAmplifyOutputs({ sessionUrl, leadEmailUrl })) return;
+    if (!shouldLoadAmplifyOutputs({ sessionUrl, leadHandoffUrl })) return;
 
     let cancelled = false;
     (async () => {
@@ -92,16 +90,15 @@ export function useChatWidgetState({ isDev, leadEmailUrl, locale, sessionUrl }) 
       if (outputs.sessionUrl) {
         setResolvedSessionUrl(outputs.sessionUrl);
       }
-      if (outputs.leadEmailUrl) {
-        leadEmailUrlRef.current = outputs.leadEmailUrl;
-        setResolvedLeadEmailUrl(outputs.leadEmailUrl);
+      if (outputs.leadHandoffUrl) {
+        setActiveLeadHandoffUrl(outputs.leadHandoffUrl);
       }
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [isDev, leadEmailUrl, sessionUrl]);
+  }, [isDev, leadHandoffUrl, sessionUrl, setActiveLeadHandoffUrl]);
 
   React.useEffect(() => {
     let cancelled = false;
@@ -152,7 +149,6 @@ export function useChatWidgetState({ isDev, leadEmailUrl, locale, sessionUrl }) 
   return {
     open,
     setOpen,
-    openInitialized,
     userId,
     userIdRef,
     threadId,
@@ -161,8 +157,7 @@ export function useChatWidgetState({ isDev, leadEmailUrl, locale, sessionUrl }) 
     clearStoredThread,
     resolvedSessionUrl,
     setResolvedSessionUrl,
-    resolvedLeadEmailUrl,
-    setResolvedLeadEmailUrl,
+    setActiveLeadHandoffUrl,
     chatMountId,
     setChatMountId,
     chatkitReady,
@@ -175,7 +170,7 @@ export function useChatWidgetState({ isDev, leadEmailUrl, locale, sessionUrl }) 
     setChatInstance,
     chatRef,
     localeRef,
-    leadEmailUrlRef,
+    leadHandoffUrlRef,
     chatPanelRef,
     hasUserInteractedRef,
   };

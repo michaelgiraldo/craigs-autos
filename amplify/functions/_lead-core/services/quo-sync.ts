@@ -7,7 +7,7 @@ import {
   listQuoContactCustomFields,
   listQuoContacts,
   updateQuoContact,
-} from '../../chatkit-lead-email/quo.ts';
+} from '../../chat-lead-handoff/quo.ts';
 import { buildJourneyEvent, mergeLeadContacts } from './shared.ts';
 
 export type QuoLeadTag = 'Chat Lead' | 'Form Lead';

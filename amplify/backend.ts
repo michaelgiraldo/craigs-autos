@@ -5,7 +5,7 @@ import { PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { CfnFunction, FunctionUrl, FunctionUrlAuthType, HttpMethod } from 'aws-cdk-lib/aws-lambda';
 
 import { chatkitSession } from './functions/chatkit-session/resource';
-import { chatkitLeadEmail } from './functions/chatkit-lead-email/resource';
+import { chatLeadHandoff } from './functions/chat-lead-handoff/resource';
 import { chatkitMessageLink } from './functions/chatkit-message-link/resource';
 import { chatkitLeadSignal } from './functions/chatkit-lead-signal/resource';
 import { chatkitLeadAdmin } from './functions/chatkit-lead-admin/resource';
@@ -16,7 +16,7 @@ const backend = defineBackend({
   contactSubmit,
   quoteFollowup,
   chatkitSession,
-  chatkitLeadEmail,
+  chatLeadHandoff,
   chatkitMessageLink,
   chatkitLeadSignal,
   chatkitLeadAdmin,
@@ -41,8 +41,8 @@ setLambdaDescription(
   'Creates ChatKit sessions and returns ephemeral client secrets with locale, page, user, and shop-time state.',
 );
 setLambdaDescription(
-  backend.chatkitLeadEmail.resources.lambda,
-  'Fetches ChatKit transcripts, generates internal lead summaries, enforces thread-level idempotency, and sends lead emails via SES.',
+  backend.chatLeadHandoff.resources.lambda,
+  'Hands off ready ChatKit threads into the lead workflow: transcript evaluation, journey persistence, shop email, and QUO SMS when configured.',
 );
 setLambdaDescription(
   backend.chatkitMessageLink.resources.lambda,
@@ -88,12 +88,13 @@ const chatkitSessionUrl = new FunctionUrl(
   },
 );
 
-// Expose an endpoint to email a transcript of a thread to the shop.
-const chatkitLeadEmailUrl = new FunctionUrl(
-  Stack.of(backend.chatkitLeadEmail.resources.lambda),
-  'ChatkitLeadEmailUrl',
+// Expose the chat lead handoff endpoint. The browser hands off a ChatKit thread;
+// the backend owns journey persistence, shop notification, and QUO outreach.
+const chatLeadHandoffUrl = new FunctionUrl(
+  Stack.of(backend.chatLeadHandoff.resources.lambda),
+  'ChatLeadHandoffUrl',
   {
-    function: backend.chatkitLeadEmail.resources.lambda,
+    function: backend.chatLeadHandoff.resources.lambda,
     authType: FunctionUrlAuthType.NONE,
     cors: {
       allowedOrigins: [
@@ -185,7 +186,7 @@ const contactSubmitUrl = new FunctionUrl(
   },
 );
 
-backend.chatkitLeadEmail.resources.lambda.addToRolePolicy(
+backend.chatLeadHandoff.resources.lambda.addToRolePolicy(
   new PolicyStatement({
     actions: ['ses:SendEmail', 'ses:SendRawEmail'],
     resources: ['*'],
@@ -199,22 +200,22 @@ backend.quoteFollowup.resources.lambda.addToRolePolicy(
   }),
 );
 
-const chatkitLeadRetrySchedulerInvokeRole = new Role(
-  Stack.of(backend.chatkitLeadEmail.resources.lambda),
-  'ChatkitLeadRetrySchedulerInvokeRole',
+const chatLeadHandoffRetrySchedulerInvokeRole = new Role(
+  Stack.of(backend.chatLeadHandoff.resources.lambda),
+  'ChatLeadHandoffRetrySchedulerInvokeRole',
   {
     assumedBy: new ServicePrincipal('scheduler.amazonaws.com'),
   },
 );
 
-chatkitLeadRetrySchedulerInvokeRole.addToPolicy(
+chatLeadHandoffRetrySchedulerInvokeRole.addToPolicy(
   new PolicyStatement({
     actions: ['lambda:InvokeFunction'],
     resources: ['*'],
   }),
 );
 
-backend.chatkitLeadEmail.resources.lambda.addToRolePolicy(
+backend.chatLeadHandoff.resources.lambda.addToRolePolicy(
   new PolicyStatement({
     actions: [
       'scheduler:CreateSchedule',
@@ -226,27 +227,27 @@ backend.chatkitLeadEmail.resources.lambda.addToRolePolicy(
   }),
 );
 
-backend.chatkitLeadEmail.resources.lambda.addToRolePolicy(
+backend.chatLeadHandoff.resources.lambda.addToRolePolicy(
   new PolicyStatement({
     actions: ['iam:PassRole'],
-    resources: [chatkitLeadRetrySchedulerInvokeRole.roleArn],
+    resources: [chatLeadHandoffRetrySchedulerInvokeRole.roleArn],
   }),
 );
 
-(backend.chatkitLeadEmail.resources.lambda as any).addEnvironment(
+(backend.chatLeadHandoff.resources.lambda as any).addEnvironment(
   'LEAD_RETRY_SCHEDULER_ROLE_ARN',
-  chatkitLeadRetrySchedulerInvokeRole.roleArn,
+  chatLeadHandoffRetrySchedulerInvokeRole.roleArn,
 );
-(backend.chatkitLeadEmail.resources.lambda as any).addEnvironment(
+(backend.chatLeadHandoff.resources.lambda as any).addEnvironment(
   'LEAD_RETRY_SCHEDULE_GROUP',
   'default',
 );
 
-// Production-grade idempotency: ensure we only email one lead per ChatKit thread (`cthr_...`),
-// even if multiple browsers/devices trigger the send endpoint.
-const chatkitLeadDedupeTable = new Table(
-  Stack.of(backend.chatkitLeadEmail.resources.lambda),
-  'ChatkitLeadDedupeTable',
+// Production-grade idempotency: ensure one completed handoff per ChatKit thread (`cthr_...`),
+// even if multiple browser lifecycle events trigger the endpoint.
+const chatLeadHandoffDedupeTable = new Table(
+  Stack.of(backend.chatLeadHandoff.resources.lambda),
+  'ChatLeadHandoffDedupeTable',
   {
     billingMode: BillingMode.PAY_PER_REQUEST,
     partitionKey: { name: 'thread_id', type: AttributeType.STRING },
@@ -256,12 +257,12 @@ const chatkitLeadDedupeTable = new Table(
   },
 );
 
-chatkitLeadDedupeTable.grantReadWriteData(backend.chatkitLeadEmail.resources.lambda);
+chatLeadHandoffDedupeTable.grantReadWriteData(backend.chatLeadHandoff.resources.lambda);
 // Amplify types `resources.lambda` as IFunction (missing addEnvironment), but the concrete
 // Lambda construct supports it.
-(backend.chatkitLeadEmail.resources.lambda as any).addEnvironment(
+(backend.chatLeadHandoff.resources.lambda as any).addEnvironment(
   'LEAD_DEDUPE_TABLE_NAME',
-  chatkitLeadDedupeTable.tableName,
+  chatLeadHandoffDedupeTable.tableName,
 );
 
 const quoteSubmissionsTable = new Table(
@@ -292,7 +293,7 @@ backend.quoteFollowup.resources.lambda.grantInvoke(backend.contactSubmit.resourc
   backend.quoteFollowup.resources.lambda.functionName,
 );
 
-// Used by tokenized message handoff links in lead emails.
+// Used by tokenized message handoff links in lead notification emails.
 const chatkitMessageLinkTokenTable = new Table(
   Stack.of(backend.chatkitMessageLink.resources.lambda),
   'ChatkitMessageLinkTokenTable',
@@ -305,19 +306,19 @@ const chatkitMessageLinkTokenTable = new Table(
 );
 
 chatkitMessageLinkTokenTable.grantReadData(backend.chatkitMessageLink.resources.lambda);
-chatkitMessageLinkTokenTable.grantReadWriteData(backend.chatkitLeadEmail.resources.lambda);
+chatkitMessageLinkTokenTable.grantReadWriteData(backend.chatLeadHandoff.resources.lambda);
 
 (backend.chatkitMessageLink.resources.lambda as any).addEnvironment(
   'MESSAGE_LINK_TOKEN_TABLE_NAME',
   chatkitMessageLinkTokenTable.tableName,
 );
-(backend.chatkitLeadEmail.resources.lambda as any).addEnvironment(
+(backend.chatLeadHandoff.resources.lambda as any).addEnvironment(
   'MESSAGE_LINK_TOKEN_TABLE_NAME',
   chatkitMessageLinkTokenTable.tableName,
 );
 
 // Journey-first lead substrate used by click, chat, and upcoming form capture flows.
-const leadDataStack = Stack.of(backend.chatkitLeadEmail.resources.lambda);
+const leadDataStack = Stack.of(backend.chatLeadHandoff.resources.lambda);
 
 const leadContactsTable = new Table(leadDataStack, 'LeadContactsTable', {
   billingMode: BillingMode.PAY_PER_REQUEST,
@@ -399,7 +400,7 @@ const leadActionTokensTable = new Table(leadDataStack, 'LeadActionTokensTable', 
 for (const lambda of [
   backend.contactSubmit.resources.lambda,
   backend.quoteFollowup.resources.lambda,
-  backend.chatkitLeadEmail.resources.lambda,
+  backend.chatLeadHandoff.resources.lambda,
   backend.chatkitLeadSignal.resources.lambda,
   backend.chatkitLeadAdmin.resources.lambda,
 ]) {
@@ -425,8 +426,8 @@ backend.addOutput({
     contact_submit_url: contactSubmitUrl.url,
     // Used by the frontend widget (via /amplify_outputs.json) to locate the session endpoint.
     chatkit_session_url: chatkitSessionUrl.url,
-    // Used by the frontend widget to send transcripts to the shop.
-    chatkit_lead_email_url: chatkitLeadEmailUrl.url,
+    // Used by the frontend widget to hand ready ChatKit threads into the lead workflow.
+    chat_lead_handoff_url: chatLeadHandoffUrl.url,
     // Used by /message/?token=... to resolve tokens into message drafts.
     chatkit_message_link_url: chatkitMessageLinkUrl.url,
     // Used by the frontend to log lead signals (tel/sms/directions clicks).

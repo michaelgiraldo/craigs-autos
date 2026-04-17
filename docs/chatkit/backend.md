@@ -3,8 +3,8 @@
 This document describes the AWS backend for ChatKit lead intake:
 
 - How sessions are minted (ephemeral client secrets)
-- How transcripts are fetched and emailed
-- How idempotency is enforced (send once per ChatKit thread id)
+- How transcripts are fetched, evaluated, and handed off to the shop
+- How idempotency is enforced (complete once per ChatKit thread id)
 
 Related docs:
 
@@ -30,12 +30,12 @@ Related docs:
   - `amplify/functions/chatkit-session/resource.ts`
   - `amplify/functions/chatkit-session/handler.ts`
 
-- Lead email function:
-  - `amplify/functions/chatkit-lead-email/resource.ts`
-  - `amplify/functions/chatkit-lead-email/handler.ts`
-  - `amplify/functions/chatkit-lead-email/email-delivery.ts`
-  - `amplify/functions/chatkit-lead-email/lead-summary.ts`
-  - `amplify/functions/chatkit-lead-email/transcript.ts`
+- Chat lead handoff function:
+  - `amplify/functions/chat-lead-handoff/resource.ts`
+  - `amplify/functions/chat-lead-handoff/handler.ts`
+  - `amplify/functions/chat-lead-handoff/email-delivery.ts`
+  - `amplify/functions/chat-lead-handoff/lead-summary.ts`
+  - `amplify/functions/chat-lead-handoff/transcript.ts`
 
 - Message link resolver function:
   - `amplify/functions/chatkit-message-link/resource.ts`
@@ -57,11 +57,11 @@ These must be set per Amplify environment/branch:
 They are referenced in code via Amplify's `secret(...)`:
 
 - `amplify/functions/chatkit-session/resource.ts`
-- `amplify/functions/chatkit-lead-email/resource.ts`
+- `amplify/functions/chat-lead-handoff/resource.ts`
 
 ### Function environment variables (defaults)
 
-Lead email defaults (can be overridden later):
+Shop notification email defaults (can be overridden later):
 
 - `LEAD_TO_EMAIL` (default: `leads@craigs.autos`)
 - `LEAD_FROM_EMAIL` (default: `leads@craigs.autos`)
@@ -70,7 +70,7 @@ Lead email defaults (can be overridden later):
 Idempotency wiring (injected by `amplify/backend.ts`):
 
 - `LEAD_DEDUPE_TABLE_NAME`
-- `MESSAGE_LINK_TOKEN_TABLE_NAME` (for both `chatkit-message-link` and `chatkit-lead-email`)
+- `MESSAGE_LINK_TOKEN_TABLE_NAME` (for both `chatkit-message-link` and `chat-lead-handoff`)
 
 Journey-first lead wiring (injected by `amplify/backend.ts`):
 
@@ -92,7 +92,7 @@ The backend uses Lambda Function URLs, not API Gateway.
 Function URLs are defined in `amplify/backend.ts`:
 
 - Session URL (`chatkit-session`)
-- Lead email URL (`chatkit-lead-email`)
+- Chat lead handoff URL (`chat-lead-handoff`)
 - Message link URL (`chatkit-message-link`)
 - Lead signal URL (`chatkit-lead-signal`)
 - Lead admin URL (`chatkit-lead-admin`)
@@ -102,7 +102,7 @@ During Amplify builds, `ampx pipeline-deploy` writes `public/amplify_outputs.jso
 The frontend fetches `/amplify_outputs.json` and reads:
 
 - `custom.chatkit_session_url`
-- `custom.chatkit_lead_email_url`
+- `custom.chat_lead_handoff_url`
 - `custom.chatkit_message_link_url`
 - `custom.chatkit_lead_signal_url`
 - `custom.chatkit_lead_admin_url`
@@ -181,25 +181,26 @@ If shop hours change, update:
   - `amplify/functions/chatkit-session/handler.ts`
   - `server/chatkit-dev.mjs` (local dev mirror)
 
-## Lead email function (chatkit-lead-email)
+## Chat lead handoff function (chat-lead-handoff)
 
 Purpose:
 
 - Given a ChatKit thread id (`cthr_...`), fetch the transcript
 - Extract actionable contact info
 - Generate internal helper content (summary/next steps/call script/outreach)
-- Email the shop via SES
-- Enforce send-once behavior with DynamoDB
+- Persist the captured lead journey
+- Send the shop notification email via SES and QUO SMS when configured
+- Enforce complete-once behavior with DynamoDB
 
 Implementation:
 
-- `amplify/functions/chatkit-lead-email/handler.ts`
+- `amplify/functions/chat-lead-handoff/handler.ts`
 
 ### Processing pipeline (high level)
 
 1) Validate input (must include a valid `cthr_...`)
 2) Dedupe fast path:
-   - If DynamoDB says "already sent", return immediately
+   - If DynamoDB says "already completed", return immediately
 3) Fetch transcript from OpenAI:
    - `openai.beta.chatkit.threads.retrieve(threadId)`
    - `openai.beta.chatkit.threads.listItems(threadId, { order: "asc" })` (paged)
@@ -218,18 +219,21 @@ Implementation:
      - summary and lists
      - call script prompts (3)
      - customer language + outreach message in that language
-7) Decide whether to send now:
-   - Current triggers (`idle`, `pagehide`, `chat_closed`) send once contact exists.
-   - We intentionally avoid "send after every assistant response" because it can
-     snapshot the thread mid-conversation (see `docs/chatkit/lead-email-before-after.md`).
-   - Final send gate is `handoff_ready` from the summary model.
-8) Acquire send lease in DynamoDB (threadId-keyed)
-9) Build a multipart MIME email and send via SES (plain text + HTML + optional inline images)
-10) Mark DynamoDB record as `sent` (or `error` with cooldown)
+7) Decide whether to complete the handoff now:
+   - Current triggers (`idle`, `pagehide`, `chat_closed`) attempt handoff once contact exists.
+   - We intentionally avoid "handoff after every assistant response" because it can
+     snapshot the thread mid-conversation (see `docs/chatkit/chat-lead-handoff-before-after.md`).
+   - Final completion gate is `handoff_ready` from the summary model.
+8) Acquire handoff lease in DynamoDB (threadId-keyed)
+9) Run handoff side effects:
+   - QUO SMS when enabled/configured
+   - multipart MIME shop email via SES (plain text + HTML + optional inline images)
+   - journey-first lead persistence
+10) Mark DynamoDB record as `completed` (or `error` with cooldown)
 
 ### Idempotency: DynamoDB lease model
 
-Idempotency is required because the frontend can call the lead-email endpoint
+Idempotency is required because the frontend can call the chat lead handoff endpoint
 multiple times:
 
 - after idle
@@ -240,16 +244,16 @@ Also: users can open multiple tabs/devices.
 
 Design:
 
-- DynamoDB table: `ChatkitLeadDedupeTable`
+- DynamoDB table: `ChatLeadHandoffDedupeTable`
   - partition key: `thread_id` (string)
   - TTL attribute: `ttl`
   - removal policy: RETAIN (safe for production)
 
 Record states:
 
-- `sending` (lease acquired; a send is in progress)
-- `sent` (email successfully sent)
-- `error` (send failed; short cooldown to avoid retry storms)
+- `processing` (lease acquired; a handoff is in progress)
+- `completed` (handoff side effects completed)
+- `error` (handoff failed; short cooldown to avoid retry storms)
 
 Key fields stored:
 
@@ -257,20 +261,23 @@ Key fields stored:
 - `status`
 - `lease_id`
 - `lock_expires_at`
-- `sent_at`
-- `message_id` (SES MessageId)
+- `completed_at`
+- `email_sent_at`
+- `email_message_id` (SES MessageId)
+- `quo_sent_at`
+- `quo_message_id`
 - `attempts`
 - `last_error`
 - `ttl` (for automatic cleanup)
 
 Semantics:
 
-- If record is `sent`: endpoint returns `{ sent: true, reason: "already_sent" }` without reprocessing.
-- If record is `sending` and lease not expired: endpoint returns `{ sent: false, reason: "in_progress" }`.
-- If record is `error` and cooldown not expired: endpoint returns `{ sent: false, reason: "cooldown" }`.
-- Otherwise: acquire lease, send, mark sent or mark error.
+- If record is `completed`: endpoint returns `{ completed: true, reason: "already_completed" }` without reprocessing.
+- If record is `processing` and lease not expired: endpoint returns `{ completed: false, reason: "in_progress" }`.
+- If record is `error` and cooldown not expired: endpoint returns `{ completed: false, reason: "cooldown" }`.
+- Otherwise: acquire lease, run handoff, mark completed or mark error.
 
-Lease/cooldown tuning constants live in `amplify/functions/chatkit-lead-email/handler.ts`:
+Lease/cooldown tuning constants live in `amplify/functions/chat-lead-handoff/handler.ts`:
 
 - `LEAD_DEDUPE_LEASE_SECONDS`
 - `LEAD_DEDUPE_ERROR_COOLDOWN_SECONDS`
@@ -289,7 +296,7 @@ are granted in `amplify/backend.ts`.
 
 Email template assembly:
 
-- `sendTranscriptEmail(...)` in `amplify/functions/chatkit-lead-email/email-delivery.ts`
+- `sendTranscriptEmail(...)` in `amplify/functions/chat-lead-handoff/email-delivery.ts`
 
 It produces:
 
@@ -307,11 +314,11 @@ If you modify the email template, keep both HTML and text in sync.
 
 ### Summary generation (Responses.parse)
 
-The lead email includes an internal AI summary generated from the transcript.
+The shop notification email includes an internal AI summary generated from the transcript.
 
 Implementation:
 
-- `generateLeadSummary(...)` in `amplify/functions/chatkit-lead-email/lead-summary.ts`
+- `generateLeadSummary(...)` in `amplify/functions/chat-lead-handoff/lead-summary.ts`
 
 Key properties:
 
@@ -355,19 +362,19 @@ current branch environment.
 ### Change email recipient or sender
 
 1) Update:
-   - `amplify/functions/chatkit-lead-email/resource.ts`
+   - `amplify/functions/chat-lead-handoff/resource.ts`
 2) Verify sender identity in SES for the region.
 3) Deploy.
 
 ### Change email template
 
-1) Update `sendTranscriptEmail(...)` in `amplify/functions/chatkit-lead-email/email-delivery.ts`.
+1) Update `sendTranscriptEmail(...)` in `amplify/functions/chat-lead-handoff/email-delivery.ts`.
 2) Keep HTML + text versions usable (shop staff may read either).
 3) Deploy and test by starting a new thread (idempotency blocks re-sends).
 
 ### Change idempotency timing (lease/cooldown/ttl)
 
-1) Update constants in `amplify/functions/chatkit-lead-email/handler.ts`.
+1) Update constants in `amplify/functions/chat-lead-handoff/handler.ts`.
 2) Deploy.
 3) Validate:
    - duplicates do not occur
@@ -377,7 +384,7 @@ current branch environment.
 
 This is mostly controlled by the summary prompt + schema rules.
 
-1) Update the instructions inside `generateLeadSummary(...)` in `amplify/functions/chatkit-lead-email/lead-summary.ts`.
+1) Update the instructions inside `generateLeadSummary(...)` in `amplify/functions/chat-lead-handoff/lead-summary.ts`.
 2) Deploy.
 3) Test:
    - The summary should only mark `handoff_ready = true` when contact + project is present.

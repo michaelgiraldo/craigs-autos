@@ -27,7 +27,7 @@ function createClientEventId(prefix) {
 export default function ChatWidgetReact({
   locale = 'en',
   sessionUrl = '/api/chatkit/session/',
-  leadEmailUrl = '/api/chatkit/lead/',
+  leadHandoffUrl = '/api/chat/lead-handoff/',
 }) {
   const copy = CHAT_COPY[locale] ?? CHAT_COPY.en;
   const chatkitLocale = CHATKIT_LOCALE_MAP[locale] ?? 'en';
@@ -44,7 +44,7 @@ export default function ChatWidgetReact({
     clearStoredThread,
     resolvedSessionUrl,
     setResolvedSessionUrl,
-    setResolvedLeadEmailUrl,
+    setActiveLeadHandoffUrl,
     chatMountId,
     setChatMountId,
     chatkitReady,
@@ -57,10 +57,10 @@ export default function ChatWidgetReact({
     setChatInstance,
     chatRef,
     localeRef,
-    leadEmailUrlRef,
+    leadHandoffUrlRef,
     chatPanelRef,
     hasUserInteractedRef,
-  } = useChatWidgetState({ isDev, leadEmailUrl, locale, sessionUrl });
+  } = useChatWidgetState({ isDev, leadHandoffUrl, locale, sessionUrl });
 
   const pendingFirstMessageRef = React.useRef(false);
   const pendingFirstMessageTimerRef = React.useRef(null);
@@ -155,12 +155,12 @@ export default function ChatWidgetReact({
     };
   }, [clearPendingFirstMessageTimer]);
 
-  const sendLeadEmail = useChatLeadHandoff({
+  const requestLeadHandoff = useChatLeadHandoff({
     isDev,
     hasUserInteractedRef,
-    leadEmailUrlRef,
+    leadHandoffUrlRef,
     localeRef,
-    setResolvedLeadEmailUrl,
+    setActiveLeadHandoffUrl,
     threadIdRef,
     userIdRef,
   });
@@ -176,14 +176,14 @@ export default function ChatWidgetReact({
   const { bumpIdleTimer } = useLeadTriggers({
     open,
     chatPanelRef,
-    sendLeadEmail,
+    requestLeadHandoff,
     hasUserInteractedRef,
   });
 
   const closeChat = React.useCallback(() => {
     setOpen(false);
-    void sendLeadEmail({ reason: 'chat_closed' });
-  }, [sendLeadEmail]);
+    void requestLeadHandoff({ reason: 'chat_closed' });
+  }, [requestLeadHandoff]);
 
   const startNewChat = React.useCallback(() => {
     clearPendingFirstMessageTimer();
@@ -212,7 +212,7 @@ export default function ChatWidgetReact({
           isDev,
           endpoint: resolvedSessionUrl,
           onSessionUrl: setResolvedSessionUrl,
-          onLeadEmailUrl: setResolvedLeadEmailUrl,
+          onLeadHandoffUrl: setActiveLeadHandoffUrl,
         });
 
         return await requestClientSecret({
@@ -286,6 +286,8 @@ export default function ChatWidgetReact({
     locale,
     localeRef,
     resolvedSessionUrl,
+    setActiveLeadHandoffUrl,
+    setResolvedSessionUrl,
     threadId,
     userId,
     userIdRef,
@@ -365,8 +367,8 @@ export default function ChatWidgetReact({
                       bumpIdleTimer();
                     }}
                     onResponseEnd={() => {
-                      // Bump the idle timer; lead emails are sent on idle/pagehide/close to avoid
-                      // taking a snapshot mid-conversation.
+                      // Bump the idle timer; chat handoff runs on idle/pagehide/close to avoid
+                      // snapshotting the thread mid-conversation.
                       bumpIdleTimer();
                     }}
                     onLog={(detail) => {

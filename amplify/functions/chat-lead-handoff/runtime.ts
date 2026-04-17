@@ -6,12 +6,14 @@ import OpenAI from 'openai';
 import { z } from 'zod';
 import type { TranscriptLine } from './lead-types.ts';
 
-const leadEmailEnvSchema = z.object({
+const chatLeadHandoffEnvSchema = z.object({
   CHATKIT_OPENAI_API_KEY: z.string().trim().min(1),
 });
 
-const parsedLeadEmailEnv = leadEmailEnvSchema.safeParse(process.env);
-const apiKey = parsedLeadEmailEnv.success ? parsedLeadEmailEnv.data.CHATKIT_OPENAI_API_KEY : '';
+const parsedChatLeadHandoffEnv = chatLeadHandoffEnvSchema.safeParse(process.env);
+const apiKey = parsedChatLeadHandoffEnv.success
+  ? parsedChatLeadHandoffEnv.data.CHATKIT_OPENAI_API_KEY
+  : '';
 
 export const openai = apiKey ? new OpenAI({ apiKey }) : null;
 

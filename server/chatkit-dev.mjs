@@ -183,11 +183,11 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (
-      (url.pathname === '/api/chatkit/lead' || url.pathname === '/api/chatkit/lead/') &&
+      (url.pathname === '/api/chat/lead-handoff' || url.pathname === '/api/chat/lead-handoff/') &&
       req.method === 'POST'
     ) {
-      // Local dev helper: accept the request so the UI can be exercised without SES.
-      json(res, 200, { ok: true, sent: false, reason: 'dev_noop' });
+      // Local dev helper: accept the request so the UI can exercise the handoff path.
+      json(res, 200, { ok: true, completed: false, reason: 'dev_noop' });
       return;
     }
 

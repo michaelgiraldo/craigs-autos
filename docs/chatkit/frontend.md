@@ -2,7 +2,7 @@
 
 This document describes the website-side integration: how ChatKit is embedded
 into the Astro site, how sessions are created, how thread ids are tracked, and
-how the frontend triggers lead emails without customer effort.
+how the frontend triggers chat lead handoffs without customer effort.
 
 Related docs:
 
@@ -19,7 +19,7 @@ Related docs:
   - The ChatKit UI implementation (React).
   - Loads the ChatKit runtime JS.
   - Creates ChatKit sessions via `api.getClientSecret(...)`.
-  - Persists `threadId` and triggers lead-email sends.
+  - Persists `threadId` and triggers chat lead handoffs.
 
 - `src/lib/site-data.js`
   - Per-locale UI copy for the chat widget (`CHAT_COPY`).
@@ -109,7 +109,7 @@ We do not hardcode per-branch backend URLs.
 Production builds generate `public/amplify_outputs.json` which includes:
 
 - `custom.chatkit_session_url`
-- `custom.chatkit_lead_email_url`
+- `custom.chat_lead_handoff_url`
 
 The frontend fetches `/amplify_outputs.json` and uses those URLs.
 
@@ -147,9 +147,9 @@ Notes:
 - SessionStorage is intentionally scoped to a browser tab session to avoid
   surprising cross-tab thread sharing.
 
-## Lead email triggers (no customer action)
+## Chat lead handoff triggers (no customer action)
 
-The lead-email endpoint is called from the frontend with:
+The chat lead handoff endpoint is called from the frontend with:
 
 - `threadId` (cthr_...)
 - `locale`
@@ -157,18 +157,18 @@ The lead-email endpoint is called from the frontend with:
 - `user`
 - `reason`
 
-The goal is to send the transcript automatically once the chat becomes actionable.
+The goal is to complete the chat lead handoff automatically once the chat becomes actionable.
 
 Triggers implemented in `src/components/ChatWidgetReact.jsx`:
 
 1) `reason: "idle"` (primary)
    - After ~300 seconds (5 minutes) without in-chat activity while the chat is open.
    - The timer resets on in-chat activity (typing, clicks/taps, focus changes) so we
-     don't send while the customer is actively using the chat.
+     don't complete handoff while the customer is actively using the chat.
 
 2) `reason: "pagehide"`
    - On tab hide/unload.
-   - Uses `fetch(..., { keepalive: true })` to try to send during navigation.
+   - Uses `fetch(..., { keepalive: true })` to try to complete handoff during navigation.
 
 3) `reason: "chat_closed"`
    - When the user closes the chat panel.
@@ -178,9 +178,9 @@ Triggers implemented in `src/components/ChatWidgetReact.jsx`:
 
 The frontend also does a lightweight dedupe to reduce backend calls:
 
-- localStorage key: `chatkit-lead-sent:<threadId>` = `true`
+- localStorage key: `chat-lead-handoff-completed:<threadId>` = `true`
 
-If that key is present, the frontend stops calling the lead-email endpoint.
+If that key is present, the frontend stops calling the chat lead handoff endpoint.
 
 Important:
 

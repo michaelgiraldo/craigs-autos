@@ -1,7 +1,7 @@
 import type OpenAI from 'openai';
 import { getErrorDetails } from '../_shared/safe.ts';
 import type { QuoteDrafts, QuoteSubmissionRecord } from '../_shared/quote-submissions.ts';
-import { buildOutreachDrafts } from '../chatkit-lead-email/drafts.ts';
+import { buildOutreachDrafts } from '../chat-lead-handoff/drafts.ts';
 
 type QuoteDraftGenerationResult = {
   aiError: string;

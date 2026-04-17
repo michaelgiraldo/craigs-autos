@@ -4,8 +4,12 @@ import { sanitizeAttributionSnapshot } from '../_lead-core/domain/attribution.ts
 import { createLeadCoreRuntime } from '../_lead-core/runtime.ts';
 import { decodeBody, emptyResponse, getHttpMethod, jsonResponse } from '../_shared/http.ts';
 import { getErrorDetails } from '../_shared/safe.ts';
-import { acquireLeadSendLease, getLeadDedupeRecord, markLeadError } from './dedupe-store.ts';
-import type { LeadEmailRequest, LambdaEvent, LambdaResult } from './lead-types';
+import {
+  acquireLeadHandoffLease,
+  getLeadDedupeRecord,
+  markLeadHandoffError,
+} from './dedupe-store.ts';
+import type { ChatLeadHandoffRequest, LambdaEvent, LambdaResult } from './lead-types';
 import { createMessageLinkUrl as createMessageLinkTokenUrl } from './message-link';
 import { deleteLeadRetrySchedule, upsertLeadRetrySchedule } from './retry-scheduler.ts';
 import {
@@ -40,7 +44,7 @@ import { runChatOutreach } from './outreach-workflow.ts';
 import { persistCapturedChatLead } from './promotion.ts';
 import { persistChatWorkflowEvent } from './workflow-events.ts';
 
-const leadEmailPayloadSchema = z.looseObject({
+const chatLeadHandoffPayloadSchema = z.looseObject({
   threadId: z.string().optional(),
   journey_id: z.string().optional(),
   locale: z.string().optional(),
@@ -53,7 +57,7 @@ const leadEmailPayloadSchema = z.looseObject({
 const leadCoreRuntime = createLeadCoreRuntime(process.env);
 
 export const handler = async (
-  event: LambdaEvent | LeadEmailRequest,
+  event: LambdaEvent | ChatLeadHandoffRequest,
   context?: { invokedFunctionArn?: string },
 ): Promise<LambdaResult> => {
   const httpEvent = event as LambdaEvent;
@@ -73,12 +77,12 @@ export const handler = async (
     return jsonResponse(500, { error: 'Server missing configuration' });
   }
 
-  let payload: LeadEmailRequest = {};
+  let payload: ChatLeadHandoffRequest = {};
   if (isHttpRequest) {
     try {
       const body = decodeBody(httpEvent);
       const parsed = body ? JSON.parse(body) : {};
-      const result = leadEmailPayloadSchema.safeParse(
+      const result = chatLeadHandoffPayloadSchema.safeParse(
         parsed && typeof parsed === 'object' ? parsed : {},
       );
       if (!result.success) {
@@ -89,7 +93,7 @@ export const handler = async (
       return jsonResponse(400, { error: 'Invalid JSON body' });
     }
   } else if (event && typeof event === 'object') {
-    const result = leadEmailPayloadSchema.safeParse(event);
+    const result = chatLeadHandoffPayloadSchema.safeParse(event);
     if (!result.success) {
       return jsonResponse(400, { error: 'Invalid request payload' });
     }
@@ -116,25 +120,25 @@ export const handler = async (
   const repos = leadCoreRuntime.repos;
 
   try {
-    // Fast path: if we've already emailed this thread, don't re-fetch transcript or re-run summaries.
+    // Fast path: if this handoff is already complete, don't re-fetch transcripts or re-run outreach.
     const now = nowEpochSeconds();
     try {
       const record = await getLeadDedupeRecord(threadId);
-      if (record?.status === 'sent') {
+      if (record?.status === 'completed') {
         return jsonResponse(200, {
           ok: true,
-          sent: true,
-          reason: 'already_sent',
-          sent_at: record.sent_at ?? null,
+          completed: true,
+          reason: 'already_completed',
+          completed_at: record.completed_at ?? null,
         });
       }
       const lockExpiresAt =
         typeof record?.lock_expires_at === 'number' ? record.lock_expires_at : 0;
-      if (record?.status === 'sending' && lockExpiresAt > now) {
-        return jsonResponse(200, { ok: true, sent: false, reason: 'in_progress' });
+      if (record?.status === 'processing' && lockExpiresAt > now) {
+        return jsonResponse(200, { ok: true, completed: false, reason: 'in_progress' });
       }
       if (record?.status === 'error' && lockExpiresAt > now) {
-        return jsonResponse(200, { ok: true, sent: false, reason: 'cooldown' });
+        return jsonResponse(200, { ok: true, completed: false, reason: 'cooldown' });
       }
     } catch (err: unknown) {
       const { name, message } = getErrorDetails(err);
@@ -169,7 +173,7 @@ export const handler = async (
         userId: evaluation.threadUser ?? chatUser,
         attribution,
       });
-      return jsonResponse(200, { ok: true, sent: false, reason: evaluation.reason });
+      return jsonResponse(200, { ok: true, completed: false, reason: evaluation.reason });
     }
 
     if (evaluation.outcome === 'deferred') {
@@ -184,6 +188,7 @@ export const handler = async (
         functionArn,
         payload: {
           threadId,
+          journey_id: journeyId,
           locale,
           pageUrl,
           user: evaluation.threadUser ?? chatUser,
@@ -206,7 +211,7 @@ export const handler = async (
       });
       return jsonResponse(200, {
         ok: true,
-        sent: false,
+        completed: false,
         reason: evaluation.reason,
         last_activity_at: evaluation.lastMessageAt,
         idle_seconds: LEAD_IDLE_DELAY_SECONDS,
@@ -226,24 +231,24 @@ export const handler = async (
       customerPhoneE164,
     } = evaluation;
 
-    // Acquire a per-thread lease before sending so we never email the shop twice for the same thread,
-    // even if multiple devices or tab lifecycle events trigger this endpoint concurrently.
-    const lease = await acquireLeadSendLease({ threadId, reason });
+    // Acquire a per-thread lease before handoff so we never run the completed workflow twice
+    // for the same thread, even if multiple browser lifecycle events trigger this endpoint.
+    const lease = await acquireLeadHandoffLease({ threadId, reason });
     if (!lease.acquired) {
-      if (lease.record?.status === 'sent') {
+      if (lease.record?.status === 'completed') {
         return jsonResponse(200, {
           ok: true,
-          sent: true,
-          reason: 'already_sent',
-          sent_at: lease.record.sent_at ?? null,
+          completed: true,
+          reason: 'already_completed',
+          completed_at: lease.record.completed_at ?? null,
         });
       }
       const lockExpiresAt =
         typeof lease.record?.lock_expires_at === 'number' ? lease.record.lock_expires_at : 0;
       if (lease.record?.status === 'error' && lockExpiresAt > nowEpochSeconds()) {
-        return jsonResponse(200, { ok: true, sent: false, reason: 'cooldown' });
+        return jsonResponse(200, { ok: true, completed: false, reason: 'cooldown' });
       }
-      return jsonResponse(200, { ok: true, sent: false, reason: 'in_progress' });
+      return jsonResponse(200, { ok: true, completed: false, reason: 'in_progress' });
     }
 
     let automatedTextSent = false;
@@ -323,10 +328,10 @@ export const handler = async (
     } catch (err: unknown) {
       const { message } = getErrorDetails(err);
       try {
-        await markLeadError({
+        await markLeadHandoffError({
           threadId,
           leaseId: lease.leaseId,
-          errorMessage: message ?? 'Failed to send lead email',
+          errorMessage: message ?? 'Failed to complete chat lead handoff',
         });
       } catch (markErr: unknown) {
         const { name, message: markMessage } = getErrorDetails(markErr);
@@ -337,14 +342,14 @@ export const handler = async (
 
     return jsonResponse(200, {
       ok: true,
-      sent: true,
+      completed: true,
       reason,
       automated_text_sent: automatedTextSent,
       ...(leadRecordId ? { lead_record_id: leadRecordId } : {}),
     });
   } catch (err: unknown) {
     const { name, message } = getErrorDetails(err);
-    console.error('Lead email failed', name, message);
+    console.error('Chat lead handoff failed', name, message);
     await persistChatWorkflowEvent({
       repos,
       journeyId,
@@ -352,12 +357,12 @@ export const handler = async (
       eventName: 'lead_chat_handoff_error',
       occurredAtMs: Date.now(),
       recordedAtMs: Date.now(),
-      reason: message ?? 'lead_email_failed',
+      reason: message ?? 'chat_lead_handoff_failed',
       locale,
       pageUrl,
       userId: chatUser,
       attribution,
     });
-    return jsonResponse(500, { error: 'Failed to send lead email' });
+    return jsonResponse(500, { error: 'Failed to complete chat lead handoff' });
   }
 };
