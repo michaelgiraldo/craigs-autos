@@ -1,6 +1,7 @@
 import React from 'react';
 import { getAttributionPayload, getJourneyId } from '../../lib/attribution.js';
 import { isPlaceholderUrl, postLeadHandoff, resolveLeadHandoffEndpoint } from './api-client.js';
+import { createClientEventId } from './client-event-id.js';
 import { LEAD_HANDOFF_COMPLETED_KEY_PREFIX } from './constants.js';
 import { pushLeadDataLayer } from './data-layer.js';
 import { getLocalStorage, getStorageValue, setStorageValue } from './storage.js';
@@ -11,13 +12,6 @@ function classifyChatHandoffReason(reason) {
   return BLOCKED_HANDOFF_REASONS.has(reason)
     ? 'lead_chat_handoff_blocked'
     : 'lead_chat_handoff_deferred';
-}
-
-function createClientEventId(prefix) {
-  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-    return `${prefix}_${crypto.randomUUID()}`;
-  }
-  return `${prefix}_${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`;
 }
 
 function getPageLocation() {

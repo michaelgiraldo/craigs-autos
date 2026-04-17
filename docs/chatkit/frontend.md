@@ -16,10 +16,12 @@ Related docs:
   - Astro wrapper that mounts the React chat widget.
 
 - `src/components/ChatWidgetReact.jsx`
-  - The ChatKit UI implementation (React).
-  - Loads the ChatKit runtime JS.
-  - Creates ChatKit sessions via `api.getClientSecret(...)`.
-  - Persists `threadId` and triggers chat lead handoffs.
+  - The ChatKit UI orchestrator (React).
+  - Wires widget state, lead handoff triggers, first-message tracking, and rendering.
+
+- `src/components/chatwidget/*`
+  - Focused ChatKit modules for runtime loading, options/session creation,
+    storage, lead handoff, analytics tracking, and fallback UI.
 
 - `src/lib/site-data.js`
   - Per-locale UI copy for the chat widget (`CHAT_COPY`).
@@ -43,7 +45,7 @@ This is intentionally production-friendly:
 `@openai/chatkit-react` is a React wrapper around a web component (`<openai-chatkit>`).
 The runtime JS that defines the web component is loaded separately.
 
-In this repo, `src/components/ChatWidgetReact.jsx` loads:
+In this repo, `src/components/chatwidget/runtime-loader.js` loads:
 
 - `https://cdn.platform.openai.com/deployments/chatkit/chatkit.js`
 
@@ -66,7 +68,7 @@ to support RTL when needed.
 
 Implementation details:
 
-- `CHATKIT_LOCALE_MAP` in `src/components/ChatWidgetReact.jsx` maps the site's
+- `CHATKIT_LOCALE_MAP` in `src/components/chatwidget/constants.js` maps the site's
   locale ids (ex: `zh-hans`) to ChatKit locale ids (ex: `zh-CN`).
 - For Arabic, `dir` is set to `rtl`.
 
@@ -159,7 +161,7 @@ The chat lead handoff endpoint is called from the frontend with:
 
 The goal is to complete the chat lead handoff automatically once the chat becomes actionable.
 
-Triggers implemented in `src/components/ChatWidgetReact.jsx`:
+Triggers implemented by `src/components/chatwidget/triggers.js`:
 
 1) `reason: "idle"` (primary)
    - After ~300 seconds (5 minutes) without in-chat activity while the chat is open.
@@ -254,14 +256,14 @@ What it checks:
 
 ### Change triggers (idle/pagehide/close)
 
-1) Update the timing constant in `src/components/ChatWidgetReact.jsx`:
+1) Update the timing constant in `src/components/chatwidget/constants.js`:
    - `LEAD_QUIET_SEND_MS`
 2) Keep `reason` strings stable unless you also update backend logic/metrics.
 3) Verify you still get at most one email per thread (server idempotency).
 
 ### Change theme colors
 
-Theme lives in the `options.theme` object in `src/components/ChatWidgetReact.jsx`.
+Theme lives in the `options.theme` object in `src/components/chatwidget/use-chatkit-options.js`.
 After a change:
 
 - Verify contrast (text readable on background).
