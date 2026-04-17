@@ -1,5 +1,4 @@
 ---
-import type { HreflangLink, LanguageLink, LocaleKey, LocaleMap, NavItem } from '../types/site';
 import ChatWidget from '../components/ChatWidget.astro';
 import AnalyticsBody from './base/AnalyticsBody.astro';
 import AnalyticsHead from './base/AnalyticsHead.astro';
@@ -12,342 +11,56 @@ import StickyCta from './base/StickyCta.astro';
 import LanguageSwitcher from '../components/LanguageSwitcher.astro';
 import '../styles/global.css';
 import brandLogo from '../assets/brand/craigs-auto-upholstery-logo.png';
-import buickFrontSeats from '../assets/images/projects/buick-eight/buick-eight-classic-car-upholstery-front-seats.jpg';
-import buickHeadliner from '../assets/images/projects/buick-eight/buick-eight-classic-car-upholstery-headliner.jpg';
-import porscheDoorPanel from '../assets/images/projects/porsche-boxster-s-seat-project/porsche-boxster-s-seat-upholstery-door-panel.jpg';
-import boatSeatBlackVinyl from '../assets/images/services/car-seats/boat-seat-black-vinyl-upholstery.jpg';
-import customSeatSetTwoTone from '../assets/images/services/car-seats/custom-seat-set-two-tone-upholstery.jpg';
-import ktmOrangeMotorcycleSeatTopView from '../assets/images/services/motorcycle-seats/ktm-orange-motorcycle-seat-top-view.jpg';
-import {
-	BRAND_NAME,
-	BUSINESS_COPY,
-	NAV_LABELS,
-	LOCALES,
-	LOCALE_ORDER,
-	SITE,
-	UI_COPY,
-} from '../lib/site-data.js';
-import { buildEstimateEmailHref } from '../lib/email-draft.js';
-import { getPageSocialCard } from '../lib/social-cards/getPageSocialCard.js';
-import { buildHeaderNavStructure, NAV_ITEM_ORDER } from '../features/navigation/nav-structure';
-import {
-	getPageLabel,
-	getPagePath,
-	getPageTranslation,
-	getTranslations,
-} from '../lib/site-data/page-registry.js';
+import { buildBaseLayoutContext } from './base/layout-context';
 
-interface LayoutProps {
-	title: string;
-	description?: string;
-	canonicalPath?: string;
-	locale?: LocaleKey;
-	lang?: string;
-	translations?: LocaleMap<string>;
-	pageKey?: string;
-	noindex?: boolean;
-}
-
-type ServiceNode = {
-	'@type': 'Service';
-	'@id': string;
-	name: string;
-	url: string;
-	provider: { '@id': string };
-};
-
-// Astro MDX layouts may pass frontmatter under `Astro.props.frontmatter` (vs directly on props).
-const frontmatter = Astro.props?.frontmatter ?? Astro.props ?? {};
+const layout = buildBaseLayoutContext({
+  generator: Astro.generator,
+  isProduction: import.meta.env.PROD,
+  props: Astro.props,
+  publicGtmId: import.meta.env.PUBLIC_GTM_ID,
+  site: Astro.site,
+});
 
 const {
-	title,
-	description,
-	canonicalPath: canonicalPathProp,
-	locale = 'en',
-	lang = LOCALES.en.lang,
-	translations,
-	pageKey,
-	noindex = false,
-} = frontmatter as LayoutProps;
-const pageDescription =
-	typeof description === 'string' && description.trim().length > 0
-		? description.trim()
-		: (BUSINESS_COPY[locale] ?? BUSINESS_COPY.en).description;
-const socialCard = getPageSocialCard({
-	pageKey: noindex ? 'home' : (pageKey ?? 'home'),
-	locale,
-});
-const socialTitle = socialCard.title;
-const socialDescription = socialCard.description;
-const site = Astro.site ?? new URL(SITE.url);
-const localeKeys = LOCALE_ORDER as LocaleKey[];
-const pageTranslations: LocaleMap<string> = translations ?? getTranslations(pageKey ?? 'home');
-const canonicalPath = canonicalPathProp ?? pageTranslations[locale] ?? LOCALES.en.base;
-const canonicalUrl = new URL(canonicalPath, site).toString();
-const homePath = getPagePath('home', locale);
-const localeBaseHref = LOCALES[locale]?.base ?? LOCALES.en.base;
-const logoUrl = new URL('/brand/logo-512.png', site).toString();
-const businessImages = Array.from(
-	new Set(
-		[
-			buickFrontSeats,
-			buickHeadliner,
-			porscheDoorPanel,
-			customSeatSetTwoTone,
-			boatSeatBlackVinyl,
-			ktmOrangeMotorcycleSeatTopView,
-		].map((image) => new URL(image.src, site).toString()),
-	),
-);
-const ogImageUrl = new URL(socialCard.imagePath, site).toString();
-const ogImageAlt = socialCard.imageAlt;
-const ogImageWidth = '1200';
-const ogImageHeight = '630';
-const ogLocaleByKey: Partial<Record<LocaleKey, string>> = {
-	en: 'en_US',
-	es: 'es_ES',
-	vi: 'vi_VN',
-	'zh-hans': 'zh_CN',
-	tl: 'tl_PH',
-	id: 'id_ID',
-	fa: 'fa_IR',
-	te: 'te_IN',
-	fr: 'fr_FR',
-	ko: 'ko_KR',
-	hi: 'hi_IN',
-	pa: 'pa_IN',
-	'pt-br': 'pt_BR',
-	'zh-hant': 'zh_TW',
-	ja: 'ja_JP',
-	ar: 'ar_AR',
-	ru: 'ru_RU',
-	ta: 'ta_IN',
-};
-const isProduction = import.meta.env.PROD;
-const gtmId = typeof import.meta.env.PUBLIC_GTM_ID === 'string' ? import.meta.env.PUBLIC_GTM_ID.trim() : '';
-const gtmEnabled =
-	isProduction && /^GTM-[A-Z0-9]{6,20}$/i.test(gtmId) && !/disabled/i.test(gtmId);
-const gtmAllowedOnPage = gtmEnabled && !noindex;
-const gtmPageContext = {
-	event: 'page_context',
-	locale,
-	pageKey: pageKey ?? null,
-	canonical: canonicalUrl,
-};
-
-const ui = UI_COPY[locale] ?? UI_COPY.en;
-
-const mapsQuery = encodeURIComponent(
-	`${SITE.address.street}, ${SITE.address.city}, ${SITE.address.region} ${SITE.address.postalCode}`,
-);
-const mapsHref = `https://www.google.com/maps/dir/?api=1&destination=${mapsQuery}`;
-const appleMapsHref = SITE.appleMapsUrl;
-const smsHref = `sms:${SITE.phone}`;
-const emailHref = buildEstimateEmailHref({
-	siteEmail: SITE.email,
-	ui,
-	pageTitle: title,
-	languageLabel: LOCALES[locale]?.nativeLabel ?? locale,
-	pageUrl: canonicalUrl,
-});
-
-const resolvedTranslations: LocaleMap<string> = {};
-for (const key of localeKeys) {
-	resolvedTranslations[key] = pageTranslations?.[key] ?? LOCALES[key].base;
-}
-
-// Only emit hreflang for locales that actually have this page translated.
-const hreflangLocaleKeys = localeKeys.filter((key) => Boolean(pageTranslations?.[key]));
-const xDefaultHref = new URL(pageTranslations?.en ?? canonicalPath ?? LOCALES.en.base, site).toString();
-
-const hreflangLinks: HreflangLink[] = hreflangLocaleKeys.map((key) => ({
-	hreflang: LOCALES[key].hreflang,
-	href: new URL(pageTranslations[key] ?? LOCALES[key].base, site).toString(),
-}));
-const ogLocale = ogLocaleByKey[locale] ?? 'en_US';
-const ogLocaleAlternates = Array.from(
-	new Set(
-		hreflangLocaleKeys
-			.filter((key) => key !== locale)
-			.map((key) => ogLocaleByKey[key])
-			.filter((value): value is string => Boolean(value)),
-	),
-);
-
-const buildLanguageLink = (key: LocaleKey): LanguageLink => {
-	const localeMeta = LOCALES[key];
-	const nativeLabel = localeMeta.nativeLabel ?? localeMeta.label;
-	const englishLabel = localeMeta.englishLabel ?? nativeLabel;
-	const menuLabel =
-		nativeLabel === englishLabel ? nativeLabel : `${nativeLabel} (${englishLabel})`;
-	const searchLabel = `${nativeLabel} ${englishLabel} ${localeMeta.label} ${key}`.toLowerCase();
-	return {
-		key,
-		label: localeMeta.label,
-		menuLabel,
-		searchLabel,
-		href: resolvedTranslations[key] ?? LOCALES[key]?.base ?? LOCALES.en.base,
-	};
-};
-
-const languageLinks = localeKeys.map(buildLanguageLink);
-
-const currentLanguageLabel = LOCALES[locale]?.label ?? LOCALES.en.label;
-const textDirection = locale === 'ar' || locale === 'fa' ? 'rtl' : 'ltr';
-
-const navLabels = NAV_LABELS[locale] ?? NAV_LABELS.en;
-const fallbackNavLabels = NAV_LABELS.en ?? {};
-const navItems: NavItem[] = [...NAV_ITEM_ORDER].flatMap((key) => {
-		const href = getPageTranslation(key, locale);
-		if (!href) {
-			return [];
-		}
-		return [{
-			key,
-			href,
-			label: getPageLabel(key, locale) ?? key,
-		}];
-	});
-
-const navItemsByKey: Partial<Record<string, NavItem>> = Object.fromEntries(
-	navItems.map((item) => [item.key, item]),
-);
-const resolvedHeaderNav = buildHeaderNavStructure(navItemsByKey);
-const servicesLabel = navLabels.services ?? fallbackNavLabels.services ?? 'Services';
-const servicesNav = resolvedHeaderNav.servicesNav;
-const desktopNav = resolvedHeaderNav.desktopNav;
-const mobilePrimaryNav = resolvedHeaderNav.mobilePrimaryNav;
-const mobileSecondaryNav = resolvedHeaderNav.mobileSecondaryNav;
-
-const business = BUSINESS_COPY[locale] ?? BUSINESS_COPY.en;
-const businessId = new URL('#business', site).toString();
-
-const websiteId = new URL(`${LOCALES[locale]?.base ?? LOCALES.en.base}#website`, site).toString();
-const webpageId = `${canonicalUrl}#webpage`;
-const breadcrumbId = `${canonicalUrl}#breadcrumb`;
-
-const serviceKeys = [
-	'autoUpholstery',
-	'carSeats',
-	'boatUpholstery',
-	'headliners',
-	'convertibleTops',
-	'classicCars',
-	'commercialFleet',
-];
-const serviceNodesByKey: Partial<Record<string, ServiceNode>> = Object.fromEntries(
-	serviceKeys.flatMap((key) => {
-			const href = getPageTranslation(key, locale);
-			if (!href) {
-				return [];
-			}
-			return [[
-				key,
-				{
-					'@type': 'Service',
-					'@id': `${new URL(href, site).toString()}#service`,
-					name: getPageLabel(key, locale) ?? key,
-					url: new URL(href, site).toString(),
-					provider: { '@id': businessId },
-				},
-			]];
-		}),
-);
-
-const mainEntityId =
-	pageKey && serviceNodesByKey[pageKey] ? serviceNodesByKey[pageKey]['@id'] : businessId;
-
-const businessNode = {
-	'@type': ['LocalBusiness'],
-	'@id': businessId,
-	name: business.name,
-	legalName: BRAND_NAME,
-	description: business.description,
-	url: new URL(homePath, site).toString(),
-	logo: logoUrl,
-	image: businessImages,
-	telephone: SITE.phone,
-	email: SITE.email,
-	hasMap: appleMapsHref ? [mapsHref, appleMapsHref] : mapsHref,
-	sameAs: SITE.sameAs,
-	// We intentionally omit AggregateRating/ReviewSnippet markup here:
-	// for LocalBusiness, self-serving reviews are typically ineligible for star rich results.
-	geo: {
-		'@type': 'GeoCoordinates',
-		latitude: SITE.geo.latitude,
-		longitude: SITE.geo.longitude,
-	},
-	address: {
-		'@type': 'PostalAddress',
-		streetAddress: SITE.address.street,
-		addressLocality: SITE.address.city,
-		addressRegion: SITE.address.region,
-		postalCode: SITE.address.postalCode,
-		addressCountry: SITE.address.country,
-	},
-	openingHoursSpecification: SITE.hours.map((range) => ({
-		'@type': 'OpeningHoursSpecification',
-		dayOfWeek: range.days,
-		opens: range.opens,
-		closes: range.closes,
-	})),
-	areaServed: 'San Jose, CA',
-};
-
-const breadcrumbItems = [
-	{
-		'@type': 'ListItem',
-		position: 1,
-		name: getPageLabel('home', locale) ?? 'Home',
-		item: new URL(homePath, site).toString(),
-	},
-];
-
-if (pageKey && pageKey !== 'home') {
-	breadcrumbItems.push({
-		'@type': 'ListItem',
-		position: 2,
-		name: getPageLabel(pageKey, locale) ?? title,
-		item: canonicalUrl,
-	});
-}
-
-const websiteNode = {
-	'@type': 'WebSite',
-	'@id': websiteId,
-	url: new URL(LOCALES[locale]?.base ?? LOCALES.en.base, site).toString(),
-	name: BRAND_NAME,
-	publisher: { '@id': businessId },
-};
-
-const breadcrumbNode = {
-	'@type': 'BreadcrumbList',
-	'@id': breadcrumbId,
-	itemListElement: breadcrumbItems,
-};
-
-const webpageNode = {
-	'@type': 'WebPage',
-	'@id': webpageId,
-	url: canonicalUrl,
-	name: title,
-	description: pageDescription,
-	inLanguage: lang,
-	isPartOf: { '@id': websiteId },
-	about: { '@id': businessId },
-	mainEntity: { '@id': mainEntityId },
-	breadcrumb: { '@id': breadcrumbId },
-};
-
-const structuredData = {
-	'@context': 'https://schema.org',
-	'@graph': [businessNode, websiteNode, webpageNode, breadcrumbNode, ...Object.values(serviceNodesByKey)],
-};
-
-// SEO notes:
-// - Canonical URLs help prevent duplicate-content signals across language variants.
-// - Hreflang declares the full language set (plus x-default) to search engines.
-// - JSON-LD reinforces local business details and breadcrumb paths.
+  brandName,
+  canonicalPath,
+  canonicalUrl,
+  currentLanguageLabel,
+  desktopNav,
+  emailHref,
+  generator,
+  gtmAllowedOnPage,
+  gtmId,
+  gtmPageContext,
+  hreflangLinks,
+  languageLinks,
+  lang,
+  locale,
+  localeBaseHref,
+  mapsHref,
+  mobilePrimaryNav,
+  mobileSecondaryNav,
+  navItems,
+  noindex,
+  ogImageAlt,
+  ogImageHeight,
+  ogImageUrl,
+  ogImageWidth,
+  ogLocale,
+  ogLocaleAlternates,
+  pageDescription,
+  servicesLabel,
+  servicesNav,
+  siteData,
+  smsHref,
+  socialDescription,
+  socialTitle,
+  structuredData,
+  textDirection,
+  title,
+  ui,
+  xDefaultHref,
+} = layout;
 ---
 
 <!doctype html>
@@ -361,12 +74,12 @@ const structuredData = {
 				gtmPageContext={gtmPageContext}
 			/>
 			<SeoMetaHead
-				generator={Astro.generator}
+				generator={generator}
 				title={title}
 				pageDescription={pageDescription}
 				noindex={noindex}
 				canonicalUrl={canonicalUrl}
-				brandName={BRAND_NAME}
+				brandName={brandName}
 				socialTitle={socialTitle}
 				socialDescription={socialDescription}
 				ogLocale={ogLocale}
@@ -386,12 +99,12 @@ const structuredData = {
 				defer
 			></script>
 		</head>
-		<body data-default-mailto-address={SITE.email} data-default-mailto-href={emailHref}>
+		<body data-default-mailto-address={siteData.email} data-default-mailto-href={emailHref}>
 			<AnalyticsBody gtmAllowedOnPage={gtmAllowedOnPage} gtmId={gtmId} />
 			<a class="skip-link" href="#main-content">Skip to content</a>
 			<SiteHeader
 				brandLogo={brandLogo}
-				brandName={BRAND_NAME}
+				brandName={brandName}
 				canonicalPath={canonicalPath}
 				currentLanguageLabel={currentLanguageLabel}
 				emailHref={emailHref}
@@ -403,7 +116,7 @@ const structuredData = {
 				mobileSecondaryNav={mobileSecondaryNav}
 				servicesLabel={servicesLabel}
 				servicesNav={servicesNav}
-				site={SITE}
+				site={siteData}
 				smsHref={smsHref}
 				ui={ui}
 			/>
@@ -411,22 +124,22 @@ const structuredData = {
 			<slot />
 		</main>
 			<SiteFooter
-				brandName={BRAND_NAME}
+				brandName={brandName}
 				emailHref={emailHref}
 				locale={locale}
 				mapsHref={mapsHref}
 				navItems={navItems}
-				site={SITE}
+				site={siteData}
 				smsHref={smsHref}
 				ui={ui}
 			/>
 			<ChatWidget locale={locale} />
-			<StickyCta emailHref={emailHref} site={SITE} smsHref={smsHref} ui={ui} />
+			<StickyCta emailHref={emailHref} site={siteData} smsHref={smsHref} ui={ui} />
 			<SiteMenu
 				canonicalPath={canonicalPath}
 				emailHref={emailHref}
 				navItems={navItems}
-				siteEmail={SITE.email}
+				siteEmail={siteData.email}
 				ui={ui}
 			/>
 			<LanguageSwitcher
