@@ -58,7 +58,17 @@ That split makes the responsibilities explicit:
 - event tracking
 - page bootstrap
 
-## Next cleanup
+## Admin leads structure
 
-The admin leads page still uses imperative DOM rendering in `src/scripts/admin-leads.ts`.
-That is the next candidate for a React island rewrite if the admin tool keeps growing.
+The admin leads page keeps a small imperative DOM renderer, but the previous
+monolithic `src/scripts/admin-leads.ts` entrypoint has been split into focused
+modules under `src/scripts/admin-leads/`:
+
+- API endpoint resolution and admin requests
+- session auth storage
+- DOM-safe rendering helpers
+- lead/journey formatters
+- shared state and payload types
+
+Customer-derived lead values should be written with `textContent`/DOM nodes, not
+interpolated through `innerHTML`.
