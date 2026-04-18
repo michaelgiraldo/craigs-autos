@@ -59,7 +59,12 @@ let sharpPromise: Promise<SharpFactory | null> | null = null;
 
 async function loadSharp(): Promise<SharpFactory | null> {
   if (!sharpPromise) {
-    sharpPromise = import('sharp')
+    // Keep the import path non-literal so the Lambda bundler does not package a
+    // macOS-native sharp build into the Linux runtime. If sharp is unavailable
+    // in Lambda, photos are attached when already email-safe and normalization
+    // is skipped rather than breaking the handoff function at initialization.
+    const sharpModuleName = 'sharp';
+    sharpPromise = import(sharpModuleName)
       .then((mod) => {
         const candidate = (mod as unknown as { default?: SharpFactory }).default ?? mod;
         return candidate as SharpFactory;
