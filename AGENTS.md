@@ -168,8 +168,14 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
   - AWS runtime wiring lives in `amplify/functions/contact-submit/runtime.ts`
   - Quote request record shape lives in `amplify/functions/_lead-core/domain/quote-request.ts`
   - Journey/lead persistence and follow-up sync live in `amplify/functions/_lead-core/services/quote-request.ts`
-  - Async follow-up lives in `amplify/functions/quote-followup/*`
+  - Async follow-up Lambda wrapper lives in `amplify/functions/quote-followup/handler.ts`
+  - Async follow-up orchestration lives in `amplify/functions/quote-followup/process-quote-followup.ts`
+  - Follow-up state transitions live in `amplify/functions/quote-followup/workflow.ts`
+  - DynamoDB quote submission storage lives in `amplify/functions/quote-followup/submission-store.ts`
+  - SES/QUO adapters live in `amplify/functions/quote-followup/customer-email.ts`, `owner-email.ts`, and `quo-sms.ts`
+  - AWS/OpenAI/env wiring lives in `amplify/functions/quote-followup/runtime.ts`
   - Do not put quote-submit business logic back into `handler.ts`; keep the handler as transport/response mapping
+  - Do not put async follow-up business logic back into `quote-followup/handler.ts`; keep the handler as transport/response mapping
   - Do not recreate worker-local lead sync helpers; follow-up outcomes should update lead records through the lead-core service
   - QUO may be intentionally disabled; when that is true, submissions should stay in manual follow-up rather than surfacing as SMS failures
 
@@ -229,7 +235,9 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
   - public request parsing: `amplify/functions/contact-submit/request.ts`
   - quote submit orchestration / queueing: `amplify/functions/contact-submit/submit-quote-request.ts`
   - Lambda response mapping only: `amplify/functions/contact-submit/handler.ts`
-  - customer/shop follow-up workflow: `amplify/functions/quote-followup/*`
+  - customer/shop follow-up orchestration: `amplify/functions/quote-followup/process-quote-followup.ts`
+  - customer/shop follow-up workflow transitions: `amplify/functions/quote-followup/workflow.ts`
+  - follow-up delivery adapters: `amplify/functions/quote-followup/customer-email.ts`, `owner-email.ts`, `quo-sms.ts`
   - frontend fields / submission UX: `src/features/quote/components/quote-request-form/*`
 - Run:
   - `npm run typecheck:backend`

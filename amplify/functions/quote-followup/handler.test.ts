@@ -90,6 +90,38 @@ test('quote-followup sends SMS first and still notifies the owner', async () => 
   );
 });
 
+test('quote-followup rejects missing submission ids before touching dependencies', async () => {
+  let touched = false;
+  const handler = createQuoteFollowupHandler({
+    configValid: true,
+    smsAutomationEnabled: true,
+    nowEpochSeconds: () => 2_000,
+    getSubmission: async () => {
+      touched = true;
+      return makeRecord();
+    },
+    acquireLease: async () => true,
+    saveSubmission: async () => undefined,
+    generateDrafts: async () => {
+      throw new Error('should not run');
+    },
+    sendSms: async () => {
+      throw new Error('should not run');
+    },
+    sendCustomerEmail: async () => {
+      throw new Error('should not run');
+    },
+    sendOwnerEmail: async () => {
+      throw new Error('should not run');
+    },
+  });
+
+  const result = await handler({ submission_id: '   ' });
+
+  assert.equal(result.statusCode, 400);
+  assert.equal(touched, false);
+});
+
 test('quote-followup falls back to customer email when phone is missing', async () => {
   let current = makeRecord({ phone: '', email: 'customer@example.com' });
 

@@ -99,6 +99,8 @@ Quote request domain code:
 - Quote request journey persistence and follow-up-to-lead sync live in `amplify/functions/_lead-core/services/quote-request.ts`.
 - Contact submit HTTP response mapping lives in `amplify/functions/contact-submit/handler.ts`.
 - Contact submit request parsing, validation, quote-submit orchestration, and AWS runtime wiring live in separate files under `amplify/functions/contact-submit/`.
+- Quote follow-up HTTP response mapping lives in `amplify/functions/quote-followup/handler.ts`.
+- Quote follow-up orchestration, state transitions, DynamoDB storage, SES delivery, QUO SMS, lead sync, and AWS/OpenAI runtime wiring live in separate files under `amplify/functions/quote-followup/`.
 - Public submit handlers and async workers should call the lead-core service instead of keeping separate worker-local lead sync logic.
 
 ## Endpoints and discovery
