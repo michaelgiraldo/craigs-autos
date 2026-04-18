@@ -26,29 +26,37 @@ async function waitForChatkitRuntime(timeoutMs = 2000) {
 
 function loadScript(src) {
   return new Promise((resolve, reject) => {
-    // Allow the runtime to be loaded by the document (preferred) or by this component.
     const existing = document.querySelector(`script[src="${src}"]`);
     if (existing) {
-      if (hasChatkitRuntime()) {
+      if (existing.dataset.chatkitRuntimeError === 'true') {
+        reject(new Error(`Failed to load ${src}`));
+      } else {
         resolve();
-        return;
       }
-      existing.addEventListener('load', () => resolve(), { once: true });
-      existing.addEventListener('error', () => reject(new Error(`Failed to load ${src}`)), {
-        once: true,
-      });
       return;
     }
 
     const script = document.createElement('script');
     script.src = src;
-    // Match the docs: load asynchronously and let the web component register itself.
+    // The widget owns runtime loading so ChatKit is only fetched when the island is active.
     script.async = true;
     script.dataset.chatkitRuntime = 'true';
-    script.addEventListener('load', () => resolve(), { once: true });
-    script.addEventListener('error', () => reject(new Error(`Failed to load ${src}`)), {
-      once: true,
-    });
+    script.addEventListener(
+      'load',
+      () => {
+        script.dataset.chatkitRuntimeLoaded = 'true';
+        resolve();
+      },
+      { once: true },
+    );
+    script.addEventListener(
+      'error',
+      () => {
+        script.dataset.chatkitRuntimeError = 'true';
+        reject(new Error(`Failed to load ${src}`));
+      },
+      { once: true },
+    );
     document.head.appendChild(script);
   });
 }

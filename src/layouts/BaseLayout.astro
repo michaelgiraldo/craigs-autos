@@ -92,12 +92,6 @@ const {
 				xDefaultHref={xDefaultHref}
 				structuredData={structuredData}
 			/>
-			<!-- ChatKit web component runtime (renders the full chat UI; our code only wraps it). -->
-			<script
-				is:inline
-				src="https://cdn.platform.openai.com/deployments/chatkit/chatkit.js"
-				defer
-			></script>
 		</head>
 		<body data-default-mailto-address={siteData.email} data-default-mailto-href={emailHref}>
 			<AnalyticsBody gtmAllowedOnPage={gtmAllowedOnPage} gtmId={gtmId} />
