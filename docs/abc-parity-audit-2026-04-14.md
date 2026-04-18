@@ -173,7 +173,7 @@ Practical impact:
 Primary source files:
 
 - ABC: `/Users/mg/Active_Clients/ABC_Autos_Accounts/Website/amplify/functions/chat-lead-admin/handler.ts`
-- Craig's: `/Users/mg/Active_Clients/Craigs_Autos_Account/Website/amplify/functions/chatkit-lead-admin/handler.ts`
+- Craig's: `/Users/mg/Active_Clients/Craigs_Autos_Account/Website/amplify/functions/lead-admin/handler.ts`
 
 ### 6. Measurement operations and verification
 

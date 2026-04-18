@@ -198,7 +198,12 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
   - Contact identity, journey status, event building, qualification defaults, and merge rules live in named files under `amplify/functions/_lead-core/services/`
   - Do not recreate catch-all `domain/types.ts` or `services/shared.ts`; add behavior to the owning domain/service module instead
   - Refactor plan and edge-case matrix live in `docs/lead-platform-lifecycle-plan-2026-04-18.md`
-  - Admin API: `amplify/functions/chatkit-lead-admin/handler.ts`
+  - Admin API wrapper: `amplify/functions/lead-admin/handler.ts`
+  - Admin auth parsing: `amplify/functions/lead-admin/auth.ts`
+  - Admin request parsing: `amplify/functions/lead-admin/request.ts`
+  - Admin list operation: `amplify/functions/lead-admin/list-leads.ts`
+  - Admin qualification operation: `amplify/functions/lead-admin/qualify-lead.ts`
+  - Admin AWS/repository wiring: `amplify/functions/lead-admin/runtime.ts`
   - Admin page script: `src/scripts/admin-leads.ts`
 
 ## Safe change checklists (common tasks)

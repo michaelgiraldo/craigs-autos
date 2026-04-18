@@ -452,7 +452,7 @@ Delete or replace current lead-facing function surfaces:
 - `amplify/functions/chatkit-lead-signal/`
 - `amplify/functions/chat-lead-handoff/`
 - `amplify/functions/chatkit-message-link/`
-- `amplify/functions/chatkit-lead-admin/`
+- `amplify/functions/lead-admin/`
 
 Replace shared lead code root:
 

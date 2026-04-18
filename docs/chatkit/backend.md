@@ -114,7 +114,7 @@ Routes are defined in `amplify/backend/public-api.ts`:
 - `POST /chat/handoff` -> `chat-lead-handoff`
 - `GET /chat/message-link` -> `chatkit-message-link`
 - `POST /lead-signal` -> `chatkit-lead-signal`
-- `GET|POST /admin/leads` -> `chatkit-lead-admin`
+- `GET|POST /admin/leads` -> `lead-admin`
 
 During Amplify builds, `ampx pipeline-deploy` writes `public/amplify_outputs.json`.
 The frontend fetches `/amplify_outputs.json` and reads:

@@ -1,7 +1,7 @@
 import { defineFunction, secret } from '@aws-amplify/backend';
 
-export const chatkitLeadAdmin = defineFunction({
-  name: 'chatkit-lead-admin',
+export const leadAdmin = defineFunction({
+  name: 'lead-admin',
   runtime: 24,
   timeoutSeconds: 15,
   environment: {

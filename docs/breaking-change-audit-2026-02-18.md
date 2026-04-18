@@ -66,7 +66,7 @@ What improves:
 
 What we found:
 
-- Admin password check in `amplify/functions/chatkit-lead-admin/handler.ts:61-76`
+- Admin password check in `amplify/functions/lead-admin/auth.ts`
 - Historical finding: the admin endpoint was also on a public Function URL in `amplify/backend.ts:112`
 - Browser stores Basic token in session storage in `public/admin-leads.js:9` and `public/admin-leads.js:120`
 
@@ -172,16 +172,17 @@ What improves:
 - Better least-privilege security
 - Reduced impact from compromised credentials or code paths
 
-### 6) Admin lead listing uses DynamoDB Scan + in-memory sort
+### 6) Admin lead listing depends on DynamoDB admin indexes
 
 What we found:
 
-- Scan operation and local sort in `amplify/functions/chatkit-lead-admin/handler.ts:149-153`
+- Current lead admin listing routes through `amplify/functions/lead-admin/list-leads.ts`.
+- Repository reads use ordered admin indexes in `amplify/functions/_lead-core/repos/dynamo/lead-records.ts` and `amplify/functions/_lead-core/repos/dynamo/journeys.ts`.
 
 Why this matters (plain language):
 
-- Scan reads large portions of a table and gets slower/more expensive as data grows.
-- Pagination and ordering can become inconsistent.
+- Admin listing quality now depends on preserving those indexes during table or repo refactors.
+- Falling back to scans would get slower and more expensive as lead volume grows.
 
 Breaking change recommendation:
 

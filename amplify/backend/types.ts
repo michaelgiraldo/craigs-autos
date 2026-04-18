@@ -18,7 +18,7 @@ export type CraigsBackend = {
   chatLeadHandoff: BackendFunctionResource;
   chatkitMessageLink: BackendFunctionResource;
   chatkitLeadSignal: BackendFunctionResource;
-  chatkitLeadAdmin: BackendFunctionResource;
+  leadAdmin: BackendFunctionResource;
   addOutput(output: { custom: Record<string, string> }): void;
   createStack(name: string): Stack;
 };

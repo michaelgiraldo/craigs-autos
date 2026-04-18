@@ -106,7 +106,7 @@ export function configureLeadDataTables(backend: CraigsBackend): void {
     getLambda(backend.quoteFollowup),
     getLambda(backend.chatLeadHandoff),
     getLambda(backend.chatkitLeadSignal),
-    getLambda(backend.chatkitLeadAdmin),
+    getLambda(backend.leadAdmin),
   ]) {
     grantLeadDataAccess(lambda, tables);
   }

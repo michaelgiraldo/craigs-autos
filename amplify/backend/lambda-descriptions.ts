@@ -35,7 +35,7 @@ export function applyLambdaDescriptions(backend: CraigsBackend): void {
     'Logs actionable lead interaction events (call, text, email, directions) and writes normalized lead candidates to DynamoDB.',
   );
   setLambdaDescription(
-    getLambda(backend.chatkitLeadAdmin),
+    getLambda(backend.leadAdmin),
     'Password-protected admin API to list journeys and lead records and update qualification status for conversion workflows.',
   );
   setLambdaDescription(
