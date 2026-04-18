@@ -81,6 +81,13 @@ Journey-first lead wiring (injected by `amplify/backend.ts`):
 - `LEAD_RECORDS_TABLE_NAME`
 - `LEAD_ACTION_TOKENS_TABLE_NAME`
 
+Lifecycle rules:
+
+- Event lifecycle rules live in `amplify/functions/_lead-core/domain/lead-lifecycle.ts`.
+- Event classification details live in `amplify/functions/_lead-core/domain/lead-semantics.ts`.
+- The active lifecycle refactor plan and edge-case matrix live in `docs/lead-platform-lifecycle-plan-2026-04-18.md`.
+- Meaningful visitor actions should append journey events; only quote submit success and completed chat handoff currently promote a journey to a lead record.
+
 Quote form wiring (injected by `amplify/backend.ts`):
 
 - `QUOTE_SUBMISSIONS_TABLE_NAME`

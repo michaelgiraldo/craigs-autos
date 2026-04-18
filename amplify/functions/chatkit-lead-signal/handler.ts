@@ -1,5 +1,9 @@
 import { z } from 'zod';
 import { mergeAttributionSnapshot } from '../_lead-core/domain/attribution.ts';
+import {
+  LEAD_INTERACTION_EVENT_NAMES,
+  isLeadInteractionEventName,
+} from '../_lead-core/domain/lead-lifecycle.ts';
 import type { Journey, JourneyEvent } from '../_lead-core/domain/types.ts';
 import { dedupeStrings } from '../_lead-core/domain/normalize.ts';
 import { buildJourneySignal } from '../_lead-core/services/record-interaction.ts';
@@ -8,13 +12,7 @@ import { createLeadCoreRuntime } from '../_lead-core/runtime.ts';
 import { decodeBody, emptyResponse, getHttpMethod, jsonResponse } from '../_shared/http.ts';
 import type { AllowedLeadSignalEvent, LeadSignalRequest } from './types.ts';
 
-const allowedEventSchema = z.enum([
-  'lead_chat_first_message_sent',
-  'lead_click_to_call',
-  'lead_click_to_text',
-  'lead_click_email',
-  'lead_click_directions',
-]);
+const allowedEventSchema = z.enum(LEAD_INTERACTION_EVENT_NAMES);
 
 const leadSignalPayloadSchema = z.looseObject({
   event: z.string(),
@@ -124,11 +122,11 @@ export function createLeadSignalHandler(deps: LeadSignalDeps) {
     }
 
     const eventNameResult = allowedEventSchema.safeParse(payload.event);
-    if (!eventNameResult.success) {
+    if (!eventNameResult.success || !isLeadInteractionEventName(eventNameResult.data)) {
       return json(400, { error: 'Invalid event' });
     }
 
-    const eventName = eventNameResult.data as AllowedLeadSignalEvent;
+    const eventName: AllowedLeadSignalEvent = eventNameResult.data;
     const nowMs = deps.nowEpochMs();
     const occurredAtMs =
       typeof payload.occurred_at_ms === 'number' && Number.isFinite(payload.occurred_at_ms)

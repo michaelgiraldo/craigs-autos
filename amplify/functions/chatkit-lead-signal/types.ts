@@ -1,9 +1,6 @@
-export type AllowedLeadSignalEvent =
-  | 'lead_chat_first_message_sent'
-  | 'lead_click_to_call'
-  | 'lead_click_to_text'
-  | 'lead_click_email'
-  | 'lead_click_directions';
+import type { LeadInteractionEventName } from '../_lead-core/domain/lead-lifecycle.ts';
+
+export type AllowedLeadSignalEvent = LeadInteractionEventName;
 
 export type LeadSignalRequest = {
   event: string;

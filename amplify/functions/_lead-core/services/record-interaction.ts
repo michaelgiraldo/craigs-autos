@@ -1,4 +1,8 @@
 import { createClientEventId, createStableJourneyId } from '../domain/ids.ts';
+import {
+  type LeadInteractionEventName,
+  isLeadInteractionEventName,
+} from '../domain/lead-lifecycle.ts';
 import { getJourneyEventSemantics } from '../domain/lead-semantics.ts';
 import { trimToNull } from '../domain/normalize.ts';
 import type {
@@ -9,12 +13,7 @@ import type {
 } from '../domain/types.ts';
 import { buildJourneyEvent } from './shared.ts';
 
-export type JourneySignalEventName =
-  | 'lead_chat_first_message_sent'
-  | 'lead_click_to_call'
-  | 'lead_click_to_text'
-  | 'lead_click_email'
-  | 'lead_click_directions';
+export type JourneySignalEventName = LeadInteractionEventName;
 
 export type JourneySignalInput = {
   eventName: JourneySignalEventName;
@@ -46,6 +45,10 @@ export function buildJourneySignal(input: JourneySignalInput): {
   journey: Journey;
   event: JourneyEvent;
 } {
+  if (!isLeadInteractionEventName(input.eventName)) {
+    throw new Error(`Unsupported journey interaction event: ${input.eventName}`);
+  }
+
   const metadata: JourneyMetadata = {
     lead_user_id: trimToNull(input.userId, 160),
     thread_id: trimToNull(input.threadId, 160),

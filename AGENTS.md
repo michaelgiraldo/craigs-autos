@@ -176,6 +176,9 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
 
 - Journey-first lead storage / admin views:
   - Shared substrate: `amplify/functions/_lead-core/*`
+  - Lifecycle rules live in `amplify/functions/_lead-core/domain/lead-lifecycle.ts`
+  - Event semantics live in `amplify/functions/_lead-core/domain/lead-semantics.ts`
+  - Refactor plan and edge-case matrix live in `docs/lead-platform-lifecycle-plan-2026-04-18.md`
   - Admin API: `amplify/functions/chatkit-lead-admin/handler.ts`
   - Admin page script: `src/scripts/admin-leads.ts`
 
