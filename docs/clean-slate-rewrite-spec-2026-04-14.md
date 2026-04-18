@@ -333,13 +333,14 @@ This gives better:
 
 ## Attachments / Photos
 
-Photo upload should be part of the initial clean rewrite, not a later add-on.
+Photo upload should be part of a clean rewrite only if photos become durable
+lead assets outside the ChatKit conversation lifecycle.
 
-There is already a chat-specific attachment function in:
+The old chat-specific S3 attachment function has been removed from the active
+system. See `docs/chatkit/attachment-storage-decision.md` for the current
+decision not to use Craig-owned S3 attachment storage.
 
-- `amplify/functions/chatkit-attachment-upload/handler.ts`
-
-Rewrite that into a shared lead asset pipeline:
+If that decision changes, implement a shared lead asset pipeline:
 
 - upload intent endpoint returns a scoped upload target
 - browser uploads image(s)
@@ -451,7 +452,6 @@ Delete or replace current lead-facing function surfaces:
 - `amplify/functions/chatkit-lead-signal/`
 - `amplify/functions/chat-lead-handoff/`
 - `amplify/functions/chatkit-message-link/`
-- `amplify/functions/chatkit-attachment-upload/`
 - `amplify/functions/chatkit-lead-admin/`
 
 Replace shared lead code root:

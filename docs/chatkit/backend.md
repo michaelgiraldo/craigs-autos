@@ -12,6 +12,7 @@ Related docs:
 - Frontend: `docs/chatkit/frontend.md`
 - Agent Builder: `docs/chatkit/agent-builder.md`
 - Runbook: `docs/chatkit/runbook.md`
+- Attachment storage decision: `docs/chatkit/attachment-storage-decision.md`
 
 ## Key files
 
@@ -207,7 +208,7 @@ Implementation:
 4) Convert ChatKit items into normalized transcript lines:
    - "Customer" lines from `chatkit.user_message`
    - "Roxana" lines from `chatkit.assistant_message`
-   - attachments included as text lines (name/mime/preview_url)
+   - attachments included as text lines (name/mime/hosted preview URL)
 5) Extract contact info from customer messages only:
    - email regex
    - phone regex (excluding the shop phone digits `4083793820`)

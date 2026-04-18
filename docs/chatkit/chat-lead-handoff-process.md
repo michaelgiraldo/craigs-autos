@@ -15,29 +15,27 @@ Scope:
 
 - `amplify/functions/chatkit-session` (Lambda): creates short-lived OpenAI session secrets for the browser.
 - `amplify/functions/chat-lead-handoff` (Lambda): evaluates transcript, persists the lead journey, sends the shop notification email, and runs QUO SMS when configured.
-- `amplify/functions/chatkit-attachment-upload` (Lambda): receives user files and stores them in S3.
 - `amplify/functions/chatkit-message-link` (Lambda): resolves short-lived token links used by
   message handoff actions in lead notification emails (SMS entry).
-- `S3 bucket (chatkit-attachment-bucket)`: stores uploaded attachments and serves them with preview URLs.
 - `DynamoDB (ChatLeadHandoffDedupeTable)`: enforces one completed handoff per thread and tracks lease/error state.
-- `DynamoDB (ChatkitLeadAttributionTable)`: stores lead metadata for offline conversion use.
+- `DynamoDB (LeadJourneys/LeadRecords/LeadContacts/LeadJourneyEvents)`: stores the lead journey and qualification state.
 - `DynamoDB (ChatkitMessageLinkTokenTable)`: stores message draft links with TTL.
 - `SES`: sends the final email (raw MIME with optional inline image parts).
-- `OpenAI ChatKit`: holds canonical thread and transcript history.
+- `OpenAI ChatKit`: holds canonical thread, transcript history, and hosted attachment context.
 
 ## Retention model
 
 Current retention in this repo:
 
-- Attachments (`S3`):
-  - Kept in `chatkit-attachments/<id>.ext` objects under `chatkit-attachment-bucket`.
-  - Bucket lifecycle rule is set to **365 days** in `Website/amplify/backend.ts`.
+- Attachments:
+  - Craig's backend does not currently create a separate S3 attachment archive.
+  - Chat attachments are treated as ChatKit conversation context, not a Craig-owned photo system of record.
+  - See `docs/chatkit/attachment-storage-decision.md`.
 - Handoff dedupe (`DynamoDB`):
   - `thread_id` state (`processing/completed/error`) with `ttl` from `LEAD_DEDUPE_TTL_DAYS`.
-  - Current TTL is **30 days** (`LEAD_DEDUPE_TTL_DAYS` in `handler.ts`).
-- Lead attribution metadata (`DynamoDB`):
-  - `ChatkitLeadAttributionTable` uses `LEAD_ATTRIBUTION_TTL_DAYS`.
-  - Current TTL is **180 days**.
+  - Current TTL is configured in `amplify/functions/chat-lead-handoff/handler.ts`.
+- Lead journey data (`DynamoDB`):
+  - Journey/contact/event/record tables are retained as the operational lead system.
 - Message link tokens (`DynamoDB`):
   - `MESSAGE_LINK_TOKEN_TTL_DAYS` in `handler.ts`.
   - Current TTL is **7 days**.
@@ -54,11 +52,11 @@ Current retention in this repo:
 - The quiet-window timer on the frontend is now 5 minutes (`300_000` ms).
 - The backend only completes the handoff when the summary model returns `handoff_ready = true`.
 - The email body now inlines small preview images so photos are visible inline in
-  the owner email, no extra clicks needed.
+  the owner email when the hosted preview URL can be fetched.
 - Lead notification email quick actions include `Send via SMS` for manual fallback text handoff.
 - Legacy SMS-named link contracts were removed in this phase (breaking change).
 - No new AWS service was introduced. This is implemented with existing Lambdas,
-  S3, SES, and DynamoDB plus existing chat runtime behavior.
+  SES, DynamoDB, and existing ChatKit runtime behavior.
 
 ## Problem this solved
 
@@ -163,21 +161,16 @@ Chat activity -> no auto send path
   - `Website/amplify/functions/chat-lead-handoff/attachments.ts`
   - `Website/amplify/functions/chat-lead-handoff/email-mime.ts`
     - `extractAttachments` parses transcript attachment lines
-    - `fetchInlineAttachment` fetches preview URL into bytes
+    - `prepareInlineAttachment` fetches a hosted preview URL into bytes
     - `buildRawEmail` generates MIME `multipart/mixed` with `multipart/alternative`
     - send via `new SendEmailCommand(...)` using SES v2 raw content
-  - `Website/amplify/backend.ts`
-    - provides both `chatkit_attachment_upload_url` and `chat_lead_handoff_url` to the frontend via outputs
-  - `Website/amplify/functions/chatkit-attachment-upload/handler.ts`
-    - attachments are saved in `chatkit-attachments/` keys in S3
-    - GET `?id=<key>` returns binary attachment payload
 
 ## How attachments are tied to thread context
 
-1) ChatKit upload flow returns `preview_url` from attachment function.
+1) ChatKit hosted attachment behavior supplies attachment preview metadata.
 2) The transcript contains attachment lines in text (`Attachment:` rows).
-3) Email handler parses those lines and maps `preview_url` to storage key.
-4) If key is valid + small enough image, attachment bytes are fetched and embedded inline:
+3) Email handler parses those lines and validates the preview URL.
+4) If the URL is fetchable and the image is small enough, bytes are embedded inline:
    - HTML `<img src="cid:...">`
    - MIME part `Content-ID` for each inline image.
 5) If inline attachment fails, the email still includes a clickable attachment
@@ -190,14 +183,15 @@ Chat activity -> no auto send path
 - Raw email allows richer rendering but requires strict MIME formatting.
 - Existing `LEAD_INLINE_ATTACHMENT_MAX_BYTES` and attachment MIME checks reduce malformed
   or non-image inline payload issues.
-- Bucket retention is conservative but independent from the chat lead handoff process itself.
-  If you need shorter/longer retention, update the lifecycle rule in `backend.ts` and
-  corresponding business runbook expectations.
+- Craig-owned S3 attachment storage is intentionally not active. If photos need to
+  become durable lead assets later, design that as a separate attachment-storage feature.
 
 ## Open risks to monitor
 
 - SES raw message size limits still apply globally.
 - If an image is too large or fails download, fallback link remains available.
+- If a hosted preview URL is unavailable when handoff runs, the owner still receives
+  the transcript and attachment metadata, but not the inline image.
 - If customer keeps chatting after an `idle` handoff attempt, a later `chat_closed`
   path still re-enters and can only complete if summary is `handoff_ready`.
 
