@@ -3,8 +3,8 @@ import ChatWidgetReact from './ChatWidgetReact.jsx';
 
 const { locale = 'en' } = Astro.props;
 // This site uses `trailingSlash: "always"`, so the dev server expects the slash.
-const sessionUrl = import.meta.env.PUBLIC_CHATKIT_SESSION_URL ?? '/api/chatkit/session/';
-const leadHandoffUrl = import.meta.env.PUBLIC_CHAT_LEAD_HANDOFF_URL ?? '/api/chat/lead-handoff/';
+const sessionUrl = import.meta.env.PUBLIC_CHATKIT_SESSION_URL ?? '/api/chat/session/';
+const leadHandoffUrl = import.meta.env.PUBLIC_CHAT_LEAD_HANDOFF_URL ?? '/api/chat/handoff/';
 ---
 
 <!-- Defer the React + ChatKit island until the page is idle to reduce

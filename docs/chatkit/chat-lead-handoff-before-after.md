@@ -7,7 +7,7 @@ much easier.
 ## Terms
 
 - ChatKit thread id: `cthr_...` (canonical conversation id)
-- Chat lead handoff endpoint: `chat-lead-handoff` (Lambda Function URL)
+- Chat lead handoff endpoint: `POST /chat/handoff` (public API route)
 - Triggers (reason): values passed from frontend -> backend:
   - `idle`
   - `pagehide`
@@ -112,7 +112,7 @@ ASCII flow:
 ```text
 Any activity in chat panel -> reset idle timer (300s)
 
-Idle timer expires -> POST /chat/lead-handoff (reason=idle)
+Idle timer expires -> POST /chat/handoff (reason=idle)
                    -> backend applies readiness gate and completes when ready
 ```
 

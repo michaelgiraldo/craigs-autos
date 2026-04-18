@@ -110,15 +110,15 @@ We do not hardcode per-branch backend URLs.
 
 Production builds generate `public/amplify_outputs.json` which includes:
 
-- `custom.chatkit_session_url`
-- `custom.chat_lead_handoff_url`
+- `custom.api_base_url`
+- `custom.api_contract`
 
-The frontend fetches `/amplify_outputs.json` and uses those URLs.
+The frontend fetches `/amplify_outputs.json` and composes stable public API routes from `custom.api_base_url`.
 
 Why this matters:
 
-- Every Amplify branch environment can have different Function URL endpoints.
-- The frontend stays static and self-configuring.
+- Every Amplify branch environment can have a different API base URL.
+- The frontend stays static while the route contract remains stable.
 
 Fallback behavior:
 
@@ -293,7 +293,7 @@ This is the widget fallback when ChatKit session creation fails or runtime init 
 
 Check:
 
-- `/amplify_outputs.json` loads and has valid `custom.chatkit_session_url`.
+- `/amplify_outputs.json` loads and has valid `custom.api_base_url`.
 - Domain allowlist includes the current domain.
 - CORS allows the current origin.
 

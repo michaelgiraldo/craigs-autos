@@ -12,8 +12,8 @@ import { useLeadTriggers } from './chatwidget/triggers.js';
 
 export default function ChatWidgetReact({
   locale = 'en',
-  sessionUrl = '/api/chatkit/session/',
-  leadHandoffUrl = '/api/chat/lead-handoff/',
+  sessionUrl = '/api/chat/session/',
+  leadHandoffUrl = '/api/chat/handoff/',
 }) {
   const copy = CHAT_COPY[locale] ?? CHAT_COPY.en;
   const chatkitLocale = CHATKIT_LOCALE_MAP[locale] ?? 'en';

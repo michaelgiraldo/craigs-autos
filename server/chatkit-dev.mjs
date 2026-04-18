@@ -47,7 +47,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (
-      (url.pathname === '/api/chatkit/session' || url.pathname === '/api/chatkit/session/') &&
+      (url.pathname === '/api/chat/session' || url.pathname === '/api/chat/session/') &&
       req.method === 'POST'
     ) {
       if (!workflowId || !apiKey) {
@@ -83,7 +83,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (
-      (url.pathname === '/api/chat/lead-handoff' || url.pathname === '/api/chat/lead-handoff/') &&
+      (url.pathname === '/api/chat/handoff' || url.pathname === '/api/chat/handoff/') &&
       req.method === 'POST'
     ) {
       // Local dev helper: accept the request so the UI can exercise the handoff path.

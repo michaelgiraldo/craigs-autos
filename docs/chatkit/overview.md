@@ -88,10 +88,10 @@ Browser (chat.craigs.autos)
   - Calls our chat lead handoff endpoint with threadId (cthr_...)
 
 AWS Amplify Gen2 backend
-  - Lambda Function URL: chatkit-session
+  - Public API route: POST /chat/session
       - calls OpenAI: chatkit.sessions.create
       - returns client_secret
-  - Lambda Function URL: chat-lead-handoff
+  - Public API route: POST /chat/handoff
       - calls OpenAI: chatkit.threads.retrieve + listItems
       - generates internal summary (Responses.parse)
       - persists lead journey
@@ -135,7 +135,7 @@ Server-side DynamoDB enforces "complete once per thread".
 ```
 Browser            chat-lead-handoff Lambda        DynamoDB             SES         OpenAI ChatKit
   |                        |                        |                   |               |
-  | POST /chat/lead-handoff|                        |                   |               |
+  | POST /chat/handoff     |                        |                   |               |
   | { threadId, reason }   |                        |                   |               |
   |----------------------->|                        |                   |               |
   |                        | Get(threadId)          |                   |               |

@@ -15,7 +15,7 @@ If you are new here, start with:
 
 - Framework: Astro (static site output) with React islands.
 - Product: multi-locale website + ChatKit-powered lead intake chat + public contact/quote form.
-- Hosting: AWS Amplify (Gen2) for static hosting + backend (Lambda Function URLs).
+- Hosting: AWS Amplify (Gen2) for static hosting + one public HTTP API routed to Lambdas.
 - Chat/agent: OpenAI ChatKit UI runtime + managed workflow in Agent Builder.
 - Lead delivery:
   - chat: AWS SES transcript + internal AI summary to the shop
@@ -70,8 +70,8 @@ Typecheck (backend):
 Local ChatKit dev API:
 
 - Implemented in `server/chatkit-dev.mjs`
-- Session endpoint: `http://localhost:8787/api/chatkit/session`
-- Chat lead handoff endpoint: `http://localhost:8787/api/chat/lead-handoff` (dev_noop; no SES)
+- Session endpoint: `http://localhost:8787/api/chat/session`
+- Chat lead handoff endpoint: `http://localhost:8787/api/chat/handoff` (dev_noop; no SES)
 
 ## Production configuration
 
@@ -90,9 +90,14 @@ Local ChatKit dev API:
   - deploy/update the Gen2 backend for the branch
   - generate `public/amplify_outputs.json` with branch-specific endpoints
 - The frontend reads `/amplify_outputs.json` at runtime to discover:
-  - `custom.contact_submit_url`
-  - `custom.chatkit_session_url`
-  - `custom.chat_lead_handoff_url`
+  - `custom.api_base_url`
+- Browser code composes stable public API routes from that base URL:
+  - `POST /contact`
+  - `POST /chat/session`
+  - `POST /chat/handoff`
+  - `GET /chat/message-link`
+  - `POST /lead-signal`
+  - `GET|POST /admin/leads`
 
 ### Secrets
 

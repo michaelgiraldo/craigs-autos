@@ -1,6 +1,8 @@
 import { AMPLIFY_OUTPUTS_PATH } from './constants.js';
 
 const NETWORK_FETCH_TIMEOUT_MS = 8_000;
+const CHAT_SESSION_ROUTE = 'chat/session';
+const CHAT_HANDOFF_ROUTE = 'chat/handoff';
 
 function withFetchTimeout(init = {}) {
   if (typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout === 'function') {
@@ -24,14 +26,21 @@ export function shouldLoadAmplifyOutputs({ sessionUrl, leadHandoffUrl }) {
   );
 }
 
+function buildPublicApiUrl(apiBaseUrl, route) {
+  if (typeof apiBaseUrl !== 'string' || !apiBaseUrl.trim()) return null;
+  const normalizedBase = apiBaseUrl.endsWith('/') ? apiBaseUrl : `${apiBaseUrl}/`;
+  return new URL(route, normalizedBase).toString();
+}
+
 export async function fetchAmplifyOutputsUrls() {
   try {
     const response = await fetch(AMPLIFY_OUTPUTS_PATH, withFetchTimeout({ cache: 'no-store' }));
     if (!response.ok) return null;
     const data = await response.json();
 
-    const sessionCandidate = data?.custom?.chatkit_session_url;
-    const leadCandidate = data?.custom?.chat_lead_handoff_url;
+    const apiBaseUrl = data?.custom?.api_base_url;
+    const sessionCandidate = buildPublicApiUrl(apiBaseUrl, CHAT_SESSION_ROUTE);
+    const leadCandidate = buildPublicApiUrl(apiBaseUrl, CHAT_HANDOFF_ROUTE);
 
     return {
       sessionUrl:

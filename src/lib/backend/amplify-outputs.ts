@@ -4,6 +4,15 @@ type AmplifyOutputs = {
   custom?: Record<string, unknown>;
 };
 
+const PUBLIC_API_ROUTES = {
+  contact: 'contact',
+  chatSession: 'chat/session',
+  chatHandoff: 'chat/handoff',
+  leadSignal: 'lead-signal',
+  adminLeads: 'admin/leads',
+  messageLink: 'chat/message-link',
+} as const;
+
 let outputsPromise: Promise<AmplifyOutputs | null> | null = null;
 
 async function loadAmplifyOutputs(): Promise<AmplifyOutputs | null> {
@@ -29,10 +38,17 @@ async function loadAmplifyOutputs(): Promise<AmplifyOutputs | null> {
   return outputsPromise;
 }
 
-export async function resolveBackendUrl(key: string): Promise<string | null> {
+export async function resolvePublicApiBaseUrl(): Promise<string | null> {
   const outputs = await loadAmplifyOutputs();
-  const candidate = outputs?.custom?.[key];
+  const candidate = outputs?.custom?.api_base_url;
   return typeof candidate === 'string' && candidate.trim() ? candidate.trim() : null;
+}
+
+export async function resolvePublicApiRoute(route: string): Promise<string | null> {
+  const apiBaseUrl = await resolvePublicApiBaseUrl();
+  if (!apiBaseUrl) return null;
+  const normalizedBase = apiBaseUrl.endsWith('/') ? apiBaseUrl : `${apiBaseUrl}/`;
+  return new URL(route.replace(/^\/+/, ''), normalizedBase).toString();
 }
 
 export function resetAmplifyOutputsCache() {
@@ -40,25 +56,25 @@ export function resetAmplifyOutputsCache() {
 }
 
 export function resolveContactSubmitUrl() {
-  return resolveBackendUrl('contact_submit_url');
+  return resolvePublicApiRoute(PUBLIC_API_ROUTES.contact);
 }
 
 export function resolveChatkitSessionUrl() {
-  return resolveBackendUrl('chatkit_session_url');
+  return resolvePublicApiRoute(PUBLIC_API_ROUTES.chatSession);
 }
 
 export function resolveChatLeadHandoffUrl() {
-  return resolveBackendUrl('chat_lead_handoff_url');
+  return resolvePublicApiRoute(PUBLIC_API_ROUTES.chatHandoff);
 }
 
 export function resolveChatkitLeadSignalUrl() {
-  return resolveBackendUrl('chatkit_lead_signal_url');
+  return resolvePublicApiRoute(PUBLIC_API_ROUTES.leadSignal);
 }
 
 export function resolveChatkitLeadAdminUrl() {
-  return resolveBackendUrl('chatkit_lead_admin_url');
+  return resolvePublicApiRoute(PUBLIC_API_ROUTES.adminLeads);
 }
 
 export function resolveChatkitMessageLinkUrl() {
-  return resolveBackendUrl('chatkit_message_link_url');
+  return resolvePublicApiRoute(PUBLIC_API_ROUTES.messageLink);
 }

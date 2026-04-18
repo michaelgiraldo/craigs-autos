@@ -1,4 +1,5 @@
 import type { IFunction } from 'aws-cdk-lib/aws-lambda';
+import type { Stack } from 'aws-cdk-lib';
 
 export type LambdaWithEnvironment = IFunction & {
   addEnvironment(name: string, value: string): void;
@@ -19,6 +20,7 @@ export type CraigsBackend = {
   chatkitLeadSignal: BackendFunctionResource;
   chatkitLeadAdmin: BackendFunctionResource;
   addOutput(output: { custom: Record<string, string> }): void;
+  createStack(name: string): Stack;
 };
 
 export function getLambda(resource: BackendFunctionResource): LambdaWithEnvironment {

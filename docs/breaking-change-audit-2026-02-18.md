@@ -1,6 +1,8 @@
 # Breaking Change Audit (2026-02-18)
 
-This document records the current high-impact findings from a source-code audit and explains the "why" in plain language.
+This historical document records the high-impact findings from a source-code audit and explains the "why" in plain language.
+
+Status update: the public Lambda Function URL contract described here was retired on 2026-04-18. Current code exposes one public HTTP API and route contract from `amplify/backend/public-api.ts`.
 
 Use this as a decision log and learning guide before choosing which breaking changes to implement.
 
@@ -15,7 +17,7 @@ Use this as a decision log and learning guide before choosing which breaking cha
 
 These are the major changes worth considering:
 
-1. Move internet-facing Lambda Function URLs from public access to authenticated access.
+1. Historical: move internet-facing Lambda Function URLs away from direct public exposure. Addressed by the 2026-04-18 public HTTP API refactor.
 2. Replace shared-password admin auth with user-based auth.
 3. Lock down server-side attachment URL fetching to prevent SSRF-style abuse.
 4. Make SMS token links one-time-use instead of reusable until TTL.
@@ -25,11 +27,11 @@ These are the major changes worth considering:
 
 ## Findings And Recommended Breaking Changes
 
-### 1) Public unauthenticated Function URLs
+### 1) Historical: public unauthenticated Function URLs
 
 What we found:
 
-- `authType: FunctionUrlAuthType.NONE` is used for multiple endpoints in `amplify/backend.ts`:
+- Historical finding: `authType: FunctionUrlAuthType.NONE` was used for multiple endpoints in `amplify/backend.ts`:
   - session URL at line 28
   - chat lead handoff URL at line 50
   - sms link URL at line 71
@@ -65,7 +67,7 @@ What improves:
 What we found:
 
 - Admin password check in `amplify/functions/chatkit-lead-admin/handler.ts:61-76`
-- Admin endpoint is also on a public Function URL in `amplify/backend.ts:112`
+- Historical finding: the admin endpoint was also on a public Function URL in `amplify/backend.ts:112`
 - Browser stores Basic token in session storage in `public/admin-leads.js:9` and `public/admin-leads.js:120`
 
 Why this matters (plain language):

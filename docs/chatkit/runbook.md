@@ -58,12 +58,8 @@ Open the site and fetch:
 
 Confirm it contains:
 
-- `custom.chatkit_session_url`
-- `custom.chat_lead_handoff_url`
-- `custom.chatkit_message_link_url`
-- `custom.chatkit_lead_signal_url`
-- `custom.chatkit_lead_admin_url`
-- `custom.contact_submit_url`
+- `custom.api_base_url`
+- `custom.api_contract`
 
 If these are missing or wrong, the frontend may be calling a placeholder URL.
 
@@ -169,8 +165,8 @@ Checks:
      https://platform.openai.com/settings/organization/security/domain-allowlist
 
 4) Session endpoint reachable:
-   - Confirm `/amplify_outputs.json` has `custom.chatkit_session_url`.
-   - Confirm the Function URL responds to POST from the browser origin (CORS).
+   - Confirm `/amplify_outputs.json` has `custom.api_base_url`.
+   - Confirm `POST /chat/session` responds from the browser origin (CORS).
 
 Fixes:
 
@@ -189,7 +185,7 @@ Symptoms:
 Checks:
 
 1) Confirm the session endpoint URL:
-   - from `/amplify_outputs.json` key `custom.chatkit_session_url`
+   - from `/amplify_outputs.json` key `custom.api_base_url` plus route `/chat/session`
 
 2) Confirm the session Lambda is configured with:
    - `OPENAI_API_KEY` secret
@@ -215,7 +211,7 @@ Checks (in order):
 
 1) Get the thread id (`cthr_...`) and open OpenAI logs.
 2) Check if the chat lead handoff endpoint was called:
-   - Browser DevTools -> Network -> look for POST to `custom.chat_lead_handoff_url`.
+   - Browser DevTools -> Network -> look for `POST /chat/handoff`.
 3) Check DynamoDB record:
    - If `completed`, the backend believes the handoff completed. Confirm SES/QUO delivery fields.
    - If missing, the endpoint may not have been hit or may have crashed before writing.

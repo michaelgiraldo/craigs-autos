@@ -198,6 +198,12 @@
         }
       }
 
+      function buildPublicApiUrl(apiBaseUrl, route) {
+        if (typeof apiBaseUrl !== 'string' || !apiBaseUrl.trim()) return null;
+        const normalizedBase = apiBaseUrl.endsWith('/') ? apiBaseUrl : `${apiBaseUrl}/`;
+        return new URL(route, normalizedBase).toString();
+      }
+
       async function run() {
         const token = getToken();
         if (!token) {
@@ -207,7 +213,7 @@
         }
 
         const outputs = await getOutputs();
-        const apiUrl = outputs?.custom?.chatkit_message_link_url;
+        const apiUrl = buildPublicApiUrl(outputs?.custom?.api_base_url, 'chat/message-link');
         if (typeof apiUrl !== 'string' || !apiUrl.trim()) {
           statusEl.textContent = 'Message link service is not configured.';
           statusEl.classList.add('error');

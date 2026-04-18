@@ -30,7 +30,7 @@ test('lead-admin handler rejects unauthorized requests', async () => {
   assert.equal(result.headers['WWW-Authenticate'], 'Basic realm="Admin"');
 });
 
-test('lead-admin handler leaves CORS headers to the Function URL layer', async () => {
+test('lead-admin handler leaves CORS headers to the public API layer', async () => {
   const handler = createLeadAdminHandler({
     configValid: true,
     adminPassword: 'secret',

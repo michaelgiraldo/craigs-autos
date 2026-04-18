@@ -65,7 +65,7 @@ export const handler = async (
   const isHttpRequest = typeof method === 'string' && method.length > 0;
 
   if (isHttpRequest && method === 'OPTIONS') {
-    // Lambda Function URL CORS handles the browser preflight automatically.
+    // The public API layer handles browser preflight responses.
     return emptyResponse(204);
   }
 

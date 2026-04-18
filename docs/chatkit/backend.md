@@ -19,13 +19,13 @@ Related docs:
 - `amplify/backend.ts`
   - Defines the Amplify Gen2 backend via CDK:
     - Lambda functions
-    - Lambda Function URLs
-    - CORS configuration
+    - Public HTTP API routes
+    - API CORS configuration
     - SES IAM permissions
     - DynamoDB idempotency table
     - Journey-first lead tables
     - Quote submission queue table
-    - Build outputs (`custom.chatkit_*_url`)
+    - Build outputs (`custom.api_base_url`)
 
 - Session minting function:
   - `amplify/functions/chatkit-session/resource.ts`
@@ -88,28 +88,24 @@ Quote form wiring (injected by `amplify/backend.ts`):
 
 ## Endpoints and discovery
 
-The backend uses Lambda Function URLs, not API Gateway.
+The backend exposes one public HTTP API and routes stable paths to Lambdas.
 
-Function URLs are defined in `amplify/backend.ts`:
+Routes are defined in `amplify/backend/public-api.ts`:
 
-- Session URL (`chatkit-session`)
-- Chat lead handoff URL (`chat-lead-handoff`)
-- Message link URL (`chatkit-message-link`)
-- Lead signal URL (`chatkit-lead-signal`)
-- Lead admin URL (`chatkit-lead-admin`)
-- Contact submit URL (`contact-submit`)
+- `POST /contact` -> `contact-submit`
+- `POST /chat/session` -> `chatkit-session`
+- `POST /chat/handoff` -> `chat-lead-handoff`
+- `GET /chat/message-link` -> `chatkit-message-link`
+- `POST /lead-signal` -> `chatkit-lead-signal`
+- `GET|POST /admin/leads` -> `chatkit-lead-admin`
 
 During Amplify builds, `ampx pipeline-deploy` writes `public/amplify_outputs.json`.
 The frontend fetches `/amplify_outputs.json` and reads:
 
-- `custom.chatkit_session_url`
-- `custom.chat_lead_handoff_url`
-- `custom.chatkit_message_link_url`
-- `custom.chatkit_lead_signal_url`
-- `custom.chatkit_lead_admin_url`
-- `custom.contact_submit_url`
+- `custom.api_base_url`
+- `custom.api_contract`
 
-This avoids hardcoding per-branch function URLs.
+Browser code composes route URLs from the base URL. This avoids hardcoding per-branch endpoints while keeping the public contract route-based.
 
 Note:
 
@@ -118,13 +114,14 @@ Note:
 
 ## CORS
 
-CORS is configured on the Function URLs in `amplify/backend.ts`.
+CORS is configured on the public HTTP API in `amplify/backend/public-api.ts`.
 
 Allowed origins currently include:
 
 - `https://chat.craigs.autos`
 - `https://craigs.autos`
 - `http://localhost:4321`
+- `http://127.0.0.1:4321`
 
 If you add a new domain (or new preview host), update this list and redeploy.
 

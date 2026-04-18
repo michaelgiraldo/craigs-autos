@@ -90,9 +90,9 @@ over speed:
 ```
 Customer chats in ChatKit
   └─> Frontend tracks activity and interaction
-      ├─> After 5 min inactivity while open -> POST /chat/lead-handoff { reason: "idle" }
-      ├─> On tab hide/visibility change -> POST /chat/lead-handoff { reason: "pagehide" }
-      └─> On panel close -> POST /chat/lead-handoff { reason: "chat_closed" }
+      ├─> After 5 min inactivity while open -> POST /chat/handoff { reason: "idle" }
+      ├─> On tab hide/visibility change -> POST /chat/handoff { reason: "pagehide" }
+      └─> On panel close -> POST /chat/handoff { reason: "chat_closed" }
              |
              v
 Backend chat lead handoff handler

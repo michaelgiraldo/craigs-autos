@@ -54,7 +54,7 @@ export function createMessageLinkHandler(deps: MessageLinkHandlerDeps) {
     const method = getHttpMethod(event);
 
     if (method === 'OPTIONS') {
-      // Lambda Function URL CORS handles the browser preflight automatically.
+      // The public API layer handles browser preflight responses.
       return emptyResponse(204);
     }
 
