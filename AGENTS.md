@@ -139,8 +139,8 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
   - Note: invalid ChatKit `icon` values can break the chat UI.
 
 - Standalone quote page / quote funnel copy:
-  - Change `src/components/QuoteRequestLanding.astro`
-  - CTA from contact pages lives in `src/components/QuoteRequestCta.astro`
+  - Change `src/features/quote/components/QuotePage.astro`
+  - CTA from contact pages lives in `src/features/quote/components/QuotePageCta.astro`
   - Locale-specific helper copy lives in `src/lib/site-data/quote-page-copy.js`
   - Localized routes/frontmatter live under `src/content/pages/*/request-a-quote.mdx`
 
@@ -162,7 +162,7 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
 - Contact form intake / async follow-up:
   - Public intake endpoint: `amplify/functions/contact-submit/handler.ts`
   - Async worker: `amplify/functions/quote-followup/handler.ts`
-  - Frontend form island: `src/components/ContactLeadForm.jsx`
+  - Frontend form island: `src/features/quote/components/QuoteRequestForm.tsx`
   - Contact page injection: `src/components/LocalizedPageContent.astro`
 
 - Journey-first lead storage / admin views:
@@ -202,7 +202,7 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
 - Edit:
   - public intake validation / queueing: `amplify/functions/contact-submit/handler.ts`
   - customer/shop follow-up workflow: `amplify/functions/quote-followup/*`
-  - frontend fields / submission UX: `src/components/ContactLeadForm.jsx`
+  - frontend fields / submission UX: `src/features/quote/components/quote-request-form/*`
 - Run:
   - `npm run typecheck:backend`
   - `npm run test:backend`
