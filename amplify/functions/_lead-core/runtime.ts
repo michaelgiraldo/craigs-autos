@@ -4,7 +4,6 @@ import { z } from 'zod';
 import { createDynamoLeadCoreRepos, type LeadCoreRepos } from './repos/dynamo.ts';
 
 const leadCoreEnvSchema = z.object({
-  LEAD_ACTION_TOKENS_TABLE_NAME: z.string().trim().min(1),
   LEAD_CONTACTS_TABLE_NAME: z.string().trim().min(1),
   LEAD_JOURNEYS_TABLE_NAME: z.string().trim().min(1),
   LEAD_JOURNEY_EVENTS_TABLE_NAME: z.string().trim().min(1),
@@ -30,7 +29,6 @@ export function createLeadCoreRuntime(env: Record<string, string | undefined>): 
   const db = DynamoDBDocumentClient.from(new DynamoDBClient({}));
   const repos = createDynamoLeadCoreRepos({
     db,
-    actionTokensTableName: parsed.data.LEAD_ACTION_TOKENS_TABLE_NAME,
     contactsTableName: parsed.data.LEAD_CONTACTS_TABLE_NAME,
     journeysTableName: parsed.data.LEAD_JOURNEYS_TABLE_NAME,
     journeyEventsTableName: parsed.data.LEAD_JOURNEY_EVENTS_TABLE_NAME,

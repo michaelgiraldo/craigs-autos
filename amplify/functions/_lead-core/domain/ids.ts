@@ -63,7 +63,3 @@ export function createJourneyEventSortKey(occurredAtMs: number, eventId: string)
 export function createClientEventId(prefix = 'evt'): string {
   return `${prefix}_${randomUUID()}`;
 }
-
-export function createRandomActionToken(prefix = 'token'): string {
-  return `${prefix}_${randomUUID()}`;
-}

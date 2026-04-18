@@ -8,7 +8,6 @@ type LeadDataTables = {
   journeys: Table;
   journeyEvents: Table;
   records: Table;
-  actionTokens: Table;
 };
 
 function createLeadDataTables(stack: Stack): LeadDataTables {
@@ -82,14 +81,7 @@ function createLeadDataTables(stack: Stack): LeadDataTables {
     sortKey: { name: 'occurred_at_ms', type: AttributeType.NUMBER },
   });
 
-  const actionTokens = new Table(stack, 'LeadActionTokensTable', {
-    billingMode: BillingMode.PAY_PER_REQUEST,
-    partitionKey: { name: 'token', type: AttributeType.STRING },
-    timeToLiveAttribute: 'expires_at_ms',
-    removalPolicy: RemovalPolicy.RETAIN,
-  });
-
-  return { contacts, journeys, journeyEvents, records, actionTokens };
+  return { contacts, journeys, journeyEvents, records };
 }
 
 function grantLeadDataAccess(lambda: LambdaWithEnvironment, tables: LeadDataTables): void {
@@ -97,13 +89,11 @@ function grantLeadDataAccess(lambda: LambdaWithEnvironment, tables: LeadDataTabl
   tables.journeys.grantReadWriteData(lambda);
   tables.journeyEvents.grantReadWriteData(lambda);
   tables.records.grantReadWriteData(lambda);
-  tables.actionTokens.grantReadWriteData(lambda);
 
   lambda.addEnvironment('LEAD_CONTACTS_TABLE_NAME', tables.contacts.tableName);
   lambda.addEnvironment('LEAD_JOURNEYS_TABLE_NAME', tables.journeys.tableName);
   lambda.addEnvironment('LEAD_JOURNEY_EVENTS_TABLE_NAME', tables.journeyEvents.tableName);
   lambda.addEnvironment('LEAD_RECORDS_TABLE_NAME', tables.records.tableName);
-  lambda.addEnvironment('LEAD_ACTION_TOKENS_TABLE_NAME', tables.actionTokens.tableName);
 }
 
 export function configureLeadDataTables(backend: CraigsBackend): void {

@@ -129,11 +129,6 @@ test('syncQuoLeadContact upserts Quo contacts and persists remote tags', async (
   };
 
   const repos: LeadCoreRepos = {
-    actionTokens: {
-      get: async () => null,
-      put: async () => undefined,
-      delete: async () => undefined,
-    },
     leadRecords: leadRecordsRepo,
     contacts: {
       getById: async () => makeContact(),

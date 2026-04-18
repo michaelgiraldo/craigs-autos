@@ -157,11 +157,6 @@ test('applyQuoteFollowupToLeadRecord updates the existing lead record without re
         listByLeadRecordId: async () => [],
         scanPage: async () => ({ items: [] }),
       },
-      actionTokens: {
-        get: async () => null,
-        put: async () => undefined,
-        delete: async () => undefined,
-      },
     } as never,
     record: makeQuoteRecord(),
     quoConfig: {

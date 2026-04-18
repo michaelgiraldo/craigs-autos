@@ -220,20 +220,6 @@ export type LeadRecord = {
   updated_at_ms: number;
 };
 
-export type LeadActionTokenAction =
-  | 'reply_sms'
-  | 'reply_email'
-  | 'review_lead_record'
-  | 'open_admin';
-
-export type LeadActionToken = {
-  token: string;
-  lead_record_id: string;
-  action: LeadActionTokenAction;
-  created_at_ms: number;
-  expires_at_ms: number;
-};
-
 export type JourneyBundle = {
   contact: LeadContact | null;
   journey: Journey;
