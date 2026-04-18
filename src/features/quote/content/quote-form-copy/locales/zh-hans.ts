@@ -1,0 +1,27 @@
+import type { QuoteFormLocaleCopy } from '../types';
+
+export const quoteFormCopyZhHans = {
+  title: '告诉我们您的项目情况',
+  description: '请告诉我们哪些部位需要维修或重新包覆。如果您已经有照片，也请在留言里说明。',
+  vehicleLabel: '车辆或物件详情',
+  namePlaceholder: '您的姓名',
+  phonePlaceholder: '(408) 555-1234',
+  emailPlaceholder: '姓名@示例.com',
+  vehiclePlaceholder: '例如：1969 Camaro SS、摩托车座椅或船长椅',
+  serviceLabel: '所需服务',
+  servicePlaceholder: '请选择服务',
+  messageLabel: '请介绍一下您的项目',
+  messagePlaceholder: '请描述需要维修或重新包覆的内容、目前状况，以及任何有助于报价的细节。',
+  submitLabel: '提交报价请求',
+  submittingLabel: '提交中...',
+  successTitle: '谢谢。我们已收到您的请求。',
+  successBody: '每份请求都会由人工审核，我们会尽快跟进。',
+  errorTitle: '我们无法发送您的请求。',
+  validationInvalidInput: '请检查表单后重试。',
+  validationMissingContactMethod: '请填写电话号码、电子邮箱，或两者都填写。',
+  validationInvalidPhone: '请输入有效的电话号码。',
+  validationInvalidEmail: '请输入有效的电子邮箱地址。',
+  validationMissingEndpoint: '报价表单尚未配置。请稍后再试。',
+  validationFallbackError: '我们无法提交您的报价请求。请重试或致电门店。',
+  otherServiceLabel: '其他 / 还不确定',
+} satisfies QuoteFormLocaleCopy;
