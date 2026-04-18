@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { persistChatWorkflowEvent } from './workflow-events.ts';
-import type { Journey } from '../_lead-core/domain/types.ts';
+import type { Journey } from '../_lead-core/domain/journey.ts';
 
 test('persistChatWorkflowEvent does not downgrade a captured journey on workflow error', async () => {
   const puts: Journey[] = [];

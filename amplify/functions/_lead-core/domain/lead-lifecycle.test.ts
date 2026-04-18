@@ -8,7 +8,7 @@ import {
   isLeadPromotionEventName,
   LEAD_INTERACTION_EVENT_NAMES,
 } from './lead-lifecycle.ts';
-import type { JourneyEventName } from './types.ts';
+import type { JourneyEventName } from './journey-event.ts';
 
 const allEventNames: JourneyEventName[] = [
   'lead_form_submit_success',

@@ -1,8 +1,6 @@
 import { z } from 'zod';
-import {
-  buildDefaultQualificationSnapshot,
-  buildJourneyEvent,
-} from '../_lead-core/services/shared.ts';
+import { buildJourneyEvent } from '../_lead-core/services/journey-events.ts';
+import { buildDefaultQualificationSnapshot } from '../_lead-core/services/qualification.ts';
 import { deriveLeadRecordStatus } from '../_lead-core/services/outreach.ts';
 import {
   toLeadAdminJourneySummary,

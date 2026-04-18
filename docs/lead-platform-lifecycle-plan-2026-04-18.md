@@ -108,7 +108,13 @@ Implementation:
 - Keep quote submit promotion in `_lead-core/services/quote-request.ts`.
 - Keep chat promotion in `_lead-core/services/intake-chat.ts` until it can be renamed cleanly.
 - Introduce shared promotion helpers only when quote and chat need the same behavior.
-- Keep contact normalization and merge logic in shared lead-core services.
+- Keep contact normalization and merge logic in named lead-core services:
+  - `_lead-core/services/contact-identity.ts`
+  - `_lead-core/services/journey-status.ts`
+  - `_lead-core/services/journey-events.ts`
+  - `_lead-core/services/qualification.ts`
+  - `_lead-core/services/merge-journey.ts`
+  - `_lead-core/services/merge-lead-record.ts`
 
 Why:
 
@@ -200,6 +206,7 @@ Checklist:
 - Search for old names with `rg`.
 - Delete obsolete wrapper modules after imports are moved.
 - Move tests to the new owning module, not just update imports.
+- Do not recreate catch-all `domain/types.ts` or `services/shared.ts`; create or update the module that owns the behavior.
 - Update `AGENTS.md` and relevant runbooks when ownership changes.
 - Run `npm run predeploy`.
 - Run `npm run build` when frontend, Astro, or shared browser output changes.
@@ -213,4 +220,3 @@ Checklist:
 - Do not turn every click into a lead record.
 - Do not couple lead lifecycle to QUO, SES, ChatKit, or Google Ads implementation details.
 - Do not preserve old internal names only for historical continuity.
-

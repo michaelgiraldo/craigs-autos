@@ -2,7 +2,8 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import type { PutCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { DynamoJourneysRepo, DynamoLeadContactsRepo, DynamoLeadRecordsRepo } from './dynamo.ts';
-import type { LeadContact, LeadRecord } from '../domain/types.ts';
+import type { LeadContact } from '../domain/contact.ts';
+import type { LeadRecord } from '../domain/lead-record.ts';
 
 function createDbStub() {
   const commands: unknown[] = [];

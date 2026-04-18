@@ -1,4 +1,6 @@
-import type { AttributionSnapshot, LeadContact, LeadRecord } from '../domain/types.ts';
+import type { AttributionSnapshot } from '../domain/attribution.ts';
+import type { LeadContact } from '../domain/contact.ts';
+import type { LeadRecord } from '../domain/lead-record.ts';
 
 export type QualifiedLeadExportRecord = {
   lead_record_id: string;

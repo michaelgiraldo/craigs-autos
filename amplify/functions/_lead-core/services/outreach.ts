@@ -1,11 +1,11 @@
 import { trimToNull } from '../domain/normalize.ts';
+import type { JourneyEvent } from '../domain/journey-event.ts';
 import type {
-  JourneyEvent,
   LeadOutreachSnapshot,
   LeadQualificationSnapshot,
   LeadRecordStatus,
-} from '../domain/types.ts';
-import { buildJourneyEvent } from './shared.ts';
+} from '../domain/lead-record.ts';
+import { buildJourneyEvent } from './journey-events.ts';
 
 export type LegacyQuoteOutreachLike = {
   sms_status?: string | null;

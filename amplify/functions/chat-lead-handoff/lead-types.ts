@@ -1,4 +1,4 @@
-import type { AttributionSnapshot } from '../_lead-core/domain/types.ts';
+import type { AttributionSnapshot } from '../_lead-core/domain/attribution.ts';
 
 export type LambdaHeaders = Record<string, string | undefined>;
 

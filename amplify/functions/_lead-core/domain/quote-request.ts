@@ -1,4 +1,4 @@
-import type { AttributionSnapshot } from './types.ts';
+import type { AttributionSnapshot } from './attribution.ts';
 
 export const QUOTE_REQUEST_TTL_DAYS = 180;
 

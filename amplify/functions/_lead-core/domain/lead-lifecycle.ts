@@ -1,4 +1,4 @@
-import type { JourneyEventName } from './types.ts';
+import type { JourneyEventName } from './journey-event.ts';
 
 export const LEAD_INTERACTION_EVENT_NAMES = [
   'lead_chat_first_message_sent',

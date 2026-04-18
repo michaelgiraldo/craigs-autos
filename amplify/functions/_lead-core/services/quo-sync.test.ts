@@ -1,7 +1,9 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import type { LeadCoreRepos } from '../repos/dynamo.ts';
-import type { JourneyEvent, LeadContact, LeadRecord } from '../domain/types.ts';
+import type { LeadContact } from '../domain/contact.ts';
+import type { JourneyEvent } from '../domain/journey-event.ts';
+import type { LeadRecord } from '../domain/lead-record.ts';
 import { syncQuoLeadContact } from './quo-sync.ts';
 
 function makeContact(overrides: Partial<LeadContact> = {}): LeadContact {

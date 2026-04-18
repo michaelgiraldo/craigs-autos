@@ -176,8 +176,16 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
 
 - Journey-first lead storage / admin views:
   - Shared substrate: `amplify/functions/_lead-core/*`
+  - Domain record types are split by ownership:
+    - contact identity: `amplify/functions/_lead-core/domain/contact.ts`
+    - journeys: `amplify/functions/_lead-core/domain/journey.ts`
+    - journey events: `amplify/functions/_lead-core/domain/journey-event.ts`
+    - lead records: `amplify/functions/_lead-core/domain/lead-record.ts`
+    - lead action vocabulary: `amplify/functions/_lead-core/domain/lead-actions.ts`
   - Lifecycle rules live in `amplify/functions/_lead-core/domain/lead-lifecycle.ts`
   - Event semantics live in `amplify/functions/_lead-core/domain/lead-semantics.ts`
+  - Contact identity, journey status, event building, qualification defaults, and merge rules live in named files under `amplify/functions/_lead-core/services/`
+  - Do not recreate catch-all `domain/types.ts` or `services/shared.ts`; add behavior to the owning domain/service module instead
   - Refactor plan and edge-case matrix live in `docs/lead-platform-lifecycle-plan-2026-04-18.md`
   - Admin API: `amplify/functions/chatkit-lead-admin/handler.ts`
   - Admin page script: `src/scripts/admin-leads.ts`

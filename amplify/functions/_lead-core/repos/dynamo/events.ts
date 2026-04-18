@@ -5,7 +5,7 @@ import {
   QueryCommand,
   ScanCommand,
 } from '@aws-sdk/lib-dynamodb';
-import type { JourneyEvent } from '../../domain/types.ts';
+import type { JourneyEvent } from '../../domain/journey-event.ts';
 import type { JourneyEventsRepo } from '../events-repo.ts';
 import { JOURNEY_EVENTS_LEAD_RECORD_OCCURRED_INDEX } from './constants.ts';
 import { removeNullKeys } from './helpers.ts';

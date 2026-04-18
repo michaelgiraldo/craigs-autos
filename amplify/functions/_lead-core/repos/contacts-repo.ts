@@ -1,4 +1,4 @@
-import type { LeadContact } from '../domain/types.ts';
+import type { LeadContact } from '../domain/contact.ts';
 
 export interface LeadContactsRepo {
   getById(contactId: string): Promise<LeadContact | null>;

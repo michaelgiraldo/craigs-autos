@@ -2,7 +2,7 @@ import type { LeadCoreRepos } from '../_lead-core/repos/dynamo.ts';
 import { buildChatLeadBundle } from '../_lead-core/services/intake-chat.ts';
 import { upsertLeadBundle } from '../_lead-core/services/persist.ts';
 import { syncQuoLeadContact } from '../_lead-core/services/quo-sync.ts';
-import { buildJourneyEvent } from '../_lead-core/services/shared.ts';
+import { buildJourneyEvent } from '../_lead-core/services/journey-events.ts';
 import type { InitialOutreachState } from './email-delivery';
 import type { LeadAttributionPayload, LeadSummary } from './lead-types';
 

@@ -4,7 +4,7 @@ import {
   PutCommand,
   QueryCommand,
 } from '@aws-sdk/lib-dynamodb';
-import type { LeadContact } from '../../domain/types.ts';
+import type { LeadContact } from '../../domain/contact.ts';
 import type { LeadContactsRepo } from '../contacts-repo.ts';
 import {
   CONTACTS_NORMALIZED_EMAIL_INDEX,

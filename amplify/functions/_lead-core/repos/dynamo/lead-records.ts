@@ -4,7 +4,7 @@ import {
   PutCommand,
   QueryCommand,
 } from '@aws-sdk/lib-dynamodb';
-import type { LeadRecord, LeadRecordStatus } from '../../domain/types.ts';
+import type { LeadRecord, LeadRecordStatus } from '../../domain/lead-record.ts';
 import type { LeadRecordsCursorKey, LeadRecordsRepo } from '../lead-records-repo.ts';
 import {
   ADMIN_PARTITION_ALL,

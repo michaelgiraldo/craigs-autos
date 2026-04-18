@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { applyJourneyStatusTransition, mergeJourneyStatus } from './shared.ts';
+import { applyJourneyStatusTransition, mergeJourneyStatus } from './journey-status.ts';
 
 test('mergeJourneyStatus preserves stronger terminal states', () => {
   assert.equal(mergeJourneyStatus('qualified', 'active'), 'qualified');

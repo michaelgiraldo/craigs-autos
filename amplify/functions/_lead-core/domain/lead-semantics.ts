@@ -1,13 +1,12 @@
+import type { CaptureChannel, CustomerAction } from './lead-actions.ts';
+import type { JourneyStatus } from './journey.ts';
 import type {
-  CaptureChannel,
-  CustomerAction,
   EventClass,
   JourneyEventName,
-  JourneyStatus,
   LeadStrength,
   LeadVerificationStatus,
   WorkflowOutcome,
-} from './types.ts';
+} from './journey-event.ts';
 
 type JourneyEventSemantics = {
   captureChannel: CaptureChannel | null;

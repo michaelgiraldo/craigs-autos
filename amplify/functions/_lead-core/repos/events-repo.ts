@@ -1,4 +1,4 @@
-import type { JourneyEvent } from '../domain/types.ts';
+import type { JourneyEvent } from '../domain/journey-event.ts';
 
 export interface JourneyEventsRepo {
   getBySortKey(journeyId: string, eventSortKey: string): Promise<JourneyEvent | null>;

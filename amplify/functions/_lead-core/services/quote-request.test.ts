@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import type { QuoteSubmissionRecord } from '../domain/quote-request.ts';
-import type { JourneyEvent, LeadContact, LeadRecord, Journey } from '../domain/types.ts';
+import type { LeadContact } from '../domain/contact.ts';
+import type { Journey } from '../domain/journey.ts';
+import type { JourneyEvent } from '../domain/journey-event.ts';
+import type { LeadRecord } from '../domain/lead-record.ts';
 import { applyQuoteFollowupToLeadRecord } from './quote-request.ts';
 
 function makeQuoteRecord(overrides: Partial<QuoteSubmissionRecord> = {}): QuoteSubmissionRecord {

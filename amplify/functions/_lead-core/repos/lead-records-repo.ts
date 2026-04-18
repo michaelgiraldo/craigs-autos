@@ -1,4 +1,4 @@
-import type { LeadRecord, LeadRecordStatus } from '../domain/types.ts';
+import type { LeadRecord, LeadRecordStatus } from '../domain/lead-record.ts';
 
 export type LeadRecordsCursorKey = Record<string, unknown>;
 

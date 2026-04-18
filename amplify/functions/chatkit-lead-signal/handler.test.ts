@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createLeadSignalHandler } from './handler.ts';
-import type { Journey, JourneyEvent } from '../_lead-core/domain/types.ts';
+import type { Journey } from '../_lead-core/domain/journey.ts';
+import type { JourneyEvent } from '../_lead-core/domain/journey-event.ts';
 
 test('lead-signal handler rejects invalid events', async () => {
   const handler = createLeadSignalHandler({

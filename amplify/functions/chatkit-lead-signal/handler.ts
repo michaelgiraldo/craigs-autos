@@ -4,10 +4,11 @@ import {
   LEAD_INTERACTION_EVENT_NAMES,
   isLeadInteractionEventName,
 } from '../_lead-core/domain/lead-lifecycle.ts';
-import type { Journey, JourneyEvent } from '../_lead-core/domain/types.ts';
+import type { Journey } from '../_lead-core/domain/journey.ts';
+import type { JourneyEvent } from '../_lead-core/domain/journey-event.ts';
 import { dedupeStrings } from '../_lead-core/domain/normalize.ts';
 import { buildJourneySignal } from '../_lead-core/services/record-interaction.ts';
-import { applyJourneyStatusTransition } from '../_lead-core/services/shared.ts';
+import { applyJourneyStatusTransition } from '../_lead-core/services/journey-status.ts';
 import { createLeadCoreRuntime } from '../_lead-core/runtime.ts';
 import { decodeBody, emptyResponse, getHttpMethod, jsonResponse } from '../_shared/http.ts';
 import type { AllowedLeadSignalEvent, LeadSignalRequest } from './types.ts';

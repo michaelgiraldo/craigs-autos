@@ -1,4 +1,4 @@
-import type { CaptureChannel } from './types.ts';
+import type { CaptureChannel } from './lead-actions.ts';
 
 export function trimToNull(value: unknown, maxLength = 512): string | null {
   if (typeof value !== 'string') return null;

@@ -4,20 +4,14 @@ import {
   createStableLeadRecordId,
 } from '../domain/ids.ts';
 import { buildLeadTitle, normalizeLocale, trimToNull } from '../domain/normalize.ts';
-import type {
-  AttributionSnapshot,
-  Journey,
-  JourneyBundle,
-  JourneyMetadata,
-  LeadOutreachSnapshot,
-  LeadQualificationSnapshot,
-} from '../domain/types.ts';
+import type { AttributionSnapshot } from '../domain/attribution.ts';
+import type { JourneyBundle } from '../domain/lead-bundle.ts';
+import type { Journey, JourneyMetadata } from '../domain/journey.ts';
+import type { LeadOutreachSnapshot, LeadQualificationSnapshot } from '../domain/lead-record.ts';
+import { buildLeadContact } from './contact-identity.ts';
+import { buildJourneyEvent } from './journey-events.ts';
 import { createDefaultOutreachSnapshot, deriveLeadRecordStatus } from './outreach.ts';
-import {
-  buildDefaultQualificationSnapshot,
-  buildJourneyEvent,
-  buildLeadContact,
-} from './shared.ts';
+import { buildDefaultQualificationSnapshot } from './qualification.ts';
 
 export type ChatLeadIntakeInput = {
   threadId: string;

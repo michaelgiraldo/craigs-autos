@@ -1,4 +1,7 @@
-import type { DeviceType, Journey, LeadContact, LeadRecord } from '../domain/types.ts';
+import type { DeviceType } from '../domain/attribution.ts';
+import type { LeadContact } from '../domain/contact.ts';
+import type { Journey } from '../domain/journey.ts';
+import type { LeadRecord } from '../domain/lead-record.ts';
 
 export type LeadAdminRecordSummary = {
   lead_record_id: string;

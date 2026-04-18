@@ -5,13 +5,10 @@ import {
 } from '../domain/lead-lifecycle.ts';
 import { getJourneyEventSemantics } from '../domain/lead-semantics.ts';
 import { trimToNull } from '../domain/normalize.ts';
-import type {
-  AttributionSnapshot,
-  Journey,
-  JourneyEvent,
-  JourneyMetadata,
-} from '../domain/types.ts';
-import { buildJourneyEvent } from './shared.ts';
+import type { AttributionSnapshot } from '../domain/attribution.ts';
+import type { Journey, JourneyMetadata } from '../domain/journey.ts';
+import type { JourneyEvent } from '../domain/journey-event.ts';
+import { buildJourneyEvent } from './journey-events.ts';
 
 export type JourneySignalEventName = LeadInteractionEventName;
 

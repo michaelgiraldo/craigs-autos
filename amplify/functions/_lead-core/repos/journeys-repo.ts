@@ -1,4 +1,4 @@
-import type { Journey } from '../domain/types.ts';
+import type { Journey } from '../domain/journey.ts';
 
 export type JourneysCursorKey = Record<string, unknown>;
 

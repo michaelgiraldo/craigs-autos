@@ -1,6 +1,8 @@
 import type { LeadCoreRepos } from '../repos/dynamo.ts';
 import { dedupeStrings } from '../domain/normalize.ts';
-import type { LeadContact, LeadRecord, CaptureChannel } from '../domain/types.ts';
+import type { LeadContact } from '../domain/contact.ts';
+import type { CaptureChannel } from '../domain/lead-actions.ts';
+import type { LeadRecord } from '../domain/lead-record.ts';
 import { getErrorDetails } from '../../_shared/safe.ts';
 import {
   createQuoContact,
@@ -8,7 +10,8 @@ import {
   listQuoContacts,
   updateQuoContact,
 } from '../../chat-lead-handoff/quo.ts';
-import { buildJourneyEvent, mergeLeadContacts } from './shared.ts';
+import { mergeLeadContacts } from './contact-identity.ts';
+import { buildJourneyEvent } from './journey-events.ts';
 
 export type QuoLeadTag = 'Chat Lead' | 'Form Lead';
 

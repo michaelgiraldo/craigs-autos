@@ -1,8 +1,9 @@
 import { sanitizeAttributionSnapshot } from '../_lead-core/domain/attribution.ts';
 import { getJourneyEventSemantics } from '../_lead-core/domain/lead-semantics.ts';
-import type { Journey } from '../_lead-core/domain/types.ts';
-import { applyJourneyStatusTransition, buildJourneyEvent } from '../_lead-core/services/shared.ts';
+import type { Journey } from '../_lead-core/domain/journey.ts';
 import type { LeadCoreRepos } from '../_lead-core/repos/dynamo.ts';
+import { buildJourneyEvent } from '../_lead-core/services/journey-events.ts';
+import { applyJourneyStatusTransition } from '../_lead-core/services/journey-status.ts';
 
 export type ChatWorkflowEventName =
   | 'lead_chat_handoff_blocked'

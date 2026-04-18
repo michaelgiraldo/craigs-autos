@@ -1,4 +1,6 @@
-import type { LeadContact, LeadRecord, Journey } from '../domain/types.ts';
+import type { LeadContact } from '../domain/contact.ts';
+import type { Journey } from '../domain/journey.ts';
+import type { LeadRecord } from '../domain/lead-record.ts';
 import type { QuoteSubmissionRecord } from '../domain/quote-request.ts';
 import type { LeadCoreRepos } from '../repos/dynamo.ts';
 import {

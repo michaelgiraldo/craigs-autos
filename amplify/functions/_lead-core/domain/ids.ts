@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from 'node:crypto';
-import type { JourneyEventName } from './types.ts';
+import type { JourneyEventName } from './journey-event.ts';
 
 function createStableId(prefix: string, parts: Array<string | number | null | undefined>): string {
   const serialized = parts.map((part) => (part == null ? '' : String(part))).join('|');

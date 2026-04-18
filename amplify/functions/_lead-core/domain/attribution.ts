@@ -1,6 +1,32 @@
 import { asObject } from '../../_shared/safe.ts';
-import type { AcquisitionClass, AttributionSnapshot } from './types.ts';
 import { trimToNull } from './normalize.ts';
+
+export type DeviceType = 'mobile' | 'desktop';
+
+export type AcquisitionClass = 'paid' | 'organic' | 'owned' | 'referral' | 'direct';
+
+export type AttributionSnapshot = {
+  gclid: string | null;
+  gbraid: string | null;
+  wbraid: string | null;
+  msclkid: string | null;
+  fbclid: string | null;
+  ttclid: string | null;
+  utm_source: string | null;
+  utm_medium: string | null;
+  utm_campaign: string | null;
+  utm_term: string | null;
+  utm_content: string | null;
+  first_touch_ts: string | null;
+  last_touch_ts: string | null;
+  landing_page: string | null;
+  referrer: string | null;
+  referrer_host: string | null;
+  device_type: DeviceType | null;
+  source_platform: string | null;
+  acquisition_class: AcquisitionClass | null;
+  click_id_type: string | null;
+};
 
 type UrlAttributionKey =
   | 'gclid'
