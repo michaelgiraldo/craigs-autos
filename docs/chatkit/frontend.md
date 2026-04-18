@@ -225,7 +225,7 @@ If you change layout/styling:
 
 1) Edit `CHAT_COPY` in `src/lib/site-data.js`.
 2) Keep the same keys across locales (missing keys fall back to English).
-3) Run `npm run build` to ensure MDX + i18n checks pass.
+3) Run `npm run validate:content && npm run build` to ensure content checks and Astro compilation pass.
 4) Run `npm run smoke:chatkit` if the chat UI or attribution path changed.
 5) Smoke test at least:
    - `en`, `es`, `zh-hans`, `ar` (RTL)

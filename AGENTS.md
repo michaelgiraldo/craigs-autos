@@ -60,7 +60,8 @@ CHATKIT_WORKFLOW_ID=wf_...
 - Install: `npm ci`
 - Run site only: `npm run dev` (Astro only)
 - Run site + local ChatKit dev API: `npm run dev:local`
-- Build: `npm run build`
+- Build site only: `npm run build`
+- Build release assets + site: `npm run build:release`
 
 Typecheck (backend):
 
@@ -186,7 +187,7 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
 ### Update chat UI copy per locale
 
 - Edit: `src/lib/site-data.js` (`CHAT_COPY`)
-- Run: `npm run build`
+- Run: `npm run validate:content && npm run build`
 - Smoke test: `en`, `es`, `zh-hans`, `ar` (RTL)
 
 ### Update email template
@@ -208,6 +209,7 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
   - `npm run test:backend`
   - `npm run typecheck:web`
   - `npm run build`
+  - `npm run build:release` if the change affects release-generated social assets
 - Validate:
   - form submit creates a `submission_id`
   - `QuoteSubmissionTable` record moves `queued -> processing -> completed|error`

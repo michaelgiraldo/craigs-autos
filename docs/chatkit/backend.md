@@ -342,8 +342,9 @@ You can change this via the function environment (deploy required).
 Amplify builds run:
 
 1) `npm ci`
-2) `npx ampx pipeline-deploy ... --outputs-out-dir public`
-3) `npm run build`
+2) `npm run predeploy`
+3) `npx ampx pipeline-deploy ... --outputs-out-dir public`
+4) `npm run build:release`
 
 See `amplify.yml`.
 
