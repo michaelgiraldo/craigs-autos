@@ -121,8 +121,7 @@ const pages = defineCollection({
 		pageKey: z.string(),
 		locale: z.string(),
 		slug: z.string(),
-		template: z.enum(['standard', 'project']).optional(),
-		pageType: pageType.optional(),
+		pageType,
 		ctaConfig: pageCtaConfig.optional(),
 		pageCardDeck: pageCardDeckConfig.optional(),
 		hero: z

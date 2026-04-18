@@ -6,7 +6,6 @@ import type {
 	PageCardItem,
 	PageEntry,
 } from '../../types/site';
-import { resolvePageType } from '../page-rendering/page-types';
 
 const EXPLORE_CARD_KEYS = [
 	'autoUpholstery',
@@ -44,7 +43,7 @@ export type ResolvedPageCardDeck = {
 };
 
 function getDefaultStrategy(entry: PageEntry): PageCardDeckStrategy {
-	switch (resolvePageType(entry)) {
+	switch (entry.data.pageType) {
 		case 'home':
 			return 'explore';
 		case 'service':

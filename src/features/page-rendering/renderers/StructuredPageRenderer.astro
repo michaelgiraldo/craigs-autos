@@ -28,10 +28,9 @@ interface Props {
 }
 
 const { entry, locale, heroDisplay } = Astro.props as Props;
-const template = entry.data.template ?? 'standard';
-const usesStructuredTemplate = template === 'project' || Boolean(entry.data.hero);
-const rendered = template === 'project' ? null : await render(entry);
-const RenderedContent = rendered?.Content ?? null;
+const usesStructuredLayout = Boolean(entry.data.hero);
+const rendered = await render(entry);
+const RenderedContent = rendered.Content;
 const contentComponents = {
 	AddressText,
 	ContactMethods,
@@ -50,7 +49,7 @@ const contentComponents = {
 const pageModules = (entry.data.pageModules ?? []) as PageModule[];
 ---
 
-{usesStructuredTemplate ? (
+{usesStructuredLayout ? (
 	<>
 		{entry.data.hero ? (
 			<PageHero
