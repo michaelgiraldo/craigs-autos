@@ -161,11 +161,16 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
   - Change `amplify/functions/chat-lead-handoff/*` and/or `amplify/backend.ts`.
 
 - Quote form follow-up workflow:
-  - Change `amplify/functions/contact-submit/handler.ts`
+  - Lambda wrapper lives in `amplify/functions/contact-submit/handler.ts`
+  - Request parsing lives in `amplify/functions/contact-submit/request.ts`
+  - Intake validation lives in `amplify/functions/contact-submit/validation.ts`
+  - Quote submit orchestration lives in `amplify/functions/contact-submit/submit-quote-request.ts`
+  - AWS runtime wiring lives in `amplify/functions/contact-submit/runtime.ts`
   - Quote request record shape lives in `amplify/functions/_lead-core/domain/quote-request.ts`
   - Journey/lead persistence and follow-up sync live in `amplify/functions/_lead-core/services/quote-request.ts`
   - Async follow-up lives in `amplify/functions/quote-followup/*`
-  - Do not recreate worker-local lead sync helpers; follow-up outcomes should update lead records through the shared lead-core service
+  - Do not put quote-submit business logic back into `handler.ts`; keep the handler as transport/response mapping
+  - Do not recreate worker-local lead sync helpers; follow-up outcomes should update lead records through the lead-core service
   - QUO may be intentionally disabled; when that is true, submissions should stay in manual follow-up rather than surfacing as SMS failures
 
 - Contact form intake / async follow-up:
@@ -220,7 +225,10 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
 ### Update contact form or quote follow-up
 
 - Edit:
-  - public intake validation / queueing: `amplify/functions/contact-submit/handler.ts`
+  - public intake validation: `amplify/functions/contact-submit/validation.ts`
+  - public request parsing: `amplify/functions/contact-submit/request.ts`
+  - quote submit orchestration / queueing: `amplify/functions/contact-submit/submit-quote-request.ts`
+  - Lambda response mapping only: `amplify/functions/contact-submit/handler.ts`
   - customer/shop follow-up workflow: `amplify/functions/quote-followup/*`
   - frontend fields / submission UX: `src/features/quote/components/quote-request-form/*`
 - Run:

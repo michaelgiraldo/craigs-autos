@@ -97,7 +97,9 @@ Quote request domain code:
 
 - Quote request record types and default state live in `amplify/functions/_lead-core/domain/quote-request.ts`.
 - Quote request journey persistence and follow-up-to-lead sync live in `amplify/functions/_lead-core/services/quote-request.ts`.
-- Public submit handlers and async workers should call the shared lead-core service instead of keeping separate worker-local lead sync logic.
+- Contact submit HTTP response mapping lives in `amplify/functions/contact-submit/handler.ts`.
+- Contact submit request parsing, validation, quote-submit orchestration, and AWS runtime wiring live in separate files under `amplify/functions/contact-submit/`.
+- Public submit handlers and async workers should call the lead-core service instead of keeping separate worker-local lead sync logic.
 
 ## Endpoints and discovery
 

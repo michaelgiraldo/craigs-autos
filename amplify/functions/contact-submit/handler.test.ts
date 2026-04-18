@@ -39,6 +39,42 @@ test('contact-submit queues quote follow-up when phone is provided', async () =>
   assert.equal(invoked[0], 'submission-1');
 });
 
+test('contact-submit rejects non-POST HTTP methods', async () => {
+  const handler = createContactSubmitHandler({
+    configValid: true,
+    createSubmissionId: () => 'submission-method',
+    nowEpochSeconds: () => 1_000,
+    siteLabel: 'cesar.autos',
+    queueSubmission: async () => undefined,
+    invokeFollowup: async () => undefined,
+  });
+
+  const result = await handler({
+    requestContext: { http: { method: 'GET' } },
+  });
+
+  assert.equal(result.statusCode, 405);
+});
+
+test('contact-submit rejects invalid JSON bodies before validation', async () => {
+  const handler = createContactSubmitHandler({
+    configValid: true,
+    createSubmissionId: () => 'submission-json',
+    nowEpochSeconds: () => 1_000,
+    siteLabel: 'cesar.autos',
+    queueSubmission: async () => undefined,
+    invokeFollowup: async () => undefined,
+  });
+
+  const result = await handler({
+    requestContext: { http: { method: 'POST' } },
+    body: '{"name":',
+  });
+
+  assert.equal(result.statusCode, 400);
+  assert.match(result.body, /Invalid JSON body/);
+});
+
 test('contact-submit queues quote follow-up when email is provided without phone', async () => {
   const queued: QuoteSubmissionRecord[] = [];
   const invoked: string[] = [];
