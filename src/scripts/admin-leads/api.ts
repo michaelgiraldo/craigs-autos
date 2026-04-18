@@ -1,7 +1,7 @@
-import { FETCH_TIMEOUT_MS, OUTPUTS_PATH } from './config';
+import { PUBLIC_API_ROUTES } from '../../../shared/public-api-contract.js';
+import { resolvePublicApiUrl } from '../../lib/backend/public-api-client';
+import { FETCH_TIMEOUT_MS } from './config';
 import type { LeadsApiResponse, QualificationFilter } from './types';
-
-const ADMIN_LEADS_ROUTE = 'admin/leads';
 
 export class AdminUnauthorizedError extends Error {
   constructor() {
@@ -29,12 +29,6 @@ function jsonHeaders(auth: string): Headers {
   return headers;
 }
 
-function buildPublicApiUrl(apiBaseUrl: unknown, route: string): string | null {
-  if (typeof apiBaseUrl !== 'string' || !apiBaseUrl.trim()) return null;
-  const normalizedBase = apiBaseUrl.endsWith('/') ? apiBaseUrl : `${apiBaseUrl}/`;
-  return new URL(route, normalizedBase).toString();
-}
-
 async function assertOk(response: Response, fallbackMessage: string): Promise<void> {
   if (response.status === 401) {
     throw new AdminUnauthorizedError();
@@ -52,13 +46,7 @@ export function createAdminLeadsApi() {
       return endpoint;
     }
 
-    const response = await fetch(OUTPUTS_PATH, withFetchTimeout({ cache: 'no-store' }));
-    if (!response.ok) {
-      throw new Error('Missing admin endpoint.');
-    }
-
-    const data = (await response.json()) as { custom?: { api_base_url?: string } };
-    const url = buildPublicApiUrl(data?.custom?.api_base_url, ADMIN_LEADS_ROUTE);
+    const url = await resolvePublicApiUrl(PUBLIC_API_ROUTES.adminLeads);
     if (typeof url !== 'string' || !url.trim()) {
       throw new Error('Missing admin endpoint.');
     }

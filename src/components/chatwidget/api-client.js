@@ -1,8 +1,7 @@
-import { AMPLIFY_OUTPUTS_PATH } from './constants.js';
+import { PUBLIC_API_ROUTES } from '../../../shared/public-api-contract.js';
+import { resolvePublicApiUrls } from '../../lib/backend/public-api-client.ts';
 
 const NETWORK_FETCH_TIMEOUT_MS = 8_000;
-const CHAT_SESSION_ROUTE = 'chat/session';
-const CHAT_HANDOFF_ROUTE = 'chat/handoff';
 
 function withFetchTimeout(init = {}) {
   if (typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout === 'function') {
@@ -26,21 +25,14 @@ export function shouldLoadAmplifyOutputs({ sessionUrl, leadHandoffUrl }) {
   );
 }
 
-function buildPublicApiUrl(apiBaseUrl, route) {
-  if (typeof apiBaseUrl !== 'string' || !apiBaseUrl.trim()) return null;
-  const normalizedBase = apiBaseUrl.endsWith('/') ? apiBaseUrl : `${apiBaseUrl}/`;
-  return new URL(route, normalizedBase).toString();
-}
-
 export async function fetchAmplifyOutputsUrls() {
   try {
-    const response = await fetch(AMPLIFY_OUTPUTS_PATH, withFetchTimeout({ cache: 'no-store' }));
-    if (!response.ok) return null;
-    const data = await response.json();
-
-    const apiBaseUrl = data?.custom?.api_base_url;
-    const sessionCandidate = buildPublicApiUrl(apiBaseUrl, CHAT_SESSION_ROUTE);
-    const leadCandidate = buildPublicApiUrl(apiBaseUrl, CHAT_HANDOFF_ROUTE);
+    const urls = await resolvePublicApiUrls({
+      leadHandoffUrl: PUBLIC_API_ROUTES.chatHandoff,
+      sessionUrl: PUBLIC_API_ROUTES.chatSession,
+    });
+    const sessionCandidate = urls.sessionUrl;
+    const leadCandidate = urls.leadHandoffUrl;
 
     return {
       sessionUrl:

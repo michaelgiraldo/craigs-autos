@@ -1,5 +1,5 @@
 import { useRef, useState, type ChangeEvent, type FormEvent } from 'react';
-import { resolveContactSubmitUrl } from '../../../../lib/backend/amplify-outputs';
+import { resolveContactSubmitUrl } from '../../../../lib/backend/public-api-client';
 import type { LocaleKey } from '../../../../types/site';
 import type { QuoteFormCopy } from '../../content/quote-form-copy';
 import { postQuoteRequest } from './api';

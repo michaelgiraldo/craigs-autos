@@ -44,7 +44,6 @@ export const USER_KEY = 'chatkit-user-id';
 export const OPEN_KEY = 'chatkit-open';
 export const LEAD_HANDOFF_COMPLETED_KEY_PREFIX = 'chat-lead-handoff-completed:';
 export const FIRST_MESSAGE_SENT_KEY_PREFIX = 'chatkit-first-message-sent:';
-export const AMPLIFY_OUTPUTS_PATH = '/amplify_outputs.json';
 
 // Send leads after a quiet period. This avoids forcing the customer to "end" the chat.
 // Five minutes lets the user continue a natural conversation before we attempt to build/send

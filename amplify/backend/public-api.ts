@@ -2,6 +2,11 @@ import { CorsHttpMethod, HttpApi, HttpMethod } from 'aws-cdk-lib/aws-apigatewayv
 import { HttpLambdaIntegration } from 'aws-cdk-lib/aws-apigatewayv2-integrations';
 import type { Construct } from 'constructs';
 
+import {
+  PUBLIC_API_CONTRACT,
+  PUBLIC_API_ROUTES,
+  publicApiPath,
+} from '../../shared/public-api-contract.js';
 import type { CraigsBackend, LambdaWithEnvironment } from './types';
 import { getLambda } from './types';
 
@@ -23,15 +28,6 @@ const ALLOWED_ORIGINS = [
   'http://127.0.0.1:4321',
 ];
 
-const PUBLIC_API_ROUTES = {
-  contact: '/contact',
-  chatSession: '/chat/session',
-  chatHandoff: '/chat/handoff',
-  chatMessageLink: '/chat/message-link',
-  leadSignal: '/lead-signal',
-  adminLeads: '/admin/leads',
-} as const;
-
 export function createPublicHttpApi(scope: Construct, backend: CraigsBackend): HttpApi {
   const httpApi = new HttpApi(scope, 'PublicHttpApi', {
     apiName: 'craigs-autos-public',
@@ -45,37 +41,37 @@ export function createPublicHttpApi(scope: Construct, backend: CraigsBackend): H
 
   const routes: RouteConfig[] = [
     {
-      path: PUBLIC_API_ROUTES.contact,
+      path: publicApiPath(PUBLIC_API_ROUTES.contact),
       methods: [HttpMethod.POST],
       integrationId: 'ContactSubmitIntegration',
       lambda: getLambda(backend.contactSubmit),
     },
     {
-      path: PUBLIC_API_ROUTES.chatSession,
+      path: publicApiPath(PUBLIC_API_ROUTES.chatSession),
       methods: [HttpMethod.POST],
       integrationId: 'ChatSessionIntegration',
       lambda: getLambda(backend.chatkitSession),
     },
     {
-      path: PUBLIC_API_ROUTES.chatHandoff,
+      path: publicApiPath(PUBLIC_API_ROUTES.chatHandoff),
       methods: [HttpMethod.POST],
       integrationId: 'ChatHandoffIntegration',
       lambda: getLambda(backend.chatLeadHandoff),
     },
     {
-      path: PUBLIC_API_ROUTES.chatMessageLink,
+      path: publicApiPath(PUBLIC_API_ROUTES.chatMessageLink),
       methods: [HttpMethod.GET],
       integrationId: 'ChatMessageLinkIntegration',
       lambda: getLambda(backend.chatkitMessageLink),
     },
     {
-      path: PUBLIC_API_ROUTES.leadSignal,
+      path: publicApiPath(PUBLIC_API_ROUTES.leadSignal),
       methods: [HttpMethod.POST],
       integrationId: 'LeadSignalIntegration',
       lambda: getLambda(backend.chatkitLeadSignal),
     },
     {
-      path: PUBLIC_API_ROUTES.adminLeads,
+      path: publicApiPath(PUBLIC_API_ROUTES.adminLeads),
       methods: [HttpMethod.GET, HttpMethod.POST],
       integrationId: 'AdminLeadsIntegration',
       lambda: getLambda(backend.chatkitLeadAdmin),
@@ -99,7 +95,7 @@ export function addPublicApiOutputs(backend: OutputTarget, httpApi: HttpApi): vo
   backend.addOutput({
     custom: {
       api_base_url: apiBaseUrl,
-      api_contract: 'craigs-lead-api-v1',
+      api_contract: PUBLIC_API_CONTRACT,
     },
   });
 }

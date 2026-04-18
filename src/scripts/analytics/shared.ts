@@ -1,4 +1,3 @@
-export const OUTPUTS_PATH = '/amplify_outputs.json';
 export const FETCH_TIMEOUT_MS = 8_000;
 
 export const withFetchTimeout = (options: RequestInit = {}) => {

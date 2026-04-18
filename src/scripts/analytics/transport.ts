@@ -1,26 +1,15 @@
-import { OUTPUTS_PATH, withFetchTimeout } from './shared';
+import { PUBLIC_API_ROUTES } from '../../../shared/public-api-contract.js';
+import { resolvePublicApiUrl } from '../../lib/backend/public-api-client';
+import { withFetchTimeout } from './shared';
 
 let endpointCache: string | null = null;
 let endpointPromise: Promise<string | null> | null = null;
 
-const LEAD_SIGNAL_ROUTE = 'lead-signal';
-
-function buildPublicApiUrl(apiBaseUrl: unknown, route: string): string | null {
-  if (typeof apiBaseUrl !== 'string' || !apiBaseUrl.trim()) return null;
-  const normalizedBase = apiBaseUrl.endsWith('/') ? apiBaseUrl : `${apiBaseUrl}/`;
-  return new URL(route, normalizedBase).toString();
-}
-
 const resolveEndpoint = (): Promise<string | null> => {
   if (endpointCache) return Promise.resolve(endpointCache);
   if (endpointPromise) return endpointPromise;
-  endpointPromise = fetch(OUTPUTS_PATH, withFetchTimeout({ cache: 'no-store' }))
-    .then((res) => {
-      if (!res.ok) return null;
-      return res.json() as Promise<{ custom?: { api_base_url?: string } }>;
-    })
-    .then((data) => {
-      const url = buildPublicApiUrl(data?.custom?.api_base_url, LEAD_SIGNAL_ROUTE);
+  endpointPromise = resolvePublicApiUrl(PUBLIC_API_ROUTES.leadSignal)
+    .then((url) => {
       if (typeof url === 'string' && url.trim()) {
         endpointCache = url.trim();
         return endpointCache;
