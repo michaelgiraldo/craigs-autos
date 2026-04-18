@@ -4,15 +4,16 @@ import {
   getJourneyId,
   getLeadUserId,
 } from '../../../../lib/attribution.js';
-import { createClientEventId, pushLeadDataLayerEvent } from '../../../lead-tracking/form-events';
+import {
+  createClientEventId,
+  pushLeadDataLayerEvent,
+  type LeadDataLayerParams,
+} from '../../../lead-tracking/browser-events';
 import type { LocaleKey } from '../../../../types/site';
-
-type LeadEventValue = boolean | number | string | null | undefined;
-type LeadEventParams = Record<string, LeadEventValue>;
 
 export type QuoteFormTrackingContext = {
   attributionPayload: unknown;
-  attributionForDataLayer: LeadEventParams | null;
+  attributionForDataLayer: LeadDataLayerParams | null;
   userId: string | null;
   journeyId: string | null;
   clientEventId: string;
@@ -25,7 +26,7 @@ export type QuoteFormTrackingContext = {
 export function createQuoteFormTrackingContext(locale: LocaleKey): QuoteFormTrackingContext {
   return {
     attributionPayload: getAttributionPayload(),
-    attributionForDataLayer: getAttributionForDataLayer() as LeadEventParams | null,
+    attributionForDataLayer: getAttributionForDataLayer(),
     userId: getLeadUserId(),
     journeyId: getJourneyId(),
     clientEventId: createClientEventId('form'),
@@ -36,7 +37,7 @@ export function createQuoteFormTrackingContext(locale: LocaleKey): QuoteFormTrac
   };
 }
 
-function getBaseFormEvent(context: QuoteFormTrackingContext): LeadEventParams {
+function getBaseFormEvent(context: QuoteFormTrackingContext): LeadDataLayerParams {
   return {
     event_class: 'diagnostic',
     customer_action: 'form_submit',

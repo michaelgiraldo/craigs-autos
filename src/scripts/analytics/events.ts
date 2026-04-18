@@ -1,12 +1,9 @@
+import {
+  createClientEventId,
+  pushLeadDataLayerEvent,
+} from '../../features/lead-tracking/browser-events';
 import { attributionForDataLayer, getAttribution, getJourneyId, getUserId } from './attribution';
-import { pushDataLayer, sendSignal } from './transport';
-
-function createClientEventId(prefix: string) {
-  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-    return `${prefix}_${crypto.randomUUID()}`;
-  }
-  return `${prefix}_${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`;
-}
+import { sendSignal } from './transport';
 
 export const trackLeadClick = (event: MouseEvent) => {
   let element: Element | null = event.target instanceof Element ? event.target : null;
@@ -63,22 +60,25 @@ export const trackLeadClick = (event: MouseEvent) => {
     attribution,
   };
 
-  pushDataLayer(eventName, {
-    event_class: 'customer_action',
-    customer_action: customerAction,
-    lead_strength: 'soft_intent',
-    verification_status: 'unverified',
-    page_path: window.location.pathname,
-    page_url: window.location.href,
-    click_url: href,
-    provider,
-    locale,
-    journey_id: journeyId,
-    client_event_id: clientEventId,
-    occurred_at_ms: occurredAtMs,
-    user_id: userId,
-    ...attributionForDataLayer(attribution),
-  });
+  pushLeadDataLayerEvent(
+    eventName,
+    {
+      event_class: 'customer_action',
+      customer_action: customerAction,
+      lead_strength: 'soft_intent',
+      verification_status: 'unverified',
+      page_path: window.location.pathname,
+      page_url: window.location.href,
+      click_url: href,
+      provider,
+      locale,
+      journey_id: journeyId,
+      client_event_id: clientEventId,
+      occurred_at_ms: occurredAtMs,
+      user_id: userId,
+    },
+    attributionForDataLayer(attribution),
+  );
 
   sendSignal(payload);
 };

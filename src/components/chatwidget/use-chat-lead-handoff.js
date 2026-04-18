@@ -1,7 +1,7 @@
 import React from 'react';
+import { createClientEventId } from '../../features/lead-tracking/browser-events.ts';
 import { getAttributionPayload, getJourneyId } from '../../lib/attribution.js';
 import { isPlaceholderUrl, postLeadHandoff, resolveLeadHandoffEndpoint } from './api-client.js';
-import { createClientEventId } from './client-event-id.js';
 import { LEAD_HANDOFF_COMPLETED_KEY_PREFIX } from './constants.js';
 import { pushLeadDataLayer } from './data-layer.js';
 import { getLocalStorage, getStorageValue, setStorageValue } from './storage.js';

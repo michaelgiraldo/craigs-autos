@@ -1,7 +1,7 @@
 import React from 'react';
+import { createClientEventId } from '../../features/lead-tracking/browser-events.ts';
 import { getAttributionPayload, getJourneyId } from '../../lib/attribution.js';
 import { sendSignal } from '../../scripts/analytics/transport.ts';
-import { createClientEventId } from './client-event-id.js';
 import { FIRST_MESSAGE_SENT_KEY_PREFIX } from './constants.js';
 import { pushLeadDataLayer } from './data-layer.js';
 import { getLocalStorage, getStorageValue, setStorageValue } from './storage.js';

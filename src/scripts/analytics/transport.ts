@@ -55,13 +55,3 @@ export const sendSignal = (payload: Record<string, unknown>) => {
     ).catch(() => {});
   });
 };
-
-export const pushDataLayer = (eventName: string, params: Record<string, unknown>) => {
-  try {
-    const dataLayerWindow = window as Window & { dataLayer?: Record<string, unknown>[] };
-    dataLayerWindow.dataLayer = dataLayerWindow.dataLayer || [];
-    dataLayerWindow.dataLayer.push({ event: eventName, ...params });
-  } catch {
-    // Ignore analytics failures.
-  }
-};
