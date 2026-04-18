@@ -15,11 +15,6 @@ import { decodeBody, emptyResponse, getHttpMethod, jsonResponse } from '../_shar
 import { asObject } from '../_shared/safe.ts';
 
 const MAX_LIMIT = 500;
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
-  'Access-Control-Allow-Headers': 'content-type,authorization',
-};
 
 const adminEnvSchema = z.object({
   LEADS_ADMIN_PASSWORD: z.string().trim().min(1),
@@ -69,18 +64,15 @@ type LeadAdminDeps = {
 };
 
 function json(statusCode: number, body: unknown): LambdaResult {
-  return jsonResponse(statusCode, body, corsHeaders);
+  return jsonResponse(statusCode, body);
 }
 
 function unauthorizedResponse(): LambdaResult {
-  return {
-    statusCode: 401,
-    headers: {
-      'WWW-Authenticate': 'Basic realm="Admin"',
-      ...corsHeaders,
-    },
-    body: JSON.stringify({ error: 'Unauthorized' }),
-  };
+  return jsonResponse(
+    401,
+    { error: 'Unauthorized' },
+    { 'WWW-Authenticate': 'Basic realm="Admin"' },
+  );
 }
 
 function isAuthorized(event: LambdaEvent, adminPassword: string): boolean {
@@ -132,7 +124,7 @@ export function createLeadAdminHandler(deps: LeadAdminDeps) {
     const method = getHttpMethod(event);
 
     if (method === 'OPTIONS') {
-      return emptyResponse(204, corsHeaders);
+      return emptyResponse(204);
     }
 
     if (!deps.configValid) {

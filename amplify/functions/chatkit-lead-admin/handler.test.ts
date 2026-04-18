@@ -26,6 +26,29 @@ test('lead-admin handler rejects unauthorized requests', async () => {
   });
 
   assert.equal(result.statusCode, 401);
+  assert.equal(result.headers['Access-Control-Allow-Origin'], undefined);
+  assert.equal(result.headers['WWW-Authenticate'], 'Basic realm="Admin"');
+});
+
+test('lead-admin handler leaves CORS headers to the Function URL layer', async () => {
+  const handler = createLeadAdminHandler({
+    configValid: true,
+    adminPassword: 'secret',
+    listLeadRecords: async () => ({ items: [] }),
+    listJourneys: async () => ({ items: [] }),
+    updateLeadRecordQualification: async () => true,
+    nowEpochMs: () => 1_000,
+  });
+
+  const result = await handler({
+    requestContext: { http: { method: 'OPTIONS' } },
+    headers: { origin: 'https://craigs.autos' },
+  });
+
+  assert.equal(result.statusCode, 204);
+  assert.equal(result.headers['Access-Control-Allow-Origin'], undefined);
+  assert.equal(result.headers['Access-Control-Allow-Methods'], undefined);
+  assert.equal(result.headers['Access-Control-Allow-Headers'], undefined);
 });
 
 test('lead-admin handler returns admin pages in repository order for authorized GET', async () => {
