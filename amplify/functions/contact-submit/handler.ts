@@ -4,16 +4,20 @@ import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { sanitizeAttributionSnapshot } from '../_lead-core/domain/attribution.ts';
-import { buildFormLeadBundle } from '../_lead-core/services/intake-form.ts';
-import { upsertLeadBundle } from '../_lead-core/services/persist.ts';
+import {
+  createQuoteSubmissionRecord,
+  normalizeString,
+  type QuoteSubmissionRecord,
+} from '../_lead-core/domain/quote-request.ts';
 import { createLeadCoreRuntime } from '../_lead-core/runtime.ts';
+import {
+  persistQuoteRequestLeadIntake,
+  type PersistedQuoteRequestLead,
+  type QuoteRequestLeadIntake,
+} from '../_lead-core/services/quote-request.ts';
 import { decodeBody, emptyResponse, getHttpMethod, jsonResponse } from '../_shared/http.ts';
-import type { QuoteSubmissionRecord } from '../_shared/quote-submissions.ts';
-import { normalizeString } from '../_shared/quote-submissions.ts';
 import { getErrorDetails } from '../_shared/safe.ts';
 import { isPlausiblePhone } from '../chat-lead-handoff/text-utils.ts';
-
-const QUOTE_SUBMISSION_TTL_DAYS = 180;
 
 const envSchema = z.object({
   CONTACT_SITE_LABEL: z.string().trim().min(1),
@@ -53,28 +57,9 @@ type ContactSubmitDeps = {
   createSubmissionId: () => string;
   nowEpochSeconds: () => number;
   siteLabel: string;
-  persistLeadBundle?: (args: {
-    attribution: unknown;
-    clientEventId: string | null;
-    email: string;
-    journeyId: string | null;
-    locale: string;
-    message: string;
-    name: string;
-    nowEpochMs: number;
-    origin: string;
-    pageUrl: string;
-    phone: string;
-    service: string;
-    siteLabel: string;
-    submissionId: string;
-    user: string;
-    vehicle: string;
-  }) => Promise<{
-    journeyId: string;
-    leadRecordId: string | null;
-    contactId: string | null;
-  } | null>;
+  persistQuoteRequest?: (
+    input: QuoteRequestLeadIntake,
+  ) => Promise<PersistedQuoteRequestLead | null>;
   queueSubmission: (record: QuoteSubmissionRecord) => Promise<void>;
   invokeFollowup: (submissionId: string) => Promise<void>;
 };
@@ -164,8 +149,8 @@ export function createContactSubmitHandler(deps: ContactSubmitDeps) {
       const now = deps.nowEpochSeconds();
       const submissionId = deps.createSubmissionId();
       const effectivePageUrl = pageUrl || origin;
-      const persistedLead = deps.persistLeadBundle
-        ? await deps.persistLeadBundle({
+      const persistedLead = deps.persistQuoteRequest
+        ? await deps.persistQuoteRequest({
             attribution: sanitizedAttribution,
             clientEventId: normalizeString(payload.client_event_id),
             email,
@@ -173,14 +158,14 @@ export function createContactSubmitHandler(deps: ContactSubmitDeps) {
             locale,
             message,
             name,
-            nowEpochMs: now * 1000,
+            occurredAtMs: now * 1000,
             origin,
             pageUrl: effectivePageUrl,
             phone,
             service,
             siteLabel: deps.siteLabel,
             submissionId,
-            user,
+            userId: user,
             vehicle,
           })
         : null;
@@ -195,12 +180,9 @@ export function createContactSubmitHandler(deps: ContactSubmitDeps) {
         });
       }
 
-      const record: QuoteSubmissionRecord = {
-        submission_id: submissionId,
-        status: 'queued',
-        created_at: now,
-        updated_at: now,
-        ttl: now + QUOTE_SUBMISSION_TTL_DAYS * 24 * 60 * 60,
+      const record = createQuoteSubmissionRecord({
+        submissionId,
+        nowEpochSeconds: now,
         name,
         email,
         phone,
@@ -208,33 +190,15 @@ export function createContactSubmitHandler(deps: ContactSubmitDeps) {
         service,
         message,
         origin,
-        site_label: deps.siteLabel,
-        journey_id: persistedLead?.journeyId ?? (normalizeString(payload.journey_id) || null),
-        lead_record_id: leadRecordId,
-        contact_id: persistedLead?.contactId ?? null,
+        siteLabel: deps.siteLabel,
+        journeyId: persistedLead?.journeyId ?? (normalizeString(payload.journey_id) || null),
+        leadRecordId,
+        contactId: persistedLead?.contactId ?? null,
         locale,
-        page_url: effectivePageUrl,
-        user_id: user,
+        pageUrl: effectivePageUrl,
+        userId: user,
         attribution: sanitizedAttribution,
-        ai_status: null,
-        ai_model: '',
-        ai_error: '',
-        sms_body: '',
-        email_subject: '',
-        email_body: '',
-        missing_info: [],
-        sms_status: null,
-        sms_message_id: '',
-        sms_error: '',
-        email_status: null,
-        customer_email_message_id: '',
-        customer_email_error: '',
-        outreach_channel: null,
-        outreach_result: null,
-        owner_email_status: null,
-        owner_email_message_id: '',
-        owner_email_error: '',
-      };
+      });
 
       await deps.queueSubmission(record);
 
@@ -275,50 +239,16 @@ export const handler = createContactSubmitHandler({
   createSubmissionId: () => randomUUID(),
   nowEpochSeconds: () => Math.floor(Date.now() / 1000),
   siteLabel: parsedEnv.success ? parsedEnv.data.CONTACT_SITE_LABEL : '',
-  persistLeadBundle: async ({
-    attribution,
-    clientEventId,
-    email,
-    journeyId,
-    locale,
-    message,
-    name,
-    nowEpochMs,
-    origin,
-    pageUrl,
-    phone,
-    service,
-    siteLabel,
-    submissionId,
-    user,
-    vehicle,
-  }) => {
+  persistQuoteRequest: async (input) => {
     const repos = leadCoreRuntime.repos;
     if (!repos) return null;
-    const bundle = buildFormLeadBundle({
-      submissionId,
-      occurredAt: nowEpochMs,
-      journeyId,
-      clientEventId,
-      attribution: sanitizeAttributionSnapshot(attribution),
-      email,
-      locale,
-      message,
-      name,
-      origin,
-      pageUrl,
-      phone,
-      service,
-      siteLabel,
-      userId: user,
-      vehicle,
+    return persistQuoteRequestLeadIntake({
+      repos,
+      input: {
+        ...input,
+        attribution: sanitizeAttributionSnapshot(input.attribution),
+      },
     });
-    const persisted = await upsertLeadBundle(repos, bundle);
-    return {
-      journeyId: persisted.journey.journey_id,
-      leadRecordId: persisted.leadRecord?.lead_record_id ?? null,
-      contactId: persisted.contact?.contact_id ?? null,
-    };
   },
   queueSubmission: async (record: QuoteSubmissionRecord) => {
     if (!db || !parsedEnv.success) return;

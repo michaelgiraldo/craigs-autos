@@ -1,6 +1,6 @@
 import type OpenAI from 'openai';
 import { getErrorDetails } from '../_shared/safe.ts';
-import type { QuoteDrafts, QuoteSubmissionRecord } from '../_shared/quote-submissions.ts';
+import type { QuoteDrafts, QuoteSubmissionRecord } from '../_lead-core/domain/quote-request.ts';
 import { buildOutreachDrafts } from '../chat-lead-handoff/drafts.ts';
 
 type QuoteDraftGenerationResult = {

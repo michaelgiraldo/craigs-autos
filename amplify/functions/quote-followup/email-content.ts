@@ -1,4 +1,7 @@
-import type { QuoteOutreachResult, QuoteSubmissionRecord } from '../_shared/quote-submissions.ts';
+import type {
+  QuoteOutreachResult,
+  QuoteSubmissionRecord,
+} from '../_lead-core/domain/quote-request.ts';
 import { escapeHtml } from '../chat-lead-handoff/text-utils.ts';
 
 function compact(value: string): string {

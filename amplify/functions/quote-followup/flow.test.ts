@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createContactSubmitHandler } from '../contact-submit/handler.ts';
-import type { QuoteSubmissionRecord } from '../_shared/quote-submissions.ts';
+import type { QuoteSubmissionRecord } from '../_lead-core/domain/quote-request.ts';
 import { createQuoteFollowupHandler } from './handler.ts';
 
 function makeStore() {

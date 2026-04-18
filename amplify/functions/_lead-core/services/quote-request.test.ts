@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { applyQuoteFollowupToLeadRecord } from './lead-record-sync.ts';
-import type { JourneyEvent, LeadContact, LeadRecord, Journey } from '../_lead-core/domain/types.ts';
-import type { QuoteSubmissionRecord } from '../_shared/quote-submissions.ts';
+import type { QuoteSubmissionRecord } from '../domain/quote-request.ts';
+import type { JourneyEvent, LeadContact, LeadRecord, Journey } from '../domain/types.ts';
+import { applyQuoteFollowupToLeadRecord } from './quote-request.ts';
 
 function makeQuoteRecord(overrides: Partial<QuoteSubmissionRecord> = {}): QuoteSubmissionRecord {
   return {

@@ -1,4 +1,7 @@
-import type { QuoteOutreachResult, QuoteSubmissionRecord } from '../_shared/quote-submissions.ts';
+import type {
+  QuoteOutreachResult,
+  QuoteSubmissionRecord,
+} from '../_lead-core/domain/quote-request.ts';
 import { getErrorDetails } from '../_shared/safe.ts';
 import { isPlausibleEmail, phoneToE164 } from '../chat-lead-handoff/text-utils.ts';
 import type { QuoteFollowupDeps, QuoteWorkflowOutcome } from './types.ts';

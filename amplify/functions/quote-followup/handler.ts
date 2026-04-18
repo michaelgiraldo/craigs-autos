@@ -9,8 +9,9 @@ import {
 import OpenAI from 'openai';
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
+import type { QuoteSubmissionRecord } from '../_lead-core/domain/quote-request.ts';
 import { createLeadCoreRuntime } from '../_lead-core/runtime.ts';
-import type { QuoteSubmissionRecord } from '../_shared/quote-submissions.ts';
+import { applyQuoteFollowupToLeadRecord } from '../_lead-core/services/quote-request.ts';
 import { jsonResponse } from '../_shared/http.ts';
 import { sendQuoTextMessage } from '../chat-lead-handoff/quo.ts';
 import {
@@ -19,7 +20,6 @@ import {
   buildResultLabel,
 } from './email-content.ts';
 import { generateQuoteDrafts } from './drafts.ts';
-import { applyQuoteFollowupToLeadRecord } from './lead-record-sync.ts';
 import type { LambdaResult, QuoteFollowupDeps, QuoteFollowupEvent } from './types.ts';
 import { runQuoteFollowupWorkflow } from './workflow.ts';
 

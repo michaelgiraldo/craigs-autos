@@ -1,4 +1,4 @@
-import type { QuoteDrafts, QuoteSubmissionRecord } from '../_shared/quote-submissions.ts';
+import type { QuoteDrafts, QuoteSubmissionRecord } from '../_lead-core/domain/quote-request.ts';
 
 export type QuoteFollowupEvent = {
   submission_id?: string | null;

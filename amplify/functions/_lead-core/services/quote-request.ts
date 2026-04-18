@@ -1,13 +1,39 @@
-import type { LeadContact, LeadRecord, Journey } from '../_lead-core/domain/types.ts';
-import type { LeadCoreRepos } from '../_lead-core/repos/dynamo.ts';
+import type { LeadContact, LeadRecord, Journey } from '../domain/types.ts';
+import type { QuoteSubmissionRecord } from '../domain/quote-request.ts';
+import type { LeadCoreRepos } from '../repos/dynamo.ts';
 import {
+  buildLegacyQuoteOutreachEvents,
   deriveLeadRecordStatus,
   deriveLegacyQuoteOutreach,
-  buildLegacyQuoteOutreachEvents,
-} from '../_lead-core/services/outreach.ts';
-import { upsertLeadBundle } from '../_lead-core/services/persist.ts';
-import { syncQuoLeadContact } from '../_lead-core/services/quo-sync.ts';
-import type { QuoteSubmissionRecord } from '../_shared/quote-submissions.ts';
+} from './outreach.ts';
+import { buildFormLeadBundle } from './intake-form.ts';
+import { upsertLeadBundle } from './persist.ts';
+import { syncQuoLeadContact } from './quo-sync.ts';
+
+export type QuoteRequestLeadIntake = {
+  attribution: QuoteSubmissionRecord['attribution'];
+  clientEventId: string | null;
+  email: string;
+  journeyId: string | null;
+  locale: string;
+  message: string;
+  name: string;
+  occurredAtMs: number;
+  origin: string;
+  pageUrl: string;
+  phone: string;
+  service: string;
+  siteLabel: string;
+  submissionId: string;
+  userId: string;
+  vehicle: string;
+};
+
+export type PersistedQuoteRequestLead = {
+  contactId: string | null;
+  journeyId: string;
+  leadRecordId: string | null;
+};
 
 export type QuoteLeadSyncConfig = {
   apiKey: string;
@@ -22,6 +48,37 @@ type ResolvedLeadContext = {
   journey: Journey;
   leadRecord: LeadRecord;
 };
+
+export async function persistQuoteRequestLeadIntake(args: {
+  input: QuoteRequestLeadIntake;
+  repos: LeadCoreRepos;
+}): Promise<PersistedQuoteRequestLead> {
+  const bundle = buildFormLeadBundle({
+    submissionId: args.input.submissionId,
+    occurredAt: args.input.occurredAtMs,
+    journeyId: args.input.journeyId,
+    clientEventId: args.input.clientEventId,
+    attribution: args.input.attribution,
+    email: args.input.email,
+    locale: args.input.locale,
+    message: args.input.message,
+    name: args.input.name,
+    origin: args.input.origin,
+    pageUrl: args.input.pageUrl,
+    phone: args.input.phone,
+    service: args.input.service,
+    siteLabel: args.input.siteLabel,
+    userId: args.input.userId,
+    vehicle: args.input.vehicle,
+  });
+  const persisted = await upsertLeadBundle(args.repos, bundle);
+
+  return {
+    contactId: persisted.contact?.contact_id ?? null,
+    journeyId: persisted.journey.journey_id,
+    leadRecordId: persisted.leadRecord?.lead_record_id ?? null,
+  };
+}
 
 async function resolveLeadContext(
   repos: LeadCoreRepos,

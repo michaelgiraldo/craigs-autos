@@ -86,6 +86,12 @@ Quote form wiring (injected by `amplify/backend.ts`):
 - `QUOTE_SUBMISSIONS_TABLE_NAME`
 - `QUOTE_FOLLOWUP_FUNCTION_NAME`
 
+Quote request domain code:
+
+- Quote request record types and default state live in `amplify/functions/_lead-core/domain/quote-request.ts`.
+- Quote request journey persistence and follow-up-to-lead sync live in `amplify/functions/_lead-core/services/quote-request.ts`.
+- Public submit handlers and async workers should call the shared lead-core service instead of keeping separate worker-local lead sync logic.
+
 ## Endpoints and discovery
 
 The backend exposes one public HTTP API and routes stable paths to Lambdas.

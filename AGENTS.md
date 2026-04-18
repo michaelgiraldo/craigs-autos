@@ -162,7 +162,10 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
 
 - Quote form follow-up workflow:
   - Change `amplify/functions/contact-submit/handler.ts`
+  - Quote request record shape lives in `amplify/functions/_lead-core/domain/quote-request.ts`
+  - Journey/lead persistence and follow-up sync live in `amplify/functions/_lead-core/services/quote-request.ts`
   - Async follow-up lives in `amplify/functions/quote-followup/*`
+  - Do not recreate worker-local lead sync helpers; follow-up outcomes should update lead records through the shared lead-core service
   - QUO may be intentionally disabled; when that is true, submissions should stay in manual follow-up rather than surfacing as SMS failures
 
 - Contact form intake / async follow-up:

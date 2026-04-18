@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createContactSubmitHandler } from './handler.ts';
-import type { QuoteSubmissionRecord } from '../_shared/quote-submissions.ts';
+import type { QuoteSubmissionRecord } from '../_lead-core/domain/quote-request.ts';
 
 test('contact-submit queues quote follow-up when phone is provided', async () => {
   const queued: QuoteSubmissionRecord[] = [];
@@ -125,7 +125,7 @@ test('contact-submit internal smoke mode persists the lead bundle without queuin
     createSubmissionId: () => 'submission-smoke',
     nowEpochSeconds: () => 5_000,
     siteLabel: 'cesar.autos',
-    persistLeadBundle: async () => ({
+    persistQuoteRequest: async () => ({
       journeyId: 'journey-smoke',
       leadRecordId: 'lead-smoke',
       contactId: 'contact-smoke',
@@ -162,7 +162,7 @@ test('contact-submit queues quote follow-up with immutable lead linkage context'
     createSubmissionId: () => 'submission-linked',
     nowEpochSeconds: () => 6_000,
     siteLabel: 'cesar.autos',
-    persistLeadBundle: async () => ({
+    persistQuoteRequest: async () => ({
       journeyId: 'journey-linked',
       leadRecordId: 'lead-linked',
       contactId: 'contact-linked',
