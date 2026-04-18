@@ -4,6 +4,7 @@ import { SESv2Client } from '@aws-sdk/client-sesv2';
 import { SchedulerClient } from '@aws-sdk/client-scheduler';
 import OpenAI from 'openai';
 import { z } from 'zod';
+import { CRAIGS_LEAD_ENV_DEFAULTS } from '../../../shared/business-profile.js';
 import type { TranscriptLine } from './lead-types.ts';
 
 const chatLeadHandoffEnvSchema = z.object({
@@ -27,26 +28,31 @@ export const messageLinkDb = messageLinkTokenTableName?.trim()
   ? DynamoDBDocumentClient.from(new DynamoDBClient({}))
   : null;
 
-export const leadToEmail = process.env.LEAD_TO_EMAIL ?? 'leads@craigs.autos';
-export const leadFromEmail = process.env.LEAD_FROM_EMAIL ?? 'leads@craigs.autos';
+export const leadToEmail = process.env.LEAD_TO_EMAIL ?? CRAIGS_LEAD_ENV_DEFAULTS.LEAD_TO_EMAIL;
+export const leadFromEmail =
+  process.env.LEAD_FROM_EMAIL ?? CRAIGS_LEAD_ENV_DEFAULTS.LEAD_FROM_EMAIL;
 export const leadSummaryModel = process.env.LEAD_SUMMARY_MODEL ?? 'gpt-5.2-2025-12-11';
 export const quoEnabled = isEnabledValue(process.env.QUO_ENABLED);
 export const quoApiKey = process.env.QUO_API_KEY?.trim() ?? '';
 export const quoFromPhoneNumberId = process.env.QUO_FROM_PHONE_NUMBER_ID?.trim() ?? '';
 export const quoUserId = process.env.QUO_USER_ID?.trim() ?? '';
 export const quoContactSource =
-  process.env.QUO_CONTACT_SOURCE?.trim() ?? 'craigs-auto-upholstery-web';
+  process.env.QUO_CONTACT_SOURCE?.trim() ?? CRAIGS_LEAD_ENV_DEFAULTS.QUO_CONTACT_SOURCE;
 export const quoContactExternalIdPrefix =
-  process.env.QUO_CONTACT_EXTERNAL_ID_PREFIX?.trim() ?? 'craigs-auto-upholstery';
+  process.env.QUO_CONTACT_EXTERNAL_ID_PREFIX?.trim() ??
+  CRAIGS_LEAD_ENV_DEFAULTS.QUO_CONTACT_EXTERNAL_ID_PREFIX;
 export const quoLeadTagsFieldKey = process.env.QUO_LEAD_TAGS_FIELD_KEY?.trim() ?? '';
-export const quoLeadTagsFieldName = process.env.QUO_LEAD_TAGS_FIELD_NAME?.trim() ?? 'Lead Tags';
+export const quoLeadTagsFieldName =
+  process.env.QUO_LEAD_TAGS_FIELD_NAME?.trim() ?? CRAIGS_LEAD_ENV_DEFAULTS.QUO_LEAD_TAGS_FIELD_NAME;
 export const leadRetrySchedulerRoleArn = process.env.LEAD_RETRY_SCHEDULER_ROLE_ARN ?? '';
 export const leadRetryScheduleGroupName = process.env.LEAD_RETRY_SCHEDULE_GROUP ?? 'default';
 
-export const SHOP_NAME = process.env.SHOP_NAME ?? "Craig's Auto Upholstery";
-export const SHOP_PHONE_DISPLAY = process.env.SHOP_PHONE_DISPLAY ?? '(408) 379-3820';
-export const SHOP_PHONE_DIGITS = process.env.SHOP_PHONE_DIGITS ?? '4083793820';
-export const SHOP_ADDRESS = process.env.SHOP_ADDRESS ?? '271 Bestor St, San Jose, CA 95112';
+export const SHOP_NAME = process.env.SHOP_NAME ?? CRAIGS_LEAD_ENV_DEFAULTS.SHOP_NAME;
+export const SHOP_PHONE_DISPLAY =
+  process.env.SHOP_PHONE_DISPLAY ?? CRAIGS_LEAD_ENV_DEFAULTS.SHOP_PHONE_DISPLAY;
+export const SHOP_PHONE_DIGITS =
+  process.env.SHOP_PHONE_DIGITS ?? CRAIGS_LEAD_ENV_DEFAULTS.SHOP_PHONE_DIGITS;
+export const SHOP_ADDRESS = process.env.SHOP_ADDRESS ?? CRAIGS_LEAD_ENV_DEFAULTS.SHOP_ADDRESS;
 
 export const ses = new SESv2Client({});
 export const scheduler = leadRetrySchedulerRoleArn ? new SchedulerClient({}) : null;

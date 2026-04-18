@@ -1,4 +1,5 @@
 import { defineFunction, secret } from '@aws-amplify/backend';
+import { CRAIGS_LEAD_ENV_DEFAULTS } from '../../../shared/business-profile.js';
 
 export const chatLeadHandoff = defineFunction({
   name: 'chat-lead-handoff',
@@ -9,15 +10,16 @@ export const chatLeadHandoff = defineFunction({
     QUO_ENABLED: 'false',
     QUO_FROM_PHONE_NUMBER_ID: '',
     QUO_USER_ID: '',
-    QUO_CONTACT_SOURCE: 'craigs-auto-upholstery-web',
-    QUO_CONTACT_EXTERNAL_ID_PREFIX: 'craigs-auto-upholstery',
+    QUO_CONTACT_SOURCE: CRAIGS_LEAD_ENV_DEFAULTS.QUO_CONTACT_SOURCE,
+    QUO_CONTACT_EXTERNAL_ID_PREFIX: CRAIGS_LEAD_ENV_DEFAULTS.QUO_CONTACT_EXTERNAL_ID_PREFIX,
     QUO_LEAD_TAGS_FIELD_KEY: '',
-    LEAD_TO_EMAIL: 'leads@craigs.autos',
-    LEAD_FROM_EMAIL: 'leads@craigs.autos',
+    QUO_LEAD_TAGS_FIELD_NAME: CRAIGS_LEAD_ENV_DEFAULTS.QUO_LEAD_TAGS_FIELD_NAME,
+    LEAD_TO_EMAIL: CRAIGS_LEAD_ENV_DEFAULTS.LEAD_TO_EMAIL,
+    LEAD_FROM_EMAIL: CRAIGS_LEAD_ENV_DEFAULTS.LEAD_FROM_EMAIL,
     LEAD_SUMMARY_MODEL: 'gpt-5.2-2025-12-11',
-    SHOP_NAME: "Craig's Auto Upholstery",
-    SHOP_PHONE_DISPLAY: '(408) 379-3820',
-    SHOP_PHONE_DIGITS: '4083793820',
-    SHOP_ADDRESS: '271 Bestor St, San Jose, CA 95112',
+    SHOP_NAME: CRAIGS_LEAD_ENV_DEFAULTS.SHOP_NAME,
+    SHOP_PHONE_DISPLAY: CRAIGS_LEAD_ENV_DEFAULTS.SHOP_PHONE_DISPLAY,
+    SHOP_PHONE_DIGITS: CRAIGS_LEAD_ENV_DEFAULTS.SHOP_PHONE_DIGITS,
+    SHOP_ADDRESS: CRAIGS_LEAD_ENV_DEFAULTS.SHOP_ADDRESS,
   },
 });

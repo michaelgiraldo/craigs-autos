@@ -1,5 +1,5 @@
 import { getErrorDetails } from '../_shared/safe.ts';
-import { buildOutreachDrafts } from './drafts';
+import { buildOutreachDrafts } from '../_lead-core/services/outreach-drafts';
 import { type InitialOutreachState, sendTranscriptEmail } from './email-delivery';
 import type {
   LeadAttachment,
@@ -14,7 +14,7 @@ import {
   markLeadQuoError,
   markLeadQuoSent,
 } from './dedupe-store.ts';
-import { sendQuoTextMessage } from './quo.ts';
+import { sendQuoTextMessage } from '../_shared/quo-client.ts';
 
 export type ChatOutreachResult = {
   automatedTextSent: boolean;

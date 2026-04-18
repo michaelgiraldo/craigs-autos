@@ -11,7 +11,7 @@ test('contact-submit queues quote follow-up when phone is provided', async () =>
     configValid: true,
     createSubmissionId: () => 'submission-1',
     nowEpochSeconds: () => 1_000,
-    siteLabel: 'cesar.autos',
+    siteLabel: 'example.test',
     queueSubmission: async (record) => {
       queued.push(record);
     },
@@ -22,7 +22,7 @@ test('contact-submit queues quote follow-up when phone is provided', async () =>
 
   const result = await handler({
     requestContext: { http: { method: 'POST' } },
-    headers: { origin: 'https://cesar.autos/contact' },
+    headers: { origin: 'https://example.test/contact' },
     body: JSON.stringify({
       name: 'Michael',
       phone: '(408) 555-0101',
@@ -44,7 +44,7 @@ test('contact-submit rejects non-POST HTTP methods', async () => {
     configValid: true,
     createSubmissionId: () => 'submission-method',
     nowEpochSeconds: () => 1_000,
-    siteLabel: 'cesar.autos',
+    siteLabel: 'example.test',
     queueSubmission: async () => undefined,
     invokeFollowup: async () => undefined,
   });
@@ -61,7 +61,7 @@ test('contact-submit rejects invalid JSON bodies before validation', async () =>
     configValid: true,
     createSubmissionId: () => 'submission-json',
     nowEpochSeconds: () => 1_000,
-    siteLabel: 'cesar.autos',
+    siteLabel: 'example.test',
     queueSubmission: async () => undefined,
     invokeFollowup: async () => undefined,
   });
@@ -83,7 +83,7 @@ test('contact-submit queues quote follow-up when email is provided without phone
     configValid: true,
     createSubmissionId: () => 'submission-2',
     nowEpochSeconds: () => 2_000,
-    siteLabel: 'cesar.autos',
+    siteLabel: 'example.test',
     queueSubmission: async (record) => {
       queued.push(record);
     },
@@ -112,7 +112,7 @@ test('contact-submit rejects requests without a contact method', async () => {
     configValid: true,
     createSubmissionId: () => 'submission-3',
     nowEpochSeconds: () => 3_000,
-    siteLabel: 'cesar.autos',
+    siteLabel: 'example.test',
     queueSubmission: async () => undefined,
     invokeFollowup: async () => undefined,
   });
@@ -135,7 +135,7 @@ test('contact-submit returns benign success for honeypot submissions', async () 
     configValid: true,
     createSubmissionId: () => 'submission-4',
     nowEpochSeconds: () => 4_000,
-    siteLabel: 'cesar.autos',
+    siteLabel: 'example.test',
     queueSubmission: async () => undefined,
     invokeFollowup: async () => undefined,
   });
@@ -160,7 +160,7 @@ test('contact-submit internal smoke mode persists the lead bundle without queuin
     configValid: true,
     createSubmissionId: () => 'submission-smoke',
     nowEpochSeconds: () => 5_000,
-    siteLabel: 'cesar.autos',
+    siteLabel: 'example.test',
     persistQuoteRequest: async () => ({
       journeyId: 'journey-smoke',
       leadRecordId: 'lead-smoke',
@@ -197,7 +197,7 @@ test('contact-submit queues quote follow-up with immutable lead linkage context'
     configValid: true,
     createSubmissionId: () => 'submission-linked',
     nowEpochSeconds: () => 6_000,
-    siteLabel: 'cesar.autos',
+    siteLabel: 'example.test',
     persistQuoteRequest: async () => ({
       journeyId: 'journey-linked',
       leadRecordId: 'lead-linked',
@@ -211,12 +211,12 @@ test('contact-submit queues quote follow-up with immutable lead linkage context'
 
   const result = await handler({
     requestContext: { http: { method: 'POST' } },
-    headers: { origin: 'https://cesar.autos/en/contact' },
+    headers: { origin: 'https://example.test/en/contact' },
     body: JSON.stringify({
       name: 'Michael',
       phone: '(408) 555-0101',
       locale: 'en',
-      pageUrl: 'https://cesar.autos/en/contact',
+      pageUrl: 'https://example.test/en/contact',
       user: 'anon-user',
       attribution: { utm_source: 'google' },
     }),
@@ -227,6 +227,6 @@ test('contact-submit queues quote follow-up with immutable lead linkage context'
   assert.equal(queued[0]?.journey_id, 'journey-linked');
   assert.equal(queued[0]?.lead_record_id, 'lead-linked');
   assert.equal(queued[0]?.contact_id, 'contact-linked');
-  assert.equal(queued[0]?.page_url, 'https://cesar.autos/en/contact');
+  assert.equal(queued[0]?.page_url, 'https://example.test/en/contact');
   assert.equal(queued[0]?.user_id, 'anon-user');
 });

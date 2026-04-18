@@ -84,8 +84,8 @@ test('syncQuoLeadContact upserts Quo contacts and persists remote tags', async (
           data: [
             {
               id: 'CT_123',
-              source: 'abc-upholstery-web',
-              externalId: 'abc-upholstery:phone:+16173062716',
+              source: 'test-upholstery-web',
+              externalId: 'test-upholstery:phone:+16173062716',
               customFields: [{ key: 'lead_tags', value: ['Form Lead'] }],
             },
           ],
@@ -99,8 +99,8 @@ test('syncQuoLeadContact upserts Quo contacts and persists remote tags', async (
         JSON.stringify({
           data: {
             id: 'CT_123',
-            source: 'abc-upholstery-web',
-            externalId: 'abc-upholstery:phone:+16173062716',
+            source: 'test-upholstery-web',
+            externalId: 'test-upholstery:phone:+16173062716',
             customFields: [{ key: 'lead_tags', value: ['Form Lead', 'Chat Lead'] }],
           },
         }),
@@ -157,8 +157,8 @@ test('syncQuoLeadContact upserts Quo contacts and persists remote tags', async (
       occurredAtMs: 2_001,
       config: {
         apiKey: 'quo_test_key',
-        source: 'abc-upholstery-web',
-        externalIdPrefix: 'abc-upholstery',
+        source: 'test-upholstery-web',
+        externalIdPrefix: 'test-upholstery',
       },
     });
 

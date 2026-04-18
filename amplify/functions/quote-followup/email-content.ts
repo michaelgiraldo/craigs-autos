@@ -2,7 +2,7 @@ import type {
   QuoteOutreachResult,
   QuoteSubmissionRecord,
 } from '../_lead-core/domain/quote-request.ts';
-import { escapeHtml } from '../chat-lead-handoff/text-utils.ts';
+import { escapeHtml } from '../_shared/text-utils.ts';
 
 function compact(value: string): string {
   return value

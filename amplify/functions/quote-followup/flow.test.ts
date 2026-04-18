@@ -29,7 +29,7 @@ test('async quote flow sends SMS first and notifies the owner end-to-end', async
       aiStatus: 'generated',
       drafts: {
         smsBody: 'Please text us 2-4 photos.',
-        emailSubject: 'ABC Upholstery - next steps',
+        emailSubject: 'Test Upholstery - next steps',
         emailBody: 'Please email us 2-4 photos.',
         missingInfo: ['photos'],
       },
@@ -52,7 +52,7 @@ test('async quote flow sends SMS first and notifies the owner end-to-end', async
     configValid: true,
     createSubmissionId: () => 'submission-1',
     nowEpochSeconds: () => 1_000,
-    siteLabel: 'cesar.autos',
+    siteLabel: 'example.test',
     queueSubmission: async (record) => {
       submissions.set(record.submission_id, { ...record });
     },
@@ -64,7 +64,7 @@ test('async quote flow sends SMS first and notifies the owner end-to-end', async
 
   const result = await contactSubmit({
     requestContext: { http: { method: 'POST' } },
-    headers: { origin: 'https://cesar.autos/en/contact' },
+    headers: { origin: 'https://example.test/en/contact' },
     body: JSON.stringify({
       name: 'Michael',
       phone: '(617) 306-2716',
@@ -109,7 +109,7 @@ test('async quote flow falls back to email when the stored submission has no pho
       aiStatus: 'generated',
       drafts: {
         smsBody: 'Please text us 2-4 photos.',
-        emailSubject: 'ABC Upholstery - next steps',
+        emailSubject: 'Test Upholstery - next steps',
         emailBody: 'Please email us 2-4 photos.',
         missingInfo: [],
       },
@@ -140,13 +140,13 @@ test('async quote flow falls back to email when the stored submission has no pho
     vehicle: '1969 Camaro',
     service: 'full-restoration',
     message: 'Looking for interior restoration.',
-    origin: 'https://cesar.autos/en/request-a-quote',
-    site_label: 'cesar.autos',
+    origin: 'https://example.test/en/request-a-quote',
+    site_label: 'example.test',
     journey_id: null,
     lead_record_id: null,
     contact_id: null,
     locale: 'en',
-    page_url: 'https://cesar.autos/en/request-a-quote',
+    page_url: 'https://example.test/en/request-a-quote',
     user_id: 'anon-customer',
     attribution: null,
     ai_status: null,
@@ -190,7 +190,7 @@ test('contact submit marks the submission as error when worker invocation fails'
     configValid: true,
     createSubmissionId: () => 'submission-3',
     nowEpochSeconds: () => 1_000,
-    siteLabel: 'cesar.autos',
+    siteLabel: 'example.test',
     queueSubmission: async (record) => {
       submissions.set(record.submission_id, { ...record });
     },
@@ -201,7 +201,7 @@ test('contact submit marks the submission as error when worker invocation fails'
 
   const result = await contactSubmit({
     requestContext: { http: { method: 'POST' } },
-    headers: { origin: 'https://cesar.autos/en/contact' },
+    headers: { origin: 'https://example.test/en/contact' },
     body: JSON.stringify({
       name: 'Customer',
       phone: '(617) 306-2716',

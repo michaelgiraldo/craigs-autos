@@ -18,7 +18,7 @@ test('lead-signal handler rejects invalid events', async () => {
     requestContext: { http: { method: 'POST' } },
     body: JSON.stringify({
       event: 'not_a_real_event',
-      pageUrl: 'https://cesar.autos/en/',
+      pageUrl: 'https://example.test/en/',
     }),
   });
 
@@ -46,10 +46,10 @@ test('lead-signal handler writes a journey event for valid payload', async () =>
     requestContext: { http: { method: 'POST' } },
     body: JSON.stringify({
       event: 'lead_click_to_call',
-      pageUrl: 'https://cesar.autos/en/contact/?gclid=test-gclid',
+      pageUrl: 'https://example.test/en/contact/?gclid=test-gclid',
       user: 'anon_123',
       locale: 'en',
-      clickUrl: 'tel:+14083793820',
+      clickUrl: 'tel:+14085550100',
       provider: null,
       attribution: {
         utm_source: 'google',
@@ -89,7 +89,7 @@ test('lead-signal handler dedupes retried browser events by client event id', as
     journey_id: 'journey-shared',
     client_event_id: 'client-event-1',
     occurred_at_ms: 900,
-    pageUrl: 'https://craigs.autos/en/contact/',
+    pageUrl: 'https://example.test/en/contact/',
     clickUrl: 'sms:+14085550101',
   };
 

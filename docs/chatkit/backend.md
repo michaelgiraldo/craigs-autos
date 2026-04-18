@@ -62,10 +62,15 @@ They are referenced in code via Amplify's `secret(...)`:
 
 ### Function environment variables (defaults)
 
+Craig's business identity and lead-delivery defaults are sourced from
+`shared/business-profile.js`. Runtime resources should import
+`CRAIGS_LEAD_ENV_DEFAULTS` instead of duplicating shop name, phone, address,
+email, domain, map URL, QUO source, or QUO external-id strings.
+
 Shop notification email defaults (can be overridden later):
 
-- `LEAD_TO_EMAIL` (default: `leads@craigs.autos`)
-- `LEAD_FROM_EMAIL` (default: `leads@craigs.autos`)
+- `LEAD_TO_EMAIL` (default from `shared/business-profile.js`)
+- `LEAD_FROM_EMAIL` (default from `shared/business-profile.js`)
 - `LEAD_SUMMARY_MODEL` (default: `gpt-5.2-2025-12-11`)
 
 Idempotency wiring (injected by `amplify/backend.ts`):
@@ -102,6 +107,13 @@ Quote request domain code:
 - Quote follow-up HTTP response mapping lives in `amplify/functions/quote-followup/handler.ts`.
 - Quote follow-up orchestration, state transitions, DynamoDB storage, SES delivery, QUO SMS, lead sync, and AWS/OpenAI runtime wiring live in separate files under `amplify/functions/quote-followup/`.
 - Public submit handlers and async workers should call the lead-core service instead of keeping separate worker-local lead sync logic.
+
+Shared backend utilities:
+
+- Generic text/URL/email/phone helpers live in `amplify/functions/_shared/text-utils.ts`.
+- The QUO API client lives in `amplify/functions/_shared/quo-client.ts`.
+- Shared outreach draft assembly lives in `amplify/functions/_lead-core/services/outreach-drafts.ts`.
+- Chat-specific transcript parsing and subject behavior stays under `amplify/functions/chat-lead-handoff/`.
 
 ## Endpoints and discovery
 
@@ -225,7 +237,7 @@ Implementation:
    - attachments included as text lines (name/mime/hosted preview URL)
 5) Extract contact info from customer messages only:
    - email regex
-   - phone regex (excluding the shop phone digits `4083793820`)
+   - phone regex (excluding the configured shop phone digits)
 6) Generate internal lead summary:
    - OpenAI Responses API: `openai.responses.parse(...)`
    - Strict JSON schema (Structured Outputs)

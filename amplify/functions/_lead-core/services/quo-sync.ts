@@ -9,7 +9,7 @@ import {
   listQuoContactCustomFields,
   listQuoContacts,
   updateQuoContact,
-} from '../../chat-lead-handoff/quo.ts';
+} from '../../_shared/quo-client.ts';
 import { mergeLeadContacts } from './contact-identity.ts';
 import { buildJourneyEvent } from './journey-events.ts';
 
@@ -32,10 +32,8 @@ export function buildQuoLeadTag(channel: CaptureChannel): QuoLeadTag {
   return channel === 'chat' ? 'Chat Lead' : 'Form Lead';
 }
 
-export function buildQuoExternalId(
-  contact: LeadContact,
-  sourcePrefix = 'craigs-auto-upholstery',
-): string | null {
+export function buildQuoExternalId(contact: LeadContact, sourcePrefix: string): string | null {
+  if (!sourcePrefix.trim()) return null;
   if (contact.normalized_phone) return `${sourcePrefix}:phone:${contact.normalized_phone}`;
   if (contact.normalized_email) return `${sourcePrefix}:email:${contact.normalized_email}`;
   return null;
@@ -51,7 +49,7 @@ export function buildQuoContactUpsert(args: {
   leadTagsFieldKey: string;
   existingTags?: string[];
   source?: string;
-  externalIdPrefix?: string;
+  externalIdPrefix: string;
   sourceUrl?: string | null;
 }): QuoContactUpsertPayload | null {
   const externalId = buildQuoExternalId(args.contact, args.externalIdPrefix);
@@ -73,7 +71,7 @@ export function buildQuoContactUpsert(args: {
   }
 
   return {
-    source: args.source ?? 'craigs-auto-upholstery-web',
+    source: args.source ?? '',
     externalId,
     ...(args.sourceUrl ? { sourceUrl: args.sourceUrl } : {}),
     defaultFields,
@@ -146,11 +144,13 @@ async function upsertQuoLeadContact(args: {
   const source =
     typeof args.config.source === 'string' && args.config.source.trim()
       ? args.config.source.trim()
-      : 'craigs-auto-upholstery-web';
+      : '';
   const externalIdPrefix =
     typeof args.config.externalIdPrefix === 'string' && args.config.externalIdPrefix.trim()
       ? args.config.externalIdPrefix.trim()
-      : 'craigs-auto-upholstery';
+      : '';
+  if (!source) throw new Error('QUO contact source is missing');
+  if (!externalIdPrefix) throw new Error('QUO external id prefix is missing');
   const leadTagsFieldKey = await resolveLeadTagsFieldKey(args.config);
   const payloadBase = buildQuoContactUpsert({
     contact: args.contact,
@@ -287,11 +287,10 @@ export async function syncQuoLeadContact(args: {
           quo_contact_id: synced.quoContactId,
           quo_tags: synced.quoTags,
           lead_tags_field_key: synced.leadTagsFieldKey,
-          source: args.config.source ?? 'craigs-auto-upholstery-web',
-          external_id: buildQuoExternalId(
-            contact,
-            args.config.externalIdPrefix ?? 'craigs-auto-upholstery',
-          ),
+          source: args.config.source ?? null,
+          external_id: args.config.externalIdPrefix
+            ? buildQuoExternalId(contact, args.config.externalIdPrefix)
+            : null,
         },
       }),
     );
@@ -317,7 +316,7 @@ export async function syncQuoLeadContact(args: {
           discriminator: `${args.leadRecord.lead_record_id}:${args.leadRecord.latest_outreach.external_id ?? ''}:${errorMessage}`,
           payload: {
             error: errorMessage,
-            source: args.config.source ?? 'craigs-auto-upholstery-web',
+            source: args.config.source ?? null,
             configured_field_name: args.config.leadTagsFieldName ?? null,
             configured_field_key: args.config.leadTagsFieldKey ?? null,
           },

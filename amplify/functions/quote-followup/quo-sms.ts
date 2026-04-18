@@ -1,4 +1,4 @@
-import { sendQuoTextMessage } from '../chat-lead-handoff/quo.ts';
+import { sendQuoTextMessage } from '../_shared/quo-client.ts';
 import type { QuoteFollowupDeps } from './types.ts';
 
 export function createQuoSmsSender(args: {

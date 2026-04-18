@@ -62,6 +62,7 @@ CHATKIT_WORKFLOW_ID=wf_...
 - Run site + local ChatKit dev API: `npm run dev:local`
 - Build site only: `npm run build`
 - Build release assets + site: `npm run build:release`
+- Business identity guardrail: `npm run validate:business-profile`
 
 Typecheck (backend):
 
@@ -99,6 +100,17 @@ Local ChatKit dev API:
   - `POST /lead-signal`
   - `GET|POST /admin/leads`
 
+### Business identity source of truth
+
+- Craig's canonical business facts live in `shared/business-profile.js`.
+- Type declarations live in `shared/business-profile.d.ts`.
+- Frontend site metadata, Lambda environment defaults, outreach signatures, and
+  QUO source/external-id defaults should derive from this profile.
+- Do not hardcode shop name, phone, address, email, domain, map URL, or QUO source
+  strings throughout runtime code or copied tests.
+- Run `npm run validate:business-profile` after changing business identity,
+  lead-delivery defaults, or imported client fixtures.
+
 ### Secrets
 
 Amplify Secrets (write-only) must be configured per environment/branch:
@@ -113,8 +125,8 @@ Do not store these in the frontend or in git.
 - SES must be configured in the same region as the Amplify backend.
 - Sender identity must be verified.
 - Defaults live in `amplify/functions/chat-lead-handoff/resource.ts`:
-  - `LEAD_TO_EMAIL` (recipient, default `leads@craigs.autos`)
-  - `LEAD_FROM_EMAIL` (sender, default `leads@craigs.autos`)
+  - `LEAD_TO_EMAIL` (recipient, default from `shared/business-profile.js`)
+  - `LEAD_FROM_EMAIL` (sender, default from `shared/business-profile.js`)
 - Quote follow-up defaults live in `amplify/functions/quote-followup/resource.ts`:
   - `CONTACT_TO_EMAIL` / `CONTACT_FROM_EMAIL`
   - `QUOTE_CUSTOMER_*`
@@ -159,6 +171,9 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
 
 - Chat lead handoff / notification email / idempotency:
   - Change `amplify/functions/chat-lead-handoff/*` and/or `amplify/backend.ts`.
+  - Shared outreach draft generation lives in `amplify/functions/_lead-core/services/outreach-drafts.ts`.
+  - Generic QUO client code lives in `amplify/functions/_shared/quo-client.ts`.
+  - Generic text utilities live in `amplify/functions/_shared/text-utils.ts`.
 
 - Quote form follow-up workflow:
   - Lambda wrapper lives in `amplify/functions/contact-submit/handler.ts`

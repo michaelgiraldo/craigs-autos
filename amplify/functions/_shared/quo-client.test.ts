@@ -6,7 +6,7 @@ import {
   listQuoContacts,
   sendQuoTextMessage,
   updateQuoContact,
-} from './quo.ts';
+} from './quo-client.ts';
 
 test('sendQuoTextMessage posts to Quo with raw API key auth', async () => {
   const originalFetch = globalThis.fetch;
@@ -33,7 +33,7 @@ test('sendQuoTextMessage posts to Quo with raw API key auth', async () => {
       apiKey: 'quo_test_key',
       fromPhoneNumberId: 'PNidOReTRw',
       toE164: '+16173062716',
-      content: 'Hello from ABC Upholstery',
+      content: 'Hello from Test Upholstery',
       userId: 'USqKcpjD6K',
     });
 
@@ -65,9 +65,9 @@ test('sendQuoTextMessage rejects invalid phone number IDs before sending', async
   await assert.rejects(
     sendQuoTextMessage({
       apiKey: 'quo_test_key',
-      fromPhoneNumberId: '4082416800',
+      fromPhoneNumberId: 'not-a-phone-number-id',
       toE164: '+16173062716',
-      content: 'Hello from ABC Upholstery',
+      content: 'Hello from Test Upholstery',
     }),
     /must start with PN/,
   );
@@ -88,8 +88,8 @@ test('Quo contact helpers list fields, list contacts, and create/update contacts
         data: [
           {
             id: 'CT_123',
-            source: 'abc-upholstery-web',
-            externalId: 'abc-upholstery:phone:+16173062716',
+            source: 'test-upholstery-web',
+            externalId: 'test-upholstery:phone:+16173062716',
             customFields: [{ key: 'lead_tags', value: ['Chat Lead'] }],
           },
         ],
@@ -100,8 +100,8 @@ test('Quo contact helpers list fields, list contacts, and create/update contacts
       JSON.stringify({
         data: {
           id: 'CT_123',
-          source: 'abc-upholstery-web',
-          externalId: 'abc-upholstery:phone:+16173062716',
+          source: 'test-upholstery-web',
+          externalId: 'test-upholstery:phone:+16173062716',
           customFields: [{ key: 'lead_tags', value: ['Form Lead'] }],
         },
       }),
@@ -111,8 +111,8 @@ test('Quo contact helpers list fields, list contacts, and create/update contacts
       JSON.stringify({
         data: {
           id: 'CT_123',
-          source: 'abc-upholstery-web',
-          externalId: 'abc-upholstery:phone:+16173062716',
+          source: 'test-upholstery-web',
+          externalId: 'test-upholstery:phone:+16173062716',
           customFields: [{ key: 'lead_tags', value: ['Form Lead', 'Chat Lead'] }],
         },
       }),
@@ -131,15 +131,15 @@ test('Quo contact helpers list fields, list contacts, and create/update contacts
     const customFields = await listQuoContactCustomFields({ apiKey: 'quo_test_key' });
     const contacts = await listQuoContacts({
       apiKey: 'quo_test_key',
-      externalIds: ['abc-upholstery:phone:+16173062716'],
-      sources: ['abc-upholstery-web'],
+      externalIds: ['test-upholstery:phone:+16173062716'],
+      sources: ['test-upholstery-web'],
       maxResults: 5,
     });
     const created = await createQuoContact({
       apiKey: 'quo_test_key',
       payload: {
-        source: 'abc-upholstery-web',
-        externalId: 'abc-upholstery:phone:+16173062716',
+        source: 'test-upholstery-web',
+        externalId: 'test-upholstery:phone:+16173062716',
         defaultFields: {
           phoneNumbers: [{ name: 'mobile', value: '+16173062716' }],
         },
@@ -150,8 +150,8 @@ test('Quo contact helpers list fields, list contacts, and create/update contacts
       apiKey: 'quo_test_key',
       contactId: 'CT_123',
       payload: {
-        source: 'abc-upholstery-web',
-        externalId: 'abc-upholstery:phone:+16173062716',
+        source: 'test-upholstery-web',
+        externalId: 'test-upholstery:phone:+16173062716',
         defaultFields: {
           phoneNumbers: [{ name: 'mobile', value: '+16173062716' }],
         },
@@ -165,8 +165,8 @@ test('Quo contact helpers list fields, list contacts, and create/update contacts
     assert.deepEqual(contacts[0]?.customFields[0]?.value, ['Chat Lead']);
     assert.equal(created.id, 'CT_123');
     assert.equal(updated.id, 'CT_123');
-    assert.match(requests[1]?.url ?? '', /externalIds=abc-upholstery%3Aphone%3A%2B16173062716/);
-    assert.match(requests[1]?.url ?? '', /sources=abc-upholstery-web/);
+    assert.match(requests[1]?.url ?? '', /externalIds=test-upholstery%3Aphone%3A%2B16173062716/);
+    assert.match(requests[1]?.url ?? '', /sources=test-upholstery-web/);
     assert.equal(requests[2]?.init?.method, 'POST');
     assert.equal(requests[3]?.init?.method, 'PATCH');
   } finally {

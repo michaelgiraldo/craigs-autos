@@ -1,37 +1,31 @@
 /** @typedef {{ label: string, nativeLabel: string, englishLabel: string, lang: string, hreflang: string, base: string }} LocaleMeta */
 
-export const BRAND_NAME = "Craig's Auto Upholstery";
+import { CRAIGS_BUSINESS_PROFILE } from '../../../shared/business-profile.js';
+
+export const BRAND_NAME = CRAIGS_BUSINESS_PROFILE.name;
 
 export const SITE = {
-	url: 'https://craigs.autos',
-	phone: '+14083793820',
-	displayPhone: '(408) 379-3820',
-	email: 'contact@craigs.autos',
+	url: CRAIGS_BUSINESS_PROFILE.domains.canonicalUrl,
+	phone: CRAIGS_BUSINESS_PROFILE.phone.e164,
+	displayPhone: CRAIGS_BUSINESS_PROFILE.phone.display,
+	email: CRAIGS_BUSINESS_PROFILE.email.publicContact,
 	address: {
-		street: '271 Bestor St',
-		city: 'San Jose',
-		region: 'CA',
-		postalCode: '95112',
-		country: 'US',
+		street: CRAIGS_BUSINESS_PROFILE.address.street,
+		city: CRAIGS_BUSINESS_PROFILE.address.city,
+		region: CRAIGS_BUSINESS_PROFILE.address.region,
+		postalCode: CRAIGS_BUSINESS_PROFILE.address.postalCode,
+		country: CRAIGS_BUSINESS_PROFILE.address.country,
 	},
-	appleMapsUrl:
-		"https://maps.apple.com/place?place-id=I5191F0670292696E&address=271+Bestor+St%2C+San+Jose%2C+CA++95112%2C+United+States&coordinate=37.3241991%2C-121.8734233&name=Craig%27s+Auto+Upholstery&_provider=9902",
+	appleMapsUrl: CRAIGS_BUSINESS_PROFILE.maps.appleUrl,
 	geo: {
-		latitude: 37.3241016,
-		longitude: -121.8734335,
+		latitude: CRAIGS_BUSINESS_PROFILE.geo.latitude,
+		longitude: CRAIGS_BUSINESS_PROFILE.geo.longitude,
 	},
-	hours: [
-		{
-			days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-			opens: '08:00',
-			closes: '17:00',
-		},
-		{ days: ['Saturday'], opens: '08:00', closes: '14:00' },
-	],
-	sameAs: [
-		'https://www.yelp.com/biz/craigs-auto-upholstery-san-jose',
-		'https://share.google/7YeUZX7fufHdKULQN',
-	],
+	hours: CRAIGS_BUSINESS_PROFILE.hours.map((hours) => ({
+		...hours,
+		days: [...hours.days],
+	})),
+	sameAs: [...CRAIGS_BUSINESS_PROFILE.sameAs],
 };
 
 /** @type {string[]} */

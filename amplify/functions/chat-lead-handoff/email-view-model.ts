@@ -1,5 +1,6 @@
 import type { AttachmentResolution } from './attachments.ts';
-import { buildLeadEmailSubject, buildOutreachDrafts } from './drafts.ts';
+import { buildOutreachDrafts } from '../_lead-core/services/outreach-drafts.ts';
+import { buildLeadEmailSubject } from './drafts.ts';
 import { inferMessageLinkBaseUrl } from './message-link.ts';
 import {
   emailToMailto,

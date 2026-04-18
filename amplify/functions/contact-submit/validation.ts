@@ -1,4 +1,4 @@
-import { isPlausiblePhone } from '../chat-lead-handoff/text-utils.ts';
+import { isPlausiblePhone } from '../_shared/text-utils.ts';
 import type { ContactSubmitRequest } from './request.ts';
 
 export type ContactSubmitValidationResult =

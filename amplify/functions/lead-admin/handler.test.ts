@@ -65,7 +65,7 @@ test('lead-admin handler returns admin pages in repository order for authorized 
           capture_channel: 'form',
           title: 'Newer lead',
           display_name: 'Alex',
-          normalized_phone: '+14082416800',
+          normalized_phone: '+14085550100',
           normalized_email: null,
           device_type: 'mobile',
           source_platform: 'google_ads',

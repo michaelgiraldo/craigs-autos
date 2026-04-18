@@ -1,7 +1,7 @@
 import type OpenAI from 'openai';
 import { getErrorDetails } from '../_shared/safe.ts';
 import type { QuoteDrafts, QuoteSubmissionRecord } from '../_lead-core/domain/quote-request.ts';
-import { buildOutreachDrafts } from '../chat-lead-handoff/drafts.ts';
+import { buildOutreachDrafts } from '../_lead-core/services/outreach-drafts.ts';
 
 type QuoteDraftGenerationResult = {
   aiError: string;
@@ -102,9 +102,9 @@ export async function generateQuoteDrafts(args: {
         'Rules:',
         'Acknowledge the customer by name when available.',
         'Reference the submitted vehicle, requested service, or message when available.',
-        `Mention ${args.shopName} and include the shop phone ${args.shopPhoneDisplay}.`,
         'Ask for 2-4 photos when helpful.',
         'Ask for any missing details needed to move the request forward.',
+        'Do not include the shop name, phone number, address, or signature; the system appends the canonical business signature.',
         'Do not mention prices, estimates, timelines, or promises.',
         'Keep sms_body concise and text-friendly.',
         'Keep email_subject short and professional.',

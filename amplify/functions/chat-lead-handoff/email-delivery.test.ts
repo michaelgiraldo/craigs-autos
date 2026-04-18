@@ -2,13 +2,14 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import sharp from 'sharp';
 import type { SendEmailCommand } from '@aws-sdk/client-sesv2';
+import { CRAIGS_LEAD_ENV_DEFAULTS } from '../../../shared/business-profile.js';
 import { sendTranscriptEmail, type InitialOutreachState } from './email-delivery.ts';
 import type { LeadAttachment, LeadSummary, TranscriptLine } from './lead-types.ts';
 
-const SHOP_NAME = 'ABC Upholstery';
-const SHOP_PHONE_DISPLAY = '(408) 241-6800';
-const SHOP_PHONE_DIGITS = '4082416800';
-const SHOP_ADDRESS = '2221 Stevens Creek Blvd, Ste C, San Jose, CA 95128';
+const SHOP_NAME = CRAIGS_LEAD_ENV_DEFAULTS.SHOP_NAME;
+const SHOP_PHONE_DISPLAY = CRAIGS_LEAD_ENV_DEFAULTS.SHOP_PHONE_DISPLAY;
+const SHOP_PHONE_DIGITS = CRAIGS_LEAD_ENV_DEFAULTS.SHOP_PHONE_DIGITS;
+const SHOP_ADDRESS = CRAIGS_LEAD_ENV_DEFAULTS.SHOP_ADDRESS;
 const THREAD_ID = 'cthr_test_123';
 const TRANSCRIPT: TranscriptLine[] = [
   {
@@ -133,11 +134,11 @@ async function renderLeadEmail(args: {
 
   await sendTranscriptEmail({
     ses: ses as never,
-    leadToEmail: 'leads@cesar.autos',
-    leadFromEmail: 'website@cesar.autos',
+    leadToEmail: 'leads@example.test',
+    leadFromEmail: 'website@example.test',
     threadId: THREAD_ID,
     locale: 'en',
-    pageUrl: 'https://cesar.autos/en/',
+    pageUrl: 'https://example.test/en/',
     chatUser: 'anon_test_user',
     reason: 'idle',
     threadTitle: 'Seat repair',
@@ -175,13 +176,13 @@ test('sendTranscriptEmail shows QUO success state without SMS quick action', asy
       provider: 'quo',
       channel: 'sms',
       status: 'sent',
-      body: 'Hello from ABC Upholstery via QUO.',
+      body: 'Hello from Test Upholstery via QUO.',
       sentAt: 1775157365,
       messageId: 'QUO123',
     },
     createMessageLinkUrl: async () => {
       messageLinkCalls += 1;
-      return 'https://cesar.autos/message/token';
+      return 'https://example.test/message/token';
     },
   });
 
@@ -190,7 +191,7 @@ test('sendTranscriptEmail shows QUO success state without SMS quick action', asy
   assert.match(textBody, /Status: Sent via QUO/);
   assert.match(textBody, /QUO message ID: QUO123/);
   assert.match(textBody, /SMS sent via QUO:/);
-  assert.match(textBody, /Hello from ABC Upholstery via QUO\./);
+  assert.match(textBody, /Hello from Test Upholstery via QUO\./);
   assert.doesNotMatch(textBody, /Manual SMS fallback/);
   assert.doesNotMatch(htmlBody, /Send via SMS/);
   assert.match(htmlBody, /SMS sent via QUO/);
@@ -204,19 +205,19 @@ test('sendTranscriptEmail shows manual SMS fallback only when QUO fails', async 
       provider: 'quo',
       channel: 'sms',
       status: 'failed',
-      body: 'Hello from ABC Upholstery fallback SMS.',
+      body: 'Hello from Test Upholstery fallback SMS.',
       error: 'QUO send failed (500): upstream timeout',
     },
     createMessageLinkUrl: async () => {
       messageLinkCalls += 1;
-      return 'https://cesar.autos/message/fallback-token';
+      return 'https://example.test/message/fallback-token';
     },
   });
 
   assert.equal(messageLinkCalls, 1);
   assert.match(textBody, /Status: Initial outreach failed/);
   assert.match(textBody, /Error: QUO send failed \(500\): upstream timeout/);
-  assert.match(textBody, /Manual SMS fallback:\nhttps:\/\/cesar\.autos\/message\/fallback-token/);
+  assert.match(textBody, /Manual SMS fallback:\nhttps:\/\/example\.test\/message\/fallback-token/);
   assert.match(textBody, /SMS draft \(manual fallback\):/);
   assert.match(htmlBody, /Initial outreach failed/);
   assert.match(htmlBody, /Send via SMS/);
@@ -241,12 +242,12 @@ test('sendTranscriptEmail avoids QUO sent state and SMS actions when no customer
       provider: 'quo',
       channel: 'sms',
       status: 'not_attempted',
-      body: 'Hello from ABC Upholstery.',
+      body: 'Hello from Test Upholstery.',
       error: 'No customer phone number was captured.',
     },
     createMessageLinkUrl: async () => {
       messageLinkCalls += 1;
-      return 'https://cesar.autos/message/unused-token';
+      return 'https://example.test/message/unused-token';
     },
   });
 
@@ -278,7 +279,7 @@ test('sendTranscriptEmail attaches a large jpeg that used to be over the old per
           provider: 'quo',
           channel: 'sms',
           status: 'sent',
-          body: 'Hello from ABC Upholstery via QUO.',
+          body: 'Hello from Test Upholstery via QUO.',
           sentAt: 1775157365,
           messageId: 'QUO123',
         },
@@ -313,7 +314,7 @@ test('sendTranscriptEmail normalizes webp to jpeg for safer email delivery', asy
           provider: 'quo',
           channel: 'sms',
           status: 'sent',
-          body: 'Hello from ABC Upholstery via QUO.',
+          body: 'Hello from Test Upholstery via QUO.',
           sentAt: 1775157365,
           messageId: 'QUO123',
         },
@@ -357,7 +358,7 @@ test('sendTranscriptEmail omits attachments when the final raw email budget is t
           provider: 'quo',
           channel: 'sms',
           status: 'sent',
-          body: 'Hello from ABC Upholstery via QUO.',
+          body: 'Hello from Test Upholstery via QUO.',
           sentAt: 1775157365,
           messageId: 'QUO123',
         },

@@ -123,7 +123,7 @@ export async function generateLeadSummary(args: {
         'customer_language should reflect the language the customer is using. If unclear, use the provided locale.',
         'call_script_prompts must be exactly 3 short questions the shop can ask to move the lead forward (prioritize missing info). Do not repeat questions already answered in the transcript.',
         'follow_up_questions must only include questions that are NOT already answered in the transcript.',
-        `outreach_message should be one short paragraph in customer_language that the shop can send (text or email). It must mention ${args.shopName} and include the shop phone ${args.shopPhoneDisplay}. Keep it friendly, no prices, and ask for photos when helpful.`,
+        `outreach_message should be one short paragraph in customer_language that the shop can send (text or email). Keep it friendly, no prices, and ask for photos when helpful. Do not include the shop name, phone, address, or signature; the system appends the canonical business signature.`,
         'Do not mention prices or quotes. Do not invent shop hours or policies.',
         'Keep next_steps and follow_up_questions short and actionable (one sentence each).',
       ].join('\n'),
