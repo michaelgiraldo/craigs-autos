@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { LEAD_EVENTS } from '../../../shared/lead-event-contract.js';
 import { createLeadSignalHandler } from './handler.ts';
 import type { Journey } from '../_lead-core/domain/journey.ts';
 import type { JourneyEvent } from '../_lead-core/domain/journey-event.ts';
@@ -45,7 +46,7 @@ test('lead-signal handler writes a journey event for valid payload', async () =>
   const result = await handler({
     requestContext: { http: { method: 'POST' } },
     body: JSON.stringify({
-      event: 'lead_click_to_call',
+      event: LEAD_EVENTS.clickToCall,
       pageUrl: 'https://example.test/en/contact/?gclid=test-gclid',
       user: 'anon_123',
       locale: 'en',
@@ -60,7 +61,7 @@ test('lead-signal handler writes a journey event for valid payload', async () =>
   assert.equal(result.statusCode, 200);
   assert.equal(events.length, 1);
   assert.equal(journeys.length, 1);
-  assert.equal(events[0]?.event_name, 'lead_click_to_call');
+  assert.equal(events[0]?.event_name, LEAD_EVENTS.clickToCall);
   assert.equal(events[0]?.customer_action, 'click_call');
   assert.equal(events[0]?.lead_strength, 'soft_intent');
   assert.equal(journeys[0]?.first_action, 'click_call');
@@ -85,7 +86,7 @@ test('lead-signal handler dedupes retried browser events by client event id', as
   });
 
   const payload = {
-    event: 'lead_click_to_text',
+    event: LEAD_EVENTS.clickToText,
     journey_id: 'journey-shared',
     client_event_id: 'client-event-1',
     occurred_at_ms: 900,
@@ -123,7 +124,7 @@ test('lead-signal handler returns 500 when configuration is missing', async () =
 
   const result = await handler({
     requestContext: { http: { method: 'POST' } },
-    body: JSON.stringify({ event: 'lead_click_to_call' }),
+    body: JSON.stringify({ event: LEAD_EVENTS.clickToCall }),
   });
 
   assert.equal(result.statusCode, 500);

@@ -111,6 +111,15 @@ Local ChatKit dev API:
 - Run `npm run validate:business-profile` after changing business identity,
   lead-delivery defaults, or imported client fixtures.
 
+### Lead event contract source of truth
+
+- Canonical lead event names and metadata live in `shared/lead-event-contract.js`.
+- Type declarations live in `shared/lead-event-contract.d.ts`.
+- Browser dataLayer events, `/lead-signal` accepted events, backend journey
+  semantics, lifecycle rules, and admin/system event names should derive from
+  this contract.
+- Do not add ad hoc `lead_*` event strings in frontend or Lambda runtime code.
+
 ### Secrets
 
 Amplify Secrets (write-only) must be configured per environment/branch:
@@ -202,6 +211,7 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
 
 - Journey-first lead storage / admin views:
   - Shared substrate: `amplify/functions/_lead-core/*`
+  - Canonical event names and lifecycle metadata live in `shared/lead-event-contract.js`
   - Domain record types are split by ownership:
     - contact identity: `amplify/functions/_lead-core/domain/contact.ts`
     - journeys: `amplify/functions/_lead-core/domain/journey.ts`

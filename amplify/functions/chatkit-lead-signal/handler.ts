@@ -1,9 +1,9 @@
 import { z } from 'zod';
-import { mergeAttributionSnapshot } from '../_lead-core/domain/attribution.ts';
 import {
-  LEAD_INTERACTION_EVENT_NAMES,
-  isLeadInteractionEventName,
-} from '../_lead-core/domain/lead-lifecycle.ts';
+  LEAD_BROWSER_SIGNAL_EVENT_NAMES,
+  isLeadBrowserSignalEventName,
+} from '../../../shared/lead-event-contract.js';
+import { mergeAttributionSnapshot } from '../_lead-core/domain/attribution.ts';
 import type { Journey } from '../_lead-core/domain/journey.ts';
 import type { JourneyEvent } from '../_lead-core/domain/journey-event.ts';
 import { dedupeStrings } from '../_lead-core/domain/normalize.ts';
@@ -13,7 +13,7 @@ import { createLeadCoreRuntime } from '../_lead-core/runtime.ts';
 import { decodeBody, emptyResponse, getHttpMethod, jsonResponse } from '../_shared/http.ts';
 import type { AllowedLeadSignalEvent, LeadSignalRequest } from './types.ts';
 
-const allowedEventSchema = z.enum(LEAD_INTERACTION_EVENT_NAMES);
+const allowedEventSchema = z.enum(LEAD_BROWSER_SIGNAL_EVENT_NAMES);
 
 const leadSignalPayloadSchema = z.looseObject({
   event: z.string(),
@@ -123,7 +123,7 @@ export function createLeadSignalHandler(deps: LeadSignalDeps) {
     }
 
     const eventNameResult = allowedEventSchema.safeParse(payload.event);
-    if (!eventNameResult.success || !isLeadInteractionEventName(eventNameResult.data)) {
+    if (!eventNameResult.success || !isLeadBrowserSignalEventName(eventNameResult.data)) {
       return json(400, { error: 'Invalid event' });
     }
 

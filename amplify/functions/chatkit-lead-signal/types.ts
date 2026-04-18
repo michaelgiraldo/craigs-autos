@@ -1,6 +1,6 @@
-import type { LeadInteractionEventName } from '../_lead-core/domain/lead-lifecycle.ts';
+import type { LeadBrowserSignalEventName } from '../../../shared/lead-event-contract.js';
 
-export type AllowedLeadSignalEvent = LeadInteractionEventName;
+export type AllowedLeadSignalEvent = LeadBrowserSignalEventName;
 
 export type LeadSignalRequest = {
   event: string;

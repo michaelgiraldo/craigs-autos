@@ -3,6 +3,7 @@ import {
   createStableJourneyId,
   createStableLeadRecordId,
 } from '../domain/ids.ts';
+import { LEAD_EVENTS } from '../../../../shared/lead-event-contract.js';
 import {
   buildLeadTitle,
   normalizeLocale,
@@ -146,7 +147,7 @@ export function buildFormLeadBundle(input: FormLeadIntakeInput): JourneyBundle {
     buildJourneyEvent({
       journeyId,
       leadRecordId,
-      eventName: 'lead_form_submit_success',
+      eventName: LEAD_EVENTS.formSubmitSuccess,
       occurredAtMs,
       recordedAtMs,
       actor: 'customer',

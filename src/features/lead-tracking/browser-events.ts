@@ -1,5 +1,11 @@
-export type LeadDataLayerValue = boolean | number | string | null | undefined;
-export type LeadDataLayerParams = Record<string, LeadDataLayerValue>;
+import {
+  buildLeadDataLayerEvent,
+  type LeadDataLayerEventName,
+  type LeadDataLayerParams,
+  type LeadDataLayerValue,
+} from '../../../shared/lead-event-contract.js';
+
+export type { LeadDataLayerEventName, LeadDataLayerParams, LeadDataLayerValue };
 
 export function createClientEventId(prefix: string): string {
   const runtimeCrypto = globalThis.crypto;
@@ -11,7 +17,7 @@ export function createClientEventId(prefix: string): string {
 }
 
 export function pushLeadDataLayerEvent(
-  eventName: string,
+  eventName: LeadDataLayerEventName | string,
   params: LeadDataLayerParams,
   attribution: LeadDataLayerParams | null = null,
 ): void {
@@ -20,13 +26,17 @@ export function pushLeadDataLayerEvent(
   }
 
   try {
-    const dataLayerWindow = window as Window & { dataLayer?: LeadDataLayerParams[] };
-    dataLayerWindow.dataLayer = dataLayerWindow.dataLayer || [];
-    dataLayerWindow.dataLayer.push({
-      event: eventName,
+    const leadEvent = buildLeadDataLayerEvent(eventName, {
       ...(attribution ?? {}),
       ...params,
     });
+    if (!leadEvent) {
+      return;
+    }
+
+    const dataLayerWindow = window as Window & { dataLayer?: LeadDataLayerParams[] };
+    dataLayerWindow.dataLayer = dataLayerWindow.dataLayer || [];
+    dataLayerWindow.dataLayer.push(leadEvent);
   } catch {
     // Ignore analytics failures.
   }

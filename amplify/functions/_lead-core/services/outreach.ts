@@ -1,3 +1,4 @@
+import { LEAD_EVENTS } from '../../../../shared/lead-event-contract.js';
 import { trimToNull } from '../domain/normalize.ts';
 import type { JourneyEvent } from '../domain/journey-event.ts';
 import type {
@@ -128,7 +129,8 @@ export function buildLegacyQuoteOutreachEvents(args: {
       buildJourneyEvent({
         journeyId: args.journeyId,
         leadRecordId: args.leadRecordId,
-        eventName: smsStatus === 'sent' ? 'lead_outreach_sms_sent' : 'lead_outreach_sms_failed',
+        eventName:
+          smsStatus === 'sent' ? LEAD_EVENTS.outreachSmsSent : LEAD_EVENTS.outreachSmsFailed,
         occurredAtMs: eventAtMs,
         recordedAtMs: args.recordedAtMs,
         actor: 'migration',
@@ -148,7 +150,7 @@ export function buildLegacyQuoteOutreachEvents(args: {
         journeyId: args.journeyId,
         leadRecordId: args.leadRecordId,
         eventName:
-          emailStatus === 'sent' ? 'lead_outreach_email_sent' : 'lead_outreach_email_failed',
+          emailStatus === 'sent' ? LEAD_EVENTS.outreachEmailSent : LEAD_EVENTS.outreachEmailFailed,
         occurredAtMs: eventAtMs,
         recordedAtMs: args.recordedAtMs,
         actor: 'migration',

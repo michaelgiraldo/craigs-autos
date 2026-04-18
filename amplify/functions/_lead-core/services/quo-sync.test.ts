@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { LEAD_EVENTS } from '../../../../shared/lead-event-contract.js';
 import type { LeadCoreRepos } from '../repos/dynamo.ts';
 import type { LeadContact } from '../domain/contact.ts';
 import type { JourneyEvent } from '../domain/journey-event.ts';
@@ -169,7 +170,7 @@ test('syncQuoLeadContact upserts Quo contacts and persists remote tags', async (
     assert.equal(savedContacts[0]?.quo_contact_id, 'CT_123');
     assert.deepEqual(savedContacts[0]?.quo_tags, ['Form Lead', 'Chat Lead']);
     assert.equal(
-      appendedEvents.some((event) => event.event_name === 'lead_quo_contact_synced'),
+      appendedEvents.some((event) => event.event_name === LEAD_EVENTS.quoContactSynced),
       true,
     );
     assert.equal(

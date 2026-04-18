@@ -1,3 +1,4 @@
+import { LEAD_EVENTS } from '../../../shared/lead-event-contract.js';
 import type { LeadCoreRepos } from '../_lead-core/repos/dynamo.ts';
 import { buildChatLeadBundle } from '../_lead-core/services/intake-chat.ts';
 import { upsertLeadBundle } from '../_lead-core/services/persist.ts';
@@ -93,8 +94,8 @@ export async function persistCapturedChatLead(
             leadRecordId: bundle.leadRecord?.lead_record_id ?? null,
             eventName:
               args.initialOutreach.status === 'sent'
-                ? 'lead_outreach_sms_sent'
-                : 'lead_outreach_sms_failed',
+                ? LEAD_EVENTS.outreachSmsSent
+                : LEAD_EVENTS.outreachSmsFailed,
             occurredAtMs: (args.initialOutreach.sentAt ?? args.nowEpochSeconds()) * 1000,
             recordedAtMs: nowMs,
             actor: 'system',

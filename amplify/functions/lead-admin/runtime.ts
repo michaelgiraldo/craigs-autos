@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { LEAD_EVENTS } from '../../../shared/lead-event-contract.js';
 import { buildJourneyEvent } from '../_lead-core/services/journey-events.ts';
 import { buildDefaultQualificationSnapshot } from '../_lead-core/services/qualification.ts';
 import { deriveLeadRecordStatus } from '../_lead-core/services/outreach.ts';
@@ -87,7 +88,7 @@ export function createProductionLeadAdminDeps(env: NodeJS.ProcessEnv): LeadAdmin
         buildJourneyEvent({
           journeyId: existingLeadRecord.journey_id,
           leadRecordId,
-          eventName: qualified ? 'lead_record_qualified' : 'lead_record_unqualified',
+          eventName: qualified ? LEAD_EVENTS.recordQualified : LEAD_EVENTS.recordUnqualified,
           occurredAtMs: qualifiedAtMs,
           recordedAtMs: qualifiedAtMs,
           actor: 'admin',

@@ -5,6 +5,7 @@ import process from 'node:process';
 import { setTimeout as delay } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
+import { LEAD_EVENTS } from '../shared/lead-event-contract.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -349,9 +350,11 @@ async function checkAttribution(browser, baseUrl, timeoutMs) {
       return Array.isArray(window.dataLayer) ? window.dataLayer.slice(before) : [];
     });
 
-    const callEvent = clickEvents.find((entry) => entry?.event === 'lead_click_to_call');
+    const callEvent = clickEvents.find((entry) => entry?.event === LEAD_EVENTS.clickToCall);
     if (!callEvent) {
-      throw new Error('Click-to-call smoke test did not push lead_click_to_call to the dataLayer.');
+      throw new Error(
+        `Click-to-call smoke test did not push ${LEAD_EVENTS.clickToCall} to the dataLayer.`,
+      );
     }
     if (callEvent.lead_intent_type !== 'call') {
       throw new Error('Click-to-call smoke test did not include lead_intent_type=call.');

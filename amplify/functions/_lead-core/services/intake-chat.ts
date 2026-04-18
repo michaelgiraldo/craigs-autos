@@ -3,6 +3,7 @@ import {
   createStableJourneyId,
   createStableLeadRecordId,
 } from '../domain/ids.ts';
+import { LEAD_EVENTS } from '../../../../shared/lead-event-contract.js';
 import { buildLeadTitle, normalizeLocale, trimToNull } from '../domain/normalize.ts';
 import type { AttributionSnapshot } from '../domain/attribution.ts';
 import type { JourneyBundle } from '../domain/lead-bundle.ts';
@@ -135,7 +136,7 @@ export function buildChatLeadBundle(input: ChatLeadIntakeInput): JourneyBundle {
     buildJourneyEvent({
       journeyId,
       leadRecordId,
-      eventName: 'lead_chat_handoff_completed',
+      eventName: LEAD_EVENTS.chatHandoffCompleted,
       occurredAtMs,
       recordedAtMs,
       actor: 'system',

@@ -1,4 +1,8 @@
 import {
+  LEAD_EVENTS,
+  type LeadBrowserSignalEventName,
+} from '../../../shared/lead-event-contract.js';
+import {
   createClientEventId,
   pushLeadDataLayerEvent,
 } from '../../features/lead-tracking/browser-events';
@@ -16,29 +20,29 @@ export const trackLeadClick = (event: MouseEvent) => {
   const href = element.getAttribute('href') || '';
   if (!href) return;
 
-  let eventName: string | null = null;
+  let eventName: LeadBrowserSignalEventName | null = null;
   let provider: string | null = null;
-  let customerAction: string | null = null;
+  let leadIntentType: string | null = null;
   if (href.startsWith('tel:')) {
-    eventName = 'lead_click_to_call';
-    customerAction = 'click_call';
+    eventName = LEAD_EVENTS.clickToCall;
+    leadIntentType = 'call';
   } else if (href.startsWith('sms:')) {
-    eventName = 'lead_click_to_text';
-    customerAction = 'click_text';
+    eventName = LEAD_EVENTS.clickToText;
+    leadIntentType = 'text';
   } else if (href.startsWith('mailto:')) {
-    eventName = 'lead_click_email';
-    customerAction = 'click_email';
+    eventName = LEAD_EVENTS.clickEmail;
+    leadIntentType = 'email';
   } else if (href.startsWith('https://www.google.com/maps/dir/')) {
-    eventName = 'lead_click_directions';
-    customerAction = 'click_directions';
+    eventName = LEAD_EVENTS.clickDirections;
     provider = 'google_maps';
+    leadIntentType = 'directions';
   } else if (href.startsWith('https://maps.apple.com/')) {
-    eventName = 'lead_click_directions';
-    customerAction = 'click_directions';
+    eventName = LEAD_EVENTS.clickDirections;
     provider = 'apple_maps';
+    leadIntentType = 'directions';
   }
 
-  if (!eventName || !customerAction) return;
+  if (!eventName) return;
 
   const attribution = getAttribution();
   const locale = document.documentElement ? document.documentElement.lang : null;
@@ -63,13 +67,10 @@ export const trackLeadClick = (event: MouseEvent) => {
   pushLeadDataLayerEvent(
     eventName,
     {
-      event_class: 'customer_action',
-      customer_action: customerAction,
-      lead_strength: 'soft_intent',
-      verification_status: 'unverified',
       page_path: window.location.pathname,
       page_url: window.location.href,
       click_url: href,
+      lead_intent_type: leadIntentType,
       provider,
       locale,
       journey_id: journeyId,

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { LEAD_EVENTS } from '../../../shared/lead-event-contract.js';
 import { createStableJourneyId } from '../_lead-core/domain/ids.ts';
 import { sanitizeAttributionSnapshot } from '../_lead-core/domain/attribution.ts';
 import { createLeadCoreRuntime } from '../_lead-core/runtime.ts';
@@ -164,7 +165,7 @@ export const handler = async (
         repos,
         journeyId,
         threadId,
-        eventName: 'lead_chat_handoff_blocked',
+        eventName: LEAD_EVENTS.chatHandoffBlocked,
         occurredAtMs: Date.now(),
         recordedAtMs: Date.now(),
         reason: evaluation.reason,
@@ -200,7 +201,7 @@ export const handler = async (
         repos,
         journeyId,
         threadId,
-        eventName: 'lead_chat_handoff_deferred',
+        eventName: LEAD_EVENTS.chatHandoffDeferred,
         occurredAtMs: Date.now(),
         recordedAtMs: Date.now(),
         reason: evaluation.reason,
@@ -354,7 +355,7 @@ export const handler = async (
       repos,
       journeyId,
       threadId,
-      eventName: 'lead_chat_handoff_error',
+      eventName: LEAD_EVENTS.chatHandoffError,
       occurredAtMs: Date.now(),
       recordedAtMs: Date.now(),
       reason: message ?? 'chat_lead_handoff_failed',

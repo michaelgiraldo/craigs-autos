@@ -1,4 +1,5 @@
 import React from 'react';
+import { LEAD_EVENTS } from '../../../shared/lead-event-contract.js';
 import { createClientEventId } from '../../features/lead-tracking/browser-events.ts';
 import { getAttributionPayload, getJourneyId } from '../../lib/attribution.js';
 import { isPlaceholderUrl, postLeadHandoff, resolveLeadHandoffEndpoint } from './api-client.js';
@@ -10,8 +11,8 @@ const BLOCKED_HANDOFF_REASONS = new Set(['empty_thread', 'missing_contact', 'not
 
 function classifyChatHandoffReason(reason) {
   return BLOCKED_HANDOFF_REASONS.has(reason)
-    ? 'lead_chat_handoff_blocked'
-    : 'lead_chat_handoff_deferred';
+    ? LEAD_EVENTS.chatHandoffBlocked
+    : LEAD_EVENTS.chatHandoffDeferred;
 }
 
 function getPageLocation() {
@@ -56,9 +57,6 @@ export function useChatLeadHandoff({
       const occurredAtMs = Date.now();
 
       const baseEvent = {
-        customer_action: 'chat_first_message_sent',
-        capture_channel: 'chat',
-        verification_status: 'unverified',
         locale: activeLocale,
         journey_id: journeyId,
         client_event_id: clientEventId,
@@ -101,11 +99,8 @@ export function useChatLeadHandoff({
 
         if (!response.ok) {
           if (isDev) console.error('Chat lead handoff error', response.status, text);
-          pushLeadDataLayer('lead_chat_handoff_error', {
+          pushLeadDataLayer(LEAD_EVENTS.chatHandoffError, {
             ...baseEvent,
-            event_class: 'diagnostic',
-            workflow_outcome: 'chat_handoff_error',
-            lead_strength: 'soft_intent',
             error_code: `http_${response.status}`,
           });
           return;
@@ -115,11 +110,8 @@ export function useChatLeadHandoff({
         try {
           data = text ? JSON.parse(text) : {};
         } catch {
-          pushLeadDataLayer('lead_chat_handoff_error', {
+          pushLeadDataLayer(LEAD_EVENTS.chatHandoffError, {
             ...baseEvent,
-            event_class: 'diagnostic',
-            workflow_outcome: 'chat_handoff_error',
-            lead_strength: 'soft_intent',
             error_code: 'parse_error',
           });
           return;
@@ -128,33 +120,21 @@ export function useChatLeadHandoff({
         const backendReason = typeof data?.reason === 'string' ? data.reason : '';
         if (data?.completed === true) {
           setStorageValue(localStorage, completedKey, 'true');
-          pushLeadDataLayer('lead_chat_handoff_completed', {
+          pushLeadDataLayer(LEAD_EVENTS.chatHandoffCompleted, {
             ...baseEvent,
-            event_class: 'workflow',
-            workflow_outcome: 'chat_handoff_completed',
-            lead_strength: 'captured_lead',
             lead_reason: backendReason || reason,
           });
         } else if (data?.completed === false) {
           const handoffEventName = classifyChatHandoffReason(backendReason || 'unknown');
           pushLeadDataLayer(handoffEventName, {
             ...baseEvent,
-            event_class: 'workflow',
-            workflow_outcome:
-              handoffEventName === 'lead_chat_handoff_blocked'
-                ? 'chat_handoff_blocked'
-                : 'chat_handoff_deferred',
-            lead_strength: 'soft_intent',
             lead_reason: backendReason || 'unknown',
           });
         }
       } catch (err) {
         if (isDev) console.error('Chat lead handoff request failed', err);
-        pushLeadDataLayer('lead_chat_handoff_error', {
+        pushLeadDataLayer(LEAD_EVENTS.chatHandoffError, {
           ...baseEvent,
-          event_class: 'diagnostic',
-          workflow_outcome: 'chat_handoff_error',
-          lead_strength: 'soft_intent',
           error_code: 'network_error',
         });
       } finally {

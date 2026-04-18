@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { LEAD_EVENTS } from '../../../shared/lead-event-contract.js';
 import { persistChatWorkflowEvent } from './workflow-events.ts';
 import type { Journey } from '../_lead-core/domain/journey.ts';
 
@@ -43,7 +44,7 @@ test('persistChatWorkflowEvent does not downgrade a captured journey on workflow
     journeyId: 'journey-1',
     threadId: 'thread-1',
     leadRecordId: 'lead-record-1',
-    eventName: 'lead_chat_handoff_error',
+    eventName: LEAD_EVENTS.chatHandoffError,
     occurredAtMs: 3_000,
     recordedAtMs: 3_000,
     reason: 'ses_failed',

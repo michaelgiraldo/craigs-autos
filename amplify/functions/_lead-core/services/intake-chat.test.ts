@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { LEAD_EVENTS } from '../../../../shared/lead-event-contract.js';
 import { buildChatLeadBundle } from './intake-chat.ts';
 
 test('buildChatLeadBundle uses the journey as the stable lead record identity', () => {
@@ -33,7 +34,7 @@ test('buildChatLeadBundle emits a single handoff success event in the promotion 
   });
 
   const handoffEvents = bundle.events.filter(
-    (event) => event.event_name === 'lead_chat_handoff_completed',
+    (event) => event.event_name === LEAD_EVENTS.chatHandoffCompleted,
   );
   assert.equal(handoffEvents.length, 1);
 });

@@ -4,6 +4,7 @@ import {
   getJourneyId,
   getLeadUserId,
 } from '../../../../lib/attribution.js';
+import { LEAD_EVENTS } from '../../../../../shared/lead-event-contract.js';
 import {
   createClientEventId,
   pushLeadDataLayerEvent,
@@ -39,11 +40,6 @@ export function createQuoteFormTrackingContext(locale: LocaleKey): QuoteFormTrac
 
 function getBaseFormEvent(context: QuoteFormTrackingContext): LeadDataLayerParams {
   return {
-    event_class: 'diagnostic',
-    customer_action: 'form_submit',
-    capture_channel: 'form',
-    lead_strength: 'captured_lead',
-    verification_status: 'unverified',
     locale: context.locale,
     journey_id: context.journeyId,
     client_event_id: context.clientEventId,
@@ -56,7 +52,7 @@ function getBaseFormEvent(context: QuoteFormTrackingContext): LeadDataLayerParam
 
 export function pushQuoteSubmitError(context: QuoteFormTrackingContext, errorCode: string) {
   pushLeadDataLayerEvent(
-    'lead_form_submit_error',
+    LEAD_EVENTS.formSubmitError,
     {
       ...getBaseFormEvent(context),
       error_code: errorCode,
@@ -70,11 +66,10 @@ export function pushQuoteSubmitSuccess(
   leadRecordId: string | null,
 ) {
   pushLeadDataLayerEvent(
-    'lead_form_submit_success',
+    LEAD_EVENTS.formSubmitSuccess,
     {
       ...getBaseFormEvent(context),
       lead_record_id: leadRecordId,
-      event_class: 'customer_action',
     },
     context.attributionForDataLayer,
   );

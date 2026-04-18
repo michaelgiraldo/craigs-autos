@@ -1,4 +1,5 @@
 import type { LeadCoreRepos } from '../repos/dynamo.ts';
+import { LEAD_EVENTS } from '../../../../shared/lead-event-contract.js';
 import { dedupeStrings } from '../domain/normalize.ts';
 import type { LeadContact } from '../domain/contact.ts';
 import type { CaptureChannel } from '../domain/lead-actions.ts';
@@ -278,7 +279,7 @@ export async function syncQuoLeadContact(args: {
       buildJourneyEvent({
         journeyId: args.leadRecord.journey_id,
         leadRecordId: args.leadRecord.lead_record_id,
-        eventName: 'lead_quo_contact_synced',
+        eventName: LEAD_EVENTS.quoContactSynced,
         occurredAtMs: args.occurredAtMs,
         recordedAtMs: args.occurredAtMs,
         actor: 'system',
@@ -309,7 +310,7 @@ export async function syncQuoLeadContact(args: {
         buildJourneyEvent({
           journeyId: args.leadRecord.journey_id,
           leadRecordId: args.leadRecord.lead_record_id,
-          eventName: 'lead_quo_contact_sync_failed',
+          eventName: LEAD_EVENTS.quoContactSyncFailed,
           occurredAtMs: args.occurredAtMs,
           recordedAtMs: args.occurredAtMs,
           actor: 'system',

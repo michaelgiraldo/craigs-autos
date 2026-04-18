@@ -1,4 +1,5 @@
 import React from 'react';
+import { LEAD_EVENTS } from '../../../shared/lead-event-contract.js';
 import { createClientEventId } from '../../features/lead-tracking/browser-events.ts';
 import { getAttributionPayload, getJourneyId } from '../../lib/attribution.js';
 import { sendSignal } from '../../scripts/analytics/transport.ts';
@@ -47,12 +48,7 @@ export function useFirstChatMessageTracking({
       const clientEventId = createClientEventId('chat_first_message');
       const journeyId = getJourneyId();
 
-      pushLeadDataLayer('lead_chat_first_message_sent', {
-        event_class: 'customer_action',
-        customer_action: 'chat_first_message_sent',
-        capture_channel: 'chat',
-        lead_strength: 'soft_intent',
-        verification_status: 'unverified',
+      pushLeadDataLayer(LEAD_EVENTS.chatFirstMessageSent, {
         locale: activeLocale,
         journey_id: journeyId,
         client_event_id: clientEventId,
@@ -64,7 +60,7 @@ export function useFirstChatMessageTracking({
       });
 
       sendSignal({
-        event: 'lead_chat_first_message_sent',
+        event: LEAD_EVENTS.chatFirstMessageSent,
         journey_id: journeyId,
         client_event_id: clientEventId,
         occurred_at_ms: occurredAtMs,

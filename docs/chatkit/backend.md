@@ -88,8 +88,12 @@ Journey-first lead wiring (injected by `amplify/backend.ts`):
 
 Lifecycle rules:
 
+- Canonical lead event names and their lifecycle/dataLayer/browser-signal contract
+  live in `shared/lead-event-contract.js`.
 - Event lifecycle rules live in `amplify/functions/_lead-core/domain/lead-lifecycle.ts`.
 - Event classification details live in `amplify/functions/_lead-core/domain/lead-semantics.ts`.
+- `lead-lifecycle.ts` and `lead-semantics.ts` must derive from the shared contract;
+  they should not become separate event vocabularies.
 - The active lifecycle refactor plan and edge-case matrix live in `docs/lead-platform-lifecycle-plan-2026-04-18.md`.
 - Meaningful visitor actions should append journey events; only quote submit success and completed chat handoff currently promote a journey to a lead record.
 
