@@ -106,12 +106,16 @@ export function createContactSubmitHandler(deps: ContactSubmitDeps) {
     }
 
     try {
-      const parsedJson = isHttpRequest
-        ? (() => {
-            const rawBody = decodeBody(event);
-            return rawBody ? JSON.parse(rawBody) : {};
-          })()
-        : event;
+      let parsedJson: unknown = event;
+      if (isHttpRequest) {
+        try {
+          const rawBody = decodeBody(event);
+          parsedJson = rawBody ? JSON.parse(rawBody) : {};
+        } catch {
+          return jsonResponse(400, { error: 'Invalid JSON body' });
+        }
+      }
+
       const payloadResult = payloadSchema.safeParse(
         parsedJson && typeof parsedJson === 'object' ? parsedJson : {},
       );

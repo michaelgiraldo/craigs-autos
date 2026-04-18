@@ -1,5 +1,4 @@
 import { randomUUID } from 'node:crypto';
-import sharp from 'sharp';
 import type { LeadAttachment } from './lead-types.ts';
 import { safeHttpUrl } from './text-utils.ts';
 
@@ -41,6 +40,38 @@ const NORMALIZED_DEFAULT_QUALITY = 82;
 const COMPACTED_QUALITY = 74;
 const COMPACTED_MAX_DIMENSION = 1600;
 const FETCH_TIMEOUT_MS = 8_000;
+
+type SharpPipeline = {
+  jpeg(options: { mozjpeg: boolean; quality: number }): SharpPipeline;
+  resize(options: {
+    fit: 'inside';
+    height: number;
+    width: number;
+    withoutEnlargement: boolean;
+  }): SharpPipeline;
+  rotate(): SharpPipeline;
+  toBuffer(): Promise<Buffer>;
+};
+
+type SharpFactory = (input: Buffer, options: { failOn: 'none' }) => SharpPipeline;
+
+let sharpPromise: Promise<SharpFactory | null> | null = null;
+
+async function loadSharp(): Promise<SharpFactory | null> {
+  if (!sharpPromise) {
+    sharpPromise = import('sharp')
+      .then((mod) => {
+        const candidate = (mod as unknown as { default?: SharpFactory }).default ?? mod;
+        return candidate as SharpFactory;
+      })
+      .catch((err: unknown) => {
+        const message = err instanceof Error ? err.message : String(err);
+        console.error('Image processor unavailable; attachment normalization disabled.', message);
+        return null;
+      });
+  }
+  return sharpPromise;
+}
 
 function decodeUriSafe(value: string): string {
   try {
@@ -141,6 +172,11 @@ export function buildResolutionFromOmission(
 }
 
 async function normalizeToJpeg(bytes: Buffer, compact: boolean): Promise<Buffer> {
+  const sharp = await loadSharp();
+  if (!sharp) {
+    throw new Error('image_processor_unavailable');
+  }
+
   let pipeline = sharp(bytes, { failOn: 'none' }).rotate();
   if (compact) {
     pipeline = pipeline.resize({
