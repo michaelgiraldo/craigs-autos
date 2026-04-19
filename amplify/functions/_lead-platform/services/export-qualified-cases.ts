@@ -1,3 +1,7 @@
+import {
+  summarizeManagedConversionFeedback,
+  type ManagedConversionFeedbackSummary,
+} from '@craigs/contracts/managed-conversion-contract';
 import type { AttributionSnapshot } from '../domain/attribution.ts';
 import type { LeadContact } from '../domain/contact.ts';
 import type { LeadRecord } from '../domain/lead-record.ts';
@@ -24,8 +28,17 @@ export type QualifiedLeadExportRecord = {
   msclkid: string | null;
   fbclid: string | null;
   ttclid: string | null;
+  li_fat_id: string | null;
+  epik: string | null;
+  sc_click_id: string | null;
+  yelp_lead_id: string | null;
+  fbp: string | null;
+  fbc: string | null;
+  ttp: string | null;
+  scid: string | null;
   normalized_phone: string | null;
   normalized_email: string | null;
+  conversion_feedback: ManagedConversionFeedbackSummary;
 };
 
 function pickAttribution(attribution: AttributionSnapshot | null) {
@@ -46,6 +59,14 @@ function pickAttribution(attribution: AttributionSnapshot | null) {
     msclkid: attribution?.msclkid ?? null,
     fbclid: attribution?.fbclid ?? null,
     ttclid: attribution?.ttclid ?? null,
+    li_fat_id: attribution?.li_fat_id ?? null,
+    epik: attribution?.epik ?? null,
+    sc_click_id: attribution?.sc_click_id ?? null,
+    yelp_lead_id: attribution?.yelp_lead_id ?? null,
+    fbp: attribution?.fbp ?? null,
+    fbc: attribution?.fbc ?? null,
+    ttp: attribution?.ttp ?? null,
+    scid: attribution?.scid ?? null,
   };
 }
 
@@ -64,6 +85,12 @@ export function toQualifiedLeadExportRecord(args: {
     capture_channel: args.leadRecord.capture_channel,
     normalized_phone: args.contact?.normalized_phone ?? null,
     normalized_email: args.contact?.normalized_email ?? null,
+    conversion_feedback: summarizeManagedConversionFeedback({
+      qualified: true,
+      attribution: args.leadRecord.attribution,
+      contact: args.contact,
+      configuredDestinationKeys: [],
+    }),
     ...pickAttribution(args.leadRecord.attribution),
   };
 }

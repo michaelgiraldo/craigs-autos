@@ -82,8 +82,6 @@ test('DynamoLeadRecordsRepo.put omits null contact_id before writing', async () 
     qualification: {
       qualified: false,
       qualified_at_ms: null,
-      uploaded_google_ads: false,
-      uploaded_google_ads_at_ms: null,
     },
     first_action: null,
     latest_action: null,
@@ -123,8 +121,6 @@ test('DynamoLeadRecordsRepo.put omits null contact_id before writing', async () 
     qualification: {
       qualified: false,
       qualified_at_ms: null,
-      uploaded_google_ads: false,
-      uploaded_google_ads_at_ms: null,
     },
     first_action: null,
     latest_action: null,

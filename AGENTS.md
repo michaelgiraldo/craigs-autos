@@ -101,8 +101,7 @@ Local ChatKit dev API:
   - `POST /lead-interactions`
   - `GET /admin/leads`
   - `POST /admin/leads/qualification`
-  - `POST /admin/leads/notes`
-  - `POST /admin/leads/follow-up-state`
+  - notes and follow-up state routes are intentionally not exposed until their handlers exist
 
 ### Business identity source of truth
 
@@ -131,6 +130,11 @@ Amplify Secrets (write-only) must be configured per environment/branch:
 - `OPENAI_API_KEY`
 - `CHATKIT_WORKFLOW_ID`
 - `LEADS_ADMIN_PASSWORD`
+
+Optional non-secret function environment:
+
+- `MANAGED_CONVERSION_DESTINATIONS` as a comma-separated list such as
+  `google_ads,microsoft_ads,meta_ads`; leave empty until feedback destinations are configured.
 
 Do not store these in the frontend or in git.
 
@@ -234,6 +238,10 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
   - Admin list operation: `amplify/functions/lead-admin-api/list-leads.ts`
   - Admin qualification operation: `amplify/functions/lead-admin-api/qualify-lead.ts`
   - Admin AWS/repository wiring: `amplify/functions/lead-admin-api/runtime.ts`
+  - Managed conversion feedback contract: `packages/contracts/src/managed-conversion-contract.js`
+  - Architecture note: `docs/managed-conversions-architecture-2026-04-19.md`
+  - Google Ads is a managed-conversion destination, not lead truth. Do not add provider upload
+    booleans to `LeadQualificationSnapshot`.
   - Admin page layout: `src/layouts/AdminLayout.astro`
   - Admin page script: `src/scripts/admin-leads.ts`
   - Admin build isolation guard: `scripts/guard-admin-build.mjs`

@@ -22,6 +22,10 @@ export const getUrlAttributionParams = (): Omit<
   | 'source_platform'
   | 'acquisition_class'
   | 'click_id_type'
+  | 'fbp'
+  | 'fbc'
+  | 'ttp'
+  | 'scid'
 > => {
   try {
     const params = new URLSearchParams(window.location.search || '');
@@ -32,6 +36,10 @@ export const getUrlAttributionParams = (): Omit<
       msclkid: params.get('msclkid') || null,
       fbclid: params.get('fbclid') || null,
       ttclid: params.get('ttclid') || null,
+      li_fat_id: params.get('li_fat_id') || null,
+      epik: params.get('epik') || null,
+      sc_click_id: params.get('sc_click_id') || params.get('ScCid') || null,
+      yelp_lead_id: params.get('yelp_lead_id') || null,
       utm_source: params.get('utm_source') || null,
       utm_medium: params.get('utm_medium') || null,
       utm_campaign: params.get('utm_campaign') || null,
@@ -46,6 +54,10 @@ export const getUrlAttributionParams = (): Omit<
       msclkid: null,
       fbclid: null,
       ttclid: null,
+      li_fat_id: null,
+      epik: null,
+      sc_click_id: null,
+      yelp_lead_id: null,
       utm_source: null,
       utm_medium: null,
       utm_campaign: null,

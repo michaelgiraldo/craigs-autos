@@ -136,6 +136,11 @@ function buildAttributionRows(attribution: LeadAttributionPayload | null): LeadE
   if (attribution.msclkid) rows.push({ label: 'MSCLKID', value: attribution.msclkid });
   if (attribution.fbclid) rows.push({ label: 'FBCLID', value: attribution.fbclid });
   if (attribution.ttclid) rows.push({ label: 'TTCLID', value: attribution.ttclid });
+  if (attribution.li_fat_id) rows.push({ label: 'LI FAT ID', value: attribution.li_fat_id });
+  if (attribution.epik) rows.push({ label: 'EPIK', value: attribution.epik });
+  if (attribution.sc_click_id) rows.push({ label: 'SC Click ID', value: attribution.sc_click_id });
+  if (attribution.yelp_lead_id)
+    rows.push({ label: 'Yelp lead ID', value: attribution.yelp_lead_id });
 
   const utm = [
     attribution.utm_source ? `utm_source=${attribution.utm_source}` : null,

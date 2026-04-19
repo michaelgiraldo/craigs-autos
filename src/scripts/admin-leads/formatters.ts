@@ -38,6 +38,33 @@ export function formatLeadActionPath(item: LeadRecordItem): string {
   return actionPath || '-';
 }
 
+export function formatConversionFeedback(item: LeadRecordItem): {
+  label: string;
+  detail: string | null;
+  positive: boolean;
+} {
+  const feedback = item.conversion_feedback;
+  const status = optionalString(feedback?.status);
+  const label = optionalString(feedback?.status_label) ?? 'Not evaluated';
+  const destinations = Array.isArray(feedback?.destination_labels)
+    ? feedback.destination_labels.filter((value): value is string => optionalString(value) !== null)
+    : [];
+  const signals = Array.isArray(feedback?.signal_keys)
+    ? feedback.signal_keys.filter((value): value is string => optionalString(value) !== null)
+    : [];
+  const detailParts = [
+    destinations.length ? `Destinations: ${destinations.join(', ')}` : null,
+    signals.length ? `Signals: ${signals.join(', ')}` : null,
+  ].filter((value): value is string => Boolean(value));
+
+  return {
+    label,
+    detail: detailParts.length ? detailParts.join(' • ') : optionalString(feedback?.reason),
+    positive:
+      status === 'ready' || status === 'queued' || status === 'sent' || status === 'accepted',
+  };
+}
+
 export function formatJourneyActions(journey: JourneyItem): string {
   return Array.isArray(journey.action_types) && journey.action_types.length
     ? journey.action_types.join(', ')

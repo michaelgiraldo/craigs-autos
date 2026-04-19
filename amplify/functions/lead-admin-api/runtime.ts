@@ -1,5 +1,9 @@
 import { z } from 'zod';
 import { LEAD_EVENTS } from '@craigs/contracts/lead-event-contract';
+import {
+  parseManagedConversionDestinations,
+  type ManagedConversionDestinationKey,
+} from '@craigs/contracts/managed-conversion-contract';
 import { buildJourneyEvent } from '../_lead-platform/services/journey-events.ts';
 import { buildDefaultQualificationSnapshot } from '../_lead-platform/services/qualification.ts';
 import { deriveLeadRecordStatus } from '../_lead-platform/services/outreach.ts';
@@ -12,11 +16,15 @@ import type { LeadAdminDeps } from './types.ts';
 
 const adminEnvSchema = z.object({
   LEADS_ADMIN_PASSWORD: z.string().trim().min(1),
+  MANAGED_CONVERSION_DESTINATIONS: z.string().optional(),
 });
 
 export function createProductionLeadAdminDeps(env: NodeJS.ProcessEnv): LeadAdminDeps {
   const parsedEnv = adminEnvSchema.safeParse(env);
   const leadPlatformRuntime = createLeadPlatformRuntime(env);
+  const configuredConversionDestinations: ManagedConversionDestinationKey[] = parsedEnv.success
+    ? parseManagedConversionDestinations(parsedEnv.data.MANAGED_CONVERSION_DESTINATIONS)
+    : [];
 
   return {
     configValid: Boolean(
@@ -46,6 +54,7 @@ export function createProductionLeadAdminDeps(env: NodeJS.ProcessEnv): LeadAdmin
           toLeadAdminRecordSummary({
             leadRecord,
             contact: contacts[index] ?? null,
+            configuredConversionDestinations,
           }),
         ),
         lastEvaluatedKey: result.lastEvaluatedKey,
@@ -66,6 +75,7 @@ export function createProductionLeadAdminDeps(env: NodeJS.ProcessEnv): LeadAdmin
 
       const existingLeadRecord = await repos.leadRecords.getById(leadRecordId);
       if (!existingLeadRecord) return false;
+      if (existingLeadRecord.qualification.qualified === qualified) return true;
 
       const qualification = buildDefaultQualificationSnapshot({
         ...existingLeadRecord.qualification,

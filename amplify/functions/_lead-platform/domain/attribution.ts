@@ -12,6 +12,14 @@ export type AttributionSnapshot = {
   msclkid: string | null;
   fbclid: string | null;
   ttclid: string | null;
+  li_fat_id: string | null;
+  epik: string | null;
+  sc_click_id: string | null;
+  yelp_lead_id: string | null;
+  fbp: string | null;
+  fbc: string | null;
+  ttp: string | null;
+  scid: string | null;
   utm_source: string | null;
   utm_medium: string | null;
   utm_campaign: string | null;
@@ -35,6 +43,10 @@ type UrlAttributionKey =
   | 'msclkid'
   | 'fbclid'
   | 'ttclid'
+  | 'li_fat_id'
+  | 'epik'
+  | 'sc_click_id'
+  | 'yelp_lead_id'
   | 'utm_source'
   | 'utm_medium'
   | 'utm_campaign'
@@ -103,14 +115,25 @@ export function getClickIdType(attribution: AttributionSnapshot): string | null 
   if (attribution.msclkid) return 'msclkid';
   if (attribution.fbclid) return 'fbclid';
   if (attribution.ttclid) return 'ttclid';
+  if (attribution.li_fat_id) return 'li_fat_id';
+  if (attribution.epik) return 'epik';
+  if (attribution.sc_click_id) return 'sc_click_id';
+  if (attribution.yelp_lead_id) return 'yelp_lead_id';
   return null;
 }
 
 export function inferSourcePlatform(attribution: AttributionSnapshot): string | null {
   if (attribution.gclid || attribution.gbraid || attribution.wbraid) return 'google_ads';
   if (attribution.msclkid) return 'microsoft_ads';
-  if (attribution.fbclid) return 'meta';
-  if (attribution.ttclid) return 'tiktok';
+  if (attribution.fbclid) return 'meta_ads';
+  if (attribution.ttclid) return 'tiktok_ads';
+  if (attribution.li_fat_id) return 'linkedin_ads';
+  if (attribution.epik) return 'pinterest_ads';
+  if (attribution.sc_click_id) return 'snap_ads';
+  if (attribution.yelp_lead_id) return 'yelp_ads';
+  if (attribution.fbc || attribution.fbp) return 'meta_ads';
+  if (attribution.ttp) return 'tiktok_ads';
+  if (attribution.scid) return 'snap_ads';
 
   const utmSource = normalizeToken(attribution.utm_source);
   const utmMedium = normalizeToken(attribution.utm_medium);
@@ -119,10 +142,16 @@ export function inferSourcePlatform(attribution: AttributionSnapshot): string | 
   if (isGoogleBusinessProfileSource(utmSource)) return 'google_business_profile';
   if (isEmailSource(utmSource) || utmMedium === 'email') return 'email';
   if (isSmsSource(utmSource) || utmMedium === 'sms') return 'sms';
-  if (utmSource === 'yelp') return 'yelp';
+  if (utmSource === 'yelp') return hasPaidMedium(utmMedium) ? 'yelp_ads' : 'yelp';
   if (utmSource === 'reddit') return 'reddit';
-  if (utmSource === 'tiktok') return 'tiktok';
-  if (utmSource === 'facebook' || utmSource === 'instagram' || utmSource === 'meta') return 'meta';
+  if (utmSource === 'tiktok') return hasPaidMedium(utmMedium) ? 'tiktok_ads' : 'tiktok';
+  if (utmSource === 'linkedin') return hasPaidMedium(utmMedium) ? 'linkedin_ads' : 'linkedin';
+  if (utmSource === 'pinterest') return hasPaidMedium(utmMedium) ? 'pinterest_ads' : 'pinterest';
+  if (utmSource === 'snap' || utmSource === 'snapchat')
+    return hasPaidMedium(utmMedium) ? 'snap_ads' : 'snapchat';
+  if (utmSource === 'facebook' || utmSource === 'instagram' || utmSource === 'meta') {
+    return hasPaidMedium(utmMedium) ? 'meta_ads' : 'meta';
+  }
   if (utmSource === 'bing' || utmSource === 'microsoft') {
     return hasPaidMedium(utmMedium) ? 'microsoft_ads' : 'bing';
   }
@@ -155,6 +184,15 @@ export function inferAcquisitionClass(attribution: AttributionSnapshot): Acquisi
     attribution.msclkid ||
     attribution.fbclid ||
     attribution.ttclid ||
+    attribution.li_fat_id ||
+    attribution.epik ||
+    attribution.sc_click_id ||
+    attribution.yelp_lead_id ||
+    attribution.fbc ||
+    attribution.fbp ||
+    attribution.ttp ||
+    attribution.scid ||
+    sourcePlatform.endsWith('_ads') ||
     hasPaidMedium(utmMedium)
   ) {
     return 'paid';
@@ -201,6 +239,14 @@ export function sanitizeAttributionSnapshot(input: unknown): AttributionSnapshot
     msclkid: trimToNull(data.msclkid, 128),
     fbclid: trimToNull(data.fbclid, 128),
     ttclid: trimToNull(data.ttclid, 128),
+    li_fat_id: trimToNull(data.li_fat_id, 128),
+    epik: trimToNull(data.epik, 128),
+    sc_click_id: trimToNull(data.sc_click_id ?? data.ScCid, 128),
+    yelp_lead_id: trimToNull(data.yelp_lead_id, 128),
+    fbp: trimToNull(data.fbp ?? data._fbp, 128),
+    fbc: trimToNull(data.fbc ?? data._fbc, 128),
+    ttp: trimToNull(data.ttp ?? data._ttp, 128),
+    scid: trimToNull(data.scid ?? data._scid, 128),
     utm_source: trimToNull(data.utm_source, 128),
     utm_medium: trimToNull(data.utm_medium, 128),
     utm_campaign: trimToNull(data.utm_campaign, 200),
@@ -251,6 +297,13 @@ function attributionFromUrl(
       msclkid: trimToNull(url.searchParams.get('msclkid'), 128),
       fbclid: trimToNull(url.searchParams.get('fbclid'), 128),
       ttclid: trimToNull(url.searchParams.get('ttclid'), 128),
+      li_fat_id: trimToNull(url.searchParams.get('li_fat_id'), 128),
+      epik: trimToNull(url.searchParams.get('epik'), 128),
+      sc_click_id: trimToNull(
+        url.searchParams.get('sc_click_id') ?? url.searchParams.get('ScCid'),
+        128,
+      ),
+      yelp_lead_id: trimToNull(url.searchParams.get('yelp_lead_id'), 128),
       utm_source: trimToNull(url.searchParams.get('utm_source'), 128),
       utm_medium: trimToNull(url.searchParams.get('utm_medium'), 128),
       utm_campaign: trimToNull(url.searchParams.get('utm_campaign'), 200),
@@ -283,6 +336,14 @@ export function mergeAttributionSnapshot(
     msclkid: base?.msclkid ?? fromPage?.msclkid ?? fromClick?.msclkid ?? null,
     fbclid: base?.fbclid ?? fromPage?.fbclid ?? fromClick?.fbclid ?? null,
     ttclid: base?.ttclid ?? fromPage?.ttclid ?? fromClick?.ttclid ?? null,
+    li_fat_id: base?.li_fat_id ?? fromPage?.li_fat_id ?? fromClick?.li_fat_id ?? null,
+    epik: base?.epik ?? fromPage?.epik ?? fromClick?.epik ?? null,
+    sc_click_id: base?.sc_click_id ?? fromPage?.sc_click_id ?? fromClick?.sc_click_id ?? null,
+    yelp_lead_id: base?.yelp_lead_id ?? fromPage?.yelp_lead_id ?? fromClick?.yelp_lead_id ?? null,
+    fbp: base?.fbp ?? null,
+    fbc: base?.fbc ?? null,
+    ttp: base?.ttp ?? null,
+    scid: base?.scid ?? null,
     utm_source: base?.utm_source ?? fromPage?.utm_source ?? fromClick?.utm_source ?? null,
     utm_medium: base?.utm_medium ?? fromPage?.utm_medium ?? fromClick?.utm_medium ?? null,
     utm_campaign: base?.utm_campaign ?? fromPage?.utm_campaign ?? fromClick?.utm_campaign ?? null,

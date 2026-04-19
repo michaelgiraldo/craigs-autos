@@ -69,11 +69,6 @@ export function mergeLeadRecords(current: LeadRecord, incoming: LeadRecord): Lea
       qualified: current.qualification.qualified || incoming.qualification.qualified,
       qualified_at_ms:
         current.qualification.qualified_at_ms ?? incoming.qualification.qualified_at_ms,
-      uploaded_google_ads:
-        current.qualification.uploaded_google_ads || incoming.qualification.uploaded_google_ads,
-      uploaded_google_ads_at_ms:
-        current.qualification.uploaded_google_ads_at_ms ??
-        incoming.qualification.uploaded_google_ads_at_ms,
     },
     first_action: current.first_action ?? incoming.first_action,
     latest_action: incoming.latest_action ?? current.latest_action,

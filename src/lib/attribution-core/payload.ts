@@ -23,6 +23,18 @@ export function getAttributionPayloadFromBrowser(): AttributionPayload | null {
     msclkid: pickValue(lastTouch, 'msclkid') || pickValue(firstTouch, 'msclkid'),
     fbclid: pickValue(lastTouch, 'fbclid') || pickValue(firstTouch, 'fbclid'),
     ttclid: pickValue(lastTouch, 'ttclid') || pickValue(firstTouch, 'ttclid'),
+    li_fat_id: pickValue(lastTouch, 'li_fat_id') || pickValue(firstTouch, 'li_fat_id'),
+    epik: pickValue(lastTouch, 'epik') || pickValue(firstTouch, 'epik'),
+    sc_click_id:
+      pickValue(lastTouch, 'sc_click_id') ||
+      pickValue(lastTouch, 'ScCid') ||
+      pickValue(firstTouch, 'sc_click_id') ||
+      pickValue(firstTouch, 'ScCid'),
+    yelp_lead_id: pickValue(lastTouch, 'yelp_lead_id') || pickValue(firstTouch, 'yelp_lead_id'),
+    fbp: readCookie('_fbp') || readCookie('fbp'),
+    fbc: readCookie('_fbc') || readCookie('fbc'),
+    ttp: readCookie('_ttp') || readCookie('ttp'),
+    scid: readCookie('_scid') || readCookie('scid'),
     utm_source: pickValue(lastTouch, 'utm_source') || pickValue(firstTouch, 'utm_source'),
     utm_medium: pickValue(lastTouch, 'utm_medium') || pickValue(firstTouch, 'utm_medium'),
     utm_campaign: pickValue(lastTouch, 'utm_campaign') || pickValue(firstTouch, 'utm_campaign'),
@@ -58,6 +70,14 @@ export function attributionPayloadToDataLayer(
     msclkid: payload?.msclkid ?? null,
     fbclid: payload?.fbclid ?? null,
     ttclid: payload?.ttclid ?? null,
+    li_fat_id: payload?.li_fat_id ?? null,
+    epik: payload?.epik ?? null,
+    sc_click_id: payload?.sc_click_id ?? null,
+    yelp_lead_id: payload?.yelp_lead_id ?? null,
+    fbp: payload?.fbp ?? null,
+    fbc: payload?.fbc ?? null,
+    ttp: payload?.ttp ?? null,
+    scid: payload?.scid ?? null,
     utm_source: payload?.utm_source ?? null,
     utm_medium: payload?.utm_medium ?? null,
     utm_campaign: payload?.utm_campaign ?? null,

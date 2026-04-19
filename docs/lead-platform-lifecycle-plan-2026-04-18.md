@@ -143,14 +143,14 @@ Why:
 Implementation:
 
 - Qualification updates lead records and appends journey events.
-- Google Ads upload status remains separate from qualification status.
+- Managed-conversion feedback status remains separate from qualification status.
 - Admin should read lead records as the work queue and journeys as the timeline.
 - Export scripts should consume lead records, not legacy case tables.
 
 Why:
 
 - A qualified lead is a business decision.
-- A Google Ads upload is an integration state.
+- A provider feedback upload is a managed-conversion outcome state.
 - Keeping those separate prevents reporting rewrites.
 
 ### Phase 6. Source renaming and hard breaks
@@ -218,5 +218,5 @@ Checklist:
 
 - Do not upload every GA4 event into the lead platform.
 - Do not turn every click into a lead record.
-- Do not couple lead lifecycle to QUO, SES, ChatKit, or Google Ads implementation details.
+- Do not couple lead lifecycle to QUO, SES, ChatKit, Google Ads, or any other paid acquisition provider detail.
 - Do not preserve old internal names only for historical continuity.

@@ -28,8 +28,6 @@ export type LeadOutreachSnapshot = {
 export type LeadQualificationSnapshot = {
   qualified: boolean;
   qualified_at_ms: number | null;
-  uploaded_google_ads: boolean;
-  uploaded_google_ads_at_ms: number | null;
 };
 
 export type LeadRecord = {

@@ -9,6 +9,7 @@ import {
 } from './dom';
 import {
   formatDate,
+  formatConversionFeedback,
   formatJourneyActions,
   formatJourneySource,
   formatLeadActionPath,
@@ -28,7 +29,7 @@ const RECORD_COLUMNS = [
   'Actions',
   'Contact',
   'Status',
-  'Google Ads',
+  'Conversion Feedback',
   'Action',
 ];
 
@@ -107,7 +108,7 @@ function renderLeadRecordRow(
 ): HTMLTableRowElement {
   const row = document.createElement('tr');
   const qualified = item.qualified === true;
-  const uploadedGoogleAds = item.uploaded_google_ads === true;
+  const conversionFeedback = formatConversionFeedback(item);
   const statusLabel = qualified ? 'Qualified' : item.status || 'New';
 
   appendTextCell(row, formatDate(item.created_at_ms));
@@ -125,11 +126,13 @@ function renderLeadRecordRow(
   statusCell.appendChild(createBadge(statusLabel, qualified));
   row.appendChild(statusCell);
 
-  const googleAdsCell = document.createElement('td');
-  googleAdsCell.appendChild(
-    createBadge(uploadedGoogleAds ? 'Uploaded' : 'Pending', uploadedGoogleAds),
-  );
-  row.appendChild(googleAdsCell);
+  const feedbackCell = document.createElement('td');
+  feedbackCell.appendChild(createBadge(conversionFeedback.label, conversionFeedback.positive));
+  if (conversionFeedback.detail) {
+    feedbackCell.appendChild(document.createElement('br'));
+    feedbackCell.appendChild(createTextElement('span', conversionFeedback.detail, 'muted'));
+  }
+  row.appendChild(feedbackCell);
 
   const actionCell = document.createElement('td');
   const actionButton = createButton(qualified ? 'Unqualify' : 'Qualify', 'secondary');

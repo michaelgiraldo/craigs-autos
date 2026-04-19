@@ -72,6 +72,7 @@ Shop notification email defaults (can be overridden later):
 - `LEAD_TO_EMAIL` (default from `packages/business-profile/src/business-profile.js`)
 - `LEAD_FROM_EMAIL` (default from `packages/business-profile/src/business-profile.js`)
 - `LEAD_SUMMARY_MODEL` (default: `gpt-5.2-2025-12-11`)
+- `MANAGED_CONVERSION_DESTINATIONS` (optional comma-separated managed-conversion destination keys)
 
 Idempotency wiring (injected by `amplify/backend.ts`):
 
@@ -132,8 +133,7 @@ Routes are defined in `amplify/backend/public-api.ts`:
 - `POST /lead-interactions` -> `lead-interaction-capture`
 - `GET /admin/leads` -> `lead-admin-api`
 - `POST /admin/leads/qualification` -> `lead-admin-api`
-- `POST /admin/leads/notes` -> `lead-admin-api`
-- `POST /admin/leads/follow-up-state` -> `lead-admin-api`
+- Admin notes and follow-up state routes are intentionally not exposed until their handlers exist.
 
 During Amplify builds, `ampx pipeline-deploy` writes `public/amplify_outputs.json`.
 The frontend fetches `/amplify_outputs.json` and reads:

@@ -28,14 +28,25 @@ export function getClickIdType(payload: AttributionPayload): string | null {
   if (payload.msclkid) return 'msclkid';
   if (payload.fbclid) return 'fbclid';
   if (payload.ttclid) return 'ttclid';
+  if (payload.li_fat_id) return 'li_fat_id';
+  if (payload.epik) return 'epik';
+  if (payload.sc_click_id) return 'sc_click_id';
+  if (payload.yelp_lead_id) return 'yelp_lead_id';
   return null;
 }
 
 export function inferSourcePlatform(payload: AttributionPayload): string | null {
   if (payload.gclid || payload.gbraid || payload.wbraid) return 'google_ads';
   if (payload.msclkid) return 'microsoft_ads';
-  if (payload.fbclid) return 'meta';
-  if (payload.ttclid) return 'tiktok';
+  if (payload.fbclid) return 'meta_ads';
+  if (payload.ttclid) return 'tiktok_ads';
+  if (payload.li_fat_id) return 'linkedin_ads';
+  if (payload.epik) return 'pinterest_ads';
+  if (payload.sc_click_id) return 'snap_ads';
+  if (payload.yelp_lead_id) return 'yelp_ads';
+  if (payload.fbc || payload.fbp) return 'meta_ads';
+  if (payload.ttp) return 'tiktok_ads';
+  if (payload.scid) return 'snap_ads';
 
   const utmSource = normalizeToken(payload.utm_source);
   const utmMedium = normalizeToken(payload.utm_medium);
@@ -44,10 +55,18 @@ export function inferSourcePlatform(payload: AttributionPayload): string | null 
   if (isGoogleBusinessProfileSource(utmSource)) return 'google_business_profile';
   if (isEmailSource(utmSource) || utmMedium === 'email') return 'email';
   if (isSmsSource(utmSource) || utmMedium === 'sms') return 'sms';
-  if (utmSource === 'yelp') return 'yelp';
+  if (utmSource === 'yelp') return hasPaidMedium(utmMedium) ? 'yelp_ads' : 'yelp';
   if (utmSource === 'reddit') return 'reddit';
-  if (utmSource === 'tiktok') return 'tiktok';
-  if (utmSource === 'facebook' || utmSource === 'instagram' || utmSource === 'meta') return 'meta';
+  if (utmSource === 'tiktok') return hasPaidMedium(utmMedium) ? 'tiktok_ads' : 'tiktok';
+  if (utmSource === 'linkedin')
+    return hasPaidMedium(utmMedium) ? 'linkedin_ads' : 'linkedin';
+  if (utmSource === 'pinterest')
+    return hasPaidMedium(utmMedium) ? 'pinterest_ads' : 'pinterest';
+  if (utmSource === 'snap' || utmSource === 'snapchat')
+    return hasPaidMedium(utmMedium) ? 'snap_ads' : 'snapchat';
+  if (utmSource === 'facebook' || utmSource === 'instagram' || utmSource === 'meta') {
+    return hasPaidMedium(utmMedium) ? 'meta_ads' : 'meta';
+  }
   if (utmSource === 'bing' || utmSource === 'microsoft') {
     return hasPaidMedium(utmMedium) ? 'microsoft_ads' : 'bing';
   }
@@ -80,6 +99,15 @@ export function inferAcquisitionClass(
     payload.msclkid ||
     payload.fbclid ||
     payload.ttclid ||
+    payload.li_fat_id ||
+    payload.epik ||
+    payload.sc_click_id ||
+    payload.yelp_lead_id ||
+    payload.fbc ||
+    payload.fbp ||
+    payload.ttp ||
+    payload.scid ||
+    sourcePlatform.endsWith('_ads') ||
     hasPaidMedium(utmMedium)
   ) {
     return 'paid';
@@ -130,6 +158,14 @@ export function buildSourceFingerprint(payload: AttributionPayload | null): stri
     payload.msclkid,
     payload.fbclid,
     payload.ttclid,
+    payload.li_fat_id,
+    payload.epik,
+    payload.sc_click_id,
+    payload.yelp_lead_id,
+    payload.fbp,
+    payload.fbc,
+    payload.ttp,
+    payload.scid,
   ]
     .map((value) => (typeof value === 'string' ? value : ''))
     .join('|');

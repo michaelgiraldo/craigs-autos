@@ -1,3 +1,8 @@
+import {
+  summarizeManagedConversionFeedback,
+  type ManagedConversionDestinationKey,
+  type ManagedConversionFeedbackSummary,
+} from '@craigs/contracts/managed-conversion-contract';
 import type { DeviceType } from '../domain/attribution.ts';
 import type { LeadContact } from '../domain/contact.ts';
 import type { Journey } from '../domain/journey.ts';
@@ -25,7 +30,7 @@ export type LeadAdminRecordSummary = {
   click_id_type: string | null;
   click_id: string | null;
   qualified: boolean;
-  uploaded_google_ads: boolean;
+  conversion_feedback: ManagedConversionFeedbackSummary;
   outreach_channel: LeadRecord['latest_outreach']['channel'];
   outreach_status: LeadRecord['latest_outreach']['status'];
   first_action: LeadRecord['first_action'];
@@ -65,6 +70,10 @@ function pickClickId(record: { attribution: LeadRecord['attribution'] | Journey[
     record.attribution?.msclkid ??
     record.attribution?.fbclid ??
     record.attribution?.ttclid ??
+    record.attribution?.li_fat_id ??
+    record.attribution?.epik ??
+    record.attribution?.sc_click_id ??
+    record.attribution?.yelp_lead_id ??
     null
   );
 }
@@ -72,6 +81,7 @@ function pickClickId(record: { attribution: LeadRecord['attribution'] | Journey[
 export function toLeadAdminRecordSummary(args: {
   leadRecord: LeadRecord;
   contact: LeadContact | null;
+  configuredConversionDestinations?: ManagedConversionDestinationKey[];
 }): LeadAdminRecordSummary {
   return {
     lead_record_id: args.leadRecord.lead_record_id,
@@ -95,7 +105,12 @@ export function toLeadAdminRecordSummary(args: {
     click_id_type: args.leadRecord.attribution?.click_id_type ?? null,
     click_id: pickClickId(args.leadRecord),
     qualified: args.leadRecord.qualification.qualified,
-    uploaded_google_ads: args.leadRecord.qualification.uploaded_google_ads,
+    conversion_feedback: summarizeManagedConversionFeedback({
+      qualified: args.leadRecord.qualification.qualified,
+      attribution: args.leadRecord.attribution,
+      contact: args.contact,
+      configuredDestinationKeys: args.configuredConversionDestinations ?? [],
+    }),
     outreach_channel: args.leadRecord.latest_outreach.channel,
     outreach_status: args.leadRecord.latest_outreach.status,
     first_action: args.leadRecord.first_action,

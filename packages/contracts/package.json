@@ -11,6 +11,10 @@
     "./lead-event-contract": {
       "types": "./src/lead-event-contract.d.ts",
       "default": "./src/lead-event-contract.js"
+    },
+    "./managed-conversion-contract": {
+      "types": "./src/managed-conversion-contract.d.ts",
+      "default": "./src/managed-conversion-contract.js"
     }
   }
 }

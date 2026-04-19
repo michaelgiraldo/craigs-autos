@@ -28,8 +28,6 @@ function makeLeadRecord(overrides: Partial<LeadRecord> = {}): LeadRecord {
     qualification: {
       qualified: false,
       qualified_at_ms: null,
-      uploaded_google_ads: false,
-      uploaded_google_ads_at_ms: null,
     },
     first_action: 'form_submit',
     latest_action: 'form_submit',
@@ -71,8 +69,6 @@ test('mergeLeadRecords preserves qualification and longer customer context', () 
       qualification: {
         qualified: true,
         qualified_at_ms: 2_000,
-        uploaded_google_ads: false,
-        uploaded_google_ads_at_ms: null,
       },
     }),
     makeLeadRecord({
@@ -80,8 +76,6 @@ test('mergeLeadRecords preserves qualification and longer customer context', () 
       qualification: {
         qualified: false,
         qualified_at_ms: null,
-        uploaded_google_ads: true,
-        uploaded_google_ads_at_ms: 3_000,
       },
     }),
   );
@@ -89,6 +83,4 @@ test('mergeLeadRecords preserves qualification and longer customer context', () 
   assert.equal(merged.customer_message, 'Longer note with useful context');
   assert.equal(merged.qualification.qualified, true);
   assert.equal(merged.qualification.qualified_at_ms, 2_000);
-  assert.equal(merged.qualification.uploaded_google_ads, true);
-  assert.equal(merged.qualification.uploaded_google_ads_at_ms, 3_000);
 });

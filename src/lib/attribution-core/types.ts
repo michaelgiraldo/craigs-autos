@@ -26,6 +26,14 @@ export type AttributionPayload = {
   msclkid: string | null;
   fbclid: string | null;
   ttclid: string | null;
+  li_fat_id: string | null;
+  epik: string | null;
+  sc_click_id: string | null;
+  yelp_lead_id: string | null;
+  fbp: string | null;
+  fbc: string | null;
+  ttp: string | null;
+  scid: string | null;
   utm_source: string | null;
   utm_medium: string | null;
   utm_campaign: string | null;

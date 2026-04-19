@@ -6,5 +6,6 @@ export const leadAdminApi = defineFunction({
   timeoutSeconds: 15,
   environment: {
     LEADS_ADMIN_PASSWORD: secret('LEADS_ADMIN_PASSWORD'),
+    MANAGED_CONVERSION_DESTINATIONS: process.env.MANAGED_CONVERSION_DESTINATIONS ?? '',
   },
 });

@@ -20,7 +20,17 @@ export type LeadRecordItem = {
   click_id_type?: string | null;
   click_id?: string | null;
   qualified?: boolean;
-  uploaded_google_ads?: boolean;
+  conversion_feedback?: {
+    status?: string;
+    status_label?: string;
+    reason?: string;
+    configured_destination_keys?: string[];
+    eligible_destination_keys?: string[];
+    candidate_destination_keys?: string[];
+    primary_destination_key?: string | null;
+    destination_labels?: string[];
+    signal_keys?: string[];
+  };
   outreach_channel?: string | null;
   outreach_status?: string | null;
 };
