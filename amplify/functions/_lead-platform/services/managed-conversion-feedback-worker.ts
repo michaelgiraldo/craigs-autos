@@ -3,46 +3,30 @@ import type {
   ManagedConversionFeedbackStatus,
 } from '@craigs/contracts/managed-conversion-contract';
 import type {
-  LeadConversionDecision,
   LeadConversionFeedbackOutboxItem,
   LeadConversionFeedbackOutcome,
   ProviderConversionDestination,
 } from '../domain/conversion-feedback.ts';
-import type { LeadContact } from '../domain/contact.ts';
 import {
   createConversionFeedbackOutcomeId,
   createConversionFeedbackOutcomeSortKey,
 } from '../domain/ids.ts';
-import type { LeadRecord } from '../domain/lead-record.ts';
 import type { LeadPlatformRepos } from '../repos/dynamo.ts';
+import type {
+  ManagedConversionFeedbackAdapter,
+  ManagedConversionFeedbackDeliveryResult,
+} from './conversion-feedback/adapter-types.ts';
+export type {
+  ManagedConversionFeedbackAdapter,
+  ManagedConversionFeedbackDeliveryResult,
+} from './conversion-feedback/adapter-types.ts';
+export { createManualConversionFeedbackAdapter } from './conversion-feedback/providers/manual/adapter.ts';
 
 export const DEFAULT_CONVERSION_FEEDBACK_BATCH_SIZE = 10;
 export const DEFAULT_CONVERSION_FEEDBACK_LEASE_MS = 5 * 60 * 1000;
 export const DEFAULT_CONVERSION_FEEDBACK_MAX_ATTEMPTS = 3;
 
 const DEFAULT_RETRY_DELAYS_MS = [5 * 60 * 1000, 30 * 60 * 1000, 2 * 60 * 60 * 1000];
-
-export type ManagedConversionFeedbackDeliveryResult = {
-  status: ManagedConversionFeedbackStatus;
-  message: string;
-  providerResponseId?: string | null;
-  errorCode?: string | null;
-  diagnosticsUrl?: string | null;
-  retryable?: boolean;
-  payload?: Record<string, unknown>;
-};
-
-export type ManagedConversionFeedbackAdapter = {
-  canHandle(destination: ProviderConversionDestination): boolean;
-  deliver(args: {
-    item: LeadConversionFeedbackOutboxItem;
-    decision: LeadConversionDecision;
-    destination: ProviderConversionDestination;
-    leadRecord: LeadRecord;
-    contact: LeadContact | null;
-    nowMs: number;
-  }): Promise<ManagedConversionFeedbackDeliveryResult>;
-};
 
 export type ManagedConversionFeedbackWorkerConfig = {
   batchSize?: number;
@@ -345,23 +329,6 @@ async function processLeasedItem(args: {
       retryDelaysMs: args.retryDelaysMs,
     });
   }
-}
-
-export function createManualConversionFeedbackAdapter(): ManagedConversionFeedbackAdapter {
-  return {
-    canHandle(destination) {
-      return destination.delivery_mode === 'manual';
-    },
-    async deliver({ destination }) {
-      return {
-        status: 'manual',
-        message: `${destination.destination_label} is ready for manual conversion export; no provider API was called.`,
-        payload: {
-          delivery_mode: destination.delivery_mode,
-        },
-      };
-    },
-  };
 }
 
 export async function processManagedConversionFeedbackBatch(args: {

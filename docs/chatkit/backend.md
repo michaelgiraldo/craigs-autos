@@ -96,19 +96,34 @@ Managed-conversion worker defaults:
 - `MANAGED_CONVERSION_FEEDBACK_BATCH_SIZE` (default `10`)
 - `MANAGED_CONVERSION_FEEDBACK_LEASE_SECONDS` (default `300`)
 - `MANAGED_CONVERSION_FEEDBACK_MAX_ATTEMPTS` (default `3`)
-- `GOOGLE_ADS_CONVERSION_FEEDBACK_MODE` (default `dry_run`; `validate_only` and `live` are intentionally blocked until a real API client is added)
+- `GOOGLE_ADS_CONVERSION_FEEDBACK_MODE` (default `dry_run`; supported modes: `disabled`, `dry_run`, `test`/`validate_only`, `live`)
+- `GOOGLE_ADS_API_VERSION` (default `v22`)
+- `GOOGLE_ADS_ENDPOINT_BASE` (default `https://googleads.googleapis.com`)
 - `GOOGLE_ADS_CUSTOMER_ID` (required for Google Ads dry-run validation)
 - `GOOGLE_ADS_CONVERSION_ACTION_RESOURCE_NAME` or `GOOGLE_ADS_CONVERSION_ACTION_ID` (required for Google Ads dry-run validation)
 - `GOOGLE_ADS_DEFAULT_CONVERSION_VALUE` (optional)
 - `GOOGLE_ADS_CURRENCY_CODE` (default `USD`)
 - `GOOGLE_ADS_AD_USER_DATA_CONSENT` (`GRANTED` or `DENIED`, required unless account-level consent configuration is explicitly confirmed)
 - `GOOGLE_ADS_ACCOUNT_DEFAULT_CONSENT_CONFIGURED` (`true` only when Google Ads account-level consent configuration is intentionally used)
+- `GOOGLE_ADS_ACCESS_TOKEN` (optional short-lived token for Google Ads `test`/`live`; prefer refresh-token configuration)
+- `GOOGLE_ADS_REFRESH_TOKEN` / `GOOGLE_ADS_CLIENT_ID` / `GOOGLE_ADS_CLIENT_SECRET` (preferred for Google Ads `test`/`live` so the worker can mint fresh access tokens)
+- `GOOGLE_ADS_TOKEN_ENDPOINT` (default `https://oauth2.googleapis.com/token`)
+- `GOOGLE_ADS_DEVELOPER_TOKEN` (required for Google Ads `test`/`live` API delivery)
+- `GOOGLE_ADS_LOGIN_CUSTOMER_ID` (optional manager-account header)
+- `YELP_CONVERSION_FEEDBACK_MODE` (default `dry_run`; supported modes: `disabled`, `dry_run`, `test`/`test_event`, `live`)
+- `YELP_CONVERSION_ENDPOINT_BASE` (default `https://api.yelp.com`)
+- `YELP_CONVERSION_API_KEY` (required for Yelp `test`/`live` API delivery)
+- `YELP_CONVERSION_DEFAULT_EVENT_NAME` (default `lead`)
+- `YELP_CONVERSION_ACTION_SOURCE` (default `website`)
+- `YELP_CONVERSION_CURRENCY_CODE` (default `USD`; Yelp supports `USD` and `CAD`)
 
 The scheduled worker lives in `amplify/functions/managed-conversion-feedback-worker/`.
-It currently ships with the safe manual adapter plus a dry-safe Google Ads adapter that builds and
-validates the ClickConversion-style payload without calling Google. Provider API destinations
-without a real adapter are marked `needs_destination_config`; the worker must not mark Google, Meta,
-Microsoft, or another paid provider as `sent` until a live adapter records the provider outcome.
+It currently ships with a provider adapter registry under
+`amplify/functions/_lead-platform/services/conversion-feedback/`. The registry includes manual
+export, Google Ads, and Yelp Ads adapters. `dry_run` builds and validates payloads locally without a
+provider call. `test` calls the provider validation mode when available: Google Ads uses
+`validateOnly`, and Yelp uses `test_event`. `live` sends real conversion feedback and records the
+provider outcome.
 
 Lifecycle rules:
 

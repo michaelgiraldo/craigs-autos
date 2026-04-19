@@ -293,6 +293,8 @@ test('processManagedConversionFeedbackBatch does not pretend provider API destin
 
 test('processManagedConversionFeedbackBatch retries provider exceptions before final failure', async () => {
   const failingAdapter: ManagedConversionFeedbackAdapter = {
+    key: 'google_ads',
+    label: 'Google Ads',
     canHandle: (destination) => destination.destination_key === 'google_ads',
     deliver: async () => {
       throw new Error('temporary provider outage');
@@ -335,6 +337,8 @@ test('processManagedConversionFeedbackBatch retries provider exceptions before f
 
 test('processManagedConversionFeedbackBatch stops retrying after max attempts', async () => {
   const failingAdapter: ManagedConversionFeedbackAdapter = {
+    key: 'google_ads',
+    label: 'Google Ads',
     canHandle: (destination) => destination.destination_key === 'google_ads',
     deliver: async () => {
       throw new Error('permanent provider outage');

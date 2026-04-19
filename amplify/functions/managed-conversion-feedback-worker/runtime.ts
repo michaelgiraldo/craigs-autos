@@ -1,12 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { createLeadPlatformRuntime } from '../_lead-platform/runtime.ts';
+import { createManagedConversionAdapterRegistry } from '../_lead-platform/services/conversion-feedback/adapter-registry.ts';
 import {
-  createGoogleAdsManagedConversionAdapter,
-  parseGoogleAdsManagedConversionConfig,
-} from '../_lead-platform/services/google-ads-conversion-feedback.ts';
-import {
-  createManualConversionFeedbackAdapter,
   DEFAULT_CONVERSION_FEEDBACK_BATCH_SIZE,
   DEFAULT_CONVERSION_FEEDBACK_LEASE_MS,
   DEFAULT_CONVERSION_FEEDBACK_MAX_ATTEMPTS,
@@ -26,6 +22,21 @@ const envSchema = z.object({
   GOOGLE_ADS_CURRENCY_CODE: z.string().trim().optional(),
   GOOGLE_ADS_AD_USER_DATA_CONSENT: z.string().trim().optional(),
   GOOGLE_ADS_ACCOUNT_DEFAULT_CONSENT_CONFIGURED: z.string().trim().optional(),
+  GOOGLE_ADS_API_VERSION: z.string().trim().optional(),
+  GOOGLE_ADS_ENDPOINT_BASE: z.string().trim().optional(),
+  GOOGLE_ADS_ACCESS_TOKEN: z.string().trim().optional(),
+  GOOGLE_ADS_REFRESH_TOKEN: z.string().trim().optional(),
+  GOOGLE_ADS_CLIENT_ID: z.string().trim().optional(),
+  GOOGLE_ADS_CLIENT_SECRET: z.string().trim().optional(),
+  GOOGLE_ADS_TOKEN_ENDPOINT: z.string().trim().optional(),
+  GOOGLE_ADS_DEVELOPER_TOKEN: z.string().trim().optional(),
+  GOOGLE_ADS_LOGIN_CUSTOMER_ID: z.string().trim().optional(),
+  YELP_CONVERSION_FEEDBACK_MODE: z.string().trim().optional(),
+  YELP_CONVERSION_ENDPOINT_BASE: z.string().trim().optional(),
+  YELP_CONVERSION_API_KEY: z.string().trim().optional(),
+  YELP_CONVERSION_DEFAULT_EVENT_NAME: z.string().trim().optional(),
+  YELP_CONVERSION_ACTION_SOURCE: z.string().trim().optional(),
+  YELP_CONVERSION_CURRENCY_CODE: z.string().trim().optional(),
 });
 
 export type ManagedConversionFeedbackWorkerRuntime = {
@@ -48,17 +59,13 @@ export function createManagedConversionFeedbackWorkerRuntime(
     parsed.success && parsed.data.AWS_LAMBDA_FUNCTION_NAME
       ? parsed.data.AWS_LAMBDA_FUNCTION_NAME
       : 'managed-conversion-feedback-worker';
-  const googleAdsConfig = parseGoogleAdsManagedConversionConfig(env);
 
   return {
     configValid: parsed.success && leadPlatformRuntime.configValid,
     repos: leadPlatformRuntime.repos,
     nowMs: () => Date.now(),
     createWorkerId: () => `${functionName}:${randomUUID()}`,
-    adapters: [
-      createManualConversionFeedbackAdapter(),
-      createGoogleAdsManagedConversionAdapter(googleAdsConfig),
-    ],
+    adapters: createManagedConversionAdapterRegistry({ env }),
     batchSize: parsed.success
       ? (parsed.data.MANAGED_CONVERSION_FEEDBACK_BATCH_SIZE ??
         DEFAULT_CONVERSION_FEEDBACK_BATCH_SIZE)

@@ -216,7 +216,7 @@ for feedback, whether it was sent, and whether the destination accepted or attri
 | `needs_signal` | Contract/readiness | The lead is qualified but has no usable click, browser, email, or phone signal for the configured destination. | "Qualified lead has no provider matching signal." |
 | `needs_destination_config` | Operations/config | The lead has usable signals, but no destinations are configured. | "Configure destination." |
 | `ready` | Contract/readiness | At least one configured destination has enough signal. | "Ready." |
-| `validated` | Worker/dry-safe adapter | A destination payload was built and validated locally without calling the provider API. | "Validated for Google Ads dry run." |
+| `validated` | Worker/provider adapter | A destination payload was built locally or accepted by a provider test/validation mode without live conversion upload. | "Validated for Google Ads dry run." |
 | `queued` | Outbox | A feedback item exists and is waiting for a worker. | "Queued for Microsoft Ads." |
 | `manual` | Worker/manual adapter | The worker found a manual destination and recorded that no provider API was called. | "Ready for manual export." |
 | `sent` | Worker | The worker made a request and is waiting for final interpretation or diagnostics. | "Sent to Meta Ads." |
@@ -244,26 +244,29 @@ for feedback, whether it was sent, and whether the destination accepted or attri
 
 ## What The Current Implementation Does Now
 
-The current implementation includes the durable foundation, the safe worker loop, and a dry-safe
-Google Ads payload adapter. It still does not perform live provider uploads:
+The current implementation includes the durable foundation, the safe worker loop, and a provider
+adapter framework. Google Ads and Yelp can run locally in `dry_run`, call provider validation/test
+modes, or send live feedback when credentials are configured:
 
 | Area | Implemented now | Not implemented yet |
 | --- | --- | --- |
-| Contract | Destination keys, signal extraction, readiness summary, status vocabulary including `manual` and `validated` | Provider response normalizers and diagnostics-state contracts |
-| Attribution | Captures Google, Microsoft, Meta, TikTok, LinkedIn, Pinterest, Snap, Yelp, and browser IDs | IP/user-agent storage policy and provider-specific consent policy beyond Google Ads |
+| Contract | Destination keys, signal extraction, readiness summary, status vocabulary including `manual` and `validated` | Diagnostics-state contracts and richer event-value policy |
+| Attribution | Captures Google, Microsoft, Meta, TikTok, LinkedIn, Pinterest, Snap, Yelp, and browser IDs | IP/user-agent storage policy and consent policy beyond current provider config |
 | Lead qualification | Stores only `qualified` and `qualified_at_ms`; qualification creates a durable conversion decision when appropriate | Booked/completed/lost decision UI |
 | Durable storage | Creates `LeadConversionDecisions`, `LeadConversionFeedbackOutbox`, `LeadConversionFeedbackOutcomes`, and `ProviderConversionDestinations` | Provider diagnostics polling |
-| Worker | Scheduled `managed-conversion-feedback-worker` leases queued outbox items, records outcomes, retries transient adapter failures, suppresses inactive decisions, handles `manual_export`, and validates Google Ads payloads in dry-run mode without provider upload | Live provider API clients and diagnostics polling |
-| Google Ads adapter | Builds a Google Ads ClickConversion-style payload with customer ID, conversion action, conversion time, order ID, click IDs, hashed email/phone identifiers, optional value/currency, and consent | OAuth/developer-token API client, `validate_only` request execution, live upload, and response normalization |
+| Worker | Scheduled `managed-conversion-feedback-worker` leases queued outbox items, records outcomes, retries transient adapter failures, suppresses inactive decisions, handles `manual_export`, and delegates provider delivery through a registry | Admin retry controls and diagnostics polling |
+| Provider framework | Shared adapter types, mode parsing, HTTP execution, response mapping, and identity normalization live under `services/conversion-feedback/` | Admin-editable destination configuration |
+| Google Ads adapter | Builds REST `uploadClickConversions` payloads, applies Google-specific email/phone normalization, supports `dry_run`, `test`/`validateOnly`, and `live`, and maps provider responses into outcomes | Real credential configuration and production smoke tests |
+| Yelp adapter | Builds Yelp Conversions API event payloads, hashes Yelp-compatible identifiers, supports `dry_run`, `test_event`, and `live`, and maps `202`, auth/config errors, and retryable failures into outcomes | Yelp API access approval and production smoke tests |
 | Admin | Shows provider-neutral readiness plus expandable decision, destination outbox, latest outcome, attempt, lease, retry, error, provider-response, and diagnostics detail | Retry controls and richer decision types |
 | API routes | Removes unimplemented notes/follow-up routes from public contract | New admin conversion-decision routes for booked/completed/lost/spam/not-a-fit |
-| Tests | Covers contract parsing, signal readiness, attribution capture, durable decision idempotency, suppression, conditional leasing, manual export, Google Ads dry-run payload validation, missing adapters, retries, and backend regression paths | Live provider sandbox tests |
+| Tests | Covers contract parsing, signal readiness, attribution capture, durable decision idempotency, suppression, conditional leasing, manual export, Google/Yelp payload validation, provider test/live HTTP paths with mocked clients, missing adapters, retries, and backend regression paths | Live provider sandbox tests |
 
 This is the correct stopping point for this slice because it proves the operational loop without
-pretending any paid provider accepted a conversion. The Google Ads adapter follows the documented
-enhanced-conversions-for-leads/ClickConversion payload shape enough to validate Craig's internal
-signal, hashing, consent, and conversion-action wiring, but live API execution remains disabled
-until OAuth/developer-token credentials and response handling are intentionally added.
+pretending that provider acceptance means attribution. The provider framework follows the documented
+Google Ads `uploadClickConversions` and Yelp Conversions API event shapes enough to validate Craig's
+internal signal, hashing, event ID, consent/config, and conversion-action wiring. Live API execution
+is available only when provider credentials are explicitly configured.
 
 ## Future Tables And Ownership
 
@@ -292,15 +295,16 @@ is one destination, not the architecture.
 
 ## Future Work
 
-The next production slice should add live provider execution on top of the worker:
+The next production slice should activate and smoke-test provider execution:
 
-- Add one live provider client at a time, starting with the destination Craig's actually wants to activate first.
-- For Google Ads, the next step is `validate_only` API execution with real credentials before live upload.
+- Configure real Google Ads credentials and run `test`/`validateOnly` before switching to `live`.
+- Confirm whether Yelp Conversions API access is available for Craig's account; Yelp's docs note access may require Yelp sales/client-success approval and may target larger multi-location advertisers.
+- Run Yelp `test_event` before switching to `live`.
 - Store provider response IDs, warning/error codes, diagnostics URLs, and retry metadata in `LeadConversionFeedbackOutcomes`.
 - Add admin retry controls and decision types beyond `qualified_lead`.
 - Add booked/completed/lost/spam/not-a-fit decisions before assigning conversion value or uploading revenue-oriented events.
 
 Until a provider adapter is live, admin should treat `queued`, `manual`, and
 `needs_destination_config` feedback as durable internal workflow state. It should treat `validated`
-as proof that Craig's can construct the provider payload locally, not as proof that any ad platform
-has accepted or attributed a conversion.
+as proof that Craig's can construct the provider payload or pass provider test validation, not as
+proof that any ad platform attributed a conversion.
