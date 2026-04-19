@@ -1,0 +1,58 @@
+---
+import '../styles/global.css';
+import '../styles/admin.css';
+import { BRAND_NAME, SITE } from '../lib/site-data.js';
+import brandLogo from '../assets/brand/craigs-auto-upholstery-logo.png';
+
+interface Props {
+  title: string;
+  description?: string;
+  canonicalPath?: string;
+}
+
+const {
+  title,
+  description = 'Internal lead platform dashboard.',
+  canonicalPath = '/admin/leads/',
+} = Astro.props as Props;
+
+const siteUrl = Astro.site ?? new URL(SITE.url);
+const canonicalUrl = new URL(canonicalPath, siteUrl).toString();
+---
+
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="canonical" href={canonicalUrl} />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  </head>
+  <body class="admin-shell">
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <header class="admin-shell__header">
+      <div class="admin-shell__header-inner">
+        <a class="admin-shell__brand" href="/admin/leads/" aria-label={`${BRAND_NAME} admin`}>
+          <img src={brandLogo.src} alt="" width="40" height="40" loading="eager" decoding="async" />
+          <span>
+            <strong>{BRAND_NAME}</strong>
+            <small>Lead platform admin</small>
+          </span>
+        </a>
+        <nav class="admin-shell__nav" aria-label="Admin">
+          <a href="/admin/leads/" aria-current="page">Leads</a>
+          <a href="/en/" rel="noreferrer">Public site</a>
+        </nav>
+      </div>
+    </header>
+    <main id="main-content" class="admin-shell__main">
+      <slot />
+    </main>
+  </body>
+</html>

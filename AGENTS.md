@@ -63,6 +63,7 @@ CHATKIT_WORKFLOW_ID=wf_...
 - Build site only: `npm run build`
 - Build release assets + site: `npm run build:release`
 - Business identity guardrail: `npm run validate:business-profile`
+- Admin production smoke: `LEADS_ADMIN_PASSWORD=... npm run smoke:admin-leads`
 
 Typecheck (backend):
 
@@ -129,6 +130,7 @@ Amplify Secrets (write-only) must be configured per environment/branch:
 
 - `OPENAI_API_KEY`
 - `CHATKIT_WORKFLOW_ID`
+- `LEADS_ADMIN_PASSWORD`
 
 Do not store these in the frontend or in git.
 
@@ -232,7 +234,11 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
   - Admin list operation: `amplify/functions/lead-admin-api/list-leads.ts`
   - Admin qualification operation: `amplify/functions/lead-admin-api/qualify-lead.ts`
   - Admin AWS/repository wiring: `amplify/functions/lead-admin-api/runtime.ts`
+  - Admin page layout: `src/layouts/AdminLayout.astro`
   - Admin page script: `src/scripts/admin-leads.ts`
+  - Admin build isolation guard: `scripts/guard-admin-build.mjs`
+  - Admin browser smoke script: `scripts/smoke-admin-leads.mjs`
+  - Admin pages must not use `src/layouts/BaseLayout.astro`; the public layout includes marketing navigation, lead capture widgets, and public lead-tracking scripts by default
 
 ## Safe change checklists (common tasks)
 
