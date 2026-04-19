@@ -253,7 +253,7 @@ provider upload adapters:
 | Lead qualification | Stores only `qualified` and `qualified_at_ms`; qualification creates a durable conversion decision when appropriate | Booked/completed/lost decision UI |
 | Durable storage | Creates `LeadConversionDecisions`, `LeadConversionFeedbackOutbox`, `LeadConversionFeedbackOutcomes`, and `ProviderConversionDestinations` | Provider diagnostics polling |
 | Worker | Scheduled `managed-conversion-feedback-worker` leases queued outbox items, records outcomes, retries transient adapter failures, suppresses inactive decisions, and handles `manual_export` without provider upload | Real provider API adapters |
-| Admin | Shows provider-neutral conversion feedback readiness and durable outbox state when present | Provider delivery history, diagnostics, retry controls |
+| Admin | Shows provider-neutral readiness plus expandable decision, destination outbox, latest outcome, attempt, lease, retry, error, provider-response, and diagnostics detail | Retry controls and richer decision types |
 | API routes | Removes unimplemented notes/follow-up routes from public contract | New admin conversion-decision routes for booked/completed/lost/spam/not-a-fit |
 | Tests | Covers contract parsing, signal readiness, attribution capture, durable decision idempotency, suppression, conditional leasing, manual export, missing adapters, retries, and backend regression paths | Live provider sandbox tests |
 
@@ -292,7 +292,7 @@ The next production slice should add real provider adapters on top of the worker
 
 - Add one provider adapter at a time, starting with the destination Craig's actually wants to activate first.
 - Store provider response IDs, warning/error codes, diagnostics URLs, and retry metadata in `LeadConversionFeedbackOutcomes`.
-- Add admin views for provider delivery history, retry controls, and decision types beyond `qualified_lead`.
+- Add admin retry controls and decision types beyond `qualified_lead`.
 - Add booked/completed/lost/spam/not-a-fit decisions before assigning conversion value or uploading revenue-oriented events.
 
 Until a provider adapter is live, admin should treat `queued`, `manual`, and

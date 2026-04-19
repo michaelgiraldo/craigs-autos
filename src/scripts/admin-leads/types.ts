@@ -1,3 +1,49 @@
+export type ConversionFeedbackDecisionItem = {
+  decision_id?: string;
+  decision_type?: string;
+  decision_status?: string;
+  actor?: string;
+  reason?: string | null;
+  conversion_value?: number | null;
+  currency_code?: string | null;
+  occurred_at_ms?: number;
+  updated_at_ms?: number;
+};
+
+export type ConversionFeedbackOutcomeItem = {
+  outbox_id?: string;
+  outcome_id?: string;
+  status?: string;
+  message?: string | null;
+  provider_response_id?: string | null;
+  error_code?: string | null;
+  diagnostics_url?: string | null;
+  occurred_at_ms?: number;
+};
+
+export type ConversionFeedbackOutboxItem = {
+  outbox_id?: string;
+  decision_id?: string;
+  destination_key?: string;
+  destination_label?: string;
+  status?: string;
+  status_reason?: string | null;
+  signal_keys?: string[];
+  attempt_count?: number;
+  lease_owner?: string | null;
+  lease_expires_at_ms?: number | null;
+  next_attempt_at_ms?: number | null;
+  last_outcome_at_ms?: number | null;
+  updated_at_ms?: number;
+  latest_outcome?: ConversionFeedbackOutcomeItem | null;
+};
+
+export type ConversionFeedbackDetail = {
+  decisions?: ConversionFeedbackDecisionItem[];
+  outbox_items?: ConversionFeedbackOutboxItem[];
+  outcomes?: ConversionFeedbackOutcomeItem[];
+};
+
 export type LeadRecordItem = {
   lead_record_id?: string;
   journey_id?: string;
@@ -31,6 +77,7 @@ export type LeadRecordItem = {
     destination_labels?: string[];
     signal_keys?: string[];
   };
+  conversion_feedback_detail?: ConversionFeedbackDetail;
   outreach_channel?: string | null;
   outreach_status?: string | null;
 };

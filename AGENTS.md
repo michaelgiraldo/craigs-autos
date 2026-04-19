@@ -240,6 +240,8 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
   - Admin list operation: `amplify/functions/lead-admin-api/list-leads.ts`
   - Admin qualification operation: `amplify/functions/lead-admin-api/qualify-lead.ts`
   - Admin AWS/repository wiring: `amplify/functions/lead-admin-api/runtime.ts`
+  - Admin conversion-feedback visibility is built from durable decisions, outbox
+    items, and outcomes; do not collapse it back to one provider upload flag.
   - Managed conversion feedback contract: `packages/contracts/src/managed-conversion-contract.js`
   - Managed conversion destination bootstrap:
     `amplify/functions/_lead-platform/services/managed-conversion-destinations.ts`

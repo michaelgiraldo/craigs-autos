@@ -66,6 +66,16 @@ export function createProductionLeadAdminDeps(env: NodeJS.ProcessEnv): LeadAdmin
           repos.conversionFeedbackOutbox.listByLeadRecordId(leadRecord.lead_record_id),
         ),
       );
+      const conversionDecisions = await Promise.all(
+        result.items.map((leadRecord) =>
+          repos.conversionDecisions.listByLeadRecordId(leadRecord.lead_record_id),
+        ),
+      );
+      const conversionFeedbackOutcomes = await Promise.all(
+        result.items.map((leadRecord) =>
+          repos.conversionFeedbackOutcomes.listByLeadRecordId(leadRecord.lead_record_id),
+        ),
+      );
 
       return {
         items: result.items.map((leadRecord, index) =>
@@ -73,7 +83,9 @@ export function createProductionLeadAdminDeps(env: NodeJS.ProcessEnv): LeadAdmin
             leadRecord,
             contact: contacts[index] ?? null,
             configuredConversionDestinations: resolvedDestinationKeys,
+            conversionDecisions: conversionDecisions[index] ?? [],
             conversionFeedbackOutboxItems: conversionFeedbackItems[index] ?? [],
+            conversionFeedbackOutcomes: conversionFeedbackOutcomes[index] ?? [],
           }),
         ),
         lastEvaluatedKey: result.lastEvaluatedKey,
