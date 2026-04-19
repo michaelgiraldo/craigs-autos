@@ -246,20 +246,21 @@ The current implementation is the foundation layer, not the upload worker:
 
 | Area | Implemented now | Not implemented yet |
 | --- | --- | --- |
-| Contract | Destination keys, signal extraction, readiness summary, status vocabulary | Durable outbox records and provider payload builders |
+| Contract | Destination keys, signal extraction, readiness summary, status vocabulary | Provider payload builders and provider response normalizers |
 | Attribution | Captures Google, Microsoft, Meta, TikTok, LinkedIn, Pinterest, Snap, Yelp, and browser IDs | Consent, IP/user-agent storage policy, hashed identity payload construction |
-| Lead qualification | Stores only `qualified` and `qualified_at_ms` | Booked/completed/lost decision UI |
-| Admin | Shows provider-neutral conversion feedback readiness | Provider delivery history, diagnostics, retry controls |
-| API routes | Removes unimplemented notes/follow-up routes from public contract | New admin conversion-decision routes |
-| Tests | Covers contract parsing, signal readiness, attribution capture, and backend regression paths | Live provider sandbox tests |
+| Lead qualification | Stores only `qualified` and `qualified_at_ms`; qualification creates a durable conversion decision when appropriate | Booked/completed/lost decision UI |
+| Durable storage | Creates `LeadConversionDecisions`, `LeadConversionFeedbackOutbox`, `LeadConversionFeedbackOutcomes`, and `ProviderConversionDestinations` | Lease-aware outbox worker and provider diagnostics polling |
+| Admin | Shows provider-neutral conversion feedback readiness and durable outbox state when present | Provider delivery history, diagnostics, retry controls |
+| API routes | Removes unimplemented notes/follow-up routes from public contract | New admin conversion-decision routes for booked/completed/lost/spam/not-a-fit |
+| Tests | Covers contract parsing, signal readiness, attribution capture, durable decision idempotency, suppression, and backend regression paths | Live provider sandbox tests |
 
-This is the correct stopping point for this slice because it removes the wrong abstraction before
-adding durable provider delivery. Building provider upload code before this cleanup would have made
-the old Google-specific model more expensive to unwind.
+This is the correct stopping point for this slice because it removes the wrong abstraction and adds
+durable state before provider delivery. Building provider upload code before this cleanup would have
+made the old Google-specific model more expensive to unwind.
 
 ## Future Tables And Ownership
 
-The next durable storage slice should add tables with clear ownership:
+The durable storage slice has been implemented with clear ownership:
 
 | Table | Primary owner | Purpose | Key idempotency rule |
 | --- | --- | --- | --- |
@@ -284,12 +285,14 @@ is one destination, not the architecture.
 
 ## Future Work
 
-The next production slice should add durable feedback storage:
+The next production slice should add the worker/provider layer on top of the durable state:
 
-- `LeadConversionDecisions`
-- `LeadConversionFeedbackOutbox`
-- `LeadConversionFeedbackOutcomes`
-- `ProviderConversionDestinations`
+- Lease `LeadConversionFeedbackOutbox` items by `status` and `next_attempt_at_ms`.
+- Start with `manual_export` and a no-op diagnostics outcome so the worker loop can be smoke tested without live ad credentials.
+- Add one provider adapter at a time, starting with the destination Craig's actually wants to activate first.
+- Store provider response IDs, warning/error codes, diagnostics URLs, and retry metadata in `LeadConversionFeedbackOutcomes`.
+- Add admin views for provider delivery history, retry controls, and decision types beyond `qualified_lead`.
+- Add booked/completed/lost/spam/not-a-fit decisions before assigning conversion value or uploading revenue-oriented events.
 
-Those tables should be added only after destination configuration and upload worker behavior are
-ready. Until then, admin readiness is intentionally a summary, not a fake upload state.
+Until a provider adapter is live, admin should treat queued feedback as durable internal state, not
+as proof that any ad platform has accepted or attributed a conversion.

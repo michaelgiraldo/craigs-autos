@@ -227,6 +227,8 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
     - journey events: `amplify/functions/_lead-platform/domain/journey-event.ts`
     - lead records: `amplify/functions/_lead-platform/domain/lead-record.ts`
     - lead action vocabulary: `amplify/functions/_lead-platform/domain/lead-actions.ts`
+    - managed conversion decisions, outbox, outcomes, and provider destinations:
+      `amplify/functions/_lead-platform/domain/conversion-feedback.ts`
   - Lifecycle rules live in `amplify/functions/_lead-platform/domain/lead-lifecycle.ts`
   - Event semantics live in `amplify/functions/_lead-platform/domain/lead-semantics.ts`
   - Contact identity, journey status, event building, qualification defaults, and merge rules live in named files under `amplify/functions/_lead-platform/services/`
@@ -239,6 +241,10 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
   - Admin qualification operation: `amplify/functions/lead-admin-api/qualify-lead.ts`
   - Admin AWS/repository wiring: `amplify/functions/lead-admin-api/runtime.ts`
   - Managed conversion feedback contract: `packages/contracts/src/managed-conversion-contract.js`
+  - Managed conversion destination bootstrap:
+    `amplify/functions/_lead-platform/services/managed-conversion-destinations.ts`
+  - Durable managed conversion decision/outbox orchestration:
+    `amplify/functions/_lead-platform/services/managed-conversion-feedback.ts`
   - Architecture note: `docs/managed-conversions-architecture-2026-04-19.md`
   - Google Ads is a managed-conversion destination, not lead truth. Do not add provider upload
     booleans to `LeadQualificationSnapshot`.

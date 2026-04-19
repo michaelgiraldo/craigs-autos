@@ -5,8 +5,12 @@ import { getLambda } from '../types';
 
 type LeadDataTables = {
   contacts: Table;
+  conversionDecisions: Table;
+  conversionFeedbackOutbox: Table;
+  conversionFeedbackOutcomes: Table;
   journeys: Table;
   journeyEvents: Table;
+  providerConversionDestinations: Table;
   records: Table;
 };
 
@@ -81,18 +85,108 @@ function createLeadDataTables(stack: Stack): LeadDataTables {
     sortKey: { name: 'occurred_at_ms', type: AttributeType.NUMBER },
   });
 
-  return { contacts, journeys, journeyEvents, records };
+  const conversionDecisions = new Table(stack, 'LeadConversionDecisions', {
+    billingMode: BillingMode.PAY_PER_REQUEST,
+    partitionKey: { name: 'decision_id', type: AttributeType.STRING },
+    removalPolicy: RemovalPolicy.DESTROY,
+  });
+
+  conversionDecisions.addGlobalSecondaryIndex({
+    indexName: 'lead_record_id-occurred_at_ms-index',
+    partitionKey: { name: 'lead_record_id', type: AttributeType.STRING },
+    sortKey: { name: 'occurred_at_ms', type: AttributeType.NUMBER },
+  });
+
+  const conversionFeedbackOutbox = new Table(stack, 'LeadConversionFeedbackOutbox', {
+    billingMode: BillingMode.PAY_PER_REQUEST,
+    partitionKey: { name: 'outbox_id', type: AttributeType.STRING },
+    removalPolicy: RemovalPolicy.DESTROY,
+  });
+
+  conversionFeedbackOutbox.addGlobalSecondaryIndex({
+    indexName: 'decision_id-updated_at_ms-index',
+    partitionKey: { name: 'decision_id', type: AttributeType.STRING },
+    sortKey: { name: 'updated_at_ms', type: AttributeType.NUMBER },
+  });
+
+  conversionFeedbackOutbox.addGlobalSecondaryIndex({
+    indexName: 'lead_record_id-updated_at_ms-index',
+    partitionKey: { name: 'lead_record_id', type: AttributeType.STRING },
+    sortKey: { name: 'updated_at_ms', type: AttributeType.NUMBER },
+  });
+
+  conversionFeedbackOutbox.addGlobalSecondaryIndex({
+    indexName: 'status-next_attempt_at_ms-index',
+    partitionKey: { name: 'status', type: AttributeType.STRING },
+    sortKey: { name: 'next_attempt_at_ms', type: AttributeType.NUMBER },
+  });
+
+  const conversionFeedbackOutcomes = new Table(stack, 'LeadConversionFeedbackOutcomes', {
+    billingMode: BillingMode.PAY_PER_REQUEST,
+    partitionKey: { name: 'outbox_id', type: AttributeType.STRING },
+    sortKey: { name: 'outcome_sort_key', type: AttributeType.STRING },
+    removalPolicy: RemovalPolicy.DESTROY,
+  });
+
+  conversionFeedbackOutcomes.addGlobalSecondaryIndex({
+    indexName: 'lead_record_id-occurred_at_ms-index',
+    partitionKey: { name: 'lead_record_id', type: AttributeType.STRING },
+    sortKey: { name: 'occurred_at_ms', type: AttributeType.NUMBER },
+  });
+
+  const providerConversionDestinations = new Table(stack, 'ProviderConversionDestinations', {
+    billingMode: BillingMode.PAY_PER_REQUEST,
+    partitionKey: { name: 'destination_key', type: AttributeType.STRING },
+    removalPolicy: RemovalPolicy.DESTROY,
+  });
+
+  providerConversionDestinations.addGlobalSecondaryIndex({
+    indexName: 'enabled_partition-updated_at_ms-index',
+    partitionKey: { name: 'enabled_partition', type: AttributeType.STRING },
+    sortKey: { name: 'updated_at_ms', type: AttributeType.NUMBER },
+  });
+
+  return {
+    contacts,
+    conversionDecisions,
+    conversionFeedbackOutbox,
+    conversionFeedbackOutcomes,
+    journeys,
+    journeyEvents,
+    providerConversionDestinations,
+    records,
+  };
 }
 
 function grantLeadDataAccess(lambda: LambdaWithEnvironment, tables: LeadDataTables): void {
   tables.contacts.grantReadWriteData(lambda);
+  tables.conversionDecisions.grantReadWriteData(lambda);
+  tables.conversionFeedbackOutbox.grantReadWriteData(lambda);
+  tables.conversionFeedbackOutcomes.grantReadWriteData(lambda);
   tables.journeys.grantReadWriteData(lambda);
   tables.journeyEvents.grantReadWriteData(lambda);
+  tables.providerConversionDestinations.grantReadWriteData(lambda);
   tables.records.grantReadWriteData(lambda);
 
   lambda.addEnvironment('LEAD_CONTACTS_TABLE_NAME', tables.contacts.tableName);
+  lambda.addEnvironment(
+    'LEAD_CONVERSION_DECISIONS_TABLE_NAME',
+    tables.conversionDecisions.tableName,
+  );
+  lambda.addEnvironment(
+    'LEAD_CONVERSION_FEEDBACK_OUTBOX_TABLE_NAME',
+    tables.conversionFeedbackOutbox.tableName,
+  );
+  lambda.addEnvironment(
+    'LEAD_CONVERSION_FEEDBACK_OUTCOMES_TABLE_NAME',
+    tables.conversionFeedbackOutcomes.tableName,
+  );
   lambda.addEnvironment('LEAD_JOURNEYS_TABLE_NAME', tables.journeys.tableName);
   lambda.addEnvironment('LEAD_JOURNEY_EVENTS_TABLE_NAME', tables.journeyEvents.tableName);
+  lambda.addEnvironment(
+    'PROVIDER_CONVERSION_DESTINATIONS_TABLE_NAME',
+    tables.providerConversionDestinations.tableName,
+  );
   lambda.addEnvironment('LEAD_RECORDS_TABLE_NAME', tables.records.tableName);
 }
 

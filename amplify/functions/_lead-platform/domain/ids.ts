@@ -82,3 +82,47 @@ export function createClientJourneyEventSortKey(args: {
 export function createClientEventId(prefix = 'evt'): string {
   return `${prefix}_${randomUUID()}`;
 }
+
+export function createStableConversionDecisionId(args: {
+  leadRecordId: string;
+  decisionType: string;
+}): string {
+  return createStableId('conversion_decision', [
+    'lead-conversion-decision',
+    args.leadRecordId,
+    args.decisionType,
+  ]);
+}
+
+export function createStableConversionFeedbackOutboxId(args: {
+  decisionId: string;
+  destinationKey: string;
+}): string {
+  return createStableId('conversion_feedback', [
+    'lead-conversion-feedback-outbox',
+    args.decisionId,
+    args.destinationKey,
+  ]);
+}
+
+export function createConversionFeedbackOutcomeId(args: {
+  outboxId: string;
+  status: string;
+  occurredAtMs: number;
+  discriminator?: string | null;
+}): string {
+  return createStableId('conversion_outcome', [
+    'lead-conversion-feedback-outcome',
+    args.outboxId,
+    args.status,
+    args.occurredAtMs,
+    args.discriminator,
+  ]);
+}
+
+export function createConversionFeedbackOutcomeSortKey(
+  occurredAtMs: number,
+  outcomeId: string,
+): string {
+  return `${String(occurredAtMs).padStart(16, '0')}#${outcomeId}`;
+}

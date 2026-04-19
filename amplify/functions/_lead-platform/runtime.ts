@@ -8,6 +8,10 @@ const leadPlatformEnvSchema = z.object({
   LEAD_JOURNEYS_TABLE_NAME: z.string().trim().min(1),
   LEAD_JOURNEY_EVENTS_TABLE_NAME: z.string().trim().min(1),
   LEAD_RECORDS_TABLE_NAME: z.string().trim().min(1),
+  LEAD_CONVERSION_DECISIONS_TABLE_NAME: z.string().trim().min(1),
+  LEAD_CONVERSION_FEEDBACK_OUTBOX_TABLE_NAME: z.string().trim().min(1),
+  LEAD_CONVERSION_FEEDBACK_OUTCOMES_TABLE_NAME: z.string().trim().min(1),
+  PROVIDER_CONVERSION_DESTINATIONS_TABLE_NAME: z.string().trim().min(1),
 });
 
 export type LeadPlatformRuntime = {
@@ -35,6 +39,11 @@ export function createLeadPlatformRuntime(
     journeysTableName: parsed.data.LEAD_JOURNEYS_TABLE_NAME,
     journeyEventsTableName: parsed.data.LEAD_JOURNEY_EVENTS_TABLE_NAME,
     leadRecordsTableName: parsed.data.LEAD_RECORDS_TABLE_NAME,
+    conversionDecisionsTableName: parsed.data.LEAD_CONVERSION_DECISIONS_TABLE_NAME,
+    conversionFeedbackOutboxTableName: parsed.data.LEAD_CONVERSION_FEEDBACK_OUTBOX_TABLE_NAME,
+    conversionFeedbackOutcomesTableName: parsed.data.LEAD_CONVERSION_FEEDBACK_OUTCOMES_TABLE_NAME,
+    providerConversionDestinationsTableName:
+      parsed.data.PROVIDER_CONVERSION_DESTINATIONS_TABLE_NAME,
   });
 
   return {

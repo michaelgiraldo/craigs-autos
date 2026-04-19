@@ -146,6 +146,28 @@ test('syncQuoLeadContact upserts Quo contacts and persists remote tags', async (
       put: async () => undefined,
     },
     journeyEvents: journeyEventsRepo,
+    conversionDecisions: {
+      getById: async () => null,
+      listByLeadRecordId: async () => [],
+      put: async () => undefined,
+    },
+    conversionFeedbackOutbox: {
+      getById: async () => null,
+      listByDecisionId: async () => [],
+      listByLeadRecordId: async () => [],
+      listByStatus: async () => [],
+      put: async () => undefined,
+    },
+    conversionFeedbackOutcomes: {
+      append: async () => undefined,
+      listByLeadRecordId: async () => [],
+      listByOutboxId: async () => [],
+    },
+    providerConversionDestinations: {
+      getByKey: async () => null,
+      listEnabled: async () => [],
+      put: async () => undefined,
+    },
   };
 
   try {

@@ -1,7 +1,13 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import type { PutCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
-import { DynamoJourneysRepo, DynamoLeadContactsRepo, DynamoLeadRecordsRepo } from './dynamo.ts';
+import {
+  DynamoLeadConversionFeedbackOutboxRepo,
+  DynamoJourneysRepo,
+  DynamoLeadContactsRepo,
+  DynamoLeadRecordsRepo,
+  DynamoProviderConversionDestinationsRepo,
+} from './dynamo.ts';
 import type { LeadContact } from '../domain/contact.ts';
 import type { LeadRecord } from '../domain/lead-record.ts';
 
@@ -163,4 +169,79 @@ test('DynamoJourneysRepo.listPage queries the ordered admin index', async () => 
   assert.equal(command.input.TableName, 'LeadJourneysTable');
   assert.equal(command.input.IndexName, 'admin_partition-updated_at_ms-index');
   assert.equal(command.input.ScanIndexForward, false);
+});
+
+test('DynamoLeadConversionFeedbackOutboxRepo.listByStatus queries retry-ready status index', async () => {
+  const { db, commands } = createDbStub();
+  const repo = new DynamoLeadConversionFeedbackOutboxRepo(db as never, 'FeedbackOutboxTable');
+
+  await repo.listByStatus('queued');
+
+  assert.equal(commands.length, 1);
+  const command = commands[0] as QueryCommand & { input: Record<string, unknown> };
+  assert.equal(command.input.TableName, 'FeedbackOutboxTable');
+  assert.equal(command.input.IndexName, 'status-next_attempt_at_ms-index');
+  assert.equal(command.input.KeyConditionExpression, '#status = :status');
+  assert.equal(command.input.ScanIndexForward, true);
+});
+
+test('DynamoLeadConversionFeedbackOutboxRepo.put omits null retry index key', async () => {
+  const { db, commands } = createDbStub();
+  const repo = new DynamoLeadConversionFeedbackOutboxRepo(db as never, 'FeedbackOutboxTable');
+
+  await repo.put({
+    outbox_id: 'outbox-1',
+    decision_id: 'decision-1',
+    lead_record_id: 'lead-1',
+    journey_id: 'journey-1',
+    destination_key: 'google_ads',
+    destination_label: 'Google Ads',
+    status: 'suppressed',
+    status_reason: 'Lead was unqualified.',
+    signal_keys: ['gclid'],
+    dedupe_key: 'decision-1:google_ads',
+    payload_contract: 'craigs-managed-conversions-v1',
+    attempt_count: 0,
+    lease_owner: null,
+    lease_expires_at_ms: null,
+    next_attempt_at_ms: null,
+    last_outcome_at_ms: 2,
+    created_at_ms: 1,
+    updated_at_ms: 2,
+  });
+
+  const command = commands[0] as PutCommand & { input: Record<string, unknown> };
+  assert.equal(command.input.TableName, 'FeedbackOutboxTable');
+  assert.equal((command.input.Item as Record<string, unknown>).next_attempt_at_ms, undefined);
+});
+
+test('DynamoProviderConversionDestinationsRepo.put adds enabled partition only when enabled', async () => {
+  const { db, commands } = createDbStub();
+  const repo = new DynamoProviderConversionDestinationsRepo(db as never, 'DestinationsTable');
+
+  await repo.put({
+    destination_key: 'google_ads',
+    destination_label: 'Google Ads',
+    enabled: true,
+    delivery_mode: 'provider_api',
+    config_source: 'environment',
+    provider_config: {},
+    created_at_ms: 1,
+    updated_at_ms: 1,
+  });
+
+  assert.equal(commands.length, 1);
+  const command = commands[0] as PutCommand & { input: Record<string, unknown> };
+  assert.equal(command.input.TableName, 'DestinationsTable');
+  assert.deepEqual(command.input.Item, {
+    destination_key: 'google_ads',
+    destination_label: 'Google Ads',
+    enabled: true,
+    enabled_partition: 'enabled',
+    delivery_mode: 'provider_api',
+    config_source: 'environment',
+    provider_config: {},
+    created_at_ms: 1,
+    updated_at_ms: 1,
+  });
 });

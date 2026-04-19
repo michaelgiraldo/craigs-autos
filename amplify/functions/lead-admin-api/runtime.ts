@@ -5,6 +5,11 @@ import {
   type ManagedConversionDestinationKey,
 } from '@craigs/contracts/managed-conversion-contract';
 import { buildJourneyEvent } from '../_lead-platform/services/journey-events.ts';
+import {
+  createManagedConversionDecisionForLead,
+  suppressManagedConversionFeedbackForLead,
+} from '../_lead-platform/services/managed-conversion-feedback.ts';
+import { resolveProviderConversionDestinations } from '../_lead-platform/services/managed-conversion-destinations.ts';
 import { buildDefaultQualificationSnapshot } from '../_lead-platform/services/qualification.ts';
 import { deriveLeadRecordStatus } from '../_lead-platform/services/outreach.ts';
 import {
@@ -34,6 +39,14 @@ export function createProductionLeadAdminDeps(env: NodeJS.ProcessEnv): LeadAdmin
     listLeadRecords: async ({ limit, qualifiedFilter, cursor }) => {
       const repos = leadPlatformRuntime.repos;
       if (!repos) return { items: [] };
+      const conversionDestinations = await resolveProviderConversionDestinations({
+        repo: repos.providerConversionDestinations,
+        configuredDestinationKeys: configuredConversionDestinations,
+        nowMs: Date.now(),
+      });
+      const resolvedDestinationKeys = conversionDestinations.map(
+        (destination) => destination.destination_key,
+      );
 
       const result = await repos.leadRecords.listPage({
         limit,
@@ -48,13 +61,19 @@ export function createProductionLeadAdminDeps(env: NodeJS.ProcessEnv): LeadAdmin
             : Promise.resolve(null),
         ),
       );
+      const conversionFeedbackItems = await Promise.all(
+        result.items.map((leadRecord) =>
+          repos.conversionFeedbackOutbox.listByLeadRecordId(leadRecord.lead_record_id),
+        ),
+      );
 
       return {
         items: result.items.map((leadRecord, index) =>
           toLeadAdminRecordSummary({
             leadRecord,
             contact: contacts[index] ?? null,
-            configuredConversionDestinations,
+            configuredConversionDestinations: resolvedDestinationKeys,
+            conversionFeedbackOutboxItems: conversionFeedbackItems[index] ?? [],
           }),
         ),
         lastEvaluatedKey: result.lastEvaluatedKey,
@@ -75,7 +94,28 @@ export function createProductionLeadAdminDeps(env: NodeJS.ProcessEnv): LeadAdmin
 
       const existingLeadRecord = await repos.leadRecords.getById(leadRecordId);
       if (!existingLeadRecord) return false;
-      if (existingLeadRecord.qualification.qualified === qualified) return true;
+      if (existingLeadRecord.qualification.qualified === qualified) {
+        if (qualified) {
+          const contact = existingLeadRecord.contact_id
+            ? await repos.contacts.getById(existingLeadRecord.contact_id)
+            : null;
+          const destinations = await resolveProviderConversionDestinations({
+            repo: repos.providerConversionDestinations,
+            configuredDestinationKeys: configuredConversionDestinations,
+            nowMs: qualifiedAtMs,
+            persistConfiguredDestinations: true,
+          });
+          await createManagedConversionDecisionForLead({
+            repos,
+            leadRecord: existingLeadRecord,
+            contact,
+            destinations,
+            occurredAtMs: qualifiedAtMs,
+            actor: 'admin',
+          });
+        }
+        return true;
+      }
 
       const qualification = buildDefaultQualificationSnapshot({
         ...existingLeadRecord.qualification,
@@ -116,6 +156,33 @@ export function createProductionLeadAdminDeps(env: NodeJS.ProcessEnv): LeadAdmin
           lead_record_id: leadRecordId,
           journey_status: qualified ? 'qualified' : 'captured',
           updated_at_ms: qualifiedAtMs,
+        });
+      }
+
+      if (qualified) {
+        const contact = updatedLeadRecord.contact_id
+          ? await repos.contacts.getById(updatedLeadRecord.contact_id)
+          : null;
+        const destinations = await resolveProviderConversionDestinations({
+          repo: repos.providerConversionDestinations,
+          configuredDestinationKeys: configuredConversionDestinations,
+          nowMs: qualifiedAtMs,
+          persistConfiguredDestinations: true,
+        });
+        await createManagedConversionDecisionForLead({
+          repos,
+          leadRecord: updatedLeadRecord,
+          contact,
+          destinations,
+          occurredAtMs: qualifiedAtMs,
+          actor: 'admin',
+        });
+      } else {
+        await suppressManagedConversionFeedbackForLead({
+          repos,
+          leadRecord: updatedLeadRecord,
+          occurredAtMs: qualifiedAtMs,
+          reason: 'Lead was unqualified by admin.',
         });
       }
 

@@ -1,12 +1,13 @@
-import {
-  summarizeManagedConversionFeedback,
-  type ManagedConversionDestinationKey,
-  type ManagedConversionFeedbackSummary,
+import type {
+  ManagedConversionDestinationKey,
+  ManagedConversionFeedbackSummary,
 } from '@craigs/contracts/managed-conversion-contract';
 import type { DeviceType } from '../domain/attribution.ts';
+import type { LeadConversionFeedbackOutboxItem } from '../domain/conversion-feedback.ts';
 import type { LeadContact } from '../domain/contact.ts';
 import type { Journey } from '../domain/journey.ts';
 import type { LeadRecord } from '../domain/lead-record.ts';
+import { summarizeDurableConversionFeedback } from './managed-conversion-feedback.ts';
 
 export type LeadAdminRecordSummary = {
   lead_record_id: string;
@@ -82,6 +83,7 @@ export function toLeadAdminRecordSummary(args: {
   leadRecord: LeadRecord;
   contact: LeadContact | null;
   configuredConversionDestinations?: ManagedConversionDestinationKey[];
+  conversionFeedbackOutboxItems?: LeadConversionFeedbackOutboxItem[];
 }): LeadAdminRecordSummary {
   return {
     lead_record_id: args.leadRecord.lead_record_id,
@@ -105,11 +107,12 @@ export function toLeadAdminRecordSummary(args: {
     click_id_type: args.leadRecord.attribution?.click_id_type ?? null,
     click_id: pickClickId(args.leadRecord),
     qualified: args.leadRecord.qualification.qualified,
-    conversion_feedback: summarizeManagedConversionFeedback({
+    conversion_feedback: summarizeDurableConversionFeedback({
       qualified: args.leadRecord.qualification.qualified,
       attribution: args.leadRecord.attribution,
       contact: args.contact,
       configuredDestinationKeys: args.configuredConversionDestinations ?? [],
+      outboxItems: args.conversionFeedbackOutboxItems ?? [],
     }),
     outreach_channel: args.leadRecord.latest_outreach.channel,
     outreach_status: args.leadRecord.latest_outreach.status,
