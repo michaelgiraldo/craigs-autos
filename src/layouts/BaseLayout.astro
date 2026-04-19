@@ -35,6 +35,7 @@ const {
   hreflangLinks,
   languageLinks,
   lang,
+  leadWidgetsAllowedOnPage,
   locale,
   localeBaseHref,
   mapsHref,
@@ -127,8 +128,10 @@ const {
 				smsHref={smsHref}
 				ui={ui}
 			/>
-			<ChatWidget locale={locale} />
-			<StickyCta emailHref={emailHref} site={siteData} smsHref={smsHref} ui={ui} />
+			{leadWidgetsAllowedOnPage && <ChatWidget locale={locale} />}
+			{leadWidgetsAllowedOnPage && (
+				<StickyCta emailHref={emailHref} site={siteData} smsHref={smsHref} ui={ui} />
+			)}
 			<SiteMenu
 				canonicalPath={canonicalPath}
 				emailHref={emailHref}

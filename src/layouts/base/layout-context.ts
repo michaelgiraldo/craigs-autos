@@ -32,6 +32,7 @@ export interface LayoutProps {
   translations?: LocaleMap<string>;
   pageKey?: string;
   noindex?: boolean;
+  showLeadWidgets?: boolean;
 }
 
 export type BaseLayoutContext = HeaderNavStructure & {
@@ -54,6 +55,7 @@ export type BaseLayoutContext = HeaderNavStructure & {
   lang: string;
   locale: LocaleKey;
   localeBaseHref: string;
+  leadWidgetsAllowedOnPage: boolean;
   mapsHref: string;
   mobilePrimaryNav: NavItem[];
   mobileSecondaryNav: NavItem[];
@@ -161,6 +163,7 @@ export function buildBaseLayoutContext(args: {
     translations,
     pageKey,
     noindex = false,
+    showLeadWidgets,
   } = resolveLayoutProps(args.props);
   const siteUrl = args.site ?? new URL(SITE.url);
   const localeKeys = LOCALE_ORDER as LocaleKey[];
@@ -210,6 +213,7 @@ export function buildBaseLayoutContext(args: {
   const gtmEnabled =
     args.isProduction && /^GTM-[A-Z0-9]{6,20}$/i.test(gtmId) && !/disabled/i.test(gtmId);
   const gtmAllowedOnPage = gtmEnabled && !noindex;
+  const leadWidgetsAllowedOnPage = showLeadWidgets ?? (!noindex && pageKey !== 'admin');
 
   return {
     ...resolvedHeaderNav,
@@ -232,6 +236,7 @@ export function buildBaseLayoutContext(args: {
     lang,
     locale,
     localeBaseHref,
+    leadWidgetsAllowedOnPage,
     mapsHref,
     navItems,
     noindex,

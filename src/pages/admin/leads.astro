@@ -4,16 +4,22 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 const title = "Admin | Leads";
 const description = "Lead qualification dashboard.";
 ---
-<BaseLayout title={title} description={description} noindex={true} pageKey="admin">
-  <main id="main-content" class="admin-leads">
+<BaseLayout
+  title={title}
+  description={description}
+  noindex={true}
+  pageKey="admin"
+  showLeadWidgets={false}
+>
+  <section class="admin-leads" aria-labelledby="admin-leads-title">
     <div class="container">
-      <h1>Lead Qualification</h1>
+      <h1 id="admin-leads-title">Lead Qualification</h1>
       <p class="admin-leads__subtitle">
         Password protected. Mark qualified leads so they can be uploaded to Google Ads.
       </p>
       <div id="admin-leads-app" class="admin-leads__app"></div>
     </div>
-  </main>
+  </section>
   <script>
     import { initAdminLeads } from '../../scripts/admin-leads.ts';
 
