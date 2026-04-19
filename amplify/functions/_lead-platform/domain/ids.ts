@@ -46,6 +46,14 @@ export function createJourneyEventId(args: {
   clientEventId?: string | null;
   discriminator?: string | null;
 }): string {
+  if (args.clientEventId?.trim()) {
+    return createStableId('journey_event', [
+      'journey-event-client',
+      args.journeyId,
+      args.clientEventId.trim(),
+    ]);
+  }
+
   return createStableId('journey_event', [
     'journey-event',
     args.journeyId,
@@ -58,6 +66,17 @@ export function createJourneyEventId(args: {
 
 export function createJourneyEventSortKey(occurredAtMs: number, eventId: string): string {
   return `${String(occurredAtMs).padStart(16, '0')}#${eventId}`;
+}
+
+export function createClientJourneyEventSortKey(args: {
+  journeyId: string;
+  clientEventId: string;
+}): string {
+  return createStableId('client_event', [
+    'journey-client-event',
+    args.journeyId,
+    args.clientEventId.trim(),
+  ]);
 }
 
 export function createClientEventId(prefix = 'evt'): string {

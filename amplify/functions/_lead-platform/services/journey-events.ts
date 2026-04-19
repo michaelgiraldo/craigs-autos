@@ -1,4 +1,8 @@
-import { createJourneyEventId, createJourneyEventSortKey } from '../domain/ids.ts';
+import {
+  createClientJourneyEventSortKey,
+  createJourneyEventId,
+  createJourneyEventSortKey,
+} from '../domain/ids.ts';
 import { getJourneyEventSemantics } from '../domain/lead-semantics.ts';
 import type { JourneyMetadata } from '../domain/journey.ts';
 import type { JourneyEvent, JourneyEventActor, JourneyEventName } from '../domain/journey-event.ts';
@@ -16,19 +20,26 @@ export function buildJourneyEvent(args: {
   discriminator?: string | null;
 }): JourneyEvent {
   const semantics = getJourneyEventSemantics(args.eventName);
+  const clientEventId = args.clientEventId?.trim() || null;
   const journeyEventId = createJourneyEventId({
     journeyId: args.journeyId,
     eventName: args.eventName,
     occurredAtMs: args.occurredAtMs,
-    clientEventId: args.clientEventId,
+    clientEventId,
     discriminator: args.discriminator,
   });
+  const eventSortKey = clientEventId
+    ? createClientJourneyEventSortKey({
+        journeyId: args.journeyId,
+        clientEventId,
+      })
+    : createJourneyEventSortKey(args.occurredAtMs, journeyEventId);
 
   return {
     journey_id: args.journeyId,
-    event_sort_key: createJourneyEventSortKey(args.occurredAtMs, journeyEventId),
+    event_sort_key: eventSortKey,
     journey_event_id: journeyEventId,
-    client_event_id: args.clientEventId ?? null,
+    client_event_id: clientEventId,
     lead_record_id: args.leadRecordId ?? null,
     event_name: args.eventName,
     event_class: semantics.eventClass,

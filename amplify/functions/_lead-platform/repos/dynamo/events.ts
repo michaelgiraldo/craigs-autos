@@ -10,6 +10,14 @@ import type { JourneyEventsRepo } from '../events-repo.ts';
 import { JOURNEY_EVENTS_LEAD_RECORD_OCCURRED_INDEX } from './constants.ts';
 import { removeNullKeys } from './helpers.ts';
 
+function byTimelineOrder(a: JourneyEvent, b: JourneyEvent): number {
+  return (
+    a.occurred_at_ms - b.occurred_at_ms ||
+    a.recorded_at_ms - b.recorded_at_ms ||
+    a.event_sort_key.localeCompare(b.event_sort_key)
+  );
+}
+
 export class DynamoJourneyEventsRepo implements JourneyEventsRepo {
   private readonly db: DynamoDBDocumentClient;
   private readonly tableName: string;
@@ -66,7 +74,7 @@ export class DynamoJourneyEventsRepo implements JourneyEventsRepo {
         ScanIndexForward: true,
       }),
     );
-    return (result.Items as JourneyEvent[] | undefined) ?? [];
+    return ((result.Items as JourneyEvent[] | undefined) ?? []).sort(byTimelineOrder);
   }
 
   async listByLeadRecordId(leadRecordId: string): Promise<JourneyEvent[]> {

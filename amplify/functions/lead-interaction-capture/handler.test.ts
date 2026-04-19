@@ -100,7 +100,10 @@ test('lead-interaction-capture handler dedupes retried browser events by client 
   });
   const retry = await handler({
     requestContext: { http: { method: 'POST' } },
-    body: JSON.stringify(payload),
+    body: JSON.stringify({
+      ...payload,
+      occurred_at_ms: 1_050,
+    }),
   });
 
   assert.equal(first.statusCode, 200);
