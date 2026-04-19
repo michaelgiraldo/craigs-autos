@@ -198,6 +198,7 @@ export function configureLeadDataTables(backend: CraigsBackend): void {
   for (const lambda of [
     getLambda(backend.quoteRequestSubmit),
     getLambda(backend.leadFollowupWorker),
+    getLambda(backend.managedConversionFeedbackWorker),
     getLambda(backend.chatHandoffPromote),
     getLambda(backend.leadInteractionCapture),
     getLambda(backend.leadAdminApi),

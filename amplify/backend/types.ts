@@ -14,6 +14,7 @@ export type BackendFunctionResource = {
 export type CraigsBackend = {
   quoteRequestSubmit: BackendFunctionResource;
   leadFollowupWorker: BackendFunctionResource;
+  managedConversionFeedbackWorker: BackendFunctionResource;
   chatSessionCreate: BackendFunctionResource;
   chatHandoffPromote: BackendFunctionResource;
   leadActionLinkResolve: BackendFunctionResource;

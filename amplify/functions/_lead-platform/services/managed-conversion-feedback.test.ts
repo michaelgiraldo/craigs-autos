@@ -147,6 +147,20 @@ function createRepos() {
     },
     conversionFeedbackOutbox: {
       getById: async (outboxId) => outbox.get(outboxId) ?? null,
+      acquireLease: async ({ outboxId, leaseOwner, leaseExpiresAtMs, nowMs, statusReason }) => {
+        const item = outbox.get(outboxId);
+        if (!item || item.status !== 'queued') return null;
+        const leased = {
+          ...item,
+          lease_owner: leaseOwner,
+          lease_expires_at_ms: leaseExpiresAtMs,
+          attempt_count: item.attempt_count + 1,
+          status_reason: statusReason,
+          updated_at_ms: nowMs,
+        };
+        outbox.set(outboxId, leased);
+        return leased;
+      },
       listByDecisionId: async (decisionId) =>
         [...outbox.values()].filter((item) => item.decision_id === decisionId),
       listByLeadRecordId: async (leadRecordId) =>

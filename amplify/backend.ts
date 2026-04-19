@@ -12,10 +12,12 @@ import { chatSessionCreate } from './functions/chat-session-create/resource';
 import { quoteRequestSubmit } from './functions/quote-request-submit/resource';
 import { leadAdminApi } from './functions/lead-admin-api/resource';
 import { leadFollowupWorker } from './functions/lead-followup-worker/resource';
+import { managedConversionFeedbackWorker } from './functions/managed-conversion-feedback-worker/resource';
 
 const backend = defineBackend({
   quoteRequestSubmit,
   leadFollowupWorker,
+  managedConversionFeedbackWorker,
   chatSessionCreate,
   chatHandoffPromote,
   leadActionLinkResolve,

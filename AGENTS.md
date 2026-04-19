@@ -245,6 +245,10 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
     `amplify/functions/_lead-platform/services/managed-conversion-destinations.ts`
   - Durable managed conversion decision/outbox orchestration:
     `amplify/functions/_lead-platform/services/managed-conversion-feedback.ts`
+  - Managed conversion worker state machine and safe manual adapter:
+    `amplify/functions/_lead-platform/services/managed-conversion-feedback-worker.ts`
+  - Scheduled managed conversion worker Lambda:
+    `amplify/functions/managed-conversion-feedback-worker/handler.ts`
   - Architecture note: `docs/managed-conversions-architecture-2026-04-19.md`
   - Google Ads is a managed-conversion destination, not lead truth. Do not add provider upload
     booleans to `LeadQualificationSnapshot`.

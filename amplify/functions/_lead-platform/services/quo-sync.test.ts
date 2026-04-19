@@ -153,6 +153,7 @@ test('syncQuoLeadContact upserts Quo contacts and persists remote tags', async (
     },
     conversionFeedbackOutbox: {
       getById: async () => null,
+      acquireLease: async () => null,
       listByDecisionId: async () => [],
       listByLeadRecordId: async () => [],
       listByStatus: async () => [],

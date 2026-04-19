@@ -46,4 +46,8 @@ export function applyLambdaDescriptions(backend: CraigsBackend): void {
     getLambda(backend.leadFollowupWorker),
     'Generates quote outreach drafts, sends SMS-first follow-up with email fallback, and emails the shop via SES.',
   );
+  setLambdaDescription(
+    getLambda(backend.managedConversionFeedbackWorker),
+    'Leases managed-conversion feedback outbox items, records provider-neutral outcomes, and prepares safe manual/provider delivery state.',
+  );
 }

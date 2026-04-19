@@ -24,6 +24,7 @@ import type { LeadPlatformRepos } from '../repos/dynamo.ts';
 const OUTBOX_POSITIVE_STATUSES = new Set<ManagedConversionFeedbackStatus>([
   'ready',
   'queued',
+  'manual',
   'sent',
   'accepted',
   'warning',
@@ -46,6 +47,8 @@ function mapStatusLabel(status: ManagedConversionFeedbackStatus): string {
       return 'Ready';
     case 'queued':
       return 'Queued';
+    case 'manual':
+      return 'Manual';
     case 'sent':
       return 'Sent';
     case 'accepted':
@@ -75,6 +78,8 @@ function scoreStatus(status: ManagedConversionFeedbackStatus): number {
       return 60;
     case 'sent':
       return 50;
+    case 'manual':
+      return 45;
     case 'queued':
       return 40;
     case 'ready':

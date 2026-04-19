@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import type { PutCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
+import type { PutCommand, QueryCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import {
   DynamoLeadConversionFeedbackOutboxRepo,
   DynamoJourneysRepo,
@@ -175,14 +175,42 @@ test('DynamoLeadConversionFeedbackOutboxRepo.listByStatus queries retry-ready st
   const { db, commands } = createDbStub();
   const repo = new DynamoLeadConversionFeedbackOutboxRepo(db as never, 'FeedbackOutboxTable');
 
-  await repo.listByStatus('queued');
+  await repo.listByStatus('queued', { dueAtMs: 5_000, limit: 10 });
 
   assert.equal(commands.length, 1);
   const command = commands[0] as QueryCommand & { input: Record<string, unknown> };
   assert.equal(command.input.TableName, 'FeedbackOutboxTable');
   assert.equal(command.input.IndexName, 'status-next_attempt_at_ms-index');
-  assert.equal(command.input.KeyConditionExpression, '#status = :status');
+  assert.equal(
+    command.input.KeyConditionExpression,
+    '#status = :status AND next_attempt_at_ms <= :dueAtMs',
+  );
   assert.equal(command.input.ScanIndexForward, true);
+  assert.equal(command.input.Limit, 10);
+});
+
+test('DynamoLeadConversionFeedbackOutboxRepo.acquireLease conditionally leases queued work', async () => {
+  const { db, commands } = createDbStub();
+  const repo = new DynamoLeadConversionFeedbackOutboxRepo(db as never, 'FeedbackOutboxTable');
+
+  await repo.acquireLease({
+    outboxId: 'outbox-1',
+    expectedStatus: 'queued',
+    leaseOwner: 'worker-1',
+    leaseExpiresAtMs: 10_000,
+    nowMs: 5_000,
+    statusReason: 'Leased by worker-1.',
+  });
+
+  assert.equal(commands.length, 1);
+  const command = commands[0] as UpdateCommand & { input: Record<string, unknown> };
+  assert.equal(command.input.TableName, 'FeedbackOutboxTable');
+  assert.deepEqual(command.input.Key, { outbox_id: 'outbox-1' });
+  assert.equal(
+    command.input.ConditionExpression,
+    '#status = :expectedStatus AND (attribute_not_exists(lease_expires_at_ms) OR lease_expires_at_ms <= :nowMs)',
+  );
+  assert.doesNotMatch(String(command.input.UpdateExpression), /REMOVE next_attempt_at_ms/);
 });
 
 test('DynamoLeadConversionFeedbackOutboxRepo.put omits null retry index key', async () => {
@@ -212,7 +240,10 @@ test('DynamoLeadConversionFeedbackOutboxRepo.put omits null retry index key', as
 
   const command = commands[0] as PutCommand & { input: Record<string, unknown> };
   assert.equal(command.input.TableName, 'FeedbackOutboxTable');
+  assert.equal((command.input.Item as Record<string, unknown>).lease_owner, undefined);
+  assert.equal((command.input.Item as Record<string, unknown>).lease_expires_at_ms, undefined);
   assert.equal((command.input.Item as Record<string, unknown>).next_attempt_at_ms, undefined);
+  assert.equal((command.input.Item as Record<string, unknown>).last_outcome_at_ms, 2);
 });
 
 test('DynamoProviderConversionDestinationsRepo.put adds enabled partition only when enabled', async () => {

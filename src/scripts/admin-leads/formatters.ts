@@ -61,7 +61,11 @@ export function formatConversionFeedback(item: LeadRecordItem): {
     label,
     detail: detailParts.length ? detailParts.join(' • ') : optionalString(feedback?.reason),
     positive:
-      status === 'ready' || status === 'queued' || status === 'sent' || status === 'accepted',
+      status === 'ready' ||
+      status === 'queued' ||
+      status === 'manual' ||
+      status === 'sent' ||
+      status === 'accepted',
   };
 }
 

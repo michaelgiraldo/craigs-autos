@@ -91,6 +91,18 @@ Journey-first lead wiring (injected by `amplify/backend.ts`):
 - `PROVIDER_CONVERSION_DESTINATIONS_TABLE_NAME`
 - `LEAD_ACTION_LINKS_TABLE_NAME`
 
+Managed-conversion worker defaults:
+
+- `MANAGED_CONVERSION_FEEDBACK_BATCH_SIZE` (default `10`)
+- `MANAGED_CONVERSION_FEEDBACK_LEASE_SECONDS` (default `300`)
+- `MANAGED_CONVERSION_FEEDBACK_MAX_ATTEMPTS` (default `3`)
+
+The scheduled worker lives in `amplify/functions/managed-conversion-feedback-worker/`.
+It currently ships with the safe manual adapter only. Provider API destinations without a
+real adapter are marked `needs_destination_config`; the worker must not mark Google,
+Meta, Microsoft, or another paid provider as sent until a real adapter records the
+provider outcome.
+
 Lifecycle rules:
 
 - Canonical lead event names and their lifecycle/dataLayer/browser interaction contract

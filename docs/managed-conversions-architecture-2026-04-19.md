@@ -102,7 +102,7 @@ Official references:
 | --- | --- |
 | `LeadQualificationSnapshot` stored `uploaded_google_ads`. | Qualification stores only the business decision: qualified or not qualified. |
 | Admin displayed a `Google Ads` column. | Admin displays provider-neutral `Conversion Feedback` readiness. |
-| One boolean tried to represent upload, acceptance, and attribution. | Feedback has statuses: not ready, needs signal, needs destination config, ready, queued, sent, accepted, warning, failed, attributed, suppressed, retracted. |
+| One boolean tried to represent upload, acceptance, and attribution. | Feedback has statuses: not ready, needs signal, needs destination config, ready, queued, manual, sent, accepted, warning, failed, attributed, suppressed, retracted. |
 | Attribution primarily captured Google/Microsoft/Meta/TikTok click IDs. | Attribution also captures LinkedIn, Pinterest, Snap, Yelp, and browser IDs used by server-side feedback loops. |
 | A future non-Google provider would require another lead-record refactor. | New destinations attach behind the managed-conversion contract without changing lead truth. |
 
@@ -217,6 +217,7 @@ for feedback, whether it was sent, and whether the destination accepted or attri
 | `needs_destination_config` | Operations/config | The lead has usable signals, but no destinations are configured. | "Configure destination." |
 | `ready` | Contract/readiness | At least one configured destination has enough signal. | "Ready." |
 | `queued` | Outbox | A feedback item exists and is waiting for a worker. | "Queued for Microsoft Ads." |
+| `manual` | Worker/manual adapter | The worker found a manual destination and recorded that no provider API was called. | "Ready for manual export." |
 | `sent` | Worker | The worker made a request and is waiting for final interpretation or diagnostics. | "Sent to Meta Ads." |
 | `accepted` | Provider outcome | The destination accepted the event. This is not the same as attribution. | "Accepted by Google Ads." |
 | `warning` | Provider outcome | The destination accepted or partially accepted the event with a warning. | "Accepted with diagnostics warning." |
@@ -242,21 +243,23 @@ for feedback, whether it was sent, and whether the destination accepted or attri
 
 ## What The Current Implementation Does Now
 
-The current implementation is the foundation layer, not the upload worker:
+The current implementation includes the durable foundation and the safe worker loop, not live
+provider upload adapters:
 
 | Area | Implemented now | Not implemented yet |
 | --- | --- | --- |
-| Contract | Destination keys, signal extraction, readiness summary, status vocabulary | Provider payload builders and provider response normalizers |
+| Contract | Destination keys, signal extraction, readiness summary, status vocabulary including `manual` | Provider payload builders and provider response normalizers |
 | Attribution | Captures Google, Microsoft, Meta, TikTok, LinkedIn, Pinterest, Snap, Yelp, and browser IDs | Consent, IP/user-agent storage policy, hashed identity payload construction |
 | Lead qualification | Stores only `qualified` and `qualified_at_ms`; qualification creates a durable conversion decision when appropriate | Booked/completed/lost decision UI |
-| Durable storage | Creates `LeadConversionDecisions`, `LeadConversionFeedbackOutbox`, `LeadConversionFeedbackOutcomes`, and `ProviderConversionDestinations` | Lease-aware outbox worker and provider diagnostics polling |
+| Durable storage | Creates `LeadConversionDecisions`, `LeadConversionFeedbackOutbox`, `LeadConversionFeedbackOutcomes`, and `ProviderConversionDestinations` | Provider diagnostics polling |
+| Worker | Scheduled `managed-conversion-feedback-worker` leases queued outbox items, records outcomes, retries transient adapter failures, suppresses inactive decisions, and handles `manual_export` without provider upload | Real provider API adapters |
 | Admin | Shows provider-neutral conversion feedback readiness and durable outbox state when present | Provider delivery history, diagnostics, retry controls |
 | API routes | Removes unimplemented notes/follow-up routes from public contract | New admin conversion-decision routes for booked/completed/lost/spam/not-a-fit |
-| Tests | Covers contract parsing, signal readiness, attribution capture, durable decision idempotency, suppression, and backend regression paths | Live provider sandbox tests |
+| Tests | Covers contract parsing, signal readiness, attribution capture, durable decision idempotency, suppression, conditional leasing, manual export, missing adapters, retries, and backend regression paths | Live provider sandbox tests |
 
-This is the correct stopping point for this slice because it removes the wrong abstraction and adds
-durable state before provider delivery. Building provider upload code before this cleanup would have
-made the old Google-specific model more expensive to unwind.
+This is the correct stopping point for this slice because it proves the operational loop without
+pretending any paid provider accepted a conversion. Building Google upload code before the worker
+would have mixed provider-specific behavior with queueing, lease, retry, and outcome semantics.
 
 ## Future Tables And Ownership
 
@@ -285,14 +288,13 @@ is one destination, not the architecture.
 
 ## Future Work
 
-The next production slice should add the worker/provider layer on top of the durable state:
+The next production slice should add real provider adapters on top of the worker:
 
-- Lease `LeadConversionFeedbackOutbox` items by `status` and `next_attempt_at_ms`.
-- Start with `manual_export` and a no-op diagnostics outcome so the worker loop can be smoke tested without live ad credentials.
 - Add one provider adapter at a time, starting with the destination Craig's actually wants to activate first.
 - Store provider response IDs, warning/error codes, diagnostics URLs, and retry metadata in `LeadConversionFeedbackOutcomes`.
 - Add admin views for provider delivery history, retry controls, and decision types beyond `qualified_lead`.
 - Add booked/completed/lost/spam/not-a-fit decisions before assigning conversion value or uploading revenue-oriented events.
 
-Until a provider adapter is live, admin should treat queued feedback as durable internal state, not
-as proof that any ad platform has accepted or attributed a conversion.
+Until a provider adapter is live, admin should treat `queued`, `manual`, and
+`needs_destination_config` feedback as durable internal workflow state, not as proof that any ad
+platform has accepted or attributed a conversion.
