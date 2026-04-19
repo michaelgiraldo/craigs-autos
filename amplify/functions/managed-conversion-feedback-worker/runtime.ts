@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { createLeadPlatformRuntime } from '../_lead-platform/runtime.ts';
 import { createManagedConversionAdapterRegistry } from '../_lead-platform/services/conversion-feedback/adapter-registry.ts';
+import { MANAGED_CONVERSION_PROVIDER_ENV_KEYS } from '../_lead-platform/services/conversion-feedback/provider-config-manifest.ts';
 import {
   DEFAULT_CONVERSION_FEEDBACK_BATCH_SIZE,
   DEFAULT_CONVERSION_FEEDBACK_LEASE_MS,
@@ -9,34 +10,16 @@ import {
   type ManagedConversionFeedbackAdapter,
 } from '../_lead-platform/services/managed-conversion-feedback-worker.ts';
 
+const providerEnvSchema = Object.fromEntries(
+  MANAGED_CONVERSION_PROVIDER_ENV_KEYS.map((key) => [key, z.string().trim().optional()]),
+) as Record<string, z.ZodOptional<z.ZodString>>;
+
 const envSchema = z.object({
   MANAGED_CONVERSION_FEEDBACK_BATCH_SIZE: z.coerce.number().int().positive().optional(),
   MANAGED_CONVERSION_FEEDBACK_LEASE_SECONDS: z.coerce.number().int().positive().optional(),
   MANAGED_CONVERSION_FEEDBACK_MAX_ATTEMPTS: z.coerce.number().int().positive().optional(),
   AWS_LAMBDA_FUNCTION_NAME: z.string().trim().min(1).optional(),
-  GOOGLE_ADS_CONVERSION_FEEDBACK_MODE: z.string().trim().optional(),
-  GOOGLE_ADS_CUSTOMER_ID: z.string().trim().optional(),
-  GOOGLE_ADS_CONVERSION_ACTION_RESOURCE_NAME: z.string().trim().optional(),
-  GOOGLE_ADS_CONVERSION_ACTION_ID: z.string().trim().optional(),
-  GOOGLE_ADS_DEFAULT_CONVERSION_VALUE: z.string().trim().optional(),
-  GOOGLE_ADS_CURRENCY_CODE: z.string().trim().optional(),
-  GOOGLE_ADS_AD_USER_DATA_CONSENT: z.string().trim().optional(),
-  GOOGLE_ADS_ACCOUNT_DEFAULT_CONSENT_CONFIGURED: z.string().trim().optional(),
-  GOOGLE_ADS_API_VERSION: z.string().trim().optional(),
-  GOOGLE_ADS_ENDPOINT_BASE: z.string().trim().optional(),
-  GOOGLE_ADS_ACCESS_TOKEN: z.string().trim().optional(),
-  GOOGLE_ADS_REFRESH_TOKEN: z.string().trim().optional(),
-  GOOGLE_ADS_CLIENT_ID: z.string().trim().optional(),
-  GOOGLE_ADS_CLIENT_SECRET: z.string().trim().optional(),
-  GOOGLE_ADS_TOKEN_ENDPOINT: z.string().trim().optional(),
-  GOOGLE_ADS_DEVELOPER_TOKEN: z.string().trim().optional(),
-  GOOGLE_ADS_LOGIN_CUSTOMER_ID: z.string().trim().optional(),
-  YELP_CONVERSION_FEEDBACK_MODE: z.string().trim().optional(),
-  YELP_CONVERSION_ENDPOINT_BASE: z.string().trim().optional(),
-  YELP_CONVERSION_API_KEY: z.string().trim().optional(),
-  YELP_CONVERSION_DEFAULT_EVENT_NAME: z.string().trim().optional(),
-  YELP_CONVERSION_ACTION_SOURCE: z.string().trim().optional(),
-  YELP_CONVERSION_CURRENCY_CODE: z.string().trim().optional(),
+  ...providerEnvSchema,
 });
 
 export type ManagedConversionFeedbackWorkerRuntime = {

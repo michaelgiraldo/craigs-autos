@@ -156,7 +156,7 @@ needed instead of pretending that a provider upload is pending.
 
 This contract is intentionally small. It should not become a provider SDK wrapper. Its job is to
 define Craig's vocabulary and signal model so the rest of the codebase can speak consistently.
-Provider adapters can translate from this contract into each platform's required payload.
+Provider definitions then translate from this contract into each platform's required payload.
 
 ## Implementation Rule
 
@@ -245,7 +245,7 @@ for feedback, whether it was sent, and whether the destination accepted or attri
 ## What The Current Implementation Does Now
 
 The current implementation includes the durable foundation, the safe worker loop, and a provider
-adapter framework. Google Ads and Yelp can run locally in `dry_run`, call provider validation/test
+definition SDK. Google Ads and Yelp can run locally in `dry_run`, call provider validation/test
 modes, or send live feedback when credentials are configured:
 
 | Area | Implemented now | Not implemented yet |
@@ -255,18 +255,42 @@ modes, or send live feedback when credentials are configured:
 | Lead qualification | Stores only `qualified` and `qualified_at_ms`; qualification creates a durable conversion decision when appropriate | Booked/completed/lost decision UI |
 | Durable storage | Creates `LeadConversionDecisions`, `LeadConversionFeedbackOutbox`, `LeadConversionFeedbackOutcomes`, and `ProviderConversionDestinations` | Provider diagnostics polling |
 | Worker | Scheduled `managed-conversion-feedback-worker` leases queued outbox items, records outcomes, retries transient adapter failures, suppresses inactive decisions, handles `manual_export`, and delegates provider delivery through a registry | Admin retry controls and diagnostics polling |
-| Provider framework | Shared adapter types, mode parsing, HTTP execution, response mapping, and identity normalization live under `services/conversion-feedback/` | Admin-editable destination configuration |
+| Provider SDK | Provider config fields, payload builders, live-config checks, and delivery handlers live in provider `definition.ts` files; the shared factory owns disabled/dry-run/live-config branching | Admin-editable destination configuration generated from provider config fields |
 | Google Ads adapter | Builds REST `uploadClickConversions` payloads, applies Google-specific email/phone normalization, supports `dry_run`, `test`/`validateOnly`, and `live`, and maps provider responses into outcomes | Real credential configuration and production smoke tests |
 | Yelp adapter | Builds Yelp Conversions API event payloads, hashes Yelp-compatible identifiers, supports `dry_run`, `test_event`, and `live`, and maps `202`, auth/config errors, and retryable failures into outcomes | Yelp API access approval and production smoke tests |
 | Admin | Shows provider-neutral readiness plus expandable decision, destination outbox, latest outcome, attempt, lease, retry, error, provider-response, and diagnostics detail | Retry controls and richer decision types |
 | API routes | Removes unimplemented notes/follow-up routes from public contract | New admin conversion-decision routes for booked/completed/lost/spam/not-a-fit |
-| Tests | Covers contract parsing, signal readiness, attribution capture, durable decision idempotency, suppression, conditional leasing, manual export, Google/Yelp payload validation, provider test/live HTTP paths with mocked clients, missing adapters, retries, and backend regression paths | Live provider sandbox tests |
+| Tests | Covers contract parsing, signal readiness, attribution capture, durable decision idempotency, suppression, conditional leasing, manual export, provider SDK conformance, Google/Yelp payload validation, provider test/live HTTP paths with mocked clients, missing adapters, retries, and backend regression paths | Live provider sandbox tests |
 
 This is the correct stopping point for this slice because it proves the operational loop without
-pretending that provider acceptance means attribution. The provider framework follows the documented
+pretending that provider acceptance means attribution. The provider SDK follows the documented
 Google Ads `uploadClickConversions` and Yelp Conversions API event shapes enough to validate Craig's
 internal signal, hashing, event ID, consent/config, and conversion-action wiring. Live API execution
 is available only when provider credentials are explicitly configured.
+
+## Provider SDK Shape
+
+Each API-backed paid provider now has the same implementation shape:
+
+```text
+provider config fields -> provider definition -> shared adapter factory -> worker registry
+```
+
+| File | Ownership | Why it exists |
+| --- | --- | --- |
+| `providers/*/config.ts` | Provider configuration contract | Declares env keys, provider-config keys, defaults, secrets, and parsing rules. |
+| `providers/*/payload.ts` | Provider payload translation | Converts Craig's lead decision, outbox item, attribution, and contact signals into the provider request body. |
+| `providers/*/client.ts` | Provider HTTP delivery | Calls provider test/live APIs and maps responses into provider-neutral outcome statuses. |
+| `providers/*/definition.ts` | Provider SDK registration | Connects config, payload, missing-config checks, dry-run summaries, and delivery into one declarative provider definition. |
+| `providers/*/adapter.ts` | Runtime adapter wrapper | One small wrapper around the shared `createAdapterFromProviderDefinition` factory. |
+| `provider-config-manifest.ts` | Env/config metadata manifest | Feeds Lambda resource defaults and runtime env validation from the same provider field declarations. |
+| `provider-definition.test.ts` | Provider conformance tests | Prevents provider keys, env keys, defaults, registry wiring, and shared factory behavior from drifting. |
+
+The maturity improvement is that a new provider should not require reimplementing provider lifecycle
+mechanics. Microsoft Ads, Meta CAPI, TikTok Events API, or another local paid provider should add a
+destination contract key, config fields, payload/client code, a definition, and tests. Disabled
+mode, dry-run validation, missing live config, HTTP dependency injection, registry wiring, resource
+defaults, and runtime env validation are shared.
 
 ## Future Tables And Ownership
 
@@ -301,6 +325,7 @@ The next production slice should activate and smoke-test provider execution:
 - Confirm whether Yelp Conversions API access is available for Craig's account; Yelp's docs note access may require Yelp sales/client-success approval and may target larger multi-location advertisers.
 - Run Yelp `test_event` before switching to `live`.
 - Store provider response IDs, warning/error codes, diagnostics URLs, and retry metadata in `LeadConversionFeedbackOutcomes`.
+- Generate admin provider-configuration forms from provider config fields instead of hard-coding one-off Google/Yelp settings.
 - Add admin retry controls and decision types beyond `qualified_lead`.
 - Add booked/completed/lost/spam/not-a-fit decisions before assigning conversion value or uploading revenue-oriented events.
 

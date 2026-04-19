@@ -160,7 +160,7 @@ function makeDestination(
   };
 }
 
-test('parseYelpManagedConversionConfig normalizes framework configuration', () => {
+test('parseYelpManagedConversionConfig normalizes provider SDK configuration', () => {
   const config = parseYelpManagedConversionConfig({
     YELP_CONVERSION_FEEDBACK_MODE: 'test_event',
     YELP_CONVERSION_ENDPOINT_BASE: 'https://example.test',

@@ -1,4 +1,5 @@
 import { defineFunction } from '@aws-amplify/backend';
+import { MANAGED_CONVERSION_PROVIDER_ENV_DEFAULTS } from '../_lead-platform/services/conversion-feedback/provider-config-manifest.ts';
 
 export const managedConversionFeedbackWorker = defineFunction({
   name: 'managed-conversion-feedback-worker',
@@ -9,28 +10,6 @@ export const managedConversionFeedbackWorker = defineFunction({
     MANAGED_CONVERSION_FEEDBACK_BATCH_SIZE: '10',
     MANAGED_CONVERSION_FEEDBACK_LEASE_SECONDS: '300',
     MANAGED_CONVERSION_FEEDBACK_MAX_ATTEMPTS: '3',
-    GOOGLE_ADS_CONVERSION_FEEDBACK_MODE: 'dry_run',
-    GOOGLE_ADS_CUSTOMER_ID: '',
-    GOOGLE_ADS_CONVERSION_ACTION_RESOURCE_NAME: '',
-    GOOGLE_ADS_CONVERSION_ACTION_ID: '',
-    GOOGLE_ADS_DEFAULT_CONVERSION_VALUE: '',
-    GOOGLE_ADS_CURRENCY_CODE: 'USD',
-    GOOGLE_ADS_AD_USER_DATA_CONSENT: '',
-    GOOGLE_ADS_ACCOUNT_DEFAULT_CONSENT_CONFIGURED: 'false',
-    GOOGLE_ADS_API_VERSION: 'v22',
-    GOOGLE_ADS_ENDPOINT_BASE: 'https://googleads.googleapis.com',
-    GOOGLE_ADS_ACCESS_TOKEN: '',
-    GOOGLE_ADS_REFRESH_TOKEN: '',
-    GOOGLE_ADS_CLIENT_ID: '',
-    GOOGLE_ADS_CLIENT_SECRET: '',
-    GOOGLE_ADS_TOKEN_ENDPOINT: 'https://oauth2.googleapis.com/token',
-    GOOGLE_ADS_DEVELOPER_TOKEN: '',
-    GOOGLE_ADS_LOGIN_CUSTOMER_ID: '',
-    YELP_CONVERSION_FEEDBACK_MODE: 'dry_run',
-    YELP_CONVERSION_ENDPOINT_BASE: 'https://api.yelp.com',
-    YELP_CONVERSION_API_KEY: '',
-    YELP_CONVERSION_DEFAULT_EVENT_NAME: 'lead',
-    YELP_CONVERSION_ACTION_SOURCE: 'website',
-    YELP_CONVERSION_CURRENCY_CODE: 'USD',
+    ...MANAGED_CONVERSION_PROVIDER_ENV_DEFAULTS,
   },
 });

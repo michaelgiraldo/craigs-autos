@@ -160,7 +160,7 @@ function makeDestination(
   };
 }
 
-test('parseGoogleAdsManagedConversionConfig normalizes provider framework configuration', () => {
+test('parseGoogleAdsManagedConversionConfig normalizes provider SDK configuration', () => {
   const config = parseGoogleAdsManagedConversionConfig({
     GOOGLE_ADS_CONVERSION_FEEDBACK_MODE: 'validate_only',
     GOOGLE_ADS_CUSTOMER_ID: '123-456-7890',

@@ -117,13 +117,21 @@ Managed-conversion worker defaults:
 - `YELP_CONVERSION_ACTION_SOURCE` (default `website`)
 - `YELP_CONVERSION_CURRENCY_CODE` (default `USD`; Yelp supports `USD` and `CAD`)
 
+These provider environment keys are declared once in provider config fields and collected by
+`amplify/functions/_lead-platform/services/conversion-feedback/provider-config-manifest.ts`.
+`resource.ts` uses that manifest for Lambda defaults, and `runtime.ts` uses the same manifest for
+environment validation. Do not add a provider env var directly to the worker resource/runtime
+without adding it to the provider's config fields.
+
 The scheduled worker lives in `amplify/functions/managed-conversion-feedback-worker/`.
-It currently ships with a provider adapter registry under
-`amplify/functions/_lead-platform/services/conversion-feedback/`. The registry includes manual
-export, Google Ads, and Yelp Ads adapters. `dry_run` builds and validates payloads locally without a
-provider call. `test` calls the provider validation mode when available: Google Ads uses
-`validateOnly`, and Yelp uses `test_event`. `live` sends real conversion feedback and records the
-provider outcome.
+It currently ships with a provider SDK under
+`amplify/functions/_lead-platform/services/conversion-feedback/`. Provider-specific `definition.ts`
+files declare config fields, parsing, payload building, live-config checks, and delivery. The shared
+adapter factory handles disabled mode, dry-run validation, missing live config, and HTTP dependency
+injection. The registry includes manual export, Google Ads, and Yelp Ads adapters. `dry_run` builds
+and validates payloads locally without a provider call. `test` calls the provider validation mode
+when available: Google Ads uses `validateOnly`, and Yelp uses `test_event`. `live` sends real
+conversion feedback and records the provider outcome.
 
 Lifecycle rules:
 

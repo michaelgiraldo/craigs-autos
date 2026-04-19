@@ -249,6 +249,10 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
     `amplify/functions/_lead-platform/services/managed-conversion-feedback.ts`
   - Managed conversion worker state machine:
     `amplify/functions/_lead-platform/services/managed-conversion-feedback-worker.ts`
+  - Managed conversion provider SDK/factory:
+    `amplify/functions/_lead-platform/services/conversion-feedback/provider-definition.ts`
+  - Managed conversion provider config manifest:
+    `amplify/functions/_lead-platform/services/conversion-feedback/provider-config-manifest.ts`
   - Managed conversion provider adapter registry:
     `amplify/functions/_lead-platform/services/conversion-feedback/adapter-registry.ts`
   - Shared provider adapter types, config helpers, HTTP helpers, and identity normalization:
@@ -257,6 +261,11 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
     `amplify/functions/_lead-platform/services/conversion-feedback/providers/google-ads/`
     `amplify/functions/_lead-platform/services/conversion-feedback/providers/yelp/`
     `amplify/functions/_lead-platform/services/conversion-feedback/providers/manual/`
+  - To add a new paid provider, add the destination key to the contract first,
+    then add provider config fields, a provider `definition.ts`, the small
+    adapter wrapper, provider-specific payload/client tests, and provider SDK
+    conformance coverage. Do not hand-copy disabled/dry-run/live-config
+    branching into each provider adapter.
   - Scheduled managed conversion worker Lambda:
     `amplify/functions/managed-conversion-feedback-worker/handler.ts`
   - Architecture note: `docs/managed-conversions-architecture-2026-04-19.md`
