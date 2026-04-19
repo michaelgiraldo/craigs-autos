@@ -17,6 +17,14 @@ import {
 } from './managed-conversion-feedback.ts';
 import { resolveProviderConversionDestinations } from './managed-conversion-destinations.ts';
 
+function mapValues<T>(map: Map<string, T>): T[] {
+  const values: T[] = [];
+  map.forEach((value) => {
+    values.push(value);
+  });
+  return values;
+}
+
 function makeContact(): LeadContact {
   return {
     contact_id: 'contact-1',
@@ -140,7 +148,7 @@ function createRepos() {
     conversionDecisions: {
       getById: async (decisionId) => decisions.get(decisionId) ?? null,
       listByLeadRecordId: async (leadRecordId) =>
-        [...decisions.values()].filter((decision) => decision.lead_record_id === leadRecordId),
+        mapValues(decisions).filter((decision) => decision.lead_record_id === leadRecordId),
       put: async (decision) => {
         decisions.set(decision.decision_id, decision);
       },
@@ -162,10 +170,10 @@ function createRepos() {
         return leased;
       },
       listByDecisionId: async (decisionId) =>
-        [...outbox.values()].filter((item) => item.decision_id === decisionId),
+        mapValues(outbox).filter((item) => item.decision_id === decisionId),
       listByLeadRecordId: async (leadRecordId) =>
-        [...outbox.values()].filter((item) => item.lead_record_id === leadRecordId),
-      listByStatus: async (status) => [...outbox.values()].filter((item) => item.status === status),
+        mapValues(outbox).filter((item) => item.lead_record_id === leadRecordId),
+      listByStatus: async (status) => mapValues(outbox).filter((item) => item.status === status),
       put: async (item) => {
         outboxPutIds.push(item.outbox_id);
         outbox.set(item.outbox_id, item);
@@ -182,8 +190,7 @@ function createRepos() {
     },
     providerConversionDestinations: {
       getByKey: async (destinationKey) => destinations.get(destinationKey) ?? null,
-      listEnabled: async () =>
-        [...destinations.values()].filter((destination) => destination.enabled),
+      listEnabled: async () => mapValues(destinations).filter((destination) => destination.enabled),
       put: async (destination) => {
         destinations.set(destination.destination_key, destination);
       },
@@ -232,7 +239,7 @@ test('createManagedConversionDecisionForLead creates one durable decision and el
   assert.equal(result.summary.status, 'ready');
   assert.equal(decisions.size, 1);
   assert.equal(outbox.size, 1);
-  const item = [...outbox.values()][0];
+  const item = mapValues(outbox)[0];
   assert.equal(item.destination_key, 'google_ads');
   assert.equal(item.status, 'queued');
   assert.deepEqual(item.signal_keys, ['gclid', 'email', 'phone']);
@@ -303,7 +310,7 @@ test('suppressManagedConversionFeedbackForLead suppresses queued items and appen
     reason: 'Lead was unqualified by admin.',
   });
 
-  assert.equal([...outbox.values()][0].status, 'suppressed');
+  assert.equal(mapValues(outbox)[0].status, 'suppressed');
   assert.equal(outcomes.length, 1);
   assert.equal(outcomes[0].status, 'suppressed');
 });

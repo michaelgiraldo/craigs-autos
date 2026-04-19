@@ -18,7 +18,7 @@ export function normalizeGoogleEnhancedEmail(value: string | null | undefined): 
   if (domain !== 'gmail.com' && domain !== 'googlemail.com') return normalized;
 
   const withoutPlus = localPart.split('+')[0];
-  return `${withoutPlus.replaceAll('.', '')}@${domain}`;
+  return `${withoutPlus.split('.').join('')}@${domain}`;
 }
 
 export function hashGoogleEnhancedEmail(value: string | null | undefined): string | null {
@@ -29,9 +29,9 @@ export function hashGoogleEnhancedEmail(value: string | null | undefined): strin
 export function normalizeE164Phone(value: string | null | undefined): string | null {
   const raw = value?.trim() ?? '';
   if (!raw) return null;
-  if (/^\+\d{8,15}$/u.test(raw)) return raw;
+  if (/^\+\d{8,15}$/.test(raw)) return raw;
 
-  const digits = raw.replace(/\D/gu, '');
+  const digits = raw.replace(/\D/g, '');
   if (digits.length === 10) return `+1${digits}`;
   if (digits.length === 11 && digits.startsWith('1')) return `+${digits}`;
   if (digits.length >= 8 && digits.length <= 15) return `+${digits}`;
@@ -46,7 +46,7 @@ export function hashGooglePhone(value: string | null | undefined): string | null
 export function normalizeYelpPhone(value: string | null | undefined): string | null {
   const raw = value?.trim() ?? '';
   if (!raw) return null;
-  const digits = raw.replace(/\D/gu, '');
+  const digits = raw.replace(/\D/g, '');
   if (digits.length === 10) return `1${digits}`;
   if (digits.length === 11 && digits.startsWith('1')) return digits;
   return null;
@@ -54,7 +54,7 @@ export function normalizeYelpPhone(value: string | null | undefined): string | n
 
 export function normalizeYelpName(value: string | null | undefined): string | null {
   const normalized = normalizeBasicText(value);
-  return normalized ? normalized.replace(/[^a-z0-9]/gu, '') : null;
+  return normalized ? normalized.replace(/[^a-z0-9]/g, '') : null;
 }
 
 export function hashNormalizedValue(value: string | null | undefined): string | null {

@@ -52,7 +52,9 @@ export async function resolveProviderConversionDestinations(args: {
     }
   }
 
-  return [...byKey.values()]
-    .filter((destination) => destination.enabled)
-    .sort((a, b) => a.destination_key.localeCompare(b.destination_key));
+  const destinations: ProviderConversionDestination[] = [];
+  byKey.forEach((destination) => {
+    if (destination.enabled) destinations.push(destination);
+  });
+  return destinations.sort((a, b) => a.destination_key.localeCompare(b.destination_key));
 }

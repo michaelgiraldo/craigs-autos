@@ -386,7 +386,7 @@ test('createGoogleAdsManagedConversionAdapter refreshes OAuth access tokens for 
   assert.equal(result.status, 'validated');
   assert.equal(calls.length, 2);
   assert.equal(calls[0].url, 'https://oauth2.googleapis.com/token');
-  assert.match(calls[0].body as string, /grant_type=refresh_token/u);
+  assert.match(calls[0].body as string, /grant_type=refresh_token/);
   assert.equal(calls[1].headers.authorization, 'Bearer fresh-access-token');
   assert.equal(result.payload?.access_token_refreshed, true);
 });

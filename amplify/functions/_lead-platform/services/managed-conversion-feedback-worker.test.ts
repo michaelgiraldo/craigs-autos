@@ -17,6 +17,14 @@ import {
   type ManagedConversionFeedbackAdapter,
 } from './managed-conversion-feedback-worker.ts';
 
+function mapValues<T>(map: Map<string, T>): T[] {
+  const values: T[] = [];
+  map.forEach((value) => {
+    values.push(value);
+  });
+  return values;
+}
+
 function makeDecision(overrides: Partial<LeadConversionDecision> = {}): LeadConversionDecision {
   return {
     decision_id: 'decision-1',
@@ -168,7 +176,7 @@ function createRepos(args: {
     conversionDecisions: {
       getById: async (decisionId) => decisions.get(decisionId) ?? null,
       listByLeadRecordId: async (leadRecordId) =>
-        [...decisions.values()].filter((decision) => decision.lead_record_id === leadRecordId),
+        mapValues(decisions).filter((decision) => decision.lead_record_id === leadRecordId),
       put: async (decision) => {
         decisions.set(decision.decision_id, decision);
       },
@@ -200,11 +208,11 @@ function createRepos(args: {
         return leased;
       },
       listByDecisionId: async (decisionId) =>
-        [...outbox.values()].filter((item) => item.decision_id === decisionId),
+        mapValues(outbox).filter((item) => item.decision_id === decisionId),
       listByLeadRecordId: async (leadRecordId) =>
-        [...outbox.values()].filter((item) => item.lead_record_id === leadRecordId),
+        mapValues(outbox).filter((item) => item.lead_record_id === leadRecordId),
       listByStatus: async (status, options = {}) =>
-        [...outbox.values()]
+        mapValues(outbox)
           .filter((item) => item.status === status)
           .filter((item) =>
             typeof options.dueAtMs === 'number'
@@ -227,8 +235,7 @@ function createRepos(args: {
     },
     providerConversionDestinations: {
       getByKey: async (destinationKey) => destinations.get(destinationKey) ?? null,
-      listEnabled: async () =>
-        [...destinations.values()].filter((destination) => destination.enabled),
+      listEnabled: async () => mapValues(destinations).filter((destination) => destination.enabled),
       put: async (destination) => {
         destinations.set(destination.destination_key, destination);
       },

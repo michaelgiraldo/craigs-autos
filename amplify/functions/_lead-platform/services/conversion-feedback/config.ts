@@ -18,7 +18,7 @@ export function parseNumber(value: unknown): number | null {
 
 export function normalizeCurrencyCode(value: unknown): string | null {
   const normalized = trimToNull(value)?.toUpperCase() ?? null;
-  return normalized && /^[A-Z]{3}$/u.test(normalized) ? normalized : null;
+  return normalized && /^[A-Z]{3}$/.test(normalized) ? normalized : null;
 }
 
 export function parseProviderExecutionMode(value: unknown): ProviderExecutionMode {

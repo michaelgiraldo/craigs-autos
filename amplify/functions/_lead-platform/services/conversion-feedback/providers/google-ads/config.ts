@@ -160,8 +160,8 @@ function parseConsent(value: unknown): GoogleAdsConsentStatus | null {
 }
 
 export function normalizeGoogleAdsCustomerId(value: unknown): string | null {
-  const normalized = trimToNull(value)?.replaceAll('-', '') ?? null;
-  return normalized && /^\d+$/u.test(normalized) ? normalized : null;
+  const normalized = trimToNull(value)?.split('-').join('') ?? null;
+  return normalized && /^\d+$/.test(normalized) ? normalized : null;
 }
 
 export function buildGoogleAdsConversionActionResourceName(args: {

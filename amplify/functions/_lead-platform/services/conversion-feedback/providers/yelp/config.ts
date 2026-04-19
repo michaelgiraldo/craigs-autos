@@ -77,7 +77,7 @@ function normalizeActionSource(value: unknown): YelpActionSource {
 function normalizeEventName(value: unknown): YelpEventName {
   const normalized = trimToNull(value)
     ?.toLowerCase()
-    .replace(/[^a-z0-9_-]/gu, '_');
+    .replace(/[^a-z0-9_-]/g, '_');
   if (normalized === 'lead' || normalized === 'purchase') return normalized;
   if (normalized?.startsWith('custom_') && normalized.length <= 50) {
     return normalized as YelpEventName;
