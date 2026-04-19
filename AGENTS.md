@@ -245,6 +245,12 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
   - Managed conversion feedback contract: `packages/contracts/src/managed-conversion-contract.js`
   - Managed conversion destination bootstrap:
     `amplify/functions/_lead-platform/services/managed-conversion-destinations.ts`
+  - Managed conversion config-as-code parser/readiness:
+    `amplify/functions/_lead-platform/services/provider-conversion-destination-config.ts`
+  - Managed conversion desired-state config:
+    `config/managed-conversion-destinations.json`
+  - Managed conversion operator CLI:
+    `scripts/managed-conversions.ts`
   - Durable managed conversion decision/outbox orchestration:
     `amplify/functions/_lead-platform/services/managed-conversion-feedback.ts`
   - Managed conversion worker state machine:
@@ -269,9 +275,12 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
   - Scheduled managed conversion worker Lambda:
     `amplify/functions/managed-conversion-feedback-worker/handler.ts`
   - Architecture note: `docs/managed-conversions-architecture-2026-04-19.md`
+  - Operator runbook: `docs/managed-conversions-ops.md`
   - Google Ads is a managed-conversion destination, not lead truth. Do not add provider upload
     booleans to `LeadQualificationSnapshot`. `validated` means the payload was built locally or
     provider test mode passed; it does not mean a live ad platform attributed the conversion.
+  - Do not build provider setup as admin UI by default. Provider destination setup belongs in
+    config/CLI/docs/automation; the admin UI is for lead-specific business decisions.
   - Admin page layout: `src/layouts/AdminLayout.astro`
   - Admin page script: `src/scripts/admin-leads.ts`
   - Admin build isolation guard: `scripts/guard-admin-build.mjs`

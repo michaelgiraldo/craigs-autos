@@ -72,7 +72,7 @@ Shop notification email defaults (can be overridden later):
 - `LEAD_TO_EMAIL` (default from `packages/business-profile/src/business-profile.js`)
 - `LEAD_FROM_EMAIL` (default from `packages/business-profile/src/business-profile.js`)
 - `LEAD_SUMMARY_MODEL` (default: `gpt-5.2-2025-12-11`)
-- `MANAGED_CONVERSION_DESTINATIONS` (optional comma-separated managed-conversion destination keys)
+- `MANAGED_CONVERSION_DESTINATIONS` (legacy/env bootstrap only; prefer the config-as-code CLI below)
 
 Idempotency wiring (injected by `amplify/backend.ts`):
 
@@ -122,6 +122,15 @@ These provider environment keys are declared once in provider config fields and 
 `resource.ts` uses that manifest for Lambda defaults, and `runtime.ts` uses the same manifest for
 environment validation. Do not add a provider env var directly to the worker resource/runtime
 without adding it to the provider's config fields.
+
+Provider destination setup is config/CLI driven, not admin UI driven:
+
+- Desired state: `config/managed-conversion-destinations.json`
+- Validate: `npm run managed-conversions:validate`
+- Readiness: `npm run managed-conversions:readiness`
+- Env template: `npm run managed-conversions:env-template`
+- DynamoDB sync/list: `npm run managed-conversions -- sync|list --table ... --profile ...`
+- Runbook: `docs/managed-conversions-ops.md`
 
 The scheduled worker lives in `amplify/functions/managed-conversion-feedback-worker/`.
 It currently ships with a provider SDK under

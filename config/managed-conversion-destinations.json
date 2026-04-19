@@ -1,0 +1,29 @@
+{
+  "version": "craigs-managed-conversion-destinations-v1",
+  "destinations": [
+    {
+      "destination_key": "manual_export",
+      "enabled": true,
+      "provider_config": {}
+    },
+    {
+      "destination_key": "google_ads",
+      "enabled": false,
+      "provider_config": {
+        "mode": "dry_run",
+        "currency_code": "USD",
+        "account_default_consent_configured": false
+      }
+    },
+    {
+      "destination_key": "yelp_ads",
+      "enabled": false,
+      "provider_config": {
+        "mode": "dry_run",
+        "default_event_name": "lead",
+        "action_source": "website",
+        "currency_code": "USD"
+      }
+    }
+  ]
+}

@@ -135,14 +135,18 @@ It owns:
 The admin view consumes the summary. It should never infer that a qualified lead has already been
 uploaded, accepted, or attributed unless a provider outcome record says so.
 
-Admin readiness can be scoped with:
+Provider destination readiness is configured through checked-in desired state and CLI sync:
 
 ```text
-MANAGED_CONVERSION_DESTINATIONS=google_ads,microsoft_ads,meta_ads
+config/managed-conversion-destinations.json
+npm run managed-conversions:readiness
+npm run managed-conversions -- sync --table ... --profile ...
 ```
 
-If this is empty, a qualified lead with signals will show that destination configuration is still
-needed instead of pretending that a provider upload is pending.
+`MANAGED_CONVERSION_DESTINATIONS` remains a legacy/env bootstrap path, but the preferred production
+workflow is config-as-code plus the operator CLI. The admin UI should consume readiness/outcome
+state; it should not become the place where provider account IDs, API endpoints, or secrets are
+configured.
 
 ### Contract Responsibilities
 
@@ -255,7 +259,8 @@ modes, or send live feedback when credentials are configured:
 | Lead qualification | Stores only `qualified` and `qualified_at_ms`; qualification creates a durable conversion decision when appropriate | Booked/completed/lost decision UI |
 | Durable storage | Creates `LeadConversionDecisions`, `LeadConversionFeedbackOutbox`, `LeadConversionFeedbackOutcomes`, and `ProviderConversionDestinations` | Provider diagnostics polling |
 | Worker | Scheduled `managed-conversion-feedback-worker` leases queued outbox items, records outcomes, retries transient adapter failures, suppresses inactive decisions, handles `manual_export`, and delegates provider delivery through a registry | Admin retry controls and diagnostics polling |
-| Provider SDK | Provider config fields, payload builders, live-config checks, and delivery handlers live in provider `definition.ts` files; the shared factory owns disabled/dry-run/live-config branching | Admin-editable destination configuration generated from provider config fields |
+| Provider SDK | Provider config fields, payload builders, live-config checks, and delivery handlers live in provider `definition.ts` files; the shared factory owns disabled/dry-run/live-config branching | Additional providers using the same definition shape |
+| Provider ops | Checked-in destination config, CLI validation/readiness, env-template output, and dry-run/apply DynamoDB sync | Automation around the same CLI |
 | Google Ads adapter | Builds REST `uploadClickConversions` payloads, applies Google-specific email/phone normalization, supports `dry_run`, `test`/`validateOnly`, and `live`, and maps provider responses into outcomes | Real credential configuration and production smoke tests |
 | Yelp adapter | Builds Yelp Conversions API event payloads, hashes Yelp-compatible identifiers, supports `dry_run`, `test_event`, and `live`, and maps `202`, auth/config errors, and retryable failures into outcomes | Yelp API access approval and production smoke tests |
 | Admin | Shows provider-neutral readiness plus expandable decision, destination outbox, latest outcome, attempt, lease, retry, error, provider-response, and diagnostics detail | Retry controls and richer decision types |
@@ -284,6 +289,8 @@ provider config fields -> provider definition -> shared adapter factory -> worke
 | `providers/*/definition.ts` | Provider SDK registration | Connects config, payload, missing-config checks, dry-run summaries, and delivery into one declarative provider definition. |
 | `providers/*/adapter.ts` | Runtime adapter wrapper | One small wrapper around the shared `createAdapterFromProviderDefinition` factory. |
 | `provider-config-manifest.ts` | Env/config metadata manifest | Feeds Lambda resource defaults and runtime env validation from the same provider field declarations. |
+| `provider-conversion-destination-config.ts` | Config-as-code parser/readiness | Validates desired destination state, rejects checked-in secrets, evaluates readiness, and builds durable destination records. |
+| `scripts/managed-conversions.ts` | Operator CLI | Validates config, prints readiness/env templates, and syncs/lists DynamoDB destination records. |
 | `provider-definition.test.ts` | Provider conformance tests | Prevents provider keys, env keys, defaults, registry wiring, and shared factory behavior from drifting. |
 
 The maturity improvement is that a new provider should not require reimplementing provider lifecycle
@@ -316,16 +323,17 @@ is one destination, not the architecture.
 | Capture raw availability, send only normalized allowed data | The platform can know that email or phone exists without exposing plaintext PII to every destination. Provider adapters should normalize and hash only when sending. |
 | Configuration is explicit | If a destination has no conversion action, goal name, pixel ID, or token, the system should say configuration is missing. It should not pretend the upload is pending. |
 | Provider-neutral admin language | The admin should teach reviewers the correct workflow: qualify leads and manage conversion feedback. It should not train them to think every feedback loop is Google Ads. |
+| Minimal admin surface | Provider setup is important, but not UI-worthy by default. Keep provider setup in config/CLI/docs unless a non-developer must decide something while looking at a lead. |
 
 ## Future Work
 
 The next production slice should activate and smoke-test provider execution:
 
+- Update `config/managed-conversion-destinations.json` with real non-secret Google Ads settings and enable `google_ads`.
 - Configure real Google Ads credentials and run `test`/`validateOnly` before switching to `live`.
 - Confirm whether Yelp Conversions API access is available for Craig's account; Yelp's docs note access may require Yelp sales/client-success approval and may target larger multi-location advertisers.
 - Run Yelp `test_event` before switching to `live`.
 - Store provider response IDs, warning/error codes, diagnostics URLs, and retry metadata in `LeadConversionFeedbackOutcomes`.
-- Generate admin provider-configuration forms from provider config fields instead of hard-coding one-off Google/Yelp settings.
 - Add admin retry controls and decision types beyond `qualified_lead`.
 - Add booked/completed/lost/spam/not-a-fit decisions before assigning conversion value or uploading revenue-oriented events.
 

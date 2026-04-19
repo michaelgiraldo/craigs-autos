@@ -55,6 +55,7 @@ export type ManagedConversionProviderDefinition<TConfig, TRequest> = {
     context: ManagedConversionFeedbackContext;
     config: TConfig;
   }): ProviderPayloadBuildResult<TRequest>;
+  getMissingValidationConfigKeys?(config: TConfig): string[];
   getMissingDeliveryConfigKeys?(config: TConfig): string[];
   summarizeDryRunPayload?(args: {
     context: ManagedConversionFeedbackContext;

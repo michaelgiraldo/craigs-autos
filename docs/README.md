@@ -22,6 +22,7 @@ Security + architecture audit:
 - `docs/abc-parity-audit-2026-04-14.md`
 - `docs/clean-slate-rewrite-spec-2026-04-14.md`
 - `docs/managed-conversions-architecture-2026-04-19.md`
+- `docs/managed-conversions-ops.md`
 - `docs/browser-script-architecture.md`
 - `docs/boat-upholstery-copy-brief-2026-04-14.md`
 

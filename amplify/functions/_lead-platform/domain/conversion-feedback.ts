@@ -7,7 +7,7 @@ import type {
 export type LeadConversionDecisionStatus = 'active' | 'suppressed' | 'retracted';
 export type LeadConversionDecisionActor = 'admin' | 'system';
 export type ProviderConversionDestinationMode = 'manual' | 'provider_api';
-export type ProviderConversionDestinationSource = 'environment' | 'admin' | 'system';
+export type ProviderConversionDestinationSource = 'environment' | 'config_file' | 'system';
 
 export type LeadConversionDecision = {
   decision_id: string;

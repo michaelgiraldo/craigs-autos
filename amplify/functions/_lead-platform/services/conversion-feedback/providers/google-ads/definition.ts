@@ -5,6 +5,7 @@ import {
 import { uploadGoogleAdsClickConversions } from './client.ts';
 import {
   GOOGLE_ADS_CONFIG_FIELDS,
+  getGoogleAdsMissingDryRunConfigKeys,
   getGoogleAdsMissingLiveConfigKeys,
   parseGoogleAdsManagedConversionConfig,
   type GoogleAdsManagedConversionConfig,
@@ -30,6 +31,7 @@ export const googleAdsProviderDefinition = defineManagedConversionProvider({
       contact: context.contact,
     });
   },
+  getMissingValidationConfigKeys: getGoogleAdsMissingDryRunConfigKeys,
   getMissingDeliveryConfigKeys: getGoogleAdsMissingLiveConfigKeys,
   summarizeDryRunPayload({ build }) {
     const conversion = build.request.body.conversions[0];
