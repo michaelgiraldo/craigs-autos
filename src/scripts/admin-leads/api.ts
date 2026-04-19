@@ -1,4 +1,4 @@
-import { PUBLIC_API_ROUTES } from '@craigs/contracts/public-api-contract';
+import { PUBLIC_API_ROUTES, type PublicApiRoute } from '@craigs/contracts/public-api-contract';
 import { resolvePublicApiUrl } from '../../lib/backend/public-api-client';
 import { FETCH_TIMEOUT_MS } from './config';
 import type { LeadsApiResponse, QualificationFilter } from './types';
@@ -39,20 +39,36 @@ async function assertOk(response: Response, fallbackMessage: string): Promise<vo
 }
 
 export function createAdminLeadsApi() {
-  let endpoint: string | null = null;
+  let listEndpoint: string | null = null;
+  let qualificationEndpoint: string | null = null;
 
-  const resolveEndpoint = async (): Promise<string> => {
-    if (endpoint) {
-      return endpoint;
+  const resolveEndpoint = async (
+    route: PublicApiRoute,
+    current: string | null,
+  ): Promise<string> => {
+    if (current) {
+      return current;
     }
 
-    const url = await resolvePublicApiUrl(PUBLIC_API_ROUTES.adminLeads);
+    const url = await resolvePublicApiUrl(route);
     if (typeof url !== 'string' || !url.trim()) {
       throw new Error('Missing admin endpoint.');
     }
 
-    endpoint = url.trim();
-    return endpoint;
+    return url.trim();
+  };
+
+  const resolveListEndpoint = async (): Promise<string> => {
+    listEndpoint = await resolveEndpoint(PUBLIC_API_ROUTES.adminLeads, listEndpoint);
+    return listEndpoint;
+  };
+
+  const resolveQualificationEndpoint = async (): Promise<string> => {
+    qualificationEndpoint = await resolveEndpoint(
+      PUBLIC_API_ROUTES.adminLeadQualification,
+      qualificationEndpoint,
+    );
+    return qualificationEndpoint;
   };
 
   return {
@@ -62,7 +78,7 @@ export function createAdminLeadsApi() {
       journeysCursor: string | null;
       qualifiedFilter: QualificationFilter;
     }): Promise<LeadsApiResponse> {
-      const resolvedEndpoint = await resolveEndpoint();
+      const resolvedEndpoint = await resolveListEndpoint();
       const url = new URL(resolvedEndpoint);
       url.searchParams.set('limit', '200');
       if (args.recordsCursor) {
@@ -92,7 +108,7 @@ export function createAdminLeadsApi() {
       leadRecordId: string;
       qualified: boolean;
     }): Promise<void> {
-      const resolvedEndpoint = await resolveEndpoint();
+      const resolvedEndpoint = await resolveQualificationEndpoint();
       const response = await fetch(
         resolvedEndpoint,
         withFetchTimeout({

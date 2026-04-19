@@ -72,7 +72,7 @@ export function createPublicHttpApi(scope: Construct, backend: CraigsBackend): H
     },
     {
       path: publicApiPath(PUBLIC_API_ROUTES.adminLeads),
-      methods: [HttpMethod.GET, HttpMethod.POST],
+      methods: [HttpMethod.GET],
       integrationId: 'AdminLeadsIntegration',
       lambda: getLambda(backend.leadAdminApi),
     },

@@ -130,7 +130,7 @@ Routes are defined in `amplify/backend/public-api.ts`:
 - `POST /chat-handoffs` -> `chat-handoff-promote`
 - `GET /lead-action-links` -> `lead-action-link-resolve`
 - `POST /lead-interactions` -> `lead-interaction-capture`
-- `GET|POST /admin/leads` -> `lead-admin-api`
+- `GET /admin/leads` -> `lead-admin-api`
 - `POST /admin/leads/qualification` -> `lead-admin-api`
 - `POST /admin/leads/notes` -> `lead-admin-api`
 - `POST /admin/leads/follow-up-state` -> `lead-admin-api`
