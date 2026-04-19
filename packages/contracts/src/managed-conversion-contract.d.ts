@@ -17,6 +17,7 @@ export type ManagedConversionFeedbackStatus =
   | 'needs_destination_config'
   | 'ready'
   | 'queued'
+  | 'validated'
   | 'manual'
   | 'sent'
   | 'accepted'

@@ -114,6 +114,7 @@ function isPositiveFeedbackStatus(status: string | null): boolean {
   return (
     status === 'ready' ||
     status === 'queued' ||
+    status === 'validated' ||
     status === 'manual' ||
     status === 'sent' ||
     status === 'accepted' ||

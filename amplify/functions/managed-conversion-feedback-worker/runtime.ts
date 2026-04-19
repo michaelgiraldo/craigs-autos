@@ -2,6 +2,10 @@ import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { createLeadPlatformRuntime } from '../_lead-platform/runtime.ts';
 import {
+  createGoogleAdsManagedConversionAdapter,
+  parseGoogleAdsManagedConversionConfig,
+} from '../_lead-platform/services/google-ads-conversion-feedback.ts';
+import {
   createManualConversionFeedbackAdapter,
   DEFAULT_CONVERSION_FEEDBACK_BATCH_SIZE,
   DEFAULT_CONVERSION_FEEDBACK_LEASE_MS,
@@ -14,6 +18,14 @@ const envSchema = z.object({
   MANAGED_CONVERSION_FEEDBACK_LEASE_SECONDS: z.coerce.number().int().positive().optional(),
   MANAGED_CONVERSION_FEEDBACK_MAX_ATTEMPTS: z.coerce.number().int().positive().optional(),
   AWS_LAMBDA_FUNCTION_NAME: z.string().trim().min(1).optional(),
+  GOOGLE_ADS_CONVERSION_FEEDBACK_MODE: z.string().trim().optional(),
+  GOOGLE_ADS_CUSTOMER_ID: z.string().trim().optional(),
+  GOOGLE_ADS_CONVERSION_ACTION_RESOURCE_NAME: z.string().trim().optional(),
+  GOOGLE_ADS_CONVERSION_ACTION_ID: z.string().trim().optional(),
+  GOOGLE_ADS_DEFAULT_CONVERSION_VALUE: z.string().trim().optional(),
+  GOOGLE_ADS_CURRENCY_CODE: z.string().trim().optional(),
+  GOOGLE_ADS_AD_USER_DATA_CONSENT: z.string().trim().optional(),
+  GOOGLE_ADS_ACCOUNT_DEFAULT_CONSENT_CONFIGURED: z.string().trim().optional(),
 });
 
 export type ManagedConversionFeedbackWorkerRuntime = {
@@ -36,13 +48,17 @@ export function createManagedConversionFeedbackWorkerRuntime(
     parsed.success && parsed.data.AWS_LAMBDA_FUNCTION_NAME
       ? parsed.data.AWS_LAMBDA_FUNCTION_NAME
       : 'managed-conversion-feedback-worker';
+  const googleAdsConfig = parseGoogleAdsManagedConversionConfig(env);
 
   return {
     configValid: parsed.success && leadPlatformRuntime.configValid,
     repos: leadPlatformRuntime.repos,
     nowMs: () => Date.now(),
     createWorkerId: () => `${functionName}:${randomUUID()}`,
-    adapters: [createManualConversionFeedbackAdapter()],
+    adapters: [
+      createManualConversionFeedbackAdapter(),
+      createGoogleAdsManagedConversionAdapter(googleAdsConfig),
+    ],
     batchSize: parsed.success
       ? (parsed.data.MANAGED_CONVERSION_FEEDBACK_BATCH_SIZE ??
         DEFAULT_CONVERSION_FEEDBACK_BATCH_SIZE)

@@ -85,6 +85,7 @@ export const MANAGED_CONVERSION_FEEDBACK_STATUSES = Object.freeze([
   'needs_destination_config',
   'ready',
   'queued',
+  'validated',
   'manual',
   'sent',
   'accepted',

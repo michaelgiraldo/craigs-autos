@@ -8,10 +8,12 @@ import type {
   LeadConversionFeedbackOutcome,
   ProviderConversionDestination,
 } from '../domain/conversion-feedback.ts';
+import type { LeadContact } from '../domain/contact.ts';
 import {
   createConversionFeedbackOutcomeId,
   createConversionFeedbackOutcomeSortKey,
 } from '../domain/ids.ts';
+import type { LeadRecord } from '../domain/lead-record.ts';
 import type { LeadPlatformRepos } from '../repos/dynamo.ts';
 
 export const DEFAULT_CONVERSION_FEEDBACK_BATCH_SIZE = 10;
@@ -36,6 +38,8 @@ export type ManagedConversionFeedbackAdapter = {
     item: LeadConversionFeedbackOutboxItem;
     decision: LeadConversionDecision;
     destination: ProviderConversionDestination;
+    leadRecord: LeadRecord;
+    contact: LeadContact | null;
     nowMs: number;
   }): Promise<ManagedConversionFeedbackDeliveryResult>;
 };
@@ -71,6 +75,7 @@ function retryDelayForAttempt(attemptCount: number, retryDelaysMs: number[]): nu
 
 function terminalStatuses(): Set<ManagedConversionFeedbackStatus> {
   return new Set([
+    'validated',
     'manual',
     'sent',
     'accepted',
@@ -250,6 +255,26 @@ async function processLeasedItem(args: {
     });
   }
 
+  const leadRecord = await args.repos.leadRecords.getById(args.item.lead_record_id);
+  if (!leadRecord) {
+    return completeAttempt({
+      repos: args.repos,
+      item: args.item,
+      result: {
+        status: 'failed',
+        message: 'Missing lead record; feedback cannot be delivered.',
+        errorCode: 'missing_lead_record',
+      },
+      nowMs: args.nowMs,
+      maxAttempts: args.maxAttempts,
+      retryDelaysMs: args.retryDelaysMs,
+    });
+  }
+
+  const contact = leadRecord.contact_id
+    ? await args.repos.contacts.getById(leadRecord.contact_id)
+    : null;
+
   const destination = await args.repos.providerConversionDestinations.getByKey(
     args.item.destination_key,
   );
@@ -292,6 +317,8 @@ async function processLeasedItem(args: {
       item: args.item,
       decision,
       destination,
+      leadRecord,
+      contact,
       nowMs: args.nowMs,
     });
     return completeAttempt({

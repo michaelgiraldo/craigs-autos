@@ -9,6 +9,7 @@ import type {
 import type { LeadContact } from '../domain/contact.ts';
 import type { Journey } from '../domain/journey.ts';
 import type { JourneyEvent } from '../domain/journey-event.ts';
+import type { LeadRecord } from '../domain/lead-record.ts';
 import type { LeadPlatformRepos } from '../repos/dynamo.ts';
 import {
   createManualConversionFeedbackAdapter,
@@ -77,12 +78,50 @@ function makeOutboxItem(
   };
 }
 
+function makeLeadRecord(overrides: Partial<LeadRecord> = {}): LeadRecord {
+  return {
+    lead_record_id: 'lead-1',
+    journey_id: 'journey-1',
+    contact_id: 'contact-1',
+    status: 'qualified',
+    capture_channel: 'form',
+    title: 'Seat repair',
+    vehicle: '1969 Camaro',
+    service: 'seat-repair',
+    project_summary: 'Seat tear',
+    customer_message: 'Seat tear',
+    customer_language: 'en',
+    attribution: null,
+    latest_outreach: {
+      channel: null,
+      status: 'not_attempted',
+      provider: null,
+      external_id: null,
+      error: null,
+      sent_at_ms: null,
+    },
+    qualification: {
+      qualified: true,
+      qualified_at_ms: 1_000,
+    },
+    first_action: 'form_submit',
+    latest_action: 'form_submit',
+    action_types: ['form_submit'],
+    action_count: 1,
+    created_at_ms: 1_000,
+    updated_at_ms: 1_000,
+    ...overrides,
+  };
+}
+
 function createRepos(args: {
   decision?: LeadConversionDecision | null;
   destination?: ProviderConversionDestination | null;
   item?: LeadConversionFeedbackOutboxItem | null;
+  leadRecord?: LeadRecord | null;
 }) {
   const contacts = new Map<string, LeadContact>();
+  const leadRecords = new Map<string, LeadRecord>();
   const decisions = new Map<string, LeadConversionDecision>();
   const destinations = new Map<string, ProviderConversionDestination>();
   const outbox = new Map<string, LeadConversionFeedbackOutboxItem>();
@@ -91,6 +130,8 @@ function createRepos(args: {
   if (args.decision) decisions.set(args.decision.decision_id, args.decision);
   if (args.destination) destinations.set(args.destination.destination_key, args.destination);
   if (args.item) outbox.set(args.item.outbox_id, args.item);
+  const leadRecord = args.leadRecord === undefined ? makeLeadRecord() : args.leadRecord;
+  if (leadRecord) leadRecords.set(leadRecord.lead_record_id, leadRecord);
 
   const repos: LeadPlatformRepos = {
     contacts: {
@@ -116,11 +157,13 @@ function createRepos(args: {
       scanPage: async () => ({ items: [] as JourneyEvent[] }),
     },
     leadRecords: {
-      getById: async () => null,
+      getById: async (leadRecordId) => leadRecords.get(leadRecordId) ?? null,
       listByContactId: async () => [],
       listByStatus: async () => [],
       listPage: async () => ({ items: [] }),
-      put: async () => undefined,
+      put: async (record) => {
+        leadRecords.set(record.lead_record_id, record);
+      },
     },
     conversionDecisions: {
       getById: async (decisionId) => decisions.get(decisionId) ?? null,

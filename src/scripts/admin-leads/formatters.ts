@@ -63,6 +63,7 @@ export function formatConversionFeedback(item: LeadRecordItem): {
     positive:
       status === 'ready' ||
       status === 'queued' ||
+      status === 'validated' ||
       status === 'manual' ||
       status === 'sent' ||
       status === 'accepted',

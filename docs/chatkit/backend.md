@@ -96,12 +96,19 @@ Managed-conversion worker defaults:
 - `MANAGED_CONVERSION_FEEDBACK_BATCH_SIZE` (default `10`)
 - `MANAGED_CONVERSION_FEEDBACK_LEASE_SECONDS` (default `300`)
 - `MANAGED_CONVERSION_FEEDBACK_MAX_ATTEMPTS` (default `3`)
+- `GOOGLE_ADS_CONVERSION_FEEDBACK_MODE` (default `dry_run`; `validate_only` and `live` are intentionally blocked until a real API client is added)
+- `GOOGLE_ADS_CUSTOMER_ID` (required for Google Ads dry-run validation)
+- `GOOGLE_ADS_CONVERSION_ACTION_RESOURCE_NAME` or `GOOGLE_ADS_CONVERSION_ACTION_ID` (required for Google Ads dry-run validation)
+- `GOOGLE_ADS_DEFAULT_CONVERSION_VALUE` (optional)
+- `GOOGLE_ADS_CURRENCY_CODE` (default `USD`)
+- `GOOGLE_ADS_AD_USER_DATA_CONSENT` (`GRANTED` or `DENIED`, required unless account-level consent configuration is explicitly confirmed)
+- `GOOGLE_ADS_ACCOUNT_DEFAULT_CONSENT_CONFIGURED` (`true` only when Google Ads account-level consent configuration is intentionally used)
 
 The scheduled worker lives in `amplify/functions/managed-conversion-feedback-worker/`.
-It currently ships with the safe manual adapter only. Provider API destinations without a
-real adapter are marked `needs_destination_config`; the worker must not mark Google,
-Meta, Microsoft, or another paid provider as sent until a real adapter records the
-provider outcome.
+It currently ships with the safe manual adapter plus a dry-safe Google Ads adapter that builds and
+validates the ClickConversion-style payload without calling Google. Provider API destinations
+without a real adapter are marked `needs_destination_config`; the worker must not mark Google, Meta,
+Microsoft, or another paid provider as `sent` until a live adapter records the provider outcome.
 
 Lifecycle rules:
 

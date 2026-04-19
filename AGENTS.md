@@ -249,11 +249,14 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
     `amplify/functions/_lead-platform/services/managed-conversion-feedback.ts`
   - Managed conversion worker state machine and safe manual adapter:
     `amplify/functions/_lead-platform/services/managed-conversion-feedback-worker.ts`
+  - Google Ads dry-safe payload adapter:
+    `amplify/functions/_lead-platform/services/google-ads-conversion-feedback.ts`
   - Scheduled managed conversion worker Lambda:
     `amplify/functions/managed-conversion-feedback-worker/handler.ts`
   - Architecture note: `docs/managed-conversions-architecture-2026-04-19.md`
   - Google Ads is a managed-conversion destination, not lead truth. Do not add provider upload
-    booleans to `LeadQualificationSnapshot`.
+    booleans to `LeadQualificationSnapshot`. `validated` means the payload was built locally; it
+    does not mean Google accepted or attributed the conversion.
   - Admin page layout: `src/layouts/AdminLayout.astro`
   - Admin page script: `src/scripts/admin-leads.ts`
   - Admin build isolation guard: `scripts/guard-admin-build.mjs`
