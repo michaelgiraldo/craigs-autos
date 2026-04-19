@@ -1,4 +1,4 @@
-import { PUBLIC_API_ROUTES } from '../../../shared/public-api-contract.js';
+import { PUBLIC_API_ROUTES } from '@craigs/contracts/public-api-contract';
 import { resolvePublicApiUrl } from '../../lib/backend/public-api-client';
 import { withFetchTimeout } from './shared';
 
@@ -8,7 +8,7 @@ let endpointPromise: Promise<string | null> | null = null;
 const resolveEndpoint = (): Promise<string | null> => {
   if (endpointCache) return Promise.resolve(endpointCache);
   if (endpointPromise) return endpointPromise;
-  endpointPromise = resolvePublicApiUrl(PUBLIC_API_ROUTES.leadSignal)
+  endpointPromise = resolvePublicApiUrl(PUBLIC_API_ROUTES.leadInteractions)
     .then((url) => {
       if (typeof url === 'string' && url.trim()) {
         endpointCache = url.trim();
@@ -24,12 +24,12 @@ const resolveEndpoint = (): Promise<string | null> => {
   return endpointPromise;
 };
 
-export const resetSignalEndpointCache = () => {
+export const resetLeadInteractionEndpointCache = () => {
   endpointCache = null;
   endpointPromise = null;
 };
 
-export const sendSignal = (payload: Record<string, unknown>) => {
+export const sendLeadInteraction = (payload: Record<string, unknown>) => {
   void resolveEndpoint().then((endpoint) => {
     if (!endpoint) return;
     const body = JSON.stringify(payload);

@@ -1,6 +1,6 @@
 /** @typedef {{ label: string, nativeLabel: string, englishLabel: string, lang: string, hreflang: string, base: string }} LocaleMeta */
 
-import { CRAIGS_BUSINESS_PROFILE } from '../../../shared/business-profile.js';
+import { CRAIGS_BUSINESS_PROFILE } from '@craigs/business-profile/business-profile';
 
 export const BRAND_NAME = CRAIGS_BUSINESS_PROFILE.name;
 

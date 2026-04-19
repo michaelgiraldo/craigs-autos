@@ -88,10 +88,10 @@ Browser (chat.craigs.autos)
   - Calls our chat lead handoff endpoint with threadId (cthr_...)
 
 AWS Amplify Gen2 backend
-  - Public API route: POST /chat/session
+  - Public API route: POST /chat-sessions
       - calls OpenAI: chatkit.sessions.create
       - returns client_secret
-  - Public API route: POST /chat/handoff
+  - Public API route: POST /chat-handoffs
       - calls OpenAI: chatkit.threads.retrieve + listItems
       - generates internal summary (Responses.parse)
       - persists lead journey
@@ -108,7 +108,7 @@ OpenAI
 This is the request that happens when the chat UI needs an ephemeral secret.
 
 ```
-Browser              chatkit-session Lambda             OpenAI ChatKit
+Browser              chat-session-create Lambda             OpenAI ChatKit
   |                         |                              |
   | POST /session           |                              |
   | { locale, user, ... }   |                              |
@@ -133,9 +133,9 @@ The chat lead handoff endpoint may be called multiple times (idle/pagehide/close
 Server-side DynamoDB enforces "complete once per thread".
 
 ```
-Browser            chat-lead-handoff Lambda        DynamoDB             SES         OpenAI ChatKit
+Browser            chat-handoff-promote Lambda        DynamoDB             SES         OpenAI ChatKit
   |                        |                        |                   |               |
-  | POST /chat/handoff     |                        |                   |               |
+  | POST /chat-handoffs    |                        |                   |               |
   | { threadId, reason }   |                        |                   |               |
   |----------------------->|                        |                   |               |
   |                        | Get(threadId)          |                   |               |

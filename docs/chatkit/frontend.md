@@ -26,8 +26,8 @@ Related docs:
 - `src/lib/site-data.js`
   - Per-locale UI copy for the chat widget (`CHAT_COPY`).
 
-- `shared/lead-event-contract.js`
-  - Canonical browser dataLayer and `/lead-signal` event contract.
+- `packages/contracts/src/lead-event-contract.js`
+  - Canonical browser dataLayer and `/lead-interactions` event contract.
   - Do not introduce one-off `lead_*` event names in chat or quote UI code.
 
 ## What renders the chat UI
@@ -184,7 +184,7 @@ Triggers implemented by `src/components/chatwidget/triggers.js`:
 
 The frontend also does a lightweight dedupe to reduce backend calls:
 
-- localStorage key: `chat-lead-handoff-completed:<threadId>` = `true`
+- localStorage key: `chat-handoff-promote-completed:<threadId>` = `true`
 
 If that key is present, the frontend stops calling the chat lead handoff endpoint.
 

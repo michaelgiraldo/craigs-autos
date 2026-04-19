@@ -5,15 +5,15 @@ import { ChatLauncher } from './chatwidget/chat-launcher.jsx';
 import { ChatKitErrorBoundary, ChatKitWithHooks } from './chatwidget/chatkit-shell.jsx';
 import { CHATKIT_LOCALE_MAP } from './chatwidget/constants.js';
 import { useChatkitOptions } from './chatwidget/use-chatkit-options.js';
-import { useChatLeadHandoff } from './chatwidget/use-chat-lead-handoff.js';
+import { useChatHandoffPromote } from './chatwidget/use-chat-handoff-promote.js';
 import { useChatWidgetState } from './chatwidget/use-chat-widget-state.js';
 import { useFirstChatMessageTracking } from './chatwidget/use-first-chat-message-tracking.js';
 import { useLeadTriggers } from './chatwidget/triggers.js';
 
 export default function ChatWidgetReact({
   locale = 'en',
-  sessionUrl = '/api/chat/session/',
-  leadHandoffUrl = '/api/chat/handoff/',
+  sessionUrl = '/api/chat-sessions/',
+  leadHandoffUrl = '/api/chat-handoffs/',
 }) {
   const copy = CHAT_COPY[locale] ?? CHAT_COPY.en;
   const chatkitLocale = CHATKIT_LOCALE_MAP[locale] ?? 'en';
@@ -57,7 +57,7 @@ export default function ChatWidgetReact({
       userIdRef,
     });
 
-  const requestLeadHandoff = useChatLeadHandoff({
+  const requestLeadHandoff = useChatHandoffPromote({
     isDev,
     hasUserInteractedRef,
     leadHandoffUrlRef,

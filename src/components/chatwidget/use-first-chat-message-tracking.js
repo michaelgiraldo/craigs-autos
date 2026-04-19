@@ -1,8 +1,8 @@
 import React from 'react';
-import { LEAD_EVENTS } from '../../../shared/lead-event-contract.js';
+import { LEAD_EVENTS } from '@craigs/contracts/lead-event-contract';
 import { createClientEventId } from '../../features/lead-tracking/browser-events.ts';
 import { getAttributionPayload, getJourneyId } from '../../lib/attribution.js';
-import { sendSignal } from '../../scripts/analytics/transport.ts';
+import { sendLeadInteraction } from '../../scripts/analytics/transport.ts';
 import { FIRST_MESSAGE_SENT_KEY_PREFIX } from './constants.js';
 import { pushLeadDataLayer } from './data-layer.js';
 import { getLocalStorage, getStorageValue, setStorageValue } from './storage.js';
@@ -59,7 +59,7 @@ export function useFirstChatMessageTracking({
         user_id: activeUserId,
       });
 
-      sendSignal({
+      sendLeadInteraction({
         event: LEAD_EVENTS.chatFirstMessageSent,
         journey_id: journeyId,
         client_event_id: clientEventId,

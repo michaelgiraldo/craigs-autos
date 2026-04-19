@@ -14,7 +14,7 @@ export function QuoteRequestFormStatus({
 }: QuoteRequestFormStatusProps) {
   if (submitState === 'success') {
     return (
-      <p className="contact-lead-form-status contact-lead-form-status--success" role="status">
+      <p className="quote-request-form-status quote-request-form-status--success" role="status">
         <strong>{copy.successTitle}</strong> {copy.successBody}
       </p>
     );
@@ -22,7 +22,7 @@ export function QuoteRequestFormStatus({
 
   if (submitState === 'error') {
     return (
-      <p className="contact-lead-form-status contact-lead-form-status--error" role="alert">
+      <p className="quote-request-form-status quote-request-form-status--error" role="alert">
         <strong>{copy.errorTitle}</strong> {errorMessage || copy.errorBody}
       </p>
     );

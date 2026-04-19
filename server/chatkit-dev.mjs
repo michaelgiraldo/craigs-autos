@@ -1,7 +1,7 @@
 import http from 'node:http';
 
 import OpenAI from 'openai';
-import { computeShopState } from '../shared/shop-hours.js';
+import { computeShopState } from '@craigs/business-profile/shop-hours';
 
 const port = Number.parseInt(process.env.CHATKIT_DEV_PORT ?? '8787', 10);
 const workflowId = process.env.CHATKIT_WORKFLOW_ID;
@@ -46,10 +46,7 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
-    if (
-      (url.pathname === '/api/chat/session' || url.pathname === '/api/chat/session/') &&
-      req.method === 'POST'
-    ) {
+    if (url.pathname === '/api/chat-sessions/' && req.method === 'POST') {
       if (!workflowId || !apiKey) {
         json(res, 500, { error: 'Server missing OPENAI_API_KEY or CHATKIT_WORKFLOW_ID' });
         return;
@@ -82,10 +79,7 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
-    if (
-      (url.pathname === '/api/chat/handoff' || url.pathname === '/api/chat/handoff/') &&
-      req.method === 'POST'
-    ) {
+    if (url.pathname === '/api/chat-handoffs/' && req.method === 'POST') {
       // Local dev helper: accept the request so the UI can exercise the handoff path.
       json(res, 200, { ok: true, completed: false, reason: 'dev_noop' });
       return;

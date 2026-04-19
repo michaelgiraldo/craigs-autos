@@ -40,7 +40,7 @@ flowchart TD
 
 ## Lifecycle Rules
 
-Lifecycle rules live in `amplify/functions/_lead-core/domain/lead-lifecycle.ts`.
+Lifecycle rules live in `amplify/functions/_lead-platform/domain/lead-lifecycle.ts`.
 
 | Phase | Meaning | Creates Lead Record | Requires Existing Lead |
 | --- | --- | ---: | ---: |
@@ -54,7 +54,7 @@ Current promotion events:
 
 | Event | Why It Promotes |
 | --- | --- |
-| `lead_form_submit_success` | Quote form submission has name plus phone/email validation. |
+| `lead_form_submit_success` | Quote request has name plus phone/email validation. |
 | `lead_chat_handoff_completed` | Chat handoff passed readiness gates and has lead context. |
 
 Current journey-only interaction events:
@@ -74,7 +74,7 @@ Current journey-only interaction events:
 Implementation:
 
 - Add explicit lifecycle rules for every `JourneyEventName`.
-- Make `lead-signal` import allowed interaction events from lifecycle rules.
+- Make `lead-interaction-capture` import allowed interaction events from lifecycle rules.
 - Add tests that prevent interaction events from creating lead records.
 - Add tests that quote submit and completed chat handoff are the only promotion events.
 - Add tests for browser retry dedupe by `client_event_id`.
@@ -89,7 +89,7 @@ Why:
 
 Implementation:
 
-- Keep browser tracking pointed at the public `/lead-signal` route.
+- Keep browser tracking pointed at the public `/lead-interactions` route.
 - Internally treat this as `lead-interaction-capture`.
 - Ensure it only appends journey events and upserts anonymous journeys.
 - Preserve `journey_id`, attribution, locale, page URL, and `client_event_id`.
@@ -105,16 +105,16 @@ Why:
 
 Implementation:
 
-- Keep quote submit promotion in `_lead-core/services/quote-request.ts`.
-- Keep chat promotion in `_lead-core/services/intake-chat.ts` until it can be renamed cleanly.
+- Keep quote submit promotion in `_lead-platform/services/quote-request.ts`.
+- Keep chat promotion in `_lead-platform/services/intake-chat.ts` until it can be renamed cleanly.
 - Introduce shared promotion helpers only when quote and chat need the same behavior.
 - Keep contact normalization and merge logic in named lead-core services:
-  - `_lead-core/services/contact-identity.ts`
-  - `_lead-core/services/journey-status.ts`
-  - `_lead-core/services/journey-events.ts`
-  - `_lead-core/services/qualification.ts`
-  - `_lead-core/services/merge-journey.ts`
-  - `_lead-core/services/merge-lead-record.ts`
+  - `_lead-platform/services/contact-identity.ts`
+  - `_lead-platform/services/journey-status.ts`
+  - `_lead-platform/services/journey-events.ts`
+  - `_lead-platform/services/qualification.ts`
+  - `_lead-platform/services/merge-journey.ts`
+  - `_lead-platform/services/merge-lead-record.ts`
 
 Why:
 
@@ -173,29 +173,29 @@ Why:
 
 | Edge Case | Expected Behavior | Test Location |
 | --- | --- | --- |
-| Unknown event name | Return `400 Invalid event`; no journey or event written. | `chatkit-lead-signal/handler.test.ts` |
+| Unknown event name | Return `400 Invalid event`; no journey or event written. | `lead-interaction-capture/handler.test.ts` |
 | Invalid JSON | Return `400 Invalid JSON body`; no write. | public API smoke tests |
-| Retried browser event | Same `client_event_id` records one event; response says `recorded:false` on retry. | `chatkit-lead-signal/handler.test.ts` |
+| Retried browser event | Same `client_event_id` records one event; response says `recorded:false` on retry. | `lead-interaction-capture/handler.test.ts` |
 | Missing `journey_id` | Create stable fallback journey from thread/user/page/click/time. | `record-interaction` tests |
 | Click-to-call/text/email/directions | Append journey event only; no contact and no lead record. | lifecycle and signal tests |
 | First chat message | Append soft-intent journey event only. | lifecycle tests |
-| Quote submit success | Create or update contact, journey, lead record, and quote request. | contact-submit and quote-request tests |
+| Quote submit success | Create or update contact, journey, lead record, and quote request. | quote-request-submit and quote-request tests |
 | Chat handoff completed | Promote journey to lead record after readiness gates. | intake-chat tests |
 | Chat handoff blocked/deferred/error | Append workflow/diagnostic event; do not create a lead. | workflow-event tests |
-| Honeypot quote submission | Return benign success; do not queue follow-up or create lead. | contact-submit tests |
+| Honeypot quote request | Return benign success; do not queue follow-up or create lead. | quote-request-submit tests |
 | Duplicate quote submit | Stable journey/lead IDs prevent duplicate lead records for same journey. | intake-form tests |
-| Worker invocation failure | Mark quote submission error and return a submit failure. | quote flow tests |
-| QUO disabled | Mark manual follow-up required, not SMS failure. | quote-followup tests |
-| SMS failure with email fallback | Send email fallback and persist outcome. | quote-followup tests |
-| SMS failure with no email | Persist failure and notify owner. | quote-followup tests |
-| Owner email failure | Mark follow-up error and preserve diagnostic detail. | quote-followup tests |
+| Worker invocation failure | Mark quote request error and return a submit failure. | quote flow tests |
+| QUO disabled | Mark manual follow-up required, not SMS failure. | lead-followup-worker tests |
+| SMS failure with email fallback | Send email fallback and persist outcome. | lead-followup-worker tests |
+| SMS failure with no email | Persist failure and notify owner. | lead-followup-worker tests |
+| Owner email failure | Mark follow-up error and preserve diagnostic detail. | lead-followup-worker tests |
 | Admin qualifies lead | Update lead record and append verification event. | lead-admin tests |
 | Ads upload later succeeds/fails | Update upload state separately from qualification. | future export tests |
 | Contact submits phone then later email | Merge contact identity by normalized phone/email. | contact repo tests |
 | Chat then form from same journey | Reuse journey-derived lead record identity. | intake-chat and intake-form tests |
 | Local storage unavailable | Browser should best-effort create a journey and never block UX. | future browser tests |
 | Multiple tabs | Same journey can receive multiple deduped events. | future browser tests |
-| Bot/bad payload | No real lead record; diagnostic only if useful. | contact-submit tests |
+| Bot/bad payload | No real lead record; diagnostic only if useful. | quote-request-submit tests |
 
 ## Cleanup Process
 

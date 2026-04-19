@@ -50,7 +50,7 @@ for (const file of files) {
 if (findings.length) {
   console.error('Business profile usage validation failed.');
   console.error(
-    'Move business facts into shared/business-profile.js or use neutral test fixtures.',
+    'Move business facts into /business-profile/business-profile or use neutral test fixtures.',
   );
   for (const finding of findings) {
     console.error(`- ${finding}`);

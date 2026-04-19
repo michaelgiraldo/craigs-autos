@@ -13,7 +13,7 @@ export const QUOTE_PAGE_COPY = Object.freeze({
       'We can follow up in English or Spanish. Other languages are welcome too. Tell us which language you prefer and we will work from there.',
     workflowTitle: 'Current follow-up workflow',
     workflowBody:
-      'Automated text follow-up is still being set up. Until then, submissions are reviewed manually and we may reply by call, text, or email.',
+      'Automated text follow-up is still being set up. Until then, quote requests are reviewed manually and we may reply by call, text, or email.',
     contactTitle: 'Need shop information instead?',
     contactBody: 'Use the contact page for hours, directions, phone, text, and email.',
     contactButton: 'Open contact page',

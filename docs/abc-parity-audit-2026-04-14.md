@@ -8,7 +8,7 @@
 Status update, 2026-04-16:
 
 - This audit is historical context for the parity decision.
-- Craig's backend has since adopted the journey-first substrate (`Journey`, `JourneyEvent`, `LeadRecord`, `LeadContact`, `LeadActionToken`, `QuoteSubmission`).
+- Craig's backend has since adopted the journey-first substrate (`Journey`, `JourneyEvent`, `LeadRecord`, `LeadContact`, `LeadActionLink`, `QuoteRequest`).
 - The old flat `ChatkitLeadCasesTable` / `ChatkitLeadEventsTable` resources are retired from the active backend contract.
 - Remaining Google/marketing-ops gaps should be evaluated against the journey-first contract, not the old `lead_cases` model.
 
@@ -22,8 +22,8 @@ ABC is already using the stronger journey-first platform:
 - `JourneyEvent`
 - `LeadRecord`
 - `LeadContact`
-- `LeadActionToken`
-- `QuoteSubmission`
+- `LeadActionLink`
+- `QuoteRequest`
 
 At the time of this audit, Craig's still used the older ChatKit-specific structure:
 
@@ -37,7 +37,7 @@ The correct first milestone is:
 
 1. adopt the ABC/V3 journey contract in Craig's backend
 2. wire journey-aware frontend attribution
-3. add the form UX and `contact-submit` flow on top of that
+3. add the form UX and `quote-request-submit` flow on top of that
 4. then update GTM, GA4, and Google Ads reporting to the same event contract
 
 ## What ABC Has That Craig's Does Not
@@ -50,18 +50,18 @@ ABC backend provisions and uses:
 - `LeadJourneyEventsTable`
 - `LeadRecordsTable`
 - `LeadContactsTable`
-- `LeadActionTokensTable`
-- `QuoteSubmissionTable`
-- `contact-submit` Lambda
-- `quote-followup` Lambda
-- shared `_lead-core` domain/services
+- `LeadActionLinks`
+- `QuoteRequests`
+- `quote-request-submit` Lambda
+- `lead-followup-worker` Lambda
+- shared `_lead-platform` domain/services
 
 At the time of this audit, Craig's backend provisioned and used:
 
 - `ChatkitLeadEventsTable`
 - `ChatkitLeadCasesTable`
 - `ChatkitLeadDedupeTable`
-- `ChatkitMessageLinkTokenTable`
+- `LeadActionLinkResolveTokenTable`
 - ChatKit-only Lambdas
 
 Practical impact:
@@ -72,8 +72,8 @@ Practical impact:
 Primary source files:
 
 - ABC: `/Users/mg/Active_Clients/ABC_Autos_Accounts/Website/amplify/backend.ts`
-- ABC: `/Users/mg/Active_Clients/ABC_Autos_Accounts/Website/amplify/functions/_lead-core/domain/types.ts`
-- ABC: `/Users/mg/Active_Clients/ABC_Autos_Accounts/Website/amplify/functions/contact-submit/handler.ts`
+- ABC: `/Users/mg/Active_Clients/ABC_Autos_Accounts/Website/amplify/functions/_lead-platform/domain/types.ts`
+- ABC: `/Users/mg/Active_Clients/ABC_Autos_Accounts/Website/amplify/functions/quote-request-submit/handler.ts`
 - Craig's: `/Users/mg/Active_Clients/Craigs_Autos_Account/Website/amplify/backend.ts`
 
 ### 2. Form capture flow
@@ -81,25 +81,25 @@ Primary source files:
 ABC already has:
 
 - a frontend contact/quote page component
-- a `contact-submit` public API
+- a `quote-request-submit` public API
 - `journey_id` and `client_event_id` passed from browser to backend
 - server-side validation
 - lead bundle persistence
-- async quote follow-up invocation
+- async lead follow-up invocation
 - success/error analytics events for forms
 - a smoke-test mode that persists data without sending outreach
 
 Craig's currently has:
 
 - no form/contact submission UI in `src/`
-- no `contact-submit` Lambda
-- no quote follow-up worker
+- no `quote-request-submit` Lambda
+- no lead follow-up worker
 - no form event taxonomy in the website repo
 
 Primary source files:
 
 - ABC: `/Users/mg/Active_Clients/ABC_Autos_Accounts/Website/src/views/ContactPage.tsx`
-- ABC: `/Users/mg/Active_Clients/ABC_Autos_Accounts/Website/amplify/functions/contact-submit/handler.ts`
+- ABC: `/Users/mg/Active_Clients/ABC_Autos_Accounts/Website/amplify/functions/quote-request-submit/handler.ts`
 - Craig's `src/pages/` currently has no contact/quote page or form workflow
 
 ### 3. Frontend attribution and journey identity
@@ -212,9 +212,9 @@ If the goal is "feature parity with ABC," the form submission feature should be 
 Minimum backend prerequisites before form parity is real:
 
 - create the journey-first tables in Craig's AWS account
-- port or extract the ABC `_lead-core` runtime/services
-- add `contact-submit`
-- add `quote-followup`
+- port or extract the ABC `_lead-platform` runtime/services
+- add `quote-request-submit`
+- add `lead-followup-worker`
 - make the form persist:
   - journey
   - journey event
@@ -252,9 +252,9 @@ Decision:
 
 Port or extract from ABC:
 
-- `_lead-core`
-- `contact-submit`
-- `quote-followup`
+- `_lead-platform`
+- `quote-request-submit`
+- `lead-followup-worker`
 - new Dynamo tables and indexes
 - admin API updates
 

@@ -74,7 +74,7 @@ Goal:
 How to find the table name:
 
 - In AWS Lambda console:
-  - Function: `chat-lead-handoff`
+  - Function: `chat-handoff-promote`
   - Configuration -> Environment variables -> `LEAD_DEDUPE_TABLE_NAME`
 
 Once you have the table name, you can query by thread id:
@@ -106,8 +106,8 @@ Interpretation:
 
 The two main Lambda functions:
 
-- `chatkit-session` (session minting)
-- `chat-lead-handoff` (transcript evaluation + handoff)
+- `chat-session-create` (session minting)
+- `chat-handoff-promote` (transcript evaluation + handoff)
 
 In AWS Console:
 
@@ -166,7 +166,7 @@ Checks:
 
 4) Session endpoint reachable:
    - Confirm `/amplify_outputs.json` has `custom.api_base_url`.
-   - Confirm `POST /chat/session` responds from the browser origin (CORS).
+   - Confirm `POST /chat-sessions` responds from the browser origin (CORS).
 
 Fixes:
 
@@ -185,13 +185,13 @@ Symptoms:
 Checks:
 
 1) Confirm the session endpoint URL:
-   - from `/amplify_outputs.json` key `custom.api_base_url` plus route `/chat/session`
+   - from `/amplify_outputs.json` key `custom.api_base_url` plus route `/chat-sessions`
 
 2) Confirm the session Lambda is configured with:
    - `OPENAI_API_KEY` secret
    - `CHATKIT_WORKFLOW_ID` secret
 
-3) CloudWatch logs for `chatkit-session`:
+3) CloudWatch logs for `chat-session-create`:
    - Look for "Server missing configuration"
    - Look for OpenAI API errors
 
@@ -211,11 +211,11 @@ Checks (in order):
 
 1) Get the thread id (`cthr_...`) and open OpenAI logs.
 2) Check if the chat lead handoff endpoint was called:
-   - Browser DevTools -> Network -> look for `POST /chat/handoff`.
+   - Browser DevTools -> Network -> look for `POST /chat-handoffs`.
 3) Check DynamoDB record:
    - If `completed`, the backend believes the handoff completed. Confirm SES/QUO delivery fields.
    - If missing, the endpoint may not have been hit or may have crashed before writing.
-4) CloudWatch logs for `chat-lead-handoff`.
+4) CloudWatch logs for `chat-handoff-promote`.
 5) SES console:
    - look for sends, bounces, or sandbox restrictions.
 
@@ -231,7 +231,7 @@ Notes on "handoff_ready":
 - `handoff_ready` is produced by the summary model as a convenience field.
 - Current handoff triggers are `idle`, `pagehide`, and `chat_closed` (once contact exists).
 - If you see `last_reason = "auto"` in DynamoDB, you're likely looking at an older deployment
-  (see `docs/chatkit/chat-lead-handoff-before-after.md`).
+  (see `docs/chatkit/chat-handoff-promote-before-after.md`).
 
 ## Scenario D: Duplicate chat lead handoffs
 
@@ -256,7 +256,7 @@ Potential causes:
 Note:
 
 - The dedupe table is still active infrastructure even though Craig's lead storage is now journey-first.
-- Do not delete `ChatLeadHandoffDedupeTable` unless the chat handoff idempotency implementation is replaced.
+- Do not delete `ChatHandoffPromoteDedupeTable` unless the chat handoff idempotency implementation is replaced.
 
 ## Scenario E: Wrong language / wrong hours / wrong agent behavior
 
@@ -270,7 +270,7 @@ Hours/time issues:
 
 - Confirm the backend passed `shop_*` state variables.
 - Confirm the agent instructions explicitly use those values and never guess.
-- Confirm shop schedule logic in `chatkit-session/handler.ts` matches reality.
+- Confirm shop schedule logic in `chat-session-create/handler.ts` matches reality.
 
 Agent behavior issues:
 

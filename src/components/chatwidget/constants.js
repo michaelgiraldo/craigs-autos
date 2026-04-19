@@ -42,7 +42,7 @@ export const CHATKIT_LOCALE_MAP = {
 export const THREAD_STORAGE_KEY = 'chatkit-thread-id';
 export const USER_KEY = 'chatkit-user-id';
 export const OPEN_KEY = 'chatkit-open';
-export const LEAD_HANDOFF_COMPLETED_KEY_PREFIX = 'chat-lead-handoff-completed:';
+export const LEAD_HANDOFF_COMPLETED_KEY_PREFIX = 'chat-handoff-promote-completed:';
 export const FIRST_MESSAGE_SENT_KEY_PREFIX = 'chatkit-first-message-sent:';
 
 // Send leads after a quiet period. This avoids forcing the customer to "end" the chat.

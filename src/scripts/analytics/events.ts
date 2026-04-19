@@ -1,13 +1,10 @@
-import {
-  LEAD_EVENTS,
-  type LeadBrowserSignalEventName,
-} from '../../../shared/lead-event-contract.js';
+import { LEAD_EVENTS, type LeadInteractionEventName } from '@craigs/contracts/lead-event-contract';
 import {
   createClientEventId,
   pushLeadDataLayerEvent,
 } from '../../features/lead-tracking/browser-events';
 import { attributionForDataLayer, getAttribution, getJourneyId, getUserId } from './attribution';
-import { sendSignal } from './transport';
+import { sendLeadInteraction } from './transport';
 
 export const trackLeadClick = (event: MouseEvent) => {
   let element: Element | null = event.target instanceof Element ? event.target : null;
@@ -20,7 +17,7 @@ export const trackLeadClick = (event: MouseEvent) => {
   const href = element.getAttribute('href') || '';
   if (!href) return;
 
-  let eventName: LeadBrowserSignalEventName | null = null;
+  let eventName: LeadInteractionEventName | null = null;
   let provider: string | null = null;
   let leadIntentType: string | null = null;
   if (href.startsWith('tel:')) {
@@ -81,5 +78,5 @@ export const trackLeadClick = (event: MouseEvent) => {
     attributionForDataLayer(attribution),
   );
 
-  sendSignal(payload);
+  sendLeadInteraction(payload);
 };

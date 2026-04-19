@@ -1,22 +1,22 @@
 import { trackLeadClick } from './events';
 
-const CLICK_HANDLER_KEY = '__craigsLeadSignalsClickHandler';
+const CLICK_HANDLER_KEY = '__craigsLeadInteractionsClickHandler';
 
-type LeadSignalsWindow = Window &
+type LeadInteractionsWindow = Window &
   typeof globalThis & {
     [CLICK_HANDLER_KEY]?: EventListener;
   };
 
-export const initLeadSignals = () => {
-  const leadSignalsWindow = window as LeadSignalsWindow;
+export const initLeadInteractions = () => {
+  const leadInteractionsWindow = window as LeadInteractionsWindow;
 
-  if (!leadSignalsWindow[CLICK_HANDLER_KEY]) {
+  if (!leadInteractionsWindow[CLICK_HANDLER_KEY]) {
     const onDocumentClick: EventListener = (event) => {
       if (event instanceof MouseEvent) {
         trackLeadClick(event);
       }
     };
-    leadSignalsWindow[CLICK_HANDLER_KEY] = onDocumentClick;
+    leadInteractionsWindow[CLICK_HANDLER_KEY] = onDocumentClick;
     document.addEventListener('click', onDocumentClick, { capture: true });
   }
 };

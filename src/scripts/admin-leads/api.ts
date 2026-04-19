@@ -1,4 +1,4 @@
-import { PUBLIC_API_ROUTES } from '../../../shared/public-api-contract.js';
+import { PUBLIC_API_ROUTES } from '@craigs/contracts/public-api-contract';
 import { resolvePublicApiUrl } from '../../lib/backend/public-api-client';
 import { FETCH_TIMEOUT_MS } from './config';
 import type { LeadsApiResponse, QualificationFilter } from './types';

@@ -35,7 +35,7 @@ The current implementation works, but it is structurally mixed:
 
 - quote behavior is hard-coded into the generic renderer in `src/components/LocalizedPageContent.astro`
 - quote-page copy is managed separately in `src/lib/site-data/quote-page-copy.js`
-- the primary intake UI is still `src/components/ContactLeadForm.jsx`
+- the primary intake UI is still `src/components/QuoteRequestForm.jsx`
 - backend resource names still center on `chatkit-*`, even though lead capture is now larger than chat
 
 The current quote/contact/lead slice is the wrong long-term shape if the goal is clean development and lower operational drag. It increases:
@@ -147,7 +147,7 @@ Example page types:
 
 ### 3. Quote form
 
-Replace `ContactLeadForm.jsx` with a dedicated quote form component.
+Replace `QuoteRequestForm.jsx` with a dedicated quote form component.
 
 Required fields:
 
@@ -272,10 +272,10 @@ Proposed public functions:
 
 This is cleaner than carrying forward names such as:
 
-- `chat-lead-handoff`
-- `chatkit-lead-signal`
-- `chatkit-message-link`
-- `contact-submit`
+- `chat-handoff-promote`
+- `lead-interaction-capture`
+- `lead-action-link-resolve`
+- `quote-request-submit`
 
 ### 2. Table model
 
@@ -426,7 +426,7 @@ Admin actions:
 
 Delete or replace:
 
-- `src/components/ContactLeadForm.jsx`
+- `src/components/QuoteRequestForm.jsx`
 - `src/components/QuoteRequestLanding.astro`
 - `src/components/QuoteRequestCta.astro`
 - quote branching in `src/components/LocalizedPageContent.astro`
@@ -447,16 +447,16 @@ Only replace these later if we build a clearly better build-time metadata source
 
 Delete or replace current lead-facing function surfaces:
 
-- `amplify/functions/contact-submit/`
-- `amplify/functions/quote-followup/`
-- `amplify/functions/chatkit-lead-signal/`
-- `amplify/functions/chat-lead-handoff/`
-- `amplify/functions/chatkit-message-link/`
+- `amplify/functions/quote-request-submit/`
+- `amplify/functions/lead-followup-worker/`
+- `amplify/functions/lead-interaction-capture/`
+- `amplify/functions/chat-handoff-promote/`
+- `amplify/functions/lead-action-link-resolve/`
 - `amplify/functions/lead-admin/`
 
 Replace shared lead code root:
 
-- `amplify/functions/_lead-core/`
+- `amplify/functions/_lead-platform/`
 - target: `amplify/functions/_lead-platform/`
 
 ## Implementation Sequence

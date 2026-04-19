@@ -11,7 +11,7 @@ The older pattern in `AnalyticsHead.astro` and `src/pages/admin/leads.astro` imp
 TypeScript files with `?url`, which preserved the `.ts` extension in the emitted asset
 path. In production, the browser requested URLs like:
 
-- `/_astro/lead-signals.<hash>.ts`
+- `/_astro/lead-interactions.<hash>.js`
 
 That is fragile because the CDN/server can infer the wrong MIME type from `.ts`
 (for example `video/vnd.dlna.mpeg-tts`) and browsers will reject it for
@@ -23,9 +23,9 @@ Use a processed Astro script that imports the local module:
 
 ```astro
 <script>
-  import { initLeadSignals } from '../../scripts/analytics/index.ts';
+  import { initLeadInteractions } from '../../scripts/analytics/index.ts';
 
-  initLeadSignals();
+  initLeadInteractions();
 </script>
 ```
 
@@ -35,7 +35,7 @@ correct MIME type.
 ## Current entry points
 
 - `src/layouts/base/AnalyticsHead.astro`
-  - Loads the analytics/browser lead-signal entrypoint.
+  - Loads the analytics/browser lead-interaction entrypoint.
 - `src/layouts/base/BaseLayoutScripts.astro`
   - Loads shared layout behaviors.
 - `src/pages/admin/leads.astro`
@@ -43,7 +43,7 @@ correct MIME type.
 
 ## Analytics structure
 
-The old monolithic `src/scripts/lead-signals.ts` has been replaced with smaller modules:
+The old monolithic browser tracking script has been replaced with smaller modules:
 
 - `src/scripts/analytics/shared.ts`
 - `src/scripts/analytics/attribution.ts`

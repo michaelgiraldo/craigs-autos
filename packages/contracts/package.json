@@ -1,0 +1,16 @@
+{
+  "name": "@craigs/contracts",
+  "type": "module",
+  "version": "0.0.1",
+  "private": true,
+  "exports": {
+    "./public-api-contract": {
+      "types": "./src/public-api-contract.d.ts",
+      "default": "./src/public-api-contract.js"
+    },
+    "./lead-event-contract": {
+      "types": "./src/lead-event-contract.d.ts",
+      "default": "./src/lead-event-contract.js"
+    }
+  }
+}

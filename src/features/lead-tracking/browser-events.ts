@@ -3,7 +3,7 @@ import {
   type LeadDataLayerEventName,
   type LeadDataLayerParams,
   type LeadDataLayerValue,
-} from '../../../shared/lead-event-contract.js';
+} from '@craigs/contracts/lead-event-contract';
 
 export type { LeadDataLayerEventName, LeadDataLayerParams, LeadDataLayerValue };
 

@@ -11,10 +11,10 @@ type LeadDataTables = {
 };
 
 function createLeadDataTables(stack: Stack): LeadDataTables {
-  const contacts = new Table(stack, 'LeadContactsTable', {
+  const contacts = new Table(stack, 'LeadContacts', {
     billingMode: BillingMode.PAY_PER_REQUEST,
     partitionKey: { name: 'contact_id', type: AttributeType.STRING },
-    removalPolicy: RemovalPolicy.RETAIN,
+    removalPolicy: RemovalPolicy.DESTROY,
   });
 
   contacts.addGlobalSecondaryIndex({
@@ -32,10 +32,10 @@ function createLeadDataTables(stack: Stack): LeadDataTables {
     partitionKey: { name: 'quo_contact_id', type: AttributeType.STRING },
   });
 
-  const journeys = new Table(stack, 'LeadJourneysTable', {
+  const journeys = new Table(stack, 'LeadJourneys', {
     billingMode: BillingMode.PAY_PER_REQUEST,
     partitionKey: { name: 'journey_id', type: AttributeType.STRING },
-    removalPolicy: RemovalPolicy.RETAIN,
+    removalPolicy: RemovalPolicy.DESTROY,
   });
 
   journeys.addGlobalSecondaryIndex({
@@ -44,10 +44,10 @@ function createLeadDataTables(stack: Stack): LeadDataTables {
     sortKey: { name: 'updated_at_ms', type: AttributeType.NUMBER },
   });
 
-  const records = new Table(stack, 'LeadRecordsTable', {
+  const records = new Table(stack, 'LeadRecords', {
     billingMode: BillingMode.PAY_PER_REQUEST,
     partitionKey: { name: 'lead_record_id', type: AttributeType.STRING },
-    removalPolicy: RemovalPolicy.RETAIN,
+    removalPolicy: RemovalPolicy.DESTROY,
   });
 
   records.addGlobalSecondaryIndex({
@@ -68,11 +68,11 @@ function createLeadDataTables(stack: Stack): LeadDataTables {
     sortKey: { name: 'updated_at_ms', type: AttributeType.NUMBER },
   });
 
-  const journeyEvents = new Table(stack, 'LeadJourneyEventsTable', {
+  const journeyEvents = new Table(stack, 'LeadJourneyEvents', {
     billingMode: BillingMode.PAY_PER_REQUEST,
     partitionKey: { name: 'journey_id', type: AttributeType.STRING },
     sortKey: { name: 'event_sort_key', type: AttributeType.STRING },
-    removalPolicy: RemovalPolicy.RETAIN,
+    removalPolicy: RemovalPolicy.DESTROY,
   });
 
   journeyEvents.addGlobalSecondaryIndex({
@@ -98,15 +98,15 @@ function grantLeadDataAccess(lambda: LambdaWithEnvironment, tables: LeadDataTabl
 
 export function configureLeadDataTables(backend: CraigsBackend): void {
   // Journey-first lead substrate used by click, chat, and form capture flows.
-  const leadDataStack = Stack.of(getLambda(backend.chatLeadHandoff));
+  const leadDataStack = Stack.of(getLambda(backend.chatHandoffPromote));
   const tables = createLeadDataTables(leadDataStack);
 
   for (const lambda of [
-    getLambda(backend.contactSubmit),
-    getLambda(backend.quoteFollowup),
-    getLambda(backend.chatLeadHandoff),
-    getLambda(backend.chatkitLeadSignal),
-    getLambda(backend.leadAdmin),
+    getLambda(backend.quoteRequestSubmit),
+    getLambda(backend.leadFollowupWorker),
+    getLambda(backend.chatHandoffPromote),
+    getLambda(backend.leadInteractionCapture),
+    getLambda(backend.leadAdminApi),
   ]) {
     grantLeadDataAccess(lambda, tables);
   }

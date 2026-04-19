@@ -2,7 +2,7 @@ import {
   PUBLIC_API_CONTRACT,
   PUBLIC_API_ROUTES,
   type PublicApiRoute,
-} from '../../../shared/public-api-contract.js';
+} from '@craigs/contracts/public-api-contract';
 
 const OUTPUTS_PATH = '/amplify_outputs.json';
 const FETCH_TIMEOUT_MS = 8_000;
@@ -79,6 +79,6 @@ export function resetPublicApiOutputsCache() {
   outputsPromise = null;
 }
 
-export function resolveContactSubmitUrl() {
-  return resolvePublicApiUrl(PUBLIC_API_ROUTES.contact);
+export function resolveQuoteRequestSubmitUrl() {
+  return resolvePublicApiUrl(PUBLIC_API_ROUTES.quoteRequests);
 }

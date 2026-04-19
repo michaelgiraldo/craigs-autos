@@ -3,7 +3,7 @@ import { QuoteRequestFormFields } from './quote-request-form/QuoteRequestFormFie
 import { QuoteRequestFormStatus } from './quote-request-form/QuoteRequestFormStatus.tsx';
 import type { QuoteRequestFormProps } from './quote-request-form/types.ts';
 import { useQuoteRequestForm } from './quote-request-form/use-quote-request-form.ts';
-import '../../../styles/contact-lead-form.css';
+import '../../../styles/quote-request-form.css';
 
 export default function QuoteRequestForm({
   locale = 'en',
@@ -18,19 +18,19 @@ export default function QuoteRequestForm({
   return (
     <section
       aria-label={showHeader ? undefined : copy.title}
-      aria-labelledby={showHeader ? 'contact-lead-form-title' : undefined}
-      className={`contact-lead-form-section${!showHeader || compact ? ' contact-lead-form-section--compact' : ''}`}
+      aria-labelledby={showHeader ? 'quote-request-form-title' : undefined}
+      className={`quote-request-form-section${!showHeader || compact ? ' quote-request-form-section--compact' : ''}`}
     >
-      <div className="contact-lead-form-shell">
+      <div className="quote-request-form-shell">
         {showHeader ? (
-          <div className="contact-lead-form-copy">
-            <p className="contact-lead-form-kicker">{copy.kicker}</p>
-            <h2 id="contact-lead-form-title">{copy.title}</h2>
-            <p className="contact-lead-form-lead">{copy.description}</p>
+          <div className="quote-request-form-copy">
+            <p className="quote-request-form-kicker">{copy.kicker}</p>
+            <h2 id="quote-request-form-title">{copy.title}</h2>
+            <p className="quote-request-form-lead">{copy.description}</p>
           </div>
         ) : null}
 
-        <form className="contact-lead-form-card" method="post" onSubmit={handleSubmit} noValidate>
+        <form className="quote-request-form-card" method="post" onSubmit={handleSubmit} noValidate>
           <QuoteRequestFormFields
             copy={copy}
             emailInputRef={emailInputRef}

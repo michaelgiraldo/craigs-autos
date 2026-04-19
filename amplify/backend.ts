@@ -5,22 +5,22 @@ import { applyLambdaDescriptions } from './backend/lambda-descriptions';
 import { configureLambdaPermissions } from './backend/permissions';
 import { addPublicApiOutputs, createPublicHttpApi } from './backend/public-api';
 import type { CraigsBackend } from './backend/types';
-import { chatLeadHandoff } from './functions/chat-lead-handoff/resource';
-import { chatkitLeadSignal } from './functions/chatkit-lead-signal/resource';
-import { chatkitMessageLink } from './functions/chatkit-message-link/resource';
-import { chatkitSession } from './functions/chatkit-session/resource';
-import { contactSubmit } from './functions/contact-submit/resource';
-import { leadAdmin } from './functions/lead-admin/resource';
-import { quoteFollowup } from './functions/quote-followup/resource';
+import { chatHandoffPromote } from './functions/chat-handoff-promote/resource';
+import { leadInteractionCapture } from './functions/lead-interaction-capture/resource';
+import { leadActionLinkResolve } from './functions/lead-action-link-resolve/resource';
+import { chatSessionCreate } from './functions/chat-session-create/resource';
+import { quoteRequestSubmit } from './functions/quote-request-submit/resource';
+import { leadAdminApi } from './functions/lead-admin-api/resource';
+import { leadFollowupWorker } from './functions/lead-followup-worker/resource';
 
 const backend = defineBackend({
-  contactSubmit,
-  quoteFollowup,
-  chatkitSession,
-  chatLeadHandoff,
-  chatkitMessageLink,
-  chatkitLeadSignal,
-  leadAdmin,
+  quoteRequestSubmit,
+  leadFollowupWorker,
+  chatSessionCreate,
+  chatHandoffPromote,
+  leadActionLinkResolve,
+  leadInteractionCapture,
+  leadAdminApi,
 }) as CraigsBackend;
 
 applyLambdaDescriptions(backend);

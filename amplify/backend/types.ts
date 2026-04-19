@@ -12,13 +12,13 @@ export type BackendFunctionResource = {
 };
 
 export type CraigsBackend = {
-  contactSubmit: BackendFunctionResource;
-  quoteFollowup: BackendFunctionResource;
-  chatkitSession: BackendFunctionResource;
-  chatLeadHandoff: BackendFunctionResource;
-  chatkitMessageLink: BackendFunctionResource;
-  chatkitLeadSignal: BackendFunctionResource;
-  leadAdmin: BackendFunctionResource;
+  quoteRequestSubmit: BackendFunctionResource;
+  leadFollowupWorker: BackendFunctionResource;
+  chatSessionCreate: BackendFunctionResource;
+  chatHandoffPromote: BackendFunctionResource;
+  leadActionLinkResolve: BackendFunctionResource;
+  leadInteractionCapture: BackendFunctionResource;
+  leadAdminApi: BackendFunctionResource;
   addOutput(output: { custom: Record<string, string> }): void;
   createStack(name: string): Stack;
 };

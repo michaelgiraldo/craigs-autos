@@ -6,7 +6,7 @@ import {
   PUBLIC_API_CONTRACT,
   PUBLIC_API_ROUTES,
   publicApiPath,
-} from '../../shared/public-api-contract.js';
+} from '@craigs/contracts/public-api-contract';
 import type { CraigsBackend, LambdaWithEnvironment } from './types';
 import { getLambda } from './types';
 
@@ -41,40 +41,58 @@ export function createPublicHttpApi(scope: Construct, backend: CraigsBackend): H
 
   const routes: RouteConfig[] = [
     {
-      path: publicApiPath(PUBLIC_API_ROUTES.contact),
+      path: publicApiPath(PUBLIC_API_ROUTES.quoteRequests),
       methods: [HttpMethod.POST],
-      integrationId: 'ContactSubmitIntegration',
-      lambda: getLambda(backend.contactSubmit),
+      integrationId: 'QuoteRequestSubmitIntegration',
+      lambda: getLambda(backend.quoteRequestSubmit),
     },
     {
-      path: publicApiPath(PUBLIC_API_ROUTES.chatSession),
+      path: publicApiPath(PUBLIC_API_ROUTES.chatSessions),
       methods: [HttpMethod.POST],
-      integrationId: 'ChatSessionIntegration',
-      lambda: getLambda(backend.chatkitSession),
+      integrationId: 'ChatSessionCreateIntegration',
+      lambda: getLambda(backend.chatSessionCreate),
     },
     {
-      path: publicApiPath(PUBLIC_API_ROUTES.chatHandoff),
+      path: publicApiPath(PUBLIC_API_ROUTES.chatHandoffs),
       methods: [HttpMethod.POST],
-      integrationId: 'ChatHandoffIntegration',
-      lambda: getLambda(backend.chatLeadHandoff),
+      integrationId: 'ChatHandoffPromoteIntegration',
+      lambda: getLambda(backend.chatHandoffPromote),
     },
     {
-      path: publicApiPath(PUBLIC_API_ROUTES.chatMessageLink),
+      path: publicApiPath(PUBLIC_API_ROUTES.leadActionLinks),
       methods: [HttpMethod.GET],
-      integrationId: 'ChatMessageLinkIntegration',
-      lambda: getLambda(backend.chatkitMessageLink),
+      integrationId: 'LeadActionLinkResolveIntegration',
+      lambda: getLambda(backend.leadActionLinkResolve),
     },
     {
-      path: publicApiPath(PUBLIC_API_ROUTES.leadSignal),
+      path: publicApiPath(PUBLIC_API_ROUTES.leadInteractions),
       methods: [HttpMethod.POST],
-      integrationId: 'LeadSignalIntegration',
-      lambda: getLambda(backend.chatkitLeadSignal),
+      integrationId: 'LeadInteractionCaptureIntegration',
+      lambda: getLambda(backend.leadInteractionCapture),
     },
     {
       path: publicApiPath(PUBLIC_API_ROUTES.adminLeads),
       methods: [HttpMethod.GET, HttpMethod.POST],
       integrationId: 'AdminLeadsIntegration',
-      lambda: getLambda(backend.leadAdmin),
+      lambda: getLambda(backend.leadAdminApi),
+    },
+    {
+      path: publicApiPath(PUBLIC_API_ROUTES.adminLeadQualification),
+      methods: [HttpMethod.POST],
+      integrationId: 'AdminLeadQualificationIntegration',
+      lambda: getLambda(backend.leadAdminApi),
+    },
+    {
+      path: publicApiPath(PUBLIC_API_ROUTES.adminLeadNotes),
+      methods: [HttpMethod.POST],
+      integrationId: 'AdminLeadNotesIntegration',
+      lambda: getLambda(backend.leadAdminApi),
+    },
+    {
+      path: publicApiPath(PUBLIC_API_ROUTES.adminLeadFollowupState),
+      methods: [HttpMethod.POST],
+      integrationId: 'AdminLeadFollowupStateIntegration',
+      lambda: getLambda(backend.leadAdminApi),
     },
   ];
 

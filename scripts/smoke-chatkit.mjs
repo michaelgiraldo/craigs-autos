@@ -5,7 +5,7 @@ import process from 'node:process';
 import { setTimeout as delay } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
-import { LEAD_EVENTS } from '../shared/lead-event-contract.js';
+import { LEAD_EVENTS } from '@craigs/contracts/lead-event-contract';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

@@ -1,7 +1,12 @@
 {
-  "name": "squalid-star",
+  "name": "craigs-autos-lead-platform",
   "type": "module",
   "version": "0.0.1",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "dev": "astro dev",
     "dev:chatkit": "node --env-file-if-exists=.env.local server/chatkit-dev.mjs",
@@ -13,8 +18,8 @@
     "verify:backend-types": "npm run typecheck:backend",
     "test:backend": "node --experimental-strip-types --test --test-concurrency=1 \"amplify/functions/**/*.test.ts\"",
     "verify:backend": "npm run typecheck:backend && npm run test:backend",
-    "lint": "biome lint amplify/functions server scripts shared src/scripts",
-    "format:check": "biome check --formatter-enabled=true --linter-enabled=false --assist-enabled=false amplify/functions server scripts shared src/scripts",
+    "lint": "biome lint amplify/functions server scripts packages src/scripts",
+    "format:check": "biome check --formatter-enabled=true --linter-enabled=false --assist-enabled=false amplify/functions server scripts packages src/scripts",
     "deps:update": "zsh tools/deps-update.sh",
     "deps:update:clean": "zsh tools/deps-update-clean.sh",
     "seed:social-cards": "node scripts/seed-social-cards.mjs",

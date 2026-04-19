@@ -4,7 +4,7 @@ import {
   getJourneyId,
   getLeadUserId,
 } from '../../../../lib/attribution.js';
-import { LEAD_EVENTS } from '../../../../../shared/lead-event-contract.js';
+import { LEAD_EVENTS } from '@craigs/contracts/lead-event-contract';
 import {
   createClientEventId,
   pushLeadDataLayerEvent,

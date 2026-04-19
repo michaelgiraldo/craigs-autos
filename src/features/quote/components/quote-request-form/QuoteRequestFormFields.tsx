@@ -23,8 +23,8 @@ export function QuoteRequestFormFields({
 }: QuoteRequestFormFieldsProps) {
   return (
     <>
-      <div className="contact-lead-form-grid">
-        <label className="contact-lead-form-field">
+      <div className="quote-request-form-grid">
+        <label className="quote-request-form-field">
           <span>{copy.nameLabel}</span>
           <input
             autoComplete="name"
@@ -37,7 +37,7 @@ export function QuoteRequestFormFields({
           />
         </label>
 
-        <label className="contact-lead-form-field">
+        <label className="quote-request-form-field">
           <span>{copy.phoneLabel}</span>
           <input
             autoComplete="tel"
@@ -51,7 +51,7 @@ export function QuoteRequestFormFields({
           />
         </label>
 
-        <label className="contact-lead-form-field">
+        <label className="quote-request-form-field">
           <span>{copy.emailLabel}</span>
           <input
             autoComplete="email"
@@ -65,7 +65,7 @@ export function QuoteRequestFormFields({
           />
         </label>
 
-        <label className="contact-lead-form-field">
+        <label className="quote-request-form-field">
           <span>{copy.vehicleLabel}</span>
           <input
             name="vehicle"
@@ -77,7 +77,7 @@ export function QuoteRequestFormFields({
         </label>
       </div>
 
-      <label className="contact-lead-form-field contact-lead-form-field--full">
+      <label className="quote-request-form-field quote-request-form-field--full">
         <span>{copy.serviceLabel}</span>
         <select name="service" onChange={onChange} value={form.service}>
           <option value="">{copy.servicePlaceholder}</option>
@@ -89,7 +89,7 @@ export function QuoteRequestFormFields({
         </select>
       </label>
 
-      <label className="contact-lead-form-field contact-lead-form-field--full">
+      <label className="quote-request-form-field quote-request-form-field--full">
         <span>{copy.messageLabel}</span>
         <textarea
           name="message"
@@ -100,7 +100,7 @@ export function QuoteRequestFormFields({
         />
       </label>
 
-      <label className="contact-lead-form-honeypot" aria-hidden="true">
+      <label className="quote-request-form-honeypot" aria-hidden="true">
         <span>Company</span>
         <input
           autoComplete="off"
@@ -112,7 +112,7 @@ export function QuoteRequestFormFields({
         />
       </label>
 
-      <div className="contact-lead-form-actions">
+      <div className="quote-request-form-actions">
         <button disabled={submitState === 'submitting'} type="submit">
           {submitState === 'submitting' ? copy.submittingLabel : copy.submitLabel}
         </button>

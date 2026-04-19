@@ -87,7 +87,7 @@ If you add a new state variable in Agent Builder:
 
 1) Add it to the workflow Start block.
 2) Add it to the session minting backend response in:
-   - `amplify/functions/chatkit-session/handler.ts`
+   - `amplify/functions/chat-session-create/handler.ts`
    - `server/chatkit-dev.mjs` (local dev mirror)
 3) Update docs.
 

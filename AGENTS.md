@@ -19,10 +19,10 @@ If you are new here, start with:
 - Chat/agent: OpenAI ChatKit UI runtime + managed workflow in Agent Builder.
 - Lead delivery:
   - chat: AWS SES transcript + internal AI summary to the shop
-  - form: quote submission queue + async follow-up worker
+  - form: `QuoteRequests` queue + async follow-up worker
 - Reliability:
   - chat idempotency keyed by ChatKit thread id (`cthr_...`)
-  - form idempotency / workflow state keyed by `submission_id`
+  - form idempotency / workflow state keyed by `quote_request_id`
 
 ## Key documentation
 
@@ -34,7 +34,7 @@ ChatKit docs are split for fast navigation:
 - `docs/chatkit/agent-builder.md` (Agent Builder playbook + common mistakes)
 - `docs/chatkit/runbook.md` (production debugging / triage)
 
-Legacy link:
+Compatibility pointer:
 
 - `docs/chatkit-aws.md` (pointer to the files above)
 
@@ -71,8 +71,8 @@ Typecheck (backend):
 Local ChatKit dev API:
 
 - Implemented in `server/chatkit-dev.mjs`
-- Session endpoint: `http://localhost:8787/api/chat/session`
-- Chat lead handoff endpoint: `http://localhost:8787/api/chat/handoff` (dev_noop; no SES)
+- Session endpoint: `http://localhost:8787/api/chat-sessions/`
+- Chat handoff endpoint: `http://localhost:8787/api/chat-handoffs/` (dev_noop; no SES)
 
 ## Production configuration
 
@@ -93,17 +93,20 @@ Local ChatKit dev API:
 - The frontend reads `/amplify_outputs.json` at runtime to discover:
   - `custom.api_base_url`
 - Browser code composes stable public API routes from that base URL:
-  - `POST /contact`
-  - `POST /chat/session`
-  - `POST /chat/handoff`
-  - `GET /chat/message-link`
-  - `POST /lead-signal`
+  - `POST /quote-requests`
+  - `POST /chat-sessions`
+  - `POST /chat-handoffs`
+  - `GET /lead-action-links`
+  - `POST /lead-interactions`
   - `GET|POST /admin/leads`
+  - `POST /admin/leads/qualification`
+  - `POST /admin/leads/notes`
+  - `POST /admin/leads/follow-up-state`
 
 ### Business identity source of truth
 
-- Craig's canonical business facts live in `shared/business-profile.js`.
-- Type declarations live in `shared/business-profile.d.ts`.
+- Craig's canonical business facts live in `packages/business-profile/src/business-profile.js`.
+- Type declarations live in `packages/business-profile/src/business-profile.d.ts`.
 - Frontend site metadata, Lambda environment defaults, outreach signatures, and
   QUO source/external-id defaults should derive from this profile.
 - Do not hardcode shop name, phone, address, email, domain, map URL, or QUO source
@@ -113,9 +116,9 @@ Local ChatKit dev API:
 
 ### Lead event contract source of truth
 
-- Canonical lead event names and metadata live in `shared/lead-event-contract.js`.
-- Type declarations live in `shared/lead-event-contract.d.ts`.
-- Browser dataLayer events, `/lead-signal` accepted events, backend journey
+- Canonical lead event names and metadata live in `packages/contracts/src/lead-event-contract.js`.
+- Type declarations live in `packages/contracts/src/lead-event-contract.d.ts`.
+- Browser dataLayer events, `/lead-interactions` accepted events, backend journey
   semantics, lifecycle rules, and admin/system event names should derive from
   this contract.
 - Do not add ad hoc `lead_*` event strings in frontend or Lambda runtime code.
@@ -133,10 +136,10 @@ Do not store these in the frontend or in git.
 
 - SES must be configured in the same region as the Amplify backend.
 - Sender identity must be verified.
-- Defaults live in `amplify/functions/chat-lead-handoff/resource.ts`:
-  - `LEAD_TO_EMAIL` (recipient, default from `shared/business-profile.js`)
-  - `LEAD_FROM_EMAIL` (sender, default from `shared/business-profile.js`)
-- Quote follow-up defaults live in `amplify/functions/quote-followup/resource.ts`:
+- Defaults live in `amplify/functions/chat-handoff-promote/resource.ts`:
+  - `LEAD_TO_EMAIL` (recipient, default from `/business-profile/business-profile`)
+  - `LEAD_FROM_EMAIL` (sender, default from `/business-profile/business-profile`)
+- Quote follow-up defaults live in `amplify/functions/lead-followup-worker/resource.ts`:
   - `CONTACT_TO_EMAIL` / `CONTACT_FROM_EMAIL`
   - `QUOTE_CUSTOMER_*`
 
@@ -175,52 +178,52 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
   - Change `src/components/ChatWidgetReact.jsx` (deploy required).
 
 - Session minting / state variables:
-  - Change `amplify/functions/chatkit-session/handler.ts` (deploy required).
+  - Change `amplify/functions/chat-session-create/handler.ts` (deploy required).
   - Also update the local mirror in `server/chatkit-dev.mjs`.
 
 - Chat lead handoff / notification email / idempotency:
-  - Change `amplify/functions/chat-lead-handoff/*` and/or `amplify/backend.ts`.
-  - Shared outreach draft generation lives in `amplify/functions/_lead-core/services/outreach-drafts.ts`.
+  - Change `amplify/functions/chat-handoff-promote/*` and/or `amplify/backend.ts`.
+  - Shared outreach draft generation lives in `amplify/functions/_lead-platform/services/outreach-drafts.ts`.
   - Generic QUO client code lives in `amplify/functions/_shared/quo-client.ts`.
   - Generic text utilities live in `amplify/functions/_shared/text-utils.ts`.
 
 - Quote form follow-up workflow:
-  - Lambda wrapper lives in `amplify/functions/contact-submit/handler.ts`
-  - Request parsing lives in `amplify/functions/contact-submit/request.ts`
-  - Intake validation lives in `amplify/functions/contact-submit/validation.ts`
-  - Quote submit orchestration lives in `amplify/functions/contact-submit/submit-quote-request.ts`
-  - AWS runtime wiring lives in `amplify/functions/contact-submit/runtime.ts`
-  - Quote request record shape lives in `amplify/functions/_lead-core/domain/quote-request.ts`
-  - Journey/lead persistence and follow-up sync live in `amplify/functions/_lead-core/services/quote-request.ts`
-  - Async follow-up Lambda wrapper lives in `amplify/functions/quote-followup/handler.ts`
-  - Async follow-up orchestration lives in `amplify/functions/quote-followup/process-quote-followup.ts`
-  - Follow-up state transitions live in `amplify/functions/quote-followup/workflow.ts`
-  - DynamoDB quote submission storage lives in `amplify/functions/quote-followup/submission-store.ts`
-  - SES/QUO adapters live in `amplify/functions/quote-followup/customer-email.ts`, `owner-email.ts`, and `quo-sms.ts`
-  - AWS/OpenAI/env wiring lives in `amplify/functions/quote-followup/runtime.ts`
+  - Lambda wrapper lives in `amplify/functions/quote-request-submit/handler.ts`
+  - Request parsing lives in `amplify/functions/quote-request-submit/request.ts`
+  - Intake validation lives in `amplify/functions/quote-request-submit/validation.ts`
+  - Quote submit orchestration lives in `amplify/functions/quote-request-submit/submit-quote-request.ts`
+  - AWS runtime wiring lives in `amplify/functions/quote-request-submit/runtime.ts`
+  - Quote request record shape lives in `amplify/functions/_lead-platform/domain/quote-request.ts`
+  - Journey/lead persistence and follow-up sync live in `amplify/functions/_lead-platform/services/quote-request.ts`
+  - Async follow-up Lambda wrapper lives in `amplify/functions/lead-followup-worker/handler.ts`
+  - Async follow-up orchestration lives in `amplify/functions/lead-followup-worker/process-lead-followup-worker.ts`
+  - Follow-up state transitions live in `amplify/functions/lead-followup-worker/workflow.ts`
+  - DynamoDB quote request storage lives in `amplify/functions/lead-followup-worker/quote-request-store.ts`
+  - SES/QUO adapters live in `amplify/functions/lead-followup-worker/customer-email.ts`, `owner-email.ts`, and `quo-sms.ts`
+  - AWS/OpenAI/env wiring lives in `amplify/functions/lead-followup-worker/runtime.ts`
   - Do not put quote-submit business logic back into `handler.ts`; keep the handler as transport/response mapping
-  - Do not put async follow-up business logic back into `quote-followup/handler.ts`; keep the handler as transport/response mapping
-  - Do not recreate worker-local lead sync helpers; follow-up outcomes should update lead records through the lead-core service
-  - QUO may be intentionally disabled; when that is true, submissions should stay in manual follow-up rather than surfacing as SMS failures
+  - Do not put async follow-up business logic back into `lead-followup-worker/handler.ts`; keep the handler as transport/response mapping
+  - Do not recreate worker-local lead sync helpers; follow-up outcomes should update lead records through the lead platform service
+  - QUO may be intentionally disabled; when that is true, quote requests should stay in manual follow-up rather than surfacing as SMS failures
 
 - Contact form intake / async follow-up:
-  - Public intake endpoint: `amplify/functions/contact-submit/handler.ts`
-  - Async worker: `amplify/functions/quote-followup/handler.ts`
+  - Public intake endpoint: `amplify/functions/quote-request-submit/handler.ts`
+  - Async worker: `amplify/functions/lead-followup-worker/handler.ts`
   - Frontend form island: `src/features/quote/components/QuoteRequestForm.tsx`
   - Contact page injection: `src/components/LocalizedPageContent.astro`
 
 - Journey-first lead storage / admin views:
-  - Shared substrate: `amplify/functions/_lead-core/*`
-  - Canonical event names and lifecycle metadata live in `shared/lead-event-contract.js`
+  - Shared substrate: `amplify/functions/_lead-platform/*`
+  - Canonical event names and lifecycle metadata live in `/contracts/lead-event-contract`
   - Domain record types are split by ownership:
-    - contact identity: `amplify/functions/_lead-core/domain/contact.ts`
-    - journeys: `amplify/functions/_lead-core/domain/journey.ts`
-    - journey events: `amplify/functions/_lead-core/domain/journey-event.ts`
-    - lead records: `amplify/functions/_lead-core/domain/lead-record.ts`
-    - lead action vocabulary: `amplify/functions/_lead-core/domain/lead-actions.ts`
-  - Lifecycle rules live in `amplify/functions/_lead-core/domain/lead-lifecycle.ts`
-  - Event semantics live in `amplify/functions/_lead-core/domain/lead-semantics.ts`
-  - Contact identity, journey status, event building, qualification defaults, and merge rules live in named files under `amplify/functions/_lead-core/services/`
+    - contact identity: `amplify/functions/_lead-platform/domain/contact.ts`
+    - journeys: `amplify/functions/_lead-platform/domain/journey.ts`
+    - journey events: `amplify/functions/_lead-platform/domain/journey-event.ts`
+    - lead records: `amplify/functions/_lead-platform/domain/lead-record.ts`
+    - lead action vocabulary: `amplify/functions/_lead-platform/domain/lead-actions.ts`
+  - Lifecycle rules live in `amplify/functions/_lead-platform/domain/lead-lifecycle.ts`
+  - Event semantics live in `amplify/functions/_lead-platform/domain/lead-semantics.ts`
+  - Contact identity, journey status, event building, qualification defaults, and merge rules live in named files under `amplify/functions/_lead-platform/services/`
   - Do not recreate catch-all `domain/types.ts` or `services/shared.ts`; add behavior to the owning domain/service module instead
   - Refactor plan and edge-case matrix live in `docs/lead-platform-lifecycle-plan-2026-04-18.md`
   - Admin API wrapper: `amplify/functions/lead-admin/handler.ts`
@@ -252,23 +255,23 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
 
 ### Update email template
 
-- Edit: `amplify/functions/chat-lead-handoff/email-delivery.ts` (`sendTranscriptEmail`)
+- Edit: `amplify/functions/chat-handoff-promote/email-delivery.ts` (`sendTranscriptEmail`)
 - Keep both:
   - HTML readable in Gmail desktop + mobile
   - text version useful for quick scanning
 - Test with a NEW thread id (idempotency blocks re-sends for old threads).
 
-### Update contact form or quote follow-up
+### Update quote request intake or lead follow-up
 
 - Edit:
-  - public intake validation: `amplify/functions/contact-submit/validation.ts`
-  - public request parsing: `amplify/functions/contact-submit/request.ts`
-  - quote submit orchestration / queueing: `amplify/functions/contact-submit/submit-quote-request.ts`
-  - Lambda response mapping only: `amplify/functions/contact-submit/handler.ts`
-  - customer/shop follow-up orchestration: `amplify/functions/quote-followup/process-quote-followup.ts`
-  - customer/shop follow-up workflow transitions: `amplify/functions/quote-followup/workflow.ts`
-  - follow-up delivery adapters: `amplify/functions/quote-followup/customer-email.ts`, `owner-email.ts`, `quo-sms.ts`
-  - frontend fields / submission UX: `src/features/quote/components/quote-request-form/*`
+  - public intake validation: `amplify/functions/quote-request-submit/validation.ts`
+  - public request parsing: `amplify/functions/quote-request-submit/request.ts`
+  - quote submit orchestration / queueing: `amplify/functions/quote-request-submit/submit-quote-request.ts`
+  - Lambda response mapping only: `amplify/functions/quote-request-submit/handler.ts`
+  - customer/shop follow-up orchestration: `amplify/functions/lead-followup-worker/process-lead-followup-worker.ts`
+  - customer/shop follow-up workflow transitions: `amplify/functions/lead-followup-worker/workflow.ts`
+  - follow-up delivery adapters: `amplify/functions/lead-followup-worker/customer-email.ts`, `owner-email.ts`, `quo-sms.ts`
+  - frontend fields / quote request UX: `src/features/quote/components/quote-request-form/*`
 - Run:
   - `npm run typecheck:backend`
   - `npm run test:backend`
@@ -276,14 +279,14 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
   - `npm run build`
   - `npm run build:release` if the change affects release-generated social assets
 - Validate:
-  - form submit creates a `submission_id`
-  - `QuoteSubmissionTable` record moves `queued -> processing -> completed|error`
+  - form submit creates a `quote_request_id`
+  - `QuoteRequests` record moves `queued -> processing -> completed|error`
   - owner email is sent
   - journey / lead record updates appear in admin
 
 ### Change idempotency timing (lease/cooldown/ttl)
 
-- Edit constants in `amplify/functions/chat-lead-handoff/handler.ts`:
+- Edit constants in `amplify/functions/chat-handoff-promote/handler.ts`:
   - `LEAD_DEDUPE_LEASE_SECONDS`
   - `LEAD_DEDUPE_ERROR_COOLDOWN_SECONDS`
   - `LEAD_DEDUPE_TTL_DAYS`

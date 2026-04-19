@@ -1,4 +1,4 @@
-import { PUBLIC_API_ROUTES } from '../../../shared/public-api-contract.js';
+import { PUBLIC_API_ROUTES } from '@craigs/contracts/public-api-contract';
 import { resolvePublicApiUrls } from '../../lib/backend/public-api-client.ts';
 
 const NETWORK_FETCH_TIMEOUT_MS = 8_000;
@@ -28,8 +28,8 @@ export function shouldLoadAmplifyOutputs({ sessionUrl, leadHandoffUrl }) {
 export async function fetchAmplifyOutputsUrls() {
   try {
     const urls = await resolvePublicApiUrls({
-      leadHandoffUrl: PUBLIC_API_ROUTES.chatHandoff,
-      sessionUrl: PUBLIC_API_ROUTES.chatSession,
+      leadHandoffUrl: PUBLIC_API_ROUTES.chatHandoffs,
+      sessionUrl: PUBLIC_API_ROUTES.chatSessions,
     });
     const sessionCandidate = urls.sessionUrl;
     const leadCandidate = urls.leadHandoffUrl;

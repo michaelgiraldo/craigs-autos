@@ -24,23 +24,23 @@ Related docs:
     - SES IAM permissions
     - DynamoDB idempotency table
     - Journey-first lead tables
-    - Quote submission queue table
+    - `QuoteRequests` queue table
     - Build outputs (`custom.api_base_url`)
 
 - Session minting function:
-  - `amplify/functions/chatkit-session/resource.ts`
-  - `amplify/functions/chatkit-session/handler.ts`
+  - `amplify/functions/chat-session-create/resource.ts`
+  - `amplify/functions/chat-session-create/handler.ts`
 
 - Chat lead handoff function:
-  - `amplify/functions/chat-lead-handoff/resource.ts`
-  - `amplify/functions/chat-lead-handoff/handler.ts`
-  - `amplify/functions/chat-lead-handoff/email-delivery.ts`
-  - `amplify/functions/chat-lead-handoff/lead-summary.ts`
-  - `amplify/functions/chat-lead-handoff/transcript.ts`
+  - `amplify/functions/chat-handoff-promote/resource.ts`
+  - `amplify/functions/chat-handoff-promote/handler.ts`
+  - `amplify/functions/chat-handoff-promote/email-delivery.ts`
+  - `amplify/functions/chat-handoff-promote/lead-summary.ts`
+  - `amplify/functions/chat-handoff-promote/transcript.ts`
 
 - Message link resolver function:
-  - `amplify/functions/chatkit-message-link/resource.ts`
-  - `amplify/functions/chatkit-message-link/handler.ts`
+  - `amplify/functions/lead-action-link-resolve/resource.ts`
+  - `amplify/functions/lead-action-link-resolve/handler.ts`
 
 Build/deploy pipeline:
 
@@ -57,26 +57,26 @@ These must be set per Amplify environment/branch:
 
 They are referenced in code via Amplify's `secret(...)`:
 
-- `amplify/functions/chatkit-session/resource.ts`
-- `amplify/functions/chat-lead-handoff/resource.ts`
+- `amplify/functions/chat-session-create/resource.ts`
+- `amplify/functions/chat-handoff-promote/resource.ts`
 
 ### Function environment variables (defaults)
 
 Craig's business identity and lead-delivery defaults are sourced from
-`shared/business-profile.js`. Runtime resources should import
+`packages/business-profile/src/business-profile.js`. Runtime resources should import
 `CRAIGS_LEAD_ENV_DEFAULTS` instead of duplicating shop name, phone, address,
 email, domain, map URL, QUO source, or QUO external-id strings.
 
 Shop notification email defaults (can be overridden later):
 
-- `LEAD_TO_EMAIL` (default from `shared/business-profile.js`)
-- `LEAD_FROM_EMAIL` (default from `shared/business-profile.js`)
+- `LEAD_TO_EMAIL` (default from `packages/business-profile/src/business-profile.js`)
+- `LEAD_FROM_EMAIL` (default from `packages/business-profile/src/business-profile.js`)
 - `LEAD_SUMMARY_MODEL` (default: `gpt-5.2-2025-12-11`)
 
 Idempotency wiring (injected by `amplify/backend.ts`):
 
 - `LEAD_DEDUPE_TABLE_NAME`
-- `MESSAGE_LINK_TOKEN_TABLE_NAME` (for both `chatkit-message-link` and `chat-lead-handoff`)
+- `LEAD_ACTION_LINKS_TABLE_NAME` (for both `lead-action-link-resolve` and `chat-handoff-promote`)
 
 Journey-first lead wiring (injected by `amplify/backend.ts`):
 
@@ -84,14 +84,14 @@ Journey-first lead wiring (injected by `amplify/backend.ts`):
 - `LEAD_JOURNEYS_TABLE_NAME`
 - `LEAD_JOURNEY_EVENTS_TABLE_NAME`
 - `LEAD_RECORDS_TABLE_NAME`
-- `LEAD_ACTION_TOKENS_TABLE_NAME`
+- `LEAD_ACTION_LINKS_TABLE_NAME`
 
 Lifecycle rules:
 
-- Canonical lead event names and their lifecycle/dataLayer/browser-signal contract
-  live in `shared/lead-event-contract.js`.
-- Event lifecycle rules live in `amplify/functions/_lead-core/domain/lead-lifecycle.ts`.
-- Event classification details live in `amplify/functions/_lead-core/domain/lead-semantics.ts`.
+- Canonical lead event names and their lifecycle/dataLayer/browser interaction contract
+  live in `packages/contracts/src/lead-event-contract.js`.
+- Event lifecycle rules live in `amplify/functions/_lead-platform/domain/lead-lifecycle.ts`.
+- Event classification details live in `amplify/functions/_lead-platform/domain/lead-semantics.ts`.
 - `lead-lifecycle.ts` and `lead-semantics.ts` must derive from the shared contract;
   they should not become separate event vocabularies.
 - The active lifecycle refactor plan and edge-case matrix live in `docs/lead-platform-lifecycle-plan-2026-04-18.md`.
@@ -99,25 +99,25 @@ Lifecycle rules:
 
 Quote form wiring (injected by `amplify/backend.ts`):
 
-- `QUOTE_SUBMISSIONS_TABLE_NAME`
-- `QUOTE_FOLLOWUP_FUNCTION_NAME`
+- `QUOTE_REQUESTS_TABLE_NAME`
+- `LEAD_FOLLOWUP_WORKER_FUNCTION_NAME`
 
 Quote request domain code:
 
-- Quote request record types and default state live in `amplify/functions/_lead-core/domain/quote-request.ts`.
-- Quote request journey persistence and follow-up-to-lead sync live in `amplify/functions/_lead-core/services/quote-request.ts`.
-- Contact submit HTTP response mapping lives in `amplify/functions/contact-submit/handler.ts`.
-- Contact submit request parsing, validation, quote-submit orchestration, and AWS runtime wiring live in separate files under `amplify/functions/contact-submit/`.
-- Quote follow-up HTTP response mapping lives in `amplify/functions/quote-followup/handler.ts`.
-- Quote follow-up orchestration, state transitions, DynamoDB storage, SES delivery, QUO SMS, lead sync, and AWS/OpenAI runtime wiring live in separate files under `amplify/functions/quote-followup/`.
+- Quote request record types and default state live in `amplify/functions/_lead-platform/domain/quote-request.ts`.
+- Quote request journey persistence and follow-up-to-lead sync live in `amplify/functions/_lead-platform/services/quote-request.ts`.
+- Quote request HTTP response mapping lives in `amplify/functions/quote-request-submit/handler.ts`.
+- Quote request parsing, validation, submit orchestration, and AWS runtime wiring live in separate files under `amplify/functions/quote-request-submit/`.
+- Quote follow-up HTTP response mapping lives in `amplify/functions/lead-followup-worker/handler.ts`.
+- Quote follow-up orchestration, state transitions, DynamoDB storage, SES delivery, QUO SMS, lead sync, and AWS/OpenAI runtime wiring live in separate files under `amplify/functions/lead-followup-worker/`.
 - Public submit handlers and async workers should call the lead-core service instead of keeping separate worker-local lead sync logic.
 
 Shared backend utilities:
 
 - Generic text/URL/email/phone helpers live in `amplify/functions/_shared/text-utils.ts`.
 - The QUO API client lives in `amplify/functions/_shared/quo-client.ts`.
-- Shared outreach draft assembly lives in `amplify/functions/_lead-core/services/outreach-drafts.ts`.
-- Chat-specific transcript parsing and subject behavior stays under `amplify/functions/chat-lead-handoff/`.
+- Shared outreach draft assembly lives in `amplify/functions/_lead-platform/services/outreach-drafts.ts`.
+- Chat-specific transcript parsing and subject behavior stays under `amplify/functions/chat-handoff-promote/`.
 
 ## Endpoints and discovery
 
@@ -125,12 +125,15 @@ The backend exposes one public HTTP API and routes stable paths to Lambdas.
 
 Routes are defined in `amplify/backend/public-api.ts`:
 
-- `POST /contact` -> `contact-submit`
-- `POST /chat/session` -> `chatkit-session`
-- `POST /chat/handoff` -> `chat-lead-handoff`
-- `GET /chat/message-link` -> `chatkit-message-link`
-- `POST /lead-signal` -> `chatkit-lead-signal`
-- `GET|POST /admin/leads` -> `lead-admin`
+- `POST /quote-requests` -> `quote-request-submit`
+- `POST /chat-sessions` -> `chat-session-create`
+- `POST /chat-handoffs` -> `chat-handoff-promote`
+- `GET /lead-action-links` -> `lead-action-link-resolve`
+- `POST /lead-interactions` -> `lead-interaction-capture`
+- `GET|POST /admin/leads` -> `lead-admin-api`
+- `POST /admin/leads/qualification` -> `lead-admin-api`
+- `POST /admin/leads/notes` -> `lead-admin-api`
+- `POST /admin/leads/follow-up-state` -> `lead-admin-api`
 
 During Amplify builds, `ampx pipeline-deploy` writes `public/amplify_outputs.json`.
 The frontend fetches `/amplify_outputs.json` and reads:
@@ -158,7 +161,7 @@ Allowed origins currently include:
 
 If you add a new domain (or new preview host), update this list and redeploy.
 
-## Session minting function (chatkit-session)
+## Session minting function (chat-session-create)
 
 Purpose:
 
@@ -167,7 +170,7 @@ Purpose:
 
 Implementation:
 
-- `amplify/functions/chatkit-session/handler.ts`
+- `amplify/functions/chat-session-create/handler.ts`
 
 Core call:
 
@@ -209,10 +212,10 @@ These are computed in `computeShopState(...)`.
 If shop hours change, update:
 
 - `scheduleForWeekday(...)` in:
-  - `amplify/functions/chatkit-session/handler.ts`
+  - `amplify/functions/chat-session-create/handler.ts`
   - `server/chatkit-dev.mjs` (local dev mirror)
 
-## Chat lead handoff function (chat-lead-handoff)
+## Chat lead handoff function (chat-handoff-promote)
 
 Purpose:
 
@@ -225,7 +228,7 @@ Purpose:
 
 Implementation:
 
-- `amplify/functions/chat-lead-handoff/handler.ts`
+- `amplify/functions/chat-handoff-promote/handler.ts`
 
 ### Processing pipeline (high level)
 
@@ -253,7 +256,7 @@ Implementation:
 7) Decide whether to complete the handoff now:
    - Current triggers (`idle`, `pagehide`, `chat_closed`) attempt handoff once contact exists.
    - We intentionally avoid "handoff after every assistant response" because it can
-     snapshot the thread mid-conversation (see `docs/chatkit/chat-lead-handoff-before-after.md`).
+     snapshot the thread mid-conversation (see `docs/chatkit/chat-handoff-promote-before-after.md`).
    - Final completion gate is `handoff_ready` from the summary model.
 8) Acquire handoff lease in DynamoDB (threadId-keyed)
 9) Run handoff side effects:
@@ -275,7 +278,7 @@ Also: users can open multiple tabs/devices.
 
 Design:
 
-- DynamoDB table: `ChatLeadHandoffDedupeTable`
+- DynamoDB table: `ChatHandoffPromoteDedupeTable`
   - partition key: `thread_id` (string)
   - TTL attribute: `ttl`
   - removal policy: RETAIN (safe for production)
@@ -308,7 +311,7 @@ Semantics:
 - If record is `error` and cooldown not expired: endpoint returns `{ completed: false, reason: "cooldown" }`.
 - Otherwise: acquire lease, run handoff, mark completed or mark error.
 
-Lease/cooldown tuning constants live in `amplify/functions/chat-lead-handoff/handler.ts`:
+Lease/cooldown tuning constants live in `amplify/functions/chat-handoff-promote/handler.ts`:
 
 - `LEAD_DEDUPE_LEASE_SECONDS`
 - `LEAD_DEDUPE_ERROR_COOLDOWN_SECONDS`
@@ -327,7 +330,7 @@ are granted in `amplify/backend.ts`.
 
 Email template assembly:
 
-- `sendTranscriptEmail(...)` in `amplify/functions/chat-lead-handoff/email-delivery.ts`
+- `sendTranscriptEmail(...)` in `amplify/functions/chat-handoff-promote/email-delivery.ts`
 
 It produces:
 
@@ -349,7 +352,7 @@ The shop notification email includes an internal AI summary generated from the t
 
 Implementation:
 
-- `generateLeadSummary(...)` in `amplify/functions/chat-lead-handoff/lead-summary.ts`
+- `generateLeadSummary(...)` in `amplify/functions/chat-handoff-promote/lead-summary.ts`
 
 Key properties:
 
@@ -386,7 +389,7 @@ current branch environment.
 ### Change shop hours logic (agent must not guess)
 
 1) Update schedule logic in:
-   - `amplify/functions/chatkit-session/handler.ts`
+   - `amplify/functions/chat-session-create/handler.ts`
    - `server/chatkit-dev.mjs`
 2) Consider updating agent instructions to explicitly use `shop_*` state variables.
 3) Deploy (commit + push).
@@ -394,19 +397,19 @@ current branch environment.
 ### Change email recipient or sender
 
 1) Update:
-   - `amplify/functions/chat-lead-handoff/resource.ts`
+   - `amplify/functions/chat-handoff-promote/resource.ts`
 2) Verify sender identity in SES for the region.
 3) Deploy.
 
 ### Change email template
 
-1) Update `sendTranscriptEmail(...)` in `amplify/functions/chat-lead-handoff/email-delivery.ts`.
+1) Update `sendTranscriptEmail(...)` in `amplify/functions/chat-handoff-promote/email-delivery.ts`.
 2) Keep HTML + text versions usable (shop staff may read either).
 3) Deploy and test by starting a new thread (idempotency blocks re-sends).
 
 ### Change idempotency timing (lease/cooldown/ttl)
 
-1) Update constants in `amplify/functions/chat-lead-handoff/handler.ts`.
+1) Update constants in `amplify/functions/chat-handoff-promote/handler.ts`.
 2) Deploy.
 3) Validate:
    - duplicates do not occur
@@ -416,7 +419,7 @@ current branch environment.
 
 This is mostly controlled by the summary prompt + schema rules.
 
-1) Update the instructions inside `generateLeadSummary(...)` in `amplify/functions/chat-lead-handoff/lead-summary.ts`.
+1) Update the instructions inside `generateLeadSummary(...)` in `amplify/functions/chat-handoff-promote/lead-summary.ts`.
 2) Deploy.
 3) Test:
    - The summary should only mark `handoff_ready = true` when contact + project is present.

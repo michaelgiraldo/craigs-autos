@@ -35,7 +35,7 @@ What we found:
   - session URL at line 28
   - chat lead handoff URL at line 50
   - sms link URL at line 71
-  - lead signal URL at line 92
+  - lead interaction URL at line 92
   - lead admin URL at line 112
 
 Why this matters (plain language):
@@ -96,10 +96,10 @@ What improves:
 
 What we found:
 
-- URL checker accepts any `http/https` URL in `amplify/functions/chat-lead-handoff/handler.ts:571-576`
-- Server fetches that URL in `amplify/functions/chat-lead-handoff/handler.ts:656-663`
-- Attachment lines are parsed from transcript text in `amplify/functions/chat-lead-handoff/handler.ts:952-986`
-- Attachment lines are also constructed in transcript content in `amplify/functions/chat-lead-handoff/handler.ts:1172-1183`
+- URL checker accepts any `http/https` URL in `amplify/functions/chat-handoff-promote/handler.ts:571-576`
+- Server fetches that URL in `amplify/functions/chat-handoff-promote/handler.ts:656-663`
+- Attachment lines are parsed from transcript text in `amplify/functions/chat-handoff-promote/handler.ts:952-986`
+- Attachment lines are also constructed in transcript content in `amplify/functions/chat-handoff-promote/handler.ts:1172-1183`
 
 Why this matters (plain language):
 
@@ -126,7 +126,7 @@ What improves:
 
 What we found:
 
-- Message-link token handler reads token and returns payload but does not delete/consume it in `amplify/functions/chatkit-message-link/handler.ts`
+- Message-link token handler reads token and returns payload but does not delete/consume it in `amplify/functions/lead-action-link-resolve/handler.ts`
 
 Why this matters (plain language):
 
@@ -177,7 +177,7 @@ What improves:
 What we found:
 
 - Current lead admin listing routes through `amplify/functions/lead-admin/list-leads.ts`.
-- Repository reads use ordered admin indexes in `amplify/functions/_lead-core/repos/dynamo/lead-records.ts` and `amplify/functions/_lead-core/repos/dynamo/journeys.ts`.
+- Repository reads use ordered admin indexes in `amplify/functions/_lead-platform/repos/dynamo/lead-records.ts` and `amplify/functions/_lead-platform/repos/dynamo/journeys.ts`.
 
 Why this matters (plain language):
 

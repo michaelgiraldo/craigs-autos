@@ -1,5 +1,5 @@
 import { useRef, useState, type ChangeEvent, type FormEvent } from 'react';
-import { resolveContactSubmitUrl } from '../../../../lib/backend/public-api-client';
+import { resolveQuoteRequestSubmitUrl } from '../../../../lib/backend/public-api-client';
 import type { LocaleKey } from '../../../../types/site';
 import type { QuoteFormCopy } from '../../content/quote-form-copy';
 import { postQuoteRequest } from './api';
@@ -64,7 +64,7 @@ export function useQuoteRequestForm({ copy, locale, serviceKey }: UseQuoteReques
       return;
     }
 
-    const endpoint = await resolveContactSubmitUrl();
+    const endpoint = await resolveQuoteRequestSubmitUrl();
     if (!endpoint) {
       setSubmitState('error');
       setErrorMessage(copy.validationMissingEndpoint);

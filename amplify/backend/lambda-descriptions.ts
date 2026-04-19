@@ -19,31 +19,31 @@ function setLambdaDescription(resource: LambdaWithEnvironment, description: stri
 
 export function applyLambdaDescriptions(backend: CraigsBackend): void {
   setLambdaDescription(
-    getLambda(backend.chatkitSession),
+    getLambda(backend.chatSessionCreate),
     'Creates ChatKit sessions and returns ephemeral client secrets with locale, page, user, and shop-time state.',
   );
   setLambdaDescription(
-    getLambda(backend.chatLeadHandoff),
+    getLambda(backend.chatHandoffPromote),
     'Hands off ready ChatKit threads into the lead workflow: transcript evaluation, journey persistence, shop email, and QUO SMS when configured.',
   );
   setLambdaDescription(
-    getLambda(backend.chatkitMessageLink),
+    getLambda(backend.leadActionLinkResolve),
     'Resolves tokenized message-link payloads into recipient phone and message body for the /message handoff page.',
   );
   setLambdaDescription(
-    getLambda(backend.chatkitLeadSignal),
+    getLambda(backend.leadInteractionCapture),
     'Logs actionable lead interaction events (call, text, email, directions) and writes normalized lead candidates to DynamoDB.',
   );
   setLambdaDescription(
-    getLambda(backend.leadAdmin),
+    getLambda(backend.leadAdminApi),
     'Password-protected admin API to list journeys and lead records and update qualification status for conversion workflows.',
   );
   setLambdaDescription(
-    getLambda(backend.contactSubmit),
-    'Accepts public quote requests, stores them in DynamoDB, and asynchronously invokes the quote follow-up worker.',
+    getLambda(backend.quoteRequestSubmit),
+    'Accepts public quote requests, stores them in DynamoDB, and asynchronously invokes the lead follow-up worker.',
   );
   setLambdaDescription(
-    getLambda(backend.quoteFollowup),
+    getLambda(backend.leadFollowupWorker),
     'Generates quote outreach drafts, sends SMS-first follow-up with email fallback, and emails the shop via SES.',
   );
 }

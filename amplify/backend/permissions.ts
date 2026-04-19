@@ -9,15 +9,15 @@ function grantSesSend(backend: CraigsBackend): void {
     resources: ['*'],
   });
 
-  getLambda(backend.chatLeadHandoff).addToRolePolicy(sendEmailPolicy);
-  getLambda(backend.quoteFollowup).addToRolePolicy(sendEmailPolicy);
+  getLambda(backend.chatHandoffPromote).addToRolePolicy(sendEmailPolicy);
+  getLambda(backend.leadFollowupWorker).addToRolePolicy(sendEmailPolicy);
 }
 
-function configureChatLeadHandoffRetryScheduler(backend: CraigsBackend): void {
-  const chatLeadHandoffLambda = getLambda(backend.chatLeadHandoff);
+function configureChatHandoffPromoteRetryScheduler(backend: CraigsBackend): void {
+  const chatHandoffPromoteLambda = getLambda(backend.chatHandoffPromote);
   const retrySchedulerInvokeRole = new Role(
-    Stack.of(chatLeadHandoffLambda),
-    'ChatLeadHandoffRetrySchedulerInvokeRole',
+    Stack.of(chatHandoffPromoteLambda),
+    'ChatHandoffPromoteRetrySchedulerInvokeRole',
     {
       assumedBy: new ServicePrincipal('scheduler.amazonaws.com'),
     },
@@ -30,7 +30,7 @@ function configureChatLeadHandoffRetryScheduler(backend: CraigsBackend): void {
     }),
   );
 
-  chatLeadHandoffLambda.addToRolePolicy(
+  chatHandoffPromoteLambda.addToRolePolicy(
     new PolicyStatement({
       actions: [
         'scheduler:CreateSchedule',
@@ -42,21 +42,21 @@ function configureChatLeadHandoffRetryScheduler(backend: CraigsBackend): void {
     }),
   );
 
-  chatLeadHandoffLambda.addToRolePolicy(
+  chatHandoffPromoteLambda.addToRolePolicy(
     new PolicyStatement({
       actions: ['iam:PassRole'],
       resources: [retrySchedulerInvokeRole.roleArn],
     }),
   );
 
-  chatLeadHandoffLambda.addEnvironment(
+  chatHandoffPromoteLambda.addEnvironment(
     'LEAD_RETRY_SCHEDULER_ROLE_ARN',
     retrySchedulerInvokeRole.roleArn,
   );
-  chatLeadHandoffLambda.addEnvironment('LEAD_RETRY_SCHEDULE_GROUP', 'default');
+  chatHandoffPromoteLambda.addEnvironment('LEAD_RETRY_SCHEDULE_GROUP', 'default');
 }
 
 export function configureLambdaPermissions(backend: CraigsBackend): void {
   grantSesSend(backend);
-  configureChatLeadHandoffRetryScheduler(backend);
+  configureChatHandoffPromoteRetryScheduler(backend);
 }

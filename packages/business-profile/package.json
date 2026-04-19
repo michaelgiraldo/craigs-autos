@@ -1,0 +1,16 @@
+{
+  "name": "@craigs/business-profile",
+  "type": "module",
+  "version": "0.0.1",
+  "private": true,
+  "exports": {
+    "./business-profile": {
+      "types": "./src/business-profile.d.ts",
+      "default": "./src/business-profile.js"
+    },
+    "./shop-hours": {
+      "types": "./src/shop-hours.d.ts",
+      "default": "./src/shop-hours.js"
+    }
+  }
+}

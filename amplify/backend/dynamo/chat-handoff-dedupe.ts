@@ -3,18 +3,17 @@ import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
 import type { CraigsBackend } from '../types';
 import { getLambda } from '../types';
 
-export function configureChatLeadHandoffDedupeTable(backend: CraigsBackend): void {
-  const chatLeadHandoffLambda = getLambda(backend.chatLeadHandoff);
+export function configureChatHandoffPromoteDedupeTable(backend: CraigsBackend): void {
+  const chatHandoffPromoteLambda = getLambda(backend.chatHandoffPromote);
   // Production-grade idempotency: one completed handoff per ChatKit thread (`cthr_...`),
   // even when multiple browser lifecycle events trigger the endpoint.
-  const table = new Table(Stack.of(chatLeadHandoffLambda), 'ChatLeadHandoffDedupeTable', {
+  const table = new Table(Stack.of(chatHandoffPromoteLambda), 'ChatHandoffDispatchLedger', {
     billingMode: BillingMode.PAY_PER_REQUEST,
     partitionKey: { name: 'thread_id', type: AttributeType.STRING },
     timeToLiveAttribute: 'ttl',
-    // Safe default for production; deleting the Amplify environment retains this table.
-    removalPolicy: RemovalPolicy.RETAIN,
+    removalPolicy: RemovalPolicy.DESTROY,
   });
 
-  table.grantReadWriteData(chatLeadHandoffLambda);
-  chatLeadHandoffLambda.addEnvironment('LEAD_DEDUPE_TABLE_NAME', table.tableName);
+  table.grantReadWriteData(chatHandoffPromoteLambda);
+  chatHandoffPromoteLambda.addEnvironment('LEAD_DEDUPE_TABLE_NAME', table.tableName);
 }

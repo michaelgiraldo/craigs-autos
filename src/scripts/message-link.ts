@@ -1,4 +1,4 @@
-import { PUBLIC_API_ROUTES } from '../../shared/public-api-contract.js';
+import { PUBLIC_API_ROUTES } from '@craigs/contracts/public-api-contract';
 import { resolvePublicApiUrl, withFetchTimeout } from '../lib/backend/public-api-client';
 
 type MessageLinkResponse = {
@@ -72,7 +72,7 @@ export async function initMessageLinkPage() {
     return;
   }
 
-  const apiUrl = await resolvePublicApiUrl(PUBLIC_API_ROUTES.chatMessageLink);
+  const apiUrl = await resolvePublicApiUrl(PUBLIC_API_ROUTES.leadActionLinks);
   if (!apiUrl) {
     showError(statusEl, 'Message link service is not configured.');
     return;

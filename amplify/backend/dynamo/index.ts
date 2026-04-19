@@ -1,12 +1,12 @@
 import type { CraigsBackend } from '../types';
-import { configureChatLeadHandoffDedupeTable } from './chat-handoff-dedupe';
+import { configureChatHandoffPromoteDedupeTable } from './chat-handoff-dedupe';
+import { configureLeadActionLinksTable } from './lead-action-links';
 import { configureLeadDataTables } from './lead-data';
-import { configureMessageLinkTokenTable } from './message-link-tokens';
-import { configureQuoteSubmissionsTable } from './quote-submissions';
+import { configureQuoteRequestsTable } from './quote-requests';
 
 export function configureDynamoTables(backend: CraigsBackend): void {
-  configureChatLeadHandoffDedupeTable(backend);
-  configureQuoteSubmissionsTable(backend);
-  configureMessageLinkTokenTable(backend);
+  configureChatHandoffPromoteDedupeTable(backend);
+  configureQuoteRequestsTable(backend);
+  configureLeadActionLinksTable(backend);
   configureLeadDataTables(backend);
 }
