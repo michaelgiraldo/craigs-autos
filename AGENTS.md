@@ -10,6 +10,7 @@ If you are new here, start with:
 
 - `docs/README.md`
 - `docs/chatkit/overview.md`
+- `docs/amplify-deploy-validation-runtime.md`
 
 ## Repo overview
 
@@ -37,6 +38,11 @@ ChatKit docs are split for fast navigation:
 Compatibility pointer:
 
 - `docs/chatkit-aws.md` (pointer to the files above)
+
+Deployment/runtime pointer:
+
+- `docs/amplify-deploy-validation-runtime.md` (Amplify Gen2 deploy-time
+  TypeScript validation is separate from Lambda Node runtime compatibility)
 
 ## Local development
 
@@ -91,6 +97,11 @@ Local ChatKit dev API:
 - The build step runs `npx ampx pipeline-deploy` to:
   - deploy/update the Gen2 backend for the branch
   - generate `public/amplify_outputs.json` with branch-specific endpoints
+- `pipeline-deploy` performs Amplify backend TypeScript validation before
+  CloudFormation/Lambda deployment. Lambda runtime support does not guarantee
+  that Amplify's deploy-time validator will accept the same source. See
+  `docs/amplify-deploy-validation-runtime.md` before changing backend syntax,
+  `amplify/tsconfig.json`, or test placement under `amplify/functions`.
 - The frontend reads `/amplify_outputs.json` at runtime to discover:
   - `custom.api_base_url`
 - Browser code composes stable public API routes from that base URL:
