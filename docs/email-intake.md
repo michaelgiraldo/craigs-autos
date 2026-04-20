@@ -33,10 +33,13 @@ Configured in `amplify/backend/email-intake.ts`:
 - S3 lifecycle expiration after 1 day
 - SES receipt rule set for `contact-intake@email-intake.craigs.autos`
 - Active receipt rule set custom resource
-- Route53 MX record for `email-intake.craigs.autos`
 - DynamoDB `EmailIntakeLedger` for message/thread idempotency
 
-The Route53 MX assumes `craigs.autos` is hosted in the same AWS account that deploys the Amplify backend. If the hosted zone lives elsewhere, create the subdomain MX manually and remove or adjust the Route53 record code before deploying.
+Route53 DNS is intentionally manual. Add this record in the public `craigs.autos` hosted zone:
+
+```text
+email-intake.craigs.autos.  MX  10 inbound-smtp.us-west-1.amazonaws.com.
+```
 
 SES only has one active receipt rule set per region. This backend activates `craigs-autos-email-intake`; if the AWS account already has inbound SES receipt rules in the same region, merge those rules into this rule set before deploying.
 

@@ -1,7 +1,6 @@
 import { Duration, RemovalPolicy } from 'aws-cdk-lib';
 import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
 import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
-import { HostedZone, MxRecord } from 'aws-cdk-lib/aws-route53';
 import { BlockPublicAccess, Bucket, BucketEncryption, EventType } from 'aws-cdk-lib/aws-s3';
 import { LambdaDestination } from 'aws-cdk-lib/aws-s3-notifications';
 import { ReceiptRuleSet, TlsPolicy } from 'aws-cdk-lib/aws-ses';
@@ -16,9 +15,6 @@ import type { CraigsBackend } from './types';
 import { getLambda } from './types';
 
 const RAW_EMAIL_PREFIX = 'raw/';
-const EMAIL_INTAKE_SUBDOMAIN = 'email-intake';
-const EMAIL_INTAKE_ZONE_NAME = 'craigs.autos';
-const EMAIL_INTAKE_HOSTED_ZONE_ID = 'Z0662995DUHWM14WMAA8';
 
 export function configureEmailIntake(backend: CraigsBackend): void {
   const stack = backend.createStack('email-intake');
@@ -99,21 +95,6 @@ export function configureEmailIntake(backend: CraigsBackend): void {
   activateRuleSet.node.addDependency(ruleSet);
   activateRuleSet.node.addDependency(receiptRule);
   activateRuleSet.node.addDependency(rawEmailBucket);
-
-  const zone = HostedZone.fromHostedZoneAttributes(stack, 'CraigsAutosHostedZone', {
-    hostedZoneId: EMAIL_INTAKE_HOSTED_ZONE_ID,
-    zoneName: EMAIL_INTAKE_ZONE_NAME,
-  });
-  new MxRecord(stack, 'EmailIntakeMxRecord', {
-    recordName: EMAIL_INTAKE_SUBDOMAIN,
-    values: [
-      {
-        hostName: `inbound-smtp.${stack.region}.amazonaws.com`,
-        priority: 10,
-      },
-    ],
-    zone,
-  });
 
   emailIntakeLambda.addToRolePolicy(
     new PolicyStatement({
