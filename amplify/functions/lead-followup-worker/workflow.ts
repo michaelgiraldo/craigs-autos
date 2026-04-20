@@ -57,6 +57,11 @@ async function ensureDrafts(deps: LeadFollowupWorkerDeps, record: QuoteRequestRe
   const emailFirst =
     record.capture_channel === 'email' || record.preferred_outreach_channel === 'email';
   if (emailFirst && record.email_subject && record.email_body) {
+    const replySubject = chooseEmailSubject(record, record.email_subject);
+    if (replySubject !== record.email_subject) {
+      record.email_subject = replySubject;
+      await persistRecord(deps, record);
+    }
     return;
   }
 

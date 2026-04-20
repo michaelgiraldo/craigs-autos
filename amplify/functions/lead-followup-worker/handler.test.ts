@@ -164,14 +164,16 @@ test('lead-followup-worker sends email first for inbound email leads and cleans 
     preferred_outreach_channel: 'email',
     phone: '(408) 555-0101',
     email: 'customer@example.com',
-    email_subject: "Craig's Auto Upholstery - next steps",
+    email_subject: 'Re: 2014 Honda Accord driver seat tear repair',
     email_body: 'Thanks for sending the photos. Victor',
+    inbound_email_subject: '2014 Honda Accord driver seat tear repair estimate',
     inbound_email_s3_bucket: 'raw-email-bucket',
     inbound_email_s3_key: 'raw/message-id',
     source_message_id: '<customer-message@example.com>',
   });
   let smsTouched = false;
   const emailedRecords: QuoteRequestRecord[] = [];
+  const emailedSubjects: string[] = [];
   const cleanedRecords: QuoteRequestRecord[] = [];
 
   const handler = createLeadFollowupWorkerHandler({
@@ -190,8 +192,9 @@ test('lead-followup-worker sends email first for inbound email leads and cleans 
       smsTouched = true;
       return { id: 'sms-should-not-send', status: 'sent' };
     },
-    sendCustomerEmail: async ({ record }) => {
+    sendCustomerEmail: async ({ record, subject }) => {
       emailedRecords.push(record);
+      emailedSubjects.push(subject);
       return { messageId: 'customer-email-123' };
     },
     sendOwnerEmail: async () => ({ messageId: 'owner-email-123' }),
@@ -209,6 +212,8 @@ test('lead-followup-worker sends email first for inbound email leads and cleans 
   assert.equal(current.outreach_channel, 'email');
   assert.equal(current.outreach_result, 'email_sent');
   assert.equal(emailedRecords[0]?.source_message_id, '<customer-message@example.com>');
+  assert.equal(emailedSubjects[0], 'Re: 2014 Honda Accord driver seat tear repair estimate');
+  assert.equal(current.email_subject, 'Re: 2014 Honda Accord driver seat tear repair estimate');
   assert.equal(cleanedRecords[0]?.inbound_email_s3_key, 'raw/message-id');
 });
 
