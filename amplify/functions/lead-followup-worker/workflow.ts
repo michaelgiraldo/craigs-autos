@@ -37,6 +37,22 @@ async function persistRecord(deps: LeadFollowupWorkerDeps, record: QuoteRequestR
   await deps.saveQuoteRequest(record);
 }
 
+function normalizeReplySubject(subject: string): string {
+  const compactSubject = subject.replace(/\s+/g, ' ').trim();
+  if (!compactSubject) return '';
+  if (/^re\s*:/i.test(compactSubject)) return compactSubject;
+  return `Re: ${compactSubject}`;
+}
+
+function chooseEmailSubject(record: QuoteRequestRecord, generatedSubject: string): string {
+  const emailFirst =
+    record.capture_channel === 'email' || record.preferred_outreach_channel === 'email';
+  if (emailFirst && record.inbound_email_subject) {
+    return normalizeReplySubject(record.inbound_email_subject);
+  }
+  return generatedSubject;
+}
+
 async function ensureDrafts(deps: LeadFollowupWorkerDeps, record: QuoteRequestRecord) {
   const emailFirst =
     record.capture_channel === 'email' || record.preferred_outreach_channel === 'email';
@@ -53,7 +69,7 @@ async function ensureDrafts(deps: LeadFollowupWorkerDeps, record: QuoteRequestRe
   record.ai_model = generated.aiModel;
   record.ai_error = generated.aiError;
   record.sms_body = generated.drafts.smsBody;
-  record.email_subject = generated.drafts.emailSubject;
+  record.email_subject = chooseEmailSubject(record, generated.drafts.emailSubject);
   record.email_body = generated.drafts.emailBody;
   record.missing_info = generated.drafts.missingInfo;
   await persistRecord(deps, record);

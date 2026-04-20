@@ -212,6 +212,62 @@ test('lead-followup-worker sends email first for inbound email leads and cleans 
   assert.equal(cleanedRecords[0]?.inbound_email_s3_key, 'raw/message-id');
 });
 
+test('lead-followup-worker preserves inbound email subject for generated email replies', async () => {
+  let current = makeRecord({
+    capture_channel: 'email',
+    preferred_outreach_channel: 'email',
+    phone: '',
+    email: 'customer@example.com',
+    inbound_email_subject: '2016 Toyota Tacoma. Quote for front seat upholstery repair',
+    source_message_id: '<customer-message@example.com>',
+  });
+  const customerEmailSubjects: string[] = [];
+
+  const handler = createLeadFollowupWorkerHandler({
+    configValid: true,
+    smsAutomationEnabled: true,
+    nowEpochSeconds: () => 3_600,
+    getQuoteRequest: async () => current,
+    acquireLease: async () => true,
+    saveQuoteRequest: async (record) => {
+      current = { ...record };
+    },
+    generateDrafts: async () => ({
+      aiError: '',
+      aiModel: 'gpt-test',
+      aiStatus: 'generated',
+      drafts: {
+        smsBody: 'Please text us 2-4 photos.',
+        emailSubject: 'Re: AI rewritten subject',
+        emailBody: 'Thanks for sending the photos. Victor',
+        missingInfo: [],
+      },
+    }),
+    sendSms: async () => ({ id: 'sms-should-not-send', status: 'sent' }),
+    sendCustomerEmail: async ({ subject, record }) => {
+      customerEmailSubjects.push(subject);
+      assert.equal(
+        record.email_subject,
+        'Re: 2016 Toyota Tacoma. Quote for front seat upholstery repair',
+      );
+      return { messageId: 'customer-email-123' };
+    },
+    sendOwnerEmail: async () => ({ messageId: 'owner-email-123' }),
+  });
+
+  const result = await handler({ quote_request_id: 'quote-request-1' });
+
+  assert.equal(result.statusCode, 200);
+  assert.deepEqual(customerEmailSubjects, [
+    'Re: 2016 Toyota Tacoma. Quote for front seat upholstery repair',
+  ]);
+  assert.equal(
+    current.email_subject,
+    'Re: 2016 Toyota Tacoma. Quote for front seat upholstery repair',
+  );
+  assert.equal(current.email_status, 'sent');
+});
+
 test('lead-followup-worker records SMS failure when no email fallback exists', async () => {
   let current = makeRecord({ email: '' });
 
