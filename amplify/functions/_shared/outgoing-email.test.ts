@@ -21,7 +21,10 @@ test('buildRawEmail separates top-level headers from multipart body', () => {
   }).toString('utf8');
 
   const headerBlock = topLevelHeaderBlock(raw);
-  assert.equal([...headerBlock.matchAll(/^Content-Type:/gm)].length, 1);
+  assert.equal(
+    headerBlock.split('\r\n').filter((line) => line.startsWith('Content-Type:')).length,
+    1,
+  );
   assert.match(raw, /\r\n\r\n------craigs-alt-/);
 });
 
