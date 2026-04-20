@@ -45,14 +45,11 @@ function makeDeps(overrides: Partial<EmailIntakeDeps> = {}): EmailIntakeDeps {
       customerLanguage: 'en',
       customerName: email.from?.name ?? null,
       customerPhone: null,
-      emailBody: 'Hi - thanks for reaching out.\n\nVictor',
-      emailSubject: "Craig's Auto Upholstery - next steps",
       isLead: true,
       leadReason: 'seat_repair_request',
       missingInfo: ['photos'],
       projectSummary: 'Customer needs a seat repair.',
       service: 'seat repair',
-      smsBody: 'Thanks for reaching out.',
       vehicle: 'Toyota Camry',
     }),
     getRawEmail: async () =>
@@ -137,6 +134,9 @@ test('email intake queues an accepted Google-routed lead for email-first follow-
   assert.equal(queuedRecords[0]?.capture_channel, 'email');
   assert.equal(queuedRecords[0]?.preferred_outreach_channel, 'email');
   assert.equal(queuedRecords[0]?.email_status, null);
+  assert.equal(queuedRecords[0]?.email_subject, '');
+  assert.equal(queuedRecords[0]?.email_body, '');
+  assert.equal(queuedRecords[0]?.sms_body, '');
   assert.equal(queuedRecords[0]?.source_message_id, '<message-1@example.com>');
 });
 

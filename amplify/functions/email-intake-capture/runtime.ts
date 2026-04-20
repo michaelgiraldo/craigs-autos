@@ -8,7 +8,7 @@ import { z } from 'zod';
 import { createLeadPlatformRuntime } from '../_lead-platform/runtime.ts';
 import { buildEmailLeadBundle } from '../_lead-platform/services/intake-email.ts';
 import { upsertLeadBundle } from '../_lead-platform/services/persist.ts';
-import { createOpenAiEmailLeadEvaluator } from './evaluation.ts';
+import { createOpenAiEmailLeadEvaluator } from './classification.ts';
 import { createDynamoEmailIntakeLedger } from './ledger.ts';
 import type { EmailIntakeDeps, PersistEmailLeadInput, S3EmailSource } from './types.ts';
 

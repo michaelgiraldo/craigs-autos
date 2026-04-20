@@ -43,14 +43,11 @@ export type EmailLeadEvaluation = {
   customerLanguage: string | null;
   customerName: string | null;
   customerPhone: string | null;
-  emailBody: string;
-  emailSubject: string;
   isLead: boolean;
   leadReason: string;
   missingInfo: string[];
   projectSummary: string | null;
   service: string | null;
-  smsBody: string;
   vehicle: string | null;
 };
 

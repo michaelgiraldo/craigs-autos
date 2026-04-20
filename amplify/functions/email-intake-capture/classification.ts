@@ -33,14 +33,8 @@ function sanitizeEvaluation(
 
   const isLead = typeof data.is_inbound_lead === 'boolean' ? data.is_inbound_lead : false;
   const customerEmail = pickStringOrNull(data.customer_email) ?? fallbackEmail;
-  const emailSubject = pickStringOrNull(data.email_subject) ?? '';
-  const emailBody = pickStringOrNull(data.email_body) ?? '';
-  const smsBody = pickStringOrNull(data.sms_body) ?? emailBody;
 
-  if (
-    isLead &&
-    (!customerEmail || !isPlausibleEmail(customerEmail) || !emailSubject || !emailBody)
-  ) {
+  if (isLead && (!customerEmail || !isPlausibleEmail(customerEmail))) {
     return null;
   }
 
@@ -50,14 +44,11 @@ function sanitizeEvaluation(
     customerLanguage: pickStringOrNull(data.customer_language),
     customerName: pickStringOrNull(data.customer_name),
     customerPhone: pickStringOrNull(data.customer_phone),
-    emailBody,
-    emailSubject,
     isLead,
     leadReason: pickStringOrNull(data.lead_reason) ?? (isLead ? 'email_lead' : 'not_a_lead'),
     missingInfo: pickStringArray(data.missing_info),
     projectSummary: pickStringOrNull(data.project_summary),
     service: pickStringOrNull(data.service),
-    smsBody,
     vehicle: pickStringOrNull(data.vehicle),
   };
 }
@@ -126,9 +117,6 @@ export function createOpenAiEmailLeadEvaluator(args: {
         vehicle: { type: ['string', 'null'] },
         service: { type: ['string', 'null'] },
         project_summary: { type: ['string', 'null'] },
-        sms_body: { type: 'string' },
-        email_subject: { type: 'string' },
-        email_body: { type: 'string' },
         missing_info: { type: 'array', items: { type: 'string' }, maxItems: 8 },
       },
       required: [
@@ -141,9 +129,6 @@ export function createOpenAiEmailLeadEvaluator(args: {
         'vehicle',
         'service',
         'project_summary',
-        'sms_body',
-        'email_subject',
-        'email_body',
         'missing_info',
       ],
     };
@@ -152,7 +137,7 @@ export function createOpenAiEmailLeadEvaluator(args: {
       const response = await args.openai.responses.parse({
         model: args.config.model,
         instructions: [
-          "You classify and draft the first response for inbound emails to Craig's Auto Upholstery.",
+          "You classify inbound emails to Craig's Auto Upholstery and extract lead facts.",
           '',
           'Classify is_inbound_lead as true only when the sender appears to be a potential customer asking about auto, marine, motorcycle, RV, furniture, or upholstery work, repair, restoration, seats, tops, carpet, headliners, cushions, or similar shop services.',
           'Reject spam, vendors, job applicants, invoices, newsletters, delivery failures, internal staff replies, and normal follow-up emails.',
@@ -161,13 +146,10 @@ export function createOpenAiEmailLeadEvaluator(args: {
           'If this is a lead:',
           '- Extract only details that are present or visible. Do not guess.',
           '- The customer_email must be the sender or a clearly provided customer email.',
-          '- Draft a warm first email response from Victor at the shop.',
-          '- Do not quote prices, estimates, completion timelines, or promises.',
-          '- Ask concise next-step questions for any important missing details.',
-          '- If photos are missing or insufficient, ask for 2-4 useful photos.',
-          `- Include this signature at the end of email_body: Victor\\n${args.config.shopName}\\n${args.config.shopPhoneDisplay}\\n${args.config.shopAddress}`,
+          '- Do not draft the customer reply. Reply copy is generated later by the follow-up worker.',
+          '- missing_info should contain short labels for important gaps only.',
           '',
-          'If this is not a lead, still return all required fields. Set draft fields to empty strings.',
+          'If this is not a lead, still return all required fields and set optional extracted details to null.',
         ].join('\n'),
         input: buildModelInput({ email, photos }),
         text: {
@@ -178,7 +160,7 @@ export function createOpenAiEmailLeadEvaluator(args: {
             schema,
           },
         },
-        max_output_tokens: 900,
+        max_output_tokens: 500,
       });
 
       const sanitized = sanitizeEvaluation(response.output_parsed, email.from?.address ?? null);

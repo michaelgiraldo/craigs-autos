@@ -3,6 +3,7 @@ import {
   createQuoteRequestRecord,
   type QuoteRequestRecord,
 } from '../_lead-platform/domain/quote-request.ts';
+import { normalizeEmailMessageId } from '../_shared/email-threading.ts';
 import { isPlausibleEmail, normalizeWhitespace } from '../_shared/text-utils.ts';
 import { parseInboundEmail } from './mime.ts';
 import type {
@@ -25,12 +26,6 @@ function cleanupSubject(value: string): string {
     .replace(/^\s*(re|fw|fwd):\s*/gi, '')
     .replace(/\s+/g, ' ')
     .trim();
-}
-
-function normalizeMessageId(value: string): string {
-  const trimmed = value.trim();
-  if (!trimmed) return '';
-  return trimmed.startsWith('<') && trimmed.endsWith('>') ? trimmed : `<${trimmed}>`;
 }
 
 function parseS3Sources(event: S3EmailIntakeEvent): S3EmailSource[] {
@@ -101,13 +96,14 @@ function buildThreadKey(email: ParsedInboundEmail): string {
   const threadSource =
     email.references.split(/\s+/).find(Boolean) ||
     email.inReplyTo ||
-    normalizeMessageId(email.messageId) ||
+    normalizeEmailMessageId(email.messageId) ||
     [email.from?.address.toLowerCase() ?? 'unknown', cleanupSubject(email.subject)].join(':');
   return `email:${sha256(threadSource).slice(0, 32)}`;
 }
 
 function buildMessageLedgerKey(email: ParsedInboundEmail, source: S3EmailSource): string {
-  const messageSource = normalizeMessageId(email.messageId) || `${source.bucket}/${source.key}`;
+  const messageSource =
+    normalizeEmailMessageId(email.messageId) || `${source.bucket}/${source.key}`;
   return `message:${sha256(messageSource).slice(0, 40)}`;
 }
 
@@ -181,19 +177,13 @@ function createRecord(args: {
     quoteRequestId: args.quoteRequestId,
     service: args.evaluation.service ?? '',
     siteLabel: args.deps.config.siteLabel,
-    sourceMessageId: normalizeMessageId(args.email.messageId),
+    sourceMessageId: normalizeEmailMessageId(args.email.messageId),
     sourceReferences: args.email.references,
     unsupportedAttachmentCount: args.email.unsupportedAttachmentCount,
     userId: '',
     vehicle: args.evaluation.vehicle ?? '',
   });
 
-  record.ai_status = args.evaluation.aiError ? 'fallback' : 'generated';
-  record.ai_model = args.deps.config.model;
-  record.ai_error = args.evaluation.aiError;
-  record.sms_body = args.evaluation.smsBody;
-  record.email_subject = args.evaluation.emailSubject;
-  record.email_body = args.evaluation.emailBody;
   record.missing_info = args.evaluation.missingInfo;
   return record;
 }
@@ -219,7 +209,7 @@ export async function processEmailIntakeEvent(event: S3EmailIntakeEvent, deps: E
       item: {
         bucket: source.bucket,
         key: source.key,
-        message_id: normalizeMessageId(email.messageId),
+        message_id: normalizeEmailMessageId(email.messageId),
         type: 'message',
       },
     });
@@ -234,7 +224,7 @@ export async function processEmailIntakeEvent(event: S3EmailIntakeEvent, deps: E
       key: threadLedgerKey,
       ttl: ttlFromNow(now),
       item: {
-        first_message_id: normalizeMessageId(email.messageId),
+        first_message_id: normalizeEmailMessageId(email.messageId),
         thread_key: threadKey,
         type: 'thread',
       },
@@ -293,7 +283,7 @@ export async function processEmailIntakeEvent(event: S3EmailIntakeEvent, deps: E
         customerName: evaluation.customerName ?? email.from?.name ?? null,
         customerPhone: evaluation.customerPhone,
         emailIntakeId: quoteRequestId,
-        messageId: normalizeMessageId(email.messageId),
+        messageId: normalizeEmailMessageId(email.messageId),
         missingInfo: evaluation.missingInfo,
         originalRecipient: deps.config.originalRecipient,
         photoAttachmentCount: email.photoAttachments.length,
