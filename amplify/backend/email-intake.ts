@@ -1,4 +1,4 @@
-import { Duration, RemovalPolicy } from 'aws-cdk-lib';
+import { Duration, RemovalPolicy, Stack } from 'aws-cdk-lib';
 import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
 import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { BlockPublicAccess, Bucket, BucketEncryption, EventType } from 'aws-cdk-lib/aws-s3';
@@ -17,9 +17,9 @@ import { getLambda } from './types';
 const RAW_EMAIL_PREFIX = 'raw/';
 
 export function configureEmailIntake(backend: CraigsBackend): void {
-  const stack = backend.createStack('email-intake');
   const emailIntakeLambda = getLambda(backend.emailIntakeCapture);
   const leadFollowupWorkerLambda = getLambda(backend.leadFollowupWorker);
+  const stack = Stack.of(emailIntakeLambda);
 
   const ledgerTable = new Table(stack, 'EmailIntakeLedger', {
     billingMode: BillingMode.PAY_PER_REQUEST,
