@@ -34,6 +34,7 @@ ChatKit docs are split for fast navigation:
 - `docs/chatkit/backend.md` (Amplify Gen2 + Lambda + SES + DynamoDB)
 - `docs/chatkit/agent-builder.md` (Agent Builder playbook + common mistakes)
 - `docs/chatkit/runbook.md` (production debugging / triage)
+- `docs/email-intake.md` (Google Workspace routing + SES inbound email lead intake)
 
 Compatibility pointer:
 
@@ -159,6 +160,14 @@ Do not store these in the frontend or in git.
 - Quote follow-up defaults live in `amplify/functions/lead-followup-worker/resource.ts`:
   - `CONTACT_TO_EMAIL` / `CONTACT_FROM_EMAIL`
   - `QUOTE_CUSTOMER_*`
+- Inbound email intake uses the hidden SES recipient
+  `contact-intake@email-intake.craigs.autos`. Google Workspace should copy
+  `contact@craigs.autos` mail to that address and stamp:
+  - `X-Gm-Original-To: contact@craigs.autos`
+  - `X-Craigs-Google-Route: contact-public-intake`
+- Email lead auto-replies use `victor@craigs.autos` for `From` and `Reply-To`.
+  Raw SES MIME in S3 is transient: explicit delete after processing, with a
+  1-day lifecycle rule as backup.
 
 ## ChatKit: what to know (fast)
 
@@ -222,6 +231,20 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
   - Do not put async follow-up business logic back into `lead-followup-worker/handler.ts`; keep the handler as transport/response mapping
   - Do not recreate worker-local lead sync helpers; follow-up outcomes should update lead records through the lead platform service
   - QUO may be intentionally disabled; when that is true, quote requests should stay in manual follow-up rather than surfacing as SMS failures
+
+- Inbound email intake:
+  - Google Workspace setup and runbook live in `docs/email-intake.md`
+  - Infra wiring lives in `amplify/backend/email-intake.ts`
+  - Lambda wrapper lives in `amplify/functions/email-intake-capture/handler.ts`
+  - MIME parsing/photo filtering lives in `amplify/functions/email-intake-capture/mime.ts`
+  - OpenAI classification/drafting lives in `amplify/functions/email-intake-capture/evaluation.ts`
+  - Intake orchestration lives in `amplify/functions/email-intake-capture/process-email-intake.ts`
+  - Email lead bundle construction lives in `amplify/functions/_lead-platform/services/intake-email.ts`
+  - Email-first follow-up behavior lives in `amplify/functions/lead-followup-worker/workflow.ts`
+  - Threaded customer email lives in `amplify/functions/lead-followup-worker/customer-email.ts`
+  - Owner photo attachment loading lives in `amplify/functions/lead-followup-worker/inbound-email-attachments.ts`
+  - Do not store extracted photos separately unless a future requirement needs it. The raw S3 MIME object exists only so OpenAI and the owner notification can process photos, then it should be deleted.
+  - Do not accept PDFs, documents, ZIPs, or HEIC in v1. Keep attachment processing limited to JPEG, PNG, and WebP.
 
 - Contact form intake / async follow-up:
   - Public intake endpoint: `amplify/functions/quote-request-submit/handler.ts`

@@ -28,10 +28,14 @@ test('interaction capture events stay journey-only and do not create lead record
   }
 });
 
-test('only quote submit success and completed chat handoff promote journeys to leads', () => {
+test('quote submit, accepted email intake, and completed chat handoff promote journeys to leads', () => {
   const promotions = allEventNames.filter(isLeadPromotionEventName);
 
-  assert.deepEqual(promotions, [LEAD_EVENTS.formSubmitSuccess, LEAD_EVENTS.chatHandoffCompleted]);
+  assert.deepEqual(promotions, [
+    LEAD_EVENTS.formSubmitSuccess,
+    LEAD_EVENTS.emailIntakeAccepted,
+    LEAD_EVENTS.chatHandoffCompleted,
+  ]);
   for (const eventName of promotions) {
     assert.equal(eventCreatesLeadRecord(eventName), true);
     assert.equal(eventRequiresExistingLeadRecord(eventName), false);

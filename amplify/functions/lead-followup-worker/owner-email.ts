@@ -1,10 +1,14 @@
 import type { SESv2Client } from '@aws-sdk/client-sesv2';
 import { SendEmailCommand } from '@aws-sdk/client-sesv2';
+import { buildRawEmail, type OutgoingEmailAttachment } from '../_shared/outgoing-email.ts';
 import { buildOwnerEmailContent, buildResultLabel } from './email-content.ts';
 import type { LeadFollowupWorkerDeps } from './types.ts';
 
 export function createSesOwnerEmailSender(args: {
   fromEmail: string;
+  loadAttachments?: (
+    record: Parameters<LeadFollowupWorkerDeps['sendOwnerEmail']>[0]['record'],
+  ) => Promise<OutgoingEmailAttachment[]>;
   quoEnabled: boolean;
   ses: SESv2Client | null;
   toEmail: string;
@@ -16,6 +20,36 @@ export function createSesOwnerEmailSender(args: {
 
     const resultLabel = buildResultLabel(record.outreach_result, args.quoEnabled);
     const message = buildOwnerEmailContent({ record, resultLabel });
+    const attachments = args.loadAttachments ? await args.loadAttachments(record) : [];
+
+    if (attachments.length) {
+      const result = await args.ses.send(
+        new SendEmailCommand({
+          FromEmailAddress: args.fromEmail,
+          Destination: {
+            ToAddresses: [args.toEmail],
+          },
+          Content: {
+            Raw: {
+              Data: buildRawEmail({
+                from: args.fromEmail,
+                to: [args.toEmail],
+                subject: message.subject,
+                text: message.text,
+                html: message.html,
+                attachments,
+                headers: {
+                  'X-Craigs-Email-Intake': 'owner-notification-v1',
+                },
+              }),
+            },
+          },
+        }),
+      );
+
+      return { messageId: result.MessageId ?? '' };
+    }
+
     const result = await args.ses.send(
       new SendEmailCommand({
         FromEmailAddress: args.fromEmail,

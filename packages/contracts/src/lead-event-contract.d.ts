@@ -3,6 +3,8 @@ export declare const LEAD_EVENT_CONTRACT_VERSION: 'craigs-lead-events-v1';
 export declare const LEAD_EVENTS: {
   readonly formSubmitSuccess: 'lead_form_submit_success';
   readonly formSubmitError: 'lead_form_submit_error';
+  readonly emailIntakeAccepted: 'lead_email_intake_accepted';
+  readonly emailIntakeRejected: 'lead_email_intake_rejected';
   readonly chatFirstMessageSent: 'lead_chat_first_message_sent';
   readonly chatHandoffCompleted: 'lead_chat_handoff_completed';
   readonly chatHandoffBlocked: 'lead_chat_handoff_blocked';
@@ -35,6 +37,7 @@ export type CaptureChannel =
 
 export type CustomerAction =
   | 'form_submit'
+  | 'email_received'
   | 'chat_first_message_sent'
   | 'click_call'
   | 'click_text'
@@ -46,6 +49,7 @@ export type WorkflowOutcome =
   | 'chat_handoff_blocked'
   | 'chat_handoff_deferred'
   | 'chat_handoff_error'
+  | 'email_intake_rejected'
   | 'outreach_sms_sent'
   | 'outreach_sms_failed'
   | 'outreach_email_sent'
@@ -97,6 +101,8 @@ export declare const LEAD_EVENT_DEFINITIONS: Readonly<
 export declare const LEAD_EVENT_NAMES: readonly [
   'lead_form_submit_success',
   'lead_form_submit_error',
+  'lead_email_intake_accepted',
+  'lead_email_intake_rejected',
   'lead_chat_first_message_sent',
   'lead_chat_handoff_completed',
   'lead_chat_handoff_blocked',

@@ -3,6 +3,8 @@ export const LEAD_EVENT_CONTRACT_VERSION = 'craigs-lead-events-v1';
 export const LEAD_EVENTS = Object.freeze({
   formSubmitSuccess: 'lead_form_submit_success',
   formSubmitError: 'lead_form_submit_error',
+  emailIntakeAccepted: 'lead_email_intake_accepted',
+  emailIntakeRejected: 'lead_email_intake_rejected',
   chatFirstMessageSent: 'lead_chat_first_message_sent',
   chatHandoffCompleted: 'lead_chat_handoff_completed',
   chatHandoffBlocked: 'lead_chat_handoff_blocked',
@@ -55,6 +57,21 @@ export const LEAD_EVENT_DEFINITIONS = Object.freeze({
     eventClass: 'diagnostic',
     lifecyclePhase: 'diagnostic',
     dataLayer: true,
+  }),
+  [LEAD_EVENTS.emailIntakeAccepted]: leadEventDefinition({
+    eventClass: 'customer_action',
+    customerAction: 'email_received',
+    captureChannel: 'email',
+    journeyStatus: 'captured',
+    leadStrength: 'captured_lead',
+    verificationStatus: 'verified_email',
+    lifecyclePhase: 'lead_promotion',
+    createsLeadRecord: true,
+  }),
+  [LEAD_EVENTS.emailIntakeRejected]: leadEventDefinition({
+    eventClass: 'diagnostic',
+    workflowOutcome: 'email_intake_rejected',
+    lifecyclePhase: 'diagnostic',
   }),
   [LEAD_EVENTS.chatFirstMessageSent]: leadEventDefinition({
     eventClass: 'customer_action',

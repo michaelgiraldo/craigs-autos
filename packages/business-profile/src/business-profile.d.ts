@@ -14,8 +14,12 @@ export type BusinessProfile = {
   };
   readonly email: {
     readonly publicContact: string;
+    readonly emailIntakeRecipient: string;
+    readonly emailIntakeRouteHeader: string;
     readonly leadTo: string;
     readonly leadFrom: string;
+    readonly emailCustomerFrom: string;
+    readonly emailCustomerReplyTo: string;
     readonly quoteCustomerFrom: string;
     readonly quoteCustomerBcc: string;
     readonly quoteCustomerReplyTo: string;
@@ -56,6 +60,11 @@ export declare const CRAIGS_LEAD_ENV_DEFAULTS: {
   readonly LEAD_FROM_EMAIL: string;
   readonly CONTACT_TO_EMAIL: string;
   readonly CONTACT_FROM_EMAIL: string;
+  readonly EMAIL_INTAKE_RECIPIENT: string;
+  readonly EMAIL_INTAKE_ORIGINAL_RECIPIENT: string;
+  readonly EMAIL_INTAKE_GOOGLE_ROUTE_HEADER: string;
+  readonly EMAIL_CUSTOMER_FROM_EMAIL: string;
+  readonly EMAIL_CUSTOMER_REPLY_TO_EMAIL: string;
   readonly QUOTE_CUSTOMER_FROM_EMAIL: string;
   readonly QUOTE_CUSTOMER_BCC_EMAIL: string;
   readonly QUOTE_CUSTOMER_REPLY_TO_EMAIL: string;

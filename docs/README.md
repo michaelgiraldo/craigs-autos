@@ -11,6 +11,8 @@ This repo is a multi-locale Astro site deployed on AWS Amplify. It includes a pr
   - `docs/chatkit/agent-builder.md`
   - `docs/chatkit/runbook.md`
   - `docs/chatkit/chat-handoff-promote-process.md`
+- Email lead intake:
+  - `docs/email-intake.md`
 
 Compatibility pointer:
 

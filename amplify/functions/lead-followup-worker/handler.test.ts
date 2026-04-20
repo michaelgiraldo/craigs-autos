@@ -158,6 +158,60 @@ test('lead-followup-worker falls back to customer email when phone is missing', 
   assert.equal(current.outreach_result, 'email_sent_fallback');
 });
 
+test('lead-followup-worker sends email first for inbound email leads and cleans raw source', async () => {
+  let current = makeRecord({
+    capture_channel: 'email',
+    preferred_outreach_channel: 'email',
+    phone: '(408) 555-0101',
+    email: 'customer@example.com',
+    email_subject: "Craig's Auto Upholstery - next steps",
+    email_body: 'Thanks for sending the photos. Victor',
+    inbound_email_s3_bucket: 'raw-email-bucket',
+    inbound_email_s3_key: 'raw/message-id',
+    source_message_id: '<customer-message@example.com>',
+  });
+  let smsTouched = false;
+  const emailedRecords: QuoteRequestRecord[] = [];
+  const cleanedRecords: QuoteRequestRecord[] = [];
+
+  const handler = createLeadFollowupWorkerHandler({
+    configValid: true,
+    smsAutomationEnabled: true,
+    nowEpochSeconds: () => 3_500,
+    getQuoteRequest: async () => current,
+    acquireLease: async () => true,
+    saveQuoteRequest: async (record) => {
+      current = { ...record };
+    },
+    generateDrafts: async () => {
+      throw new Error('draft generation should be skipped for pre-drafted email leads');
+    },
+    sendSms: async () => {
+      smsTouched = true;
+      return { id: 'sms-should-not-send', status: 'sent' };
+    },
+    sendCustomerEmail: async ({ record }) => {
+      emailedRecords.push(record);
+      return { messageId: 'customer-email-123' };
+    },
+    sendOwnerEmail: async () => ({ messageId: 'owner-email-123' }),
+    cleanupInboundEmailSource: async (record) => {
+      cleanedRecords.push(record);
+    },
+  });
+
+  const result = await handler({ quote_request_id: 'quote-request-1' });
+
+  assert.equal(result.statusCode, 200);
+  assert.equal(smsTouched, false);
+  assert.equal(current.sms_status, 'skipped');
+  assert.equal(current.email_status, 'sent');
+  assert.equal(current.outreach_channel, 'email');
+  assert.equal(current.outreach_result, 'email_sent');
+  assert.equal(emailedRecords[0]?.source_message_id, '<customer-message@example.com>');
+  assert.equal(cleanedRecords[0]?.inbound_email_s3_key, 'raw/message-id');
+});
+
 test('lead-followup-worker records SMS failure when no email fallback exists', async () => {
   let current = makeRecord({ email: '' });
 

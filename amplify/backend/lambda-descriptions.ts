@@ -43,8 +43,12 @@ export function applyLambdaDescriptions(backend: CraigsBackend): void {
     'Accepts public quote requests, stores them in DynamoDB, and asynchronously invokes the lead follow-up worker.',
   );
   setLambdaDescription(
+    getLambda(backend.emailIntakeCapture),
+    'Processes SES inbound email from Google Workspace routing: validates public contact leads, classifies with OpenAI, queues email-first follow-up, and cleans transient raw email.',
+  );
+  setLambdaDescription(
     getLambda(backend.leadFollowupWorker),
-    'Generates quote outreach drafts, sends SMS-first follow-up with email fallback, and emails the shop via SES.',
+    'Generates quote outreach drafts, sends SMS-first or email-first follow-up, and emails the shop via SES.',
   );
   setLambdaDescription(
     getLambda(backend.managedConversionFeedbackWorker),

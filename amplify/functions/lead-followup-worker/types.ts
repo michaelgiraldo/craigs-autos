@@ -36,11 +36,13 @@ export type LeadFollowupWorkerDeps = {
     body: string;
   }) => Promise<{ id: string; status: string | null }>;
   sendCustomerEmail: (args: {
+    record: QuoteRequestRecord;
     to: string;
     subject: string;
     body: string;
   }) => Promise<{ messageId: string }>;
   sendOwnerEmail: (args: { record: QuoteRequestRecord }) => Promise<{ messageId: string }>;
+  cleanupInboundEmailSource?: (record: QuoteRequestRecord) => Promise<void>;
   syncLeadRecord?: (record: QuoteRequestRecord) => Promise<void>;
 };
 

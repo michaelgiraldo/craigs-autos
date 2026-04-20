@@ -6,9 +6,12 @@ export type QuoteRequestStatus = 'queued' | 'processing' | 'completed' | 'error'
 
 export type QuoteAiStatus = 'generated' | 'fallback' | null;
 export type QuoteSendStatus = 'sent' | 'failed' | 'skipped' | null;
+export type QuoteCaptureChannel = 'form' | 'email';
 export type QuoteOutreachChannel = 'sms' | 'email' | null;
+export type QuotePreferredOutreachChannel = 'sms' | 'email' | null;
 export type QuoteOutreachResult =
   | 'sms_sent'
+  | 'email_sent'
   | 'email_sent_fallback'
   | 'manual_followup_required'
   | 'no_customer_contact_method'
@@ -30,6 +33,8 @@ export type QuoteRequestRecord = {
   vehicle: string;
   service: string;
   message: string;
+  capture_channel?: QuoteCaptureChannel;
+  preferred_outreach_channel?: QuotePreferredOutreachChannel;
   origin: string;
   site_label: string;
   journey_id: string | null;
@@ -57,6 +62,16 @@ export type QuoteRequestRecord = {
   owner_email_status: QuoteSendStatus;
   owner_email_message_id: string;
   owner_email_error: string;
+  source_message_id?: string;
+  source_references?: string;
+  email_thread_key?: string;
+  inbound_email_subject?: string;
+  inbound_email_s3_bucket?: string;
+  inbound_email_s3_key?: string;
+  inbound_attachment_count?: number;
+  inbound_photo_attachment_count?: number;
+  unsupported_attachment_count?: number;
+  inbound_route_status?: string;
 };
 
 export type QuoteDrafts = {
@@ -75,7 +90,9 @@ export type QuoteLeadLink = {
 export type QuoteRequestRecordInput = {
   attribution: AttributionSnapshot | null;
   contactId?: string | null;
+  captureChannel?: QuoteCaptureChannel;
   email: string;
+  emailThreadKey?: string;
   journeyId?: string | null;
   leadRecordId?: string | null;
   locale: string;
@@ -85,8 +102,18 @@ export type QuoteRequestRecordInput = {
   origin: string;
   pageUrl: string;
   phone: string;
+  preferredOutreachChannel?: QuotePreferredOutreachChannel;
   service: string;
   siteLabel: string;
+  sourceMessageId?: string;
+  sourceReferences?: string;
+  inboundEmailSubject?: string;
+  inboundEmailS3Bucket?: string;
+  inboundEmailS3Key?: string;
+  inboundAttachmentCount?: number;
+  inboundPhotoAttachmentCount?: number;
+  unsupportedAttachmentCount?: number;
+  inboundRouteStatus?: string;
   quoteRequestId: string;
   ttlDays?: number;
   userId: string;
@@ -112,6 +139,8 @@ export function createQuoteRequestRecord(input: QuoteRequestRecordInput): QuoteR
     vehicle: input.vehicle,
     service: input.service,
     message: input.message,
+    capture_channel: input.captureChannel ?? 'form',
+    preferred_outreach_channel: input.preferredOutreachChannel ?? null,
     origin: input.origin,
     site_label: input.siteLabel,
     journey_id: input.journeyId ?? null,
@@ -139,5 +168,15 @@ export function createQuoteRequestRecord(input: QuoteRequestRecordInput): QuoteR
     owner_email_status: null,
     owner_email_message_id: '',
     owner_email_error: '',
+    source_message_id: normalizeString(input.sourceMessageId),
+    source_references: normalizeString(input.sourceReferences),
+    email_thread_key: normalizeString(input.emailThreadKey),
+    inbound_email_subject: normalizeString(input.inboundEmailSubject),
+    inbound_email_s3_bucket: normalizeString(input.inboundEmailS3Bucket),
+    inbound_email_s3_key: normalizeString(input.inboundEmailS3Key),
+    inbound_attachment_count: input.inboundAttachmentCount ?? 0,
+    inbound_photo_attachment_count: input.inboundPhotoAttachmentCount ?? 0,
+    unsupported_attachment_count: input.unsupportedAttachmentCount ?? 0,
+    inbound_route_status: normalizeString(input.inboundRouteStatus),
   };
 }

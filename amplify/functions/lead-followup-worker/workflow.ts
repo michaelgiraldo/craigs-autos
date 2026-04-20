@@ -11,7 +11,11 @@ export function getOutreachResult(record: QuoteRequestRecord): QuoteOutreachResu
   const hasEmail = isPlausibleEmail(record.email);
 
   if (record.sms_status === 'sent') return 'sms_sent';
-  if (record.email_status === 'sent') return 'email_sent_fallback';
+  if (record.email_status === 'sent') {
+    return record.capture_channel === 'email' || record.preferred_outreach_channel === 'email'
+      ? 'email_sent'
+      : 'email_sent_fallback';
+  }
   if (
     hasPhone &&
     record.sms_status === 'skipped' &&
@@ -34,6 +38,12 @@ async function persistRecord(deps: LeadFollowupWorkerDeps, record: QuoteRequestR
 }
 
 async function ensureDrafts(deps: LeadFollowupWorkerDeps, record: QuoteRequestRecord) {
+  const emailFirst =
+    record.capture_channel === 'email' || record.preferred_outreach_channel === 'email';
+  if (emailFirst && record.email_subject && record.email_body) {
+    return;
+  }
+
   if (record.sms_body && record.email_subject && record.email_body) {
     return;
   }
@@ -83,22 +93,26 @@ async function attemptSmsOutreach(
   }
 }
 
-async function attemptEmailFallback(
+async function attemptEmailOutreach(
   deps: LeadFollowupWorkerDeps,
   record: QuoteRequestRecord,
   usablePhone: string | null,
   usableEmail: string,
 ) {
+  const emailFirst =
+    record.capture_channel === 'email' || record.preferred_outreach_channel === 'email';
   const shouldSendEmailFallback =
     usableEmail &&
     record.email_status !== 'sent' &&
-    ((Boolean(usablePhone) &&
-      (record.sms_status === 'failed' || record.sms_status === 'skipped')) ||
+    (emailFirst ||
+      (Boolean(usablePhone) &&
+        (record.sms_status === 'failed' || record.sms_status === 'skipped')) ||
       !usablePhone);
 
   if (shouldSendEmailFallback) {
     try {
       const emailResult = await deps.sendCustomerEmail({
+        record,
         to: usableEmail,
         subject: record.email_subject,
         body: record.email_body,
@@ -120,6 +134,22 @@ async function attemptEmailFallback(
 
   if (!record.email_status) {
     record.email_status = 'skipped';
+  }
+}
+
+async function cleanupInboundEmailSource(deps: LeadFollowupWorkerDeps, record: QuoteRequestRecord) {
+  if (
+    !deps.cleanupInboundEmailSource ||
+    !record.inbound_email_s3_bucket ||
+    !record.inbound_email_s3_key
+  ) {
+    return;
+  }
+
+  try {
+    await deps.cleanupInboundEmailSource(record);
+  } catch (error: unknown) {
+    console.error('Failed to clean up inbound email source object.', error);
   }
 }
 
@@ -163,9 +193,19 @@ export async function runLeadFollowupWorkerWorkflow(args: {
 
     const usablePhone = phoneToE164(record.phone);
     const usableEmail = isPlausibleEmail(record.email) ? record.email.trim() : '';
+    const emailFirst =
+      record.capture_channel === 'email' || record.preferred_outreach_channel === 'email';
 
-    await attemptSmsOutreach(deps, record, usablePhone);
-    await attemptEmailFallback(deps, record, usablePhone, usableEmail);
+    if (emailFirst) {
+      if (!record.sms_status) {
+        record.sms_status = 'skipped';
+        await persistRecord(deps, record);
+      }
+      await attemptEmailOutreach(deps, record, usablePhone, usableEmail);
+    } else {
+      await attemptSmsOutreach(deps, record, usablePhone);
+      await attemptEmailOutreach(deps, record, usablePhone, usableEmail);
+    }
 
     record.outreach_result = getOutreachResult(record);
 
@@ -177,6 +217,7 @@ export async function runLeadFollowupWorkerWorkflow(args: {
     record.status = 'completed';
     record.lock_expires_at = undefined;
     await persistRecord(deps, record);
+    await cleanupInboundEmailSource(deps, record);
 
     return {
       statusCode: 200,

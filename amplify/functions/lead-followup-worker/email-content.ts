@@ -33,6 +33,8 @@ export function buildResultLabel(result: QuoteOutreachResult, smsConfigured: boo
   switch (result) {
     case 'sms_sent':
       return 'SMS sent via QUO';
+    case 'email_sent':
+      return 'Initial email response sent';
     case 'email_sent_fallback':
       return smsConfigured ? 'Email sent after SMS fallback' : 'Email sent';
     case 'manual_followup_required':
@@ -64,8 +66,17 @@ export function buildOwnerEmailContent(args: { record: QuoteRequestRecord; resul
     ['Email', record.email || 'Not provided'],
     ['Vehicle', record.vehicle || 'Not provided'],
     ['Service', record.service || 'Not provided'],
+    ['Capture channel', record.capture_channel || 'form'],
     ['Origin', record.origin || 'Unknown'],
     ['Site', record.site_label || 'Unknown'],
+    ['Inbound subject', record.inbound_email_subject || 'Not applicable'],
+    ['Inbound message id', record.source_message_id || 'Not applicable'],
+    [
+      'Inbound photos',
+      record.capture_channel === 'email'
+        ? `${record.inbound_photo_attachment_count} accepted, ${record.unsupported_attachment_count} unsupported`
+        : 'Not applicable',
+    ],
     ['Outreach result', resultLabel],
     ['AI drafting', aiLabel],
     ['Missing info', missingInfo],

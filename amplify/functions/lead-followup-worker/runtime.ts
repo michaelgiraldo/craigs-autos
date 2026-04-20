@@ -1,4 +1,5 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { DeleteObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import { SESv2Client } from '@aws-sdk/client-sesv2';
 import OpenAI from 'openai';
@@ -7,6 +8,7 @@ import { z } from 'zod';
 import { createLeadPlatformRuntime } from '../_lead-platform/runtime.ts';
 import { generateQuoteDrafts } from './drafts.ts';
 import { createSesCustomerEmailSender } from './customer-email.ts';
+import { createInboundEmailPhotoAttachmentLoader } from './inbound-email-attachments.ts';
 import { createLeadFollowupWorkerLeadSync } from './lead-sync.ts';
 import { createSesOwnerEmailSender } from './owner-email.ts';
 import { createQuoSmsSender } from './quo-sms.ts';
@@ -18,6 +20,8 @@ const leadFollowupWorkerEnvSchema = z.object({
   CONTACT_FROM_EMAIL: z.string().trim().email(),
   CONTACT_TO_EMAIL: z.string().trim().email(),
   CONTACT_SITE_LABEL: z.string().trim().min(1),
+  EMAIL_CUSTOMER_FROM_EMAIL: z.string().trim().email(),
+  EMAIL_CUSTOMER_REPLY_TO_EMAIL: z.string().trim().email(),
   QUOTE_CUSTOMER_FROM_EMAIL: z.string().trim().email(),
   QUOTE_CUSTOMER_BCC_EMAIL: z.string().trim().email(),
   QUOTE_CUSTOMER_REPLY_TO_EMAIL: z.string().trim().email(),
@@ -43,6 +47,7 @@ export function createLeadFollowupWorkerRuntime(
   const parsedEnv = leadFollowupWorkerEnvSchema.safeParse(env);
   const runtimeDb = parsedEnv.success ? DynamoDBDocumentClient.from(new DynamoDBClient({})) : null;
   const runtimeSes = parsedEnv.success ? new SESv2Client({}) : null;
+  const runtimeS3 = parsedEnv.success ? new S3Client({}) : null;
   const leadPlatformRuntime = createLeadPlatformRuntime(env);
   const runtimeOpenAi =
     parsedEnv.success && parsedEnv.data.CHATKIT_OPENAI_API_KEY
@@ -82,16 +87,30 @@ export function createLeadFollowupWorkerRuntime(
     }),
     sendCustomerEmail: createSesCustomerEmailSender({
       bccEmail: parsedEnv.success ? parsedEnv.data.QUOTE_CUSTOMER_BCC_EMAIL : '',
+      emailIntakeFromEmail: parsedEnv.success ? parsedEnv.data.EMAIL_CUSTOMER_FROM_EMAIL : '',
+      emailIntakeReplyToEmail: parsedEnv.success
+        ? parsedEnv.data.EMAIL_CUSTOMER_REPLY_TO_EMAIL
+        : '',
       fromEmail: parsedEnv.success ? parsedEnv.data.QUOTE_CUSTOMER_FROM_EMAIL : '',
       replyToEmail: parsedEnv.success ? parsedEnv.data.QUOTE_CUSTOMER_REPLY_TO_EMAIL : '',
       ses: runtimeSes,
     }),
     sendOwnerEmail: createSesOwnerEmailSender({
       fromEmail: parsedEnv.success ? parsedEnv.data.CONTACT_FROM_EMAIL : '',
+      loadAttachments: createInboundEmailPhotoAttachmentLoader({ s3: runtimeS3 }),
       quoEnabled,
       ses: runtimeSes,
       toEmail: parsedEnv.success ? parsedEnv.data.CONTACT_TO_EMAIL : '',
     }),
+    cleanupInboundEmailSource: async (record) => {
+      if (!runtimeS3 || !record.inbound_email_s3_bucket || !record.inbound_email_s3_key) return;
+      await runtimeS3.send(
+        new DeleteObjectCommand({
+          Bucket: record.inbound_email_s3_bucket,
+          Key: record.inbound_email_s3_key,
+        }),
+      );
+    },
     syncLeadRecord: createLeadFollowupWorkerLeadSync({
       externalIdPrefix: parsedEnv.success
         ? (parsedEnv.data.QUO_CONTACT_EXTERNAL_ID_PREFIX ?? '')
