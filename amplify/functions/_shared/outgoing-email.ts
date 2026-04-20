@@ -62,13 +62,13 @@ export function buildRawEmail(args: RawEmailArgs): Buffer {
   const lines: string[] = [
     `From: ${sanitizeHeaderValue(args.from)}`,
     `To: ${formatAddressList(args.to)}`,
-    args.replyTo ? `Reply-To: ${sanitizeHeaderValue(args.replyTo)}` : '',
+    ...(args.replyTo ? [`Reply-To: ${sanitizeHeaderValue(args.replyTo)}`] : []),
     `Subject: ${encodeHeaderValue(args.subject)}`,
     'MIME-Version: 1.0',
     ...renderHeaders(args.headers ?? {}),
     `Content-Type: ${rootType}; boundary="${rootBoundary}"`,
     '',
-  ].filter(Boolean);
+  ];
 
   if (hasAttachments) {
     lines.push(
@@ -96,17 +96,22 @@ export function buildRawEmail(args: RawEmailArgs): Buffer {
 
   if (hasAttachments) {
     for (const attachment of attachments) {
-      lines.push(
-        '',
-        `--${mixedBoundary}`,
+      const attachmentHeaders = [
         `Content-Type: ${sanitizeHeaderValue(attachment.contentType)}; name="${encodeHeaderValue(
           attachment.filename,
         )}"`,
         `Content-Disposition: ${attachment.inline ? 'inline' : 'attachment'}; filename="${encodeHeaderValue(
           attachment.filename,
         )}"`,
-        attachment.contentId ? `Content-ID: <${sanitizeHeaderValue(attachment.contentId)}>` : '',
+        ...(attachment.contentId
+          ? [`Content-ID: <${sanitizeHeaderValue(attachment.contentId)}>`]
+          : []),
         'Content-Transfer-Encoding: base64',
+      ];
+      lines.push(
+        '',
+        `--${mixedBoundary}`,
+        ...attachmentHeaders,
         '',
         chunkBase64(attachment.content),
       );
