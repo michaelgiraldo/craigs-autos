@@ -26,6 +26,13 @@ const CHATKIT_RUNTIME_ERROR_PATTERNS = [
   /^Failed to fetch$/i,
 ];
 
+const CHAT_SESSION_ENDPOINT_PATHS = new Set([
+  '/chat-sessions',
+  '/chat-sessions/',
+  '/api/chat-sessions',
+  '/api/chat-sessions/',
+]);
+
 function stripAnsi(value) {
   let output = '';
   for (let index = 0; index < value.length; index += 1) {
@@ -90,6 +97,16 @@ function normalizeBaseUrl(value) {
 
 function logStep(label, detail) {
   process.stdout.write(`${label}: ${detail}\n`);
+}
+
+function isChatSessionResponse(response) {
+  if (response.request().method() !== 'POST') return false;
+
+  try {
+    return CHAT_SESSION_ENDPOINT_PATHS.has(new URL(response.url()).pathname);
+  } catch {
+    return false;
+  }
 }
 
 function ensureLocalChatkitEnv() {
@@ -292,16 +309,14 @@ async function checkLocales(browser, baseUrl, timeoutMs) {
 async function checkChatFlow(browser, baseUrl, timeoutMs) {
   const { context, page, assertClean } = await createInstrumentedPage(browser);
   try {
-    const sessionResponse = page.waitForResponse(
-      (response) =>
-        response.url().includes('/api/chatkit/session/') && response.request().method() === 'POST',
-      { timeout: timeoutMs },
-    );
+    const sessionResponse = page.waitForResponse(isChatSessionResponse, { timeout: timeoutMs });
 
     await page.goto(`${baseUrl}/en/`, { waitUntil: 'domcontentloaded', timeout: timeoutMs });
     const response = await sessionResponse;
     if (response.status() !== 200) {
-      throw new Error(`Expected /api/chatkit/session/ to return 200, got ${response.status()}.`);
+      throw new Error(
+        `Expected chat session endpoint (/chat-sessions or /api/chat-sessions/) to return 200, got ${response.status()}.`,
+      );
     }
 
     const frame = await waitForChatFrame(page, timeoutMs);
