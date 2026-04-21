@@ -178,17 +178,7 @@ function createLeadDataTables(stack: Stack): LeadDataTables {
   };
 }
 
-function grantLeadDataAccess(lambda: LambdaWithEnvironment, tables: LeadDataTables): void {
-  tables.contacts.grantReadWriteData(lambda);
-  tables.conversionDecisions.grantReadWriteData(lambda);
-  tables.conversionFeedbackOutbox.grantReadWriteData(lambda);
-  tables.conversionFeedbackOutcomes.grantReadWriteData(lambda);
-  tables.followupWork.grantReadWriteData(lambda);
-  tables.journeys.grantReadWriteData(lambda);
-  tables.journeyEvents.grantReadWriteData(lambda);
-  tables.providerConversionDestinations.grantReadWriteData(lambda);
-  tables.records.grantReadWriteData(lambda);
-
+function addLeadDataEnvironment(lambda: LambdaWithEnvironment, tables: LeadDataTables): void {
   lambda.addEnvironment('LEAD_CONTACTS_TABLE_NAME', tables.contacts.tableName);
   lambda.addEnvironment(
     'LEAD_CONVERSION_DECISIONS_TABLE_NAME',
@@ -212,6 +202,35 @@ function grantLeadDataAccess(lambda: LambdaWithEnvironment, tables: LeadDataTabl
   lambda.addEnvironment('LEAD_RECORDS_TABLE_NAME', tables.records.tableName);
 }
 
+function grantLeadCaptureAccess(lambda: LambdaWithEnvironment, tables: LeadDataTables): void {
+  tables.contacts.grantReadWriteData(lambda);
+  tables.followupWork.grantReadWriteData(lambda);
+  tables.journeys.grantReadWriteData(lambda);
+  tables.journeyEvents.grantReadWriteData(lambda);
+  tables.records.grantReadWriteData(lambda);
+}
+
+function grantManagedConversionAccess(lambda: LambdaWithEnvironment, tables: LeadDataTables): void {
+  tables.contacts.grantReadWriteData(lambda);
+  tables.conversionDecisions.grantReadWriteData(lambda);
+  tables.conversionFeedbackOutbox.grantReadWriteData(lambda);
+  tables.conversionFeedbackOutcomes.grantReadWriteData(lambda);
+  tables.providerConversionDestinations.grantReadWriteData(lambda);
+  tables.records.grantReadWriteData(lambda);
+}
+
+function grantLeadAdminAccess(lambda: LambdaWithEnvironment, tables: LeadDataTables): void {
+  tables.contacts.grantReadWriteData(lambda);
+  tables.conversionDecisions.grantReadWriteData(lambda);
+  tables.conversionFeedbackOutbox.grantReadWriteData(lambda);
+  tables.conversionFeedbackOutcomes.grantReadWriteData(lambda);
+  tables.followupWork.grantReadWriteData(lambda);
+  tables.journeys.grantReadWriteData(lambda);
+  tables.journeyEvents.grantReadWriteData(lambda);
+  tables.providerConversionDestinations.grantReadWriteData(lambda);
+  tables.records.grantReadWriteData(lambda);
+}
+
 export function configureLeadDataTables(backend: CraigsBackend): void {
   // Journey-first lead substrate used by click, chat, and form capture flows.
   const leadDataStack = Stack.of(getLambda(backend.chatHandoffPromote));
@@ -222,16 +241,30 @@ export function configureLeadDataTables(backend: CraigsBackend): void {
     getLambda(backend.emailIntakeCapture),
     getLambda(backend.chatHandoffPromote),
   ];
+  const leadInteractionCaptureLambda = getLambda(backend.leadInteractionCapture);
+  const managedConversionFeedbackWorkerLambda = getLambda(backend.managedConversionFeedbackWorker);
+  const leadAdminApiLambda = getLambda(backend.leadAdminApi);
 
   for (const lambda of [
     ...followupProducers,
     leadFollowupWorkerLambda,
-    getLambda(backend.managedConversionFeedbackWorker),
-    getLambda(backend.leadInteractionCapture),
-    getLambda(backend.leadAdminApi),
+    managedConversionFeedbackWorkerLambda,
+    leadInteractionCaptureLambda,
+    leadAdminApiLambda,
   ]) {
-    grantLeadDataAccess(lambda, tables);
+    addLeadDataEnvironment(lambda, tables);
   }
+
+  for (const lambda of [
+    ...followupProducers,
+    leadFollowupWorkerLambda,
+    leadInteractionCaptureLambda,
+  ]) {
+    grantLeadCaptureAccess(lambda, tables);
+  }
+
+  grantManagedConversionAccess(managedConversionFeedbackWorkerLambda, tables);
+  grantLeadAdminAccess(leadAdminApiLambda, tables);
 
   for (const lambda of followupProducers) {
     leadFollowupWorkerLambda.grantInvoke(lambda);
