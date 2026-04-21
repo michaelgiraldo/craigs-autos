@@ -336,7 +336,7 @@ Design:
 
 - DynamoDB table: `LeadFollowupWork`
   - partition key: `idempotency_key` (string)
-  - GSI: `followup_work_id-index`
+  - status GSI: `status-updated_at-index`
   - TTL attribute: `ttl`
   - removal policy: `DESTROY` in this hard-cut implementation
 

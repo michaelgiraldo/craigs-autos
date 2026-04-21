@@ -141,7 +141,6 @@ function createRepos() {
     followupWork: {
       acquireLease: async () => false,
       getByIdempotencyKey: async () => null,
-      getByFollowupWorkId: async () => null,
       put: async () => undefined,
       putIfAbsent: async () => true,
     },

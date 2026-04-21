@@ -94,11 +94,6 @@ function createLeadDataTables(stack: Stack): LeadDataTables {
   });
 
   followupWork.addGlobalSecondaryIndex({
-    indexName: 'followup_work_id-index',
-    partitionKey: { name: 'followup_work_id', type: AttributeType.STRING },
-  });
-
-  followupWork.addGlobalSecondaryIndex({
     indexName: 'status-updated_at-index',
     partitionKey: { name: 'status', type: AttributeType.STRING },
     sortKey: { name: 'updated_at', type: AttributeType.NUMBER },

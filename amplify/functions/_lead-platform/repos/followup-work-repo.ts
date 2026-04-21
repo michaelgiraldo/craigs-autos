@@ -2,7 +2,6 @@ import type { LeadFollowupWorkItem } from '../domain/lead-followup-work.ts';
 
 export interface LeadFollowupWorkRepo {
   getByIdempotencyKey(idempotencyKey: string): Promise<LeadFollowupWorkItem | null>;
-  getByFollowupWorkId(followupWorkId: string): Promise<LeadFollowupWorkItem | null>;
   acquireLease(args: {
     idempotencyKey: string;
     leaseId: string;

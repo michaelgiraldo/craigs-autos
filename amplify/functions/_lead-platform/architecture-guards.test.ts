@@ -87,3 +87,15 @@ test('form and email intake enqueue shared follow-up work instead of quote queue
   assert.match(captureService, /followupWork\.putIfAbsent/);
   assert.doesNotMatch(emailRuntime, /enqueueFollowupWork/);
 });
+
+test('follow-up work uses idempotency key as the only durable lookup identity', () => {
+  const repoContract = readRepoFile('amplify/functions/_lead-platform/repos/followup-work-repo.ts');
+  const dynamoRepo = readRepoFile('amplify/functions/_lead-platform/repos/dynamo/followup-work.ts');
+  const leadDataInfra = readRepoFile('amplify/backend/dynamo/lead-data.ts');
+
+  assert.match(repoContract, /getByIdempotencyKey/);
+  assert.doesNotMatch(repoContract, /getByFollowupWorkId/);
+  assert.doesNotMatch(dynamoRepo, /followup_work_id-index/);
+  assert.doesNotMatch(dynamoRepo, /QueryCommand/);
+  assert.doesNotMatch(leadDataInfra, /followup_work_id-index/);
+});

@@ -1,7 +1,6 @@
 import {
   GetCommand,
   PutCommand,
-  QueryCommand,
   UpdateCommand,
   type DynamoDBDocumentClient,
 } from '@aws-sdk/lib-dynamodb';
@@ -26,21 +25,6 @@ export class DynamoLeadFollowupWorkRepo implements LeadFollowupWorkRepo {
       }),
     );
     return (result.Item as LeadFollowupWorkItem | undefined) ?? null;
-  }
-
-  async getByFollowupWorkId(followupWorkId: string): Promise<LeadFollowupWorkItem | null> {
-    const result = await this.db.send(
-      new QueryCommand({
-        TableName: this.tableName,
-        IndexName: 'followup_work_id-index',
-        KeyConditionExpression: 'followup_work_id = :followup_work_id',
-        ExpressionAttributeValues: {
-          ':followup_work_id': followupWorkId,
-        },
-        Limit: 1,
-      }),
-    );
-    return (result.Items?.[0] as LeadFollowupWorkItem | undefined) ?? null;
   }
 
   async acquireLease(args: {

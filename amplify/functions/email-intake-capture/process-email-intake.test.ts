@@ -28,8 +28,6 @@ function makeRepos(writes: LeadFollowupWorkItem[]): LeadPlatformRepos {
   return {
     followupWork: {
       getByIdempotencyKey: async (idempotencyKey: string) => records.get(idempotencyKey) ?? null,
-      getByFollowupWorkId: async (followupWorkId: string) =>
-        [...records.values()].find((record) => record.followup_work_id === followupWorkId) ?? null,
       acquireLease: async () => false,
       putIfAbsent: async (record: LeadFollowupWorkItem) => {
         if (records.has(record.idempotency_key)) return false;
