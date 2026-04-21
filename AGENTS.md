@@ -77,7 +77,9 @@ CHATKIT_WORKFLOW_ID=wf_...
 
 Typecheck (backend):
 
-- `npx tsc -p amplify/tsconfig.json --noEmit`
+- `npm run typecheck:backend`
+- `npm run verify:amplify-deploy-compiler` runs the same installed Amplify
+  backend deployer compiler used before `ampx pipeline-deploy`.
 
 Local ChatKit dev API:
 

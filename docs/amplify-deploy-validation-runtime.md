@@ -132,9 +132,18 @@ amplify/functions/**/*.test.ts
   -> can break deploy even though tests are not deployed as Lambda handlers
 ```
 
-If this becomes painful again, consider moving backend tests out of
-`amplify/functions` or proving a safe `amplify/tsconfig.json` exclusion pattern.
-Do not assume test files are invisible to Amplify.
+The current repo keeps backend tests beside the code, but makes the boundary
+explicit:
+
+| Config | Purpose |
+|---|---|
+| `amplify/tsconfig.json` | Deploy-time backend validation used by `ampx pipeline-deploy`; excludes `*.test.ts` and `*.spec.ts`. |
+| `amplify/tsconfig.test.json` | Local backend test typecheck; includes all backend `*.ts` files, including tests. |
+
+`npm run typecheck:backend` runs both configs. The
+`npm run verify:amplify-deploy-compiler` script invokes the installed Amplify
+backend deployer compiler locally, using the same internal compiler entrypoint
+that `pipeline-deploy` reaches after synthesis.
 
 ## Fix That Cleared The Deploy
 
@@ -177,13 +186,20 @@ End:   2026-04-19 17:08:45 PDT
 
 ## How To Reproduce Amplify's Backend Typecheck Locally
 
-Run the normal backend typecheck first:
+Run the normal backend typecheck first. This checks deployable backend source and
+backend test source under separate configs:
 
 ```bash
 npm run typecheck:backend
 ```
 
 Then run Amplify's installed backend deployer compiler directly:
+
+```bash
+npm run verify:amplify-deploy-compiler
+```
+
+That script wraps the internal compiler entrypoint below:
 
 ```bash
 node --input-type=module - <<'NODE'
@@ -240,9 +256,9 @@ Before adding new backend language features under `amplify/`, ask:
 | Question | Why It Matters |
 |---|---|
 | Does Lambda Node 24 support this? | Runtime compatibility. |
-| Does `npm run typecheck:backend` accept this? | Repo-local backend type safety. |
+| Does `npm run typecheck:backend` accept this? | Repo-local deploy and backend test type safety. |
 | Does Amplify's backend deployer compiler accept this? | Actual deploy gate. |
-| Is this syntax inside `amplify/functions/**/*.test.ts`? | Tests can still affect deploy validation. |
+| Is this syntax inside `amplify/functions/**/*.test.ts`? | Tests are locally typechecked, but deploy validation should keep excluding them. |
 | Is this code deploy-time infrastructure code or Lambda runtime code? | The same source tree contains both concerns. |
 
 For production-grade DX, the long-term clean alternative is still a pure CDK
@@ -250,4 +266,3 @@ backend deployment path. Amplify Gen2 wraps CDK and adds this validation layer.
 CDK would make the synthesis, bundling, source inclusion, and TypeScript
 versioning more explicit. That is a separate migration decision; it is not
 required to keep the current Amplify deployment working.
-

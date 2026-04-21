@@ -98,3 +98,28 @@ test('follow-up work uses idempotency key as the only durable lookup identity', 
   assert.doesNotMatch(dynamoRepo, /followup_work_id-index/);
   assert.doesNotMatch(leadDataInfra, /followup_work_id-index/);
 });
+
+test('Amplify deploy validation excludes tests while backend tests stay typechecked', () => {
+  const deployConfig = JSON.parse(readRepoFile('amplify/tsconfig.json')) as {
+    exclude?: string[];
+  };
+  const testConfig = JSON.parse(readRepoFile('amplify/tsconfig.test.json')) as {
+    extends?: string;
+    include?: string[];
+    exclude?: string[];
+  };
+  const packageJson = JSON.parse(readRepoFile('package.json')) as {
+    scripts?: Record<string, string>;
+  };
+
+  assert.ok(deployConfig.exclude?.includes('**/*.test.ts'));
+  assert.ok(deployConfig.exclude?.includes('**/*.spec.ts'));
+  assert.equal(testConfig.extends, './tsconfig.json');
+  assert.ok(testConfig.include?.includes('**/*.ts'));
+  assert.deepEqual(testConfig.exclude, []);
+  assert.match(
+    packageJson.scripts?.['typecheck:backend'] ?? '',
+    /typecheck:backend:deploy.*typecheck:backend:tests/,
+  );
+  assert.match(packageJson.scripts?.predeploy ?? '', /verify:amplify-deploy-compiler/);
+});
