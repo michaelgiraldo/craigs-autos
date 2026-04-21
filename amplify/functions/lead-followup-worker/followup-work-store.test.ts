@@ -2,7 +2,10 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { PutCommand } from '@aws-sdk/lib-dynamodb';
 import type { LeadFollowupWorkItem } from '../_lead-platform/domain/lead-followup-work.ts';
-import { createDynamoLeadFollowupWorkStore } from './followup-work-store.ts';
+import {
+  StaleFollowupWorkLeaseError,
+  createDynamoLeadFollowupWorkStore,
+} from './followup-work-store.ts';
 
 function makeRecord(overrides: Partial<LeadFollowupWorkItem> = {}): LeadFollowupWorkItem {
   return {
@@ -68,7 +71,7 @@ test('LeadFollowupWork store strips undefined fields before saving completed rec
     makeRecord({
       lease_id: 'lease-1',
       lock_expires_at: undefined,
-    }),
+    }) as LeadFollowupWorkItem & { lease_id: string },
   );
 
   const command = sentCommands[0];
@@ -76,4 +79,29 @@ test('LeadFollowupWork store strips undefined fields before saving completed rec
   assert.equal((command as PutCommand).input.TableName, 'LeadFollowupWork');
   assert.equal('lock_expires_at' in ((command as PutCommand).input.Item ?? {}), false);
   assert.equal((command as PutCommand).input.Item?.lease_id, 'lease-1');
+  assert.equal((command as PutCommand).input.ConditionExpression, '#lease_id = :lease_id');
+  assert.equal((command as PutCommand).input.ExpressionAttributeValues?.[':lease_id'], 'lease-1');
+});
+
+test('LeadFollowupWork store maps failed lease conditions to stale lease errors', async () => {
+  const store = createDynamoLeadFollowupWorkStore({
+    db: {
+      send: async () => {
+        const error = new Error('conditional failed') as Error & { name: string };
+        error.name = 'ConditionalCheckFailedException';
+        throw error;
+      },
+    } as never,
+    tableName: 'LeadFollowupWork',
+  });
+
+  await assert.rejects(
+    () =>
+      store.saveFollowupWork(
+        makeRecord({
+          lease_id: 'lease-1',
+        }) as LeadFollowupWorkItem & { lease_id: string },
+      ),
+    StaleFollowupWorkLeaseError,
+  );
 });

@@ -65,7 +65,7 @@ export async function processLeadFollowupWorker(args: {
     followupWorkId,
   });
 
-  if (deps.syncLeadRecord) {
+  if (deps.syncLeadRecord && outcome.body.reason !== 'stale_lease') {
     try {
       await deps.syncLeadRecord(record);
     } catch (error: unknown) {

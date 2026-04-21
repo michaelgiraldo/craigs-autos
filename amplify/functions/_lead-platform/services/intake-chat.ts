@@ -1,8 +1,4 @@
-import {
-  createClientEventId,
-  createStableJourneyId,
-  createStableLeadRecordId,
-} from '../domain/ids.ts';
+import { createStableJourneyId, createStableLeadRecordId } from '../domain/ids.ts';
 import { LEAD_EVENTS } from '@craigs/contracts/lead-event-contract';
 import { buildLeadTitle, normalizeLocale, trimToNull } from '../domain/normalize.ts';
 import type { AttributionSnapshot } from '../domain/attribution.ts';
@@ -42,6 +38,11 @@ function pagePathFromUrl(value: string | null | undefined): string | null {
   } catch {
     return null;
   }
+}
+
+function createStableChatHandoffClientEventId(threadId: string): string {
+  const normalizedThreadId = threadId.trim().replace(/[^a-zA-Z0-9_-]/g, '_');
+  return `chat_handoff_${normalizedThreadId || 'unknown'}`.slice(0, 180);
 }
 
 export function buildChatLeadBundle(input: ChatLeadIntakeInput): JourneyBundle {
@@ -141,7 +142,7 @@ export function buildChatLeadBundle(input: ChatLeadIntakeInput): JourneyBundle {
       occurredAtMs,
       recordedAtMs,
       actor: 'system',
-      clientEventId: input.clientEventId ?? createClientEventId('chat_handoff'),
+      clientEventId: input.clientEventId ?? createStableChatHandoffClientEventId(input.threadId),
       discriminator: input.threadId,
       payload: {
         metadata,

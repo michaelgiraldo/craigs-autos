@@ -23,6 +23,10 @@ Required route evidence:
 - `X-Craigs-Google-Route: contact-public-intake`
 - `X-Gm-Original-To: contact@craigs.autos`
 
+Both headers are required. `email-intake-capture` rejects the message before
+OpenAI classification with `missing_expected_google_route` when either header is
+missing or mismatched. Direct hidden-recipient intake is disabled.
+
 Do not make `contact-intake@email-intake.craigs.autos` a direct member of the public group when this routing rule is active. Membership plus routing can duplicate SES deliveries.
 
 ## AWS Resources

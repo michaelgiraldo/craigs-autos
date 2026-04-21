@@ -186,6 +186,9 @@ The frontend also does a lightweight dedupe to reduce backend calls:
 
 - localStorage key: `chat-handoff-promote-completed:<threadId>` = `true`
 
+The key is set only when `/chat-handoffs` returns `status = "accepted"`,
+`status = "already_accepted"`, or `status = "worker_completed"`.
+
 If that key is present, the frontend stops calling the chat lead handoff endpoint.
 
 Important:

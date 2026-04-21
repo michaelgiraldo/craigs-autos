@@ -47,27 +47,20 @@ function addressMatches(value: string, expected: string): boolean {
   return value.trim().toLowerCase() === expected.trim().toLowerCase();
 }
 
-function anyAddressMatches(email: ParsedInboundEmail, expected: string): boolean {
-  return [...email.to, ...email.cc].some((item) => addressMatches(item.address, expected));
-}
-
 function validateRoute(
   email: ParsedInboundEmail,
   deps: EmailIntakeDeps,
 ): { ok: boolean; status: string } {
   const expectedRoute = deps.config.googleRouteHeaderValue.trim();
   const routeHeader = email.header('x-craigs-google-route').trim();
-  if (expectedRoute && routeHeader === expectedRoute) {
-    return { ok: true, status: 'google_route_header' };
-  }
-
   const originalTo = email.header('x-gm-original-to').trim();
-  if (originalTo && addressMatches(originalTo, deps.config.originalRecipient)) {
-    return { ok: true, status: 'google_original_to' };
-  }
-
-  if (deps.config.allowDirectIntake && anyAddressMatches(email, deps.config.intakeRecipient)) {
-    return { ok: true, status: 'direct_intake_recipient' };
+  if (
+    expectedRoute &&
+    routeHeader === expectedRoute &&
+    originalTo &&
+    addressMatches(originalTo, deps.config.originalRecipient)
+  ) {
+    return { ok: true, status: 'google_workspace_route' };
   }
 
   return { ok: false, status: 'missing_expected_google_route' };

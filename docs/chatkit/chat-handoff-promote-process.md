@@ -6,7 +6,7 @@ follow-up outbox migration.
 ## AWS Components
 
 - `amplify/functions/chat-session-create`: creates short-lived OpenAI session secrets for the browser.
-- `amplify/functions/chat-handoff-promote`: evaluates a ChatKit thread, persists the captured lead, and enqueues `LeadFollowupWork`.
+- `amplify/functions/chat-handoff-promote`: evaluates a ChatKit thread, reserves `LeadFollowupWork`, persists the captured lead, and invokes the worker.
 - `amplify/functions/lead-followup-worker`: owns first-response delivery, owner notification, QUO SMS, SES customer email, and lead outreach sync.
 - `DynamoDB LeadFollowupWork`: durable first-response outbox with `followup_work_id`, `idempotency_key`, status, lease fields, provider results, and TTL.
 - `DynamoDB LeadJourneys/LeadRecords/LeadContacts/LeadJourneyEvents`: journey-first operational lead storage.
@@ -19,8 +19,9 @@ Customer chats in ChatKit
   -> Frontend posts /chat-handoffs after idle/pagehide/chat_closed
   -> chat-handoff-promote fetches the thread and evaluates readiness
   -> blocked/deferred states append workflow events only
+  -> ready lead reserves LeadFollowupWork with idempotency_key = chat:<cthr_...>
   -> ready lead persists Contact/Journey/LeadRecord
-  -> ready lead creates LeadFollowupWork with idempotency_key = chat:<cthr_...>
+  -> ready lead updates reserved work with contact/journey/lead ids
   -> lead-followup-worker leases the work item
   -> worker sends first response and owner notification
   -> worker updates LeadFollowupWork and lead outreach state
@@ -34,9 +35,10 @@ idempotency record is the shared follow-up work item:
 - `followup_work_id = chat_<cthr_...>`
 - `idempotency_key = chat:<cthr_...>`
 
-If the work item is `queued` or `processing`, chat handoff returns
-`followup_in_progress`. If the work item is `completed`, it returns
-`already_completed`.
+If the work item is `queued`, `processing`, or `error`, chat handoff returns
+`status = "already_accepted"` and does not rerun lead persistence or worker
+invocation. If the work item is `completed`, it returns
+`status = "worker_completed"`.
 
 ## Retention
 

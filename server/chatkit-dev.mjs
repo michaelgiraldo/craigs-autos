@@ -81,7 +81,7 @@ const server = http.createServer(async (req, res) => {
 
     if (url.pathname === '/api/chat-handoffs/' && req.method === 'POST') {
       // Local dev helper: accept the request so the UI can exercise the handoff path.
-      json(res, 200, { ok: true, completed: false, reason: 'dev_noop' });
+      json(res, 200, { ok: true, status: 'deferred', reason: 'dev_noop' });
       return;
     }
 

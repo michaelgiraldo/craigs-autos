@@ -39,6 +39,27 @@ test('buildChatLeadBundle emits a single handoff success event in the promotion 
   assert.equal(handoffEvents.length, 1);
 });
 
+test('buildChatLeadBundle uses a stable handoff event id for the same thread and journey', () => {
+  const first = buildChatLeadBundle({
+    threadId: 'cthr_stable_chat_event',
+    occurredAt: 1_000,
+    journeyId: 'journey-chat-event-stable',
+    name: 'Jordan Example',
+    email: 'jordan@example.com',
+  });
+  const second = buildChatLeadBundle({
+    threadId: 'cthr_stable_chat_event',
+    occurredAt: 2_000,
+    journeyId: 'journey-chat-event-stable',
+    name: 'Jordan Example',
+    email: 'jordan@example.com',
+  });
+
+  assert.equal(first.events[0]?.client_event_id, 'chat_handoff_cthr_stable_chat_event');
+  assert.equal(first.events[0]?.journey_event_id, second.events[0]?.journey_event_id);
+  assert.equal(first.events[0]?.event_sort_key, second.events[0]?.event_sort_key);
+});
+
 test('buildChatLeadBundle records the customer chat action on the lead read model', () => {
   const bundle = buildChatLeadBundle({
     threadId: 'thread-3',

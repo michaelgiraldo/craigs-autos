@@ -26,6 +26,27 @@ export type ChatHandoffPromoteRequest = {
   attribution?: unknown;
 };
 
+export type ChatHandoffStatus =
+  | 'blocked'
+  | 'deferred'
+  | 'accepted'
+  | 'already_accepted'
+  | 'worker_completed';
+
+export type ChatHandoffResponse = {
+  ok: true;
+  status: ChatHandoffStatus;
+  reason?: string;
+  followup_work_id?: string;
+  followup_work_status?: 'queued' | 'processing' | 'completed' | 'error';
+  lead_record_id?: string;
+  retry_scheduled?: boolean;
+  scheduled_for?: number;
+  last_activity_at?: number;
+  idle_seconds?: number;
+  seconds_since_last_activity?: number;
+};
+
 export type TranscriptLine = {
   created_at: number;
   speaker: string;

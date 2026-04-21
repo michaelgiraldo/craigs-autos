@@ -93,6 +93,56 @@ test('lead-followup-worker sends SMS first and still notifies the owner', async 
   );
 });
 
+test('lead-followup-worker stops before delivery when a workflow save loses its lease', async () => {
+  let smsTouched = false;
+  let customerEmailTouched = false;
+  let ownerEmailTouched = false;
+  const staleLeaseError = new Error('stale_followup_work_lease');
+  staleLeaseError.name = 'StaleFollowupWorkLeaseError';
+
+  const handler = createLeadFollowupWorkerHandler({
+    configValid: true,
+    smsAutomationEnabled: true,
+    nowEpochSeconds: () => 2_100,
+    getFollowupWork: async () => makeRecord(),
+    acquireLease: async () => true,
+    saveFollowupWork: async () => {
+      throw staleLeaseError;
+    },
+    generateDrafts: async () => ({
+      aiError: '',
+      aiModel: 'gpt-test',
+      aiStatus: 'generated',
+      drafts: {
+        smsBody: 'Please text us 2-4 photos.',
+        emailSubject: 'Test Upholstery - next steps',
+        emailBody: 'Please email us 2-4 photos.',
+        missingInfo: ['photos'],
+      },
+    }),
+    sendSms: async () => {
+      smsTouched = true;
+      return { id: 'sms-123', status: 'sent' };
+    },
+    sendCustomerEmail: async () => {
+      customerEmailTouched = true;
+      return { messageId: 'email-123' };
+    },
+    sendOwnerEmail: async () => {
+      ownerEmailTouched = true;
+      return { messageId: 'owner-123' };
+    },
+  });
+
+  const result = await handler({ followup_work_id: 'followup-work-1' });
+
+  assert.equal(result.statusCode, 200);
+  assert.match(result.body, /stale_lease/);
+  assert.equal(smsTouched, false);
+  assert.equal(customerEmailTouched, false);
+  assert.equal(ownerEmailTouched, false);
+});
+
 test('lead-followup-worker rejects missing follow-up work ids before touching dependencies', async () => {
   let touched = false;
   const handler = createLeadFollowupWorkerHandler({

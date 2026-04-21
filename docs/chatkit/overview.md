@@ -130,40 +130,33 @@ Notes:
 ## Sequence diagram: chat lead handoff + idempotency
 
 The chat lead handoff endpoint may be called multiple times (idle/pagehide/close).
-Server-side DynamoDB enforces "complete once per thread".
+Server-side DynamoDB reserves one `LeadFollowupWork` item per thread before any
+lead-persistence side effects run.
 
 ```
-Browser            chat-handoff-promote Lambda        DynamoDB             SES         OpenAI ChatKit
+Browser            chat-handoff-promote Lambda        DynamoDB             Worker        OpenAI ChatKit
   |                        |                        |                   |               |
   | POST /chat-handoffs    |                        |                   |               |
   | { threadId, reason }   |                        |                   |               |
   |----------------------->|                        |                   |               |
-  |                        | Get(threadId)          |                   |               |
+  |                        | Get(idempotency_key)   |                   |               |
   |                        |----------------------->|                   |               |
-  |                        | status? (completed/processing)             |               |
+  |                        | existing work?         |                   |               |
   |                        |<-----------------------|                   |               |
-  |                        | if completed -> 200    |                   |               |
-  |                        | else acquire lease     |                   |               |
-  |                        | Update(threadId, lease)|                   |               |
-  |                        |----------------------->|                   |               |
-  |                        | ok                     |                   |               |
-  |                        |<-----------------------|                   |               |
-  |                        | threads.listItems      |                   |               |
+  |                        | if existing -> status already_accepted/worker_completed
+  |                        | threads.listItems + summary                  |
   |                        |-------------------------------------------->|               |
-  |                        | transcript + metadata  |                   |               |
+  |                        | ready/deferred/blocked                       |
   |                        |<--------------------------------------------|               |
-  |                        | Responses.parse(summary schema)             |               |
-  |                        |-------------------------------------------->|               |
-  |                        | summary json                                 |               |
-  |                        |<--------------------------------------------|               |
-  |                        | SES SendEmail / QUO SMS                     |               |
-  |                        |------------------------------->|            |               |
-  |                        | MessageId(s)                  |            |               |
-  |                        |<------------------------------|            |               |
-  |                        | Persist lead journey                         |               |
-  |                        | Update(threadId = completed)  |            |               |
+  |                        | if ready: PutIfAbsent(LeadFollowupWork)      |
   |                        |----------------------->|                   |               |
-  | 200 { completed: true }|                        |                   |               |
+  |                        | reserved             |                    |               |
+  |                        |<----------------------|                    |               |
+  |                        | Persist lead journey/contact/record          |
+  |                        | Update reserved work with lead ids           |
+  |                        |----------------------->|                   |               |
+  |                        | Invoke lead-followup-worker ---------------->|               |
+  | 200 { status: "accepted" }                      |                   |               |
   |<-----------------------|                        |                   |               |
 ```
 

@@ -216,7 +216,9 @@ Checks (in order):
 2) Check if the chat lead handoff endpoint was called:
    - Browser DevTools -> Network -> look for `POST /chat-handoffs`.
 3) Check DynamoDB record:
-   - If `completed`, the backend believes the handoff completed. Confirm SES/QUO delivery fields.
+   - If `/chat-handoffs` returned `status = "accepted"`, this request reserved work and invoked the worker.
+   - If it returned `status = "already_accepted"`, a queued/processing/error work item already exists.
+   - If it returned `status = "worker_completed"`, the worker already completed first-response handling.
    - If missing, the endpoint may not have been hit or may have crashed before writing.
 4) CloudWatch logs for `chat-handoff-promote`.
 5) SES console:

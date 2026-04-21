@@ -20,6 +20,10 @@ export type LeadFollowupDraftGeneration = {
   drafts: LeadFollowupDrafts;
 };
 
+export type LeasedLeadFollowupWorkItem = LeadFollowupWorkItem & {
+  lease_id: string;
+};
+
 export type LeadFollowupWorkerDeps = {
   configValid: boolean;
   smsAutomationEnabled: boolean;
@@ -32,7 +36,7 @@ export type LeadFollowupWorkerDeps = {
     nowEpoch: number;
     leaseExpiresAt: number;
   }) => Promise<boolean>;
-  saveFollowupWork: (record: LeadFollowupWorkItem) => Promise<void>;
+  saveFollowupWork: (record: LeasedLeadFollowupWorkItem) => Promise<void>;
   generateDrafts: (record: LeadFollowupWorkItem) => Promise<LeadFollowupDraftGeneration>;
   sendSms: (args: {
     toE164: string;

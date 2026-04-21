@@ -92,14 +92,16 @@ Frontend triggers (`src/components/ChatWidgetReact.jsx`):
 3) `reason = "chat_closed"`
    - Still fires when the user closes the chat panel
 
-Backend behavior (unchanged at a high level):
+Backend behavior:
 
-- On each trigger call (until `status = "completed"`), the backend:
+- On each trigger call until `LeadFollowupWork.idempotency_key = chat:<threadId>` exists,
+  the backend:
   - fetches thread items from OpenAI
   - builds transcript lines
   - generates a structured lead summary via `responses.parse(...)`
-  - runs handoff side effects (QUO SMS when enabled, shop email via SES, lead persistence)
-  - records `completed` in DynamoDB (idempotent)
+  - returns `status = "blocked"` or `status = "deferred"` if the chat is not ready
+  - reserves `LeadFollowupWork` before lead persistence when the chat is ready
+  - persists the lead and invokes `lead-followup-worker`
 
 Key difference:
 
@@ -123,7 +125,7 @@ Current readiness gate (applies to all non-auto paths in practice):
 
 If the summary is not yet ready, the response includes:
 
-- `completed: false`
+- `status: "blocked"` or `status: "deferred"`
 - `reason: handoff_reason or 'not_ready'`
 - `missing_info` (from model output when available)
 
@@ -132,8 +134,9 @@ If the summary is not yet ready, the response includes:
 - The backend can still be called multiple times; DynamoDB enforces "complete once".
 - The summary model can be executed multiple times BEFORE the first successful handoff
   (once per trigger call).
-- AFTER a successful handoff (`status = "completed"`), the backend returns early and does
-  not recompute or re-run side effects.
+- AFTER a successful handoff, the backend returns `status = "already_accepted"` for
+  queued/processing/error work or `status = "worker_completed"` for completed work
+  without recomputing or rerunning side effects.
 
 ## Notes for future improvements
 

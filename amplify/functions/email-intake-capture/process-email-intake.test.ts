@@ -161,6 +161,7 @@ test('email intake rejects existing email threads before OpenAI and deletes raw 
           'Message-ID': '<message-2@example.com>',
           'In-Reply-To': '<message-1@example.com>',
           'X-Craigs-Google-Route': 'contact-public-intake',
+          'X-Gm-Original-To': 'contact@craigs.autos',
         },
         'Following up',
       ),
@@ -175,5 +176,85 @@ test('email intake rejects existing email threads before OpenAI and deletes raw 
     key: 'raw/message-1',
     rejected: true,
     reason: 'existing_email_thread',
+  });
+});
+
+test('email intake rejects missing Google route header before OpenAI', async () => {
+  let evaluated = false;
+  let deleted = false;
+
+  const deps = makeDeps({
+    deleteRawEmail: async () => {
+      deleted = true;
+    },
+    evaluateLead: async () => {
+      evaluated = true;
+      throw new Error('should not evaluate invalid routes');
+    },
+    getRawEmail: async () =>
+      rawEmail(
+        {
+          From: 'Customer Example <customer@example.com>',
+          To: 'contact-intake@email-intake.craigs.autos',
+          Subject: 'Seat repair',
+          'Message-ID': '<message-3@example.com>',
+          'X-Gm-Original-To': 'contact@craigs.autos',
+        },
+        'Can you fix this seat?',
+      ),
+  });
+
+  const result = await processEmailIntakeEvent(
+    s3Event({ bucket: 'email-bucket', key: 'raw/3' }),
+    deps,
+  );
+
+  assert.equal(result.ok, true);
+  assert.equal(evaluated, false);
+  assert.equal(deleted, true);
+  assert.deepEqual(result.results[0], {
+    key: 'raw/3',
+    rejected: true,
+    reason: 'missing_expected_google_route',
+  });
+});
+
+test('email intake rejects missing original recipient header before OpenAI', async () => {
+  let evaluated = false;
+  let deleted = false;
+
+  const deps = makeDeps({
+    deleteRawEmail: async () => {
+      deleted = true;
+    },
+    evaluateLead: async () => {
+      evaluated = true;
+      throw new Error('should not evaluate invalid routes');
+    },
+    getRawEmail: async () =>
+      rawEmail(
+        {
+          From: 'Customer Example <customer@example.com>',
+          To: 'contact-intake@email-intake.craigs.autos',
+          Subject: 'Seat repair',
+          'Message-ID': '<message-4@example.com>',
+          'X-Craigs-Google-Route': 'contact-public-intake',
+        },
+        'Can you fix this seat?',
+      ),
+  });
+
+  const result = await processEmailIntakeEvent(
+    s3Event({ bucket: 'email-bucket', key: 'raw/4' }),
+    deps,
+  );
+
+  assert.equal(result.ok, true);
+  assert.equal(evaluated, false);
+  assert.equal(deleted, true);
+  assert.deepEqual(result.results[0], {
+    key: 'raw/4',
+    rejected: true,
+    reason: 'missing_expected_google_route',
   });
 });

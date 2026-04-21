@@ -290,7 +290,8 @@ Implementation:
 
 1) Validate input (must include a valid `cthr_...`)
 2) Dedupe fast path:
-   - If DynamoDB says "already completed", return immediately
+   - If `LeadFollowupWork.idempotency_key = chat:<threadId>` already exists,
+     return `status = "already_accepted"` or `status = "worker_completed"`
 3) Fetch transcript from OpenAI:
    - `openai.beta.chatkit.threads.retrieve(threadId)`
    - `openai.beta.chatkit.threads.listItems(threadId, { order: "asc" })` (paged)
@@ -314,9 +315,10 @@ Implementation:
    - We intentionally avoid "handoff after every assistant response" because it can
      snapshot the thread mid-conversation (see `docs/chatkit/chat-handoff-promote-before-after.md`).
    - Final completion gate is `handoff_ready` from the summary model.
-8) Persist the journey-first lead bundle.
-9) Create `LeadFollowupWork` with `idempotency_key = chat:<threadId>`.
-10) Asynchronously invoke `lead-followup-worker`.
+8) Reserve `LeadFollowupWork` with `idempotency_key = chat:<threadId>`.
+9) Persist the journey-first lead bundle.
+10) Update the reserved work item with contact/journey/lead ids.
+11) Asynchronously invoke `lead-followup-worker`.
 
 ### Idempotency: LeadFollowupWork
 
@@ -344,8 +346,11 @@ Chat uses:
 
 Semantics:
 
-- If a chat work item is `queued` or `processing`, the handoff endpoint returns `followup_in_progress`.
-- If a chat work item is `completed`, the endpoint returns `already_completed`.
+- `status = "blocked"`: chat is not actionable; no follow-up work exists.
+- `status = "deferred"`: chat is still active/not idle; no follow-up work exists.
+- `status = "accepted"`: this request reserved work, persisted the lead, and invoked the worker.
+- `status = "already_accepted"`: work already exists in `queued`, `processing`, or `error`; no lead persistence or worker invocation is rerun.
+- `status = "worker_completed"`: work already exists in `completed`.
 - The worker owns leasing with `LEAD_FOLLOWUP_LEASE_SECONDS`.
 
 ### SES and QUO delivery

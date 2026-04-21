@@ -5,15 +5,8 @@ import { getAttributionPayload, getJourneyId } from '../../lib/attribution.js';
 import { isPlaceholderUrl, postLeadHandoff, resolveLeadHandoffEndpoint } from './api-client.js';
 import { LEAD_HANDOFF_COMPLETED_KEY_PREFIX } from './constants.js';
 import { pushLeadDataLayer } from './data-layer.js';
+import { getChatHandoffEventForStatus, isCompletedChatHandoffStatus } from './handoff-status.ts';
 import { getLocalStorage, getStorageValue, setStorageValue } from './storage.js';
-
-const BLOCKED_HANDOFF_REASONS = new Set(['empty_thread', 'missing_contact', 'not_ready']);
-
-function classifyChatHandoffReason(reason) {
-  return BLOCKED_HANDOFF_REASONS.has(reason)
-    ? LEAD_EVENTS.chatHandoffBlocked
-    : LEAD_EVENTS.chatHandoffDeferred;
-}
 
 function getPageLocation() {
   return {
@@ -118,17 +111,22 @@ export function useChatHandoffPromote({
         }
 
         const backendReason = typeof data?.reason === 'string' ? data.reason : '';
-        if (data?.completed === true) {
+        const backendStatus = typeof data?.status === 'string' ? data.status : '';
+        if (isCompletedChatHandoffStatus(backendStatus)) {
           setStorageValue(localStorage, completedKey, 'true');
           pushLeadDataLayer(LEAD_EVENTS.chatHandoffCompleted, {
             ...baseEvent,
             lead_reason: backendReason || reason,
           });
-        } else if (data?.completed === false) {
-          const handoffEventName = classifyChatHandoffReason(backendReason || 'unknown');
-          pushLeadDataLayer(handoffEventName, {
+        } else if (backendStatus === 'blocked' || backendStatus === 'deferred') {
+          pushLeadDataLayer(getChatHandoffEventForStatus(backendStatus), {
             ...baseEvent,
             lead_reason: backendReason || 'unknown',
+          });
+        } else {
+          pushLeadDataLayer(LEAD_EVENTS.chatHandoffError, {
+            ...baseEvent,
+            error_code: 'unknown_status',
           });
         }
       } catch (err) {

@@ -2,12 +2,23 @@ import type { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import { GetCommand, PutCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import type { LeadFollowupWorkItem } from '../_lead-platform/domain/lead-followup-work.ts';
 import { stripUndefinedValues } from '../_lead-platform/repos/dynamo/helpers.ts';
-import type { LeadFollowupWorkerDeps } from './types.ts';
+import type { LeadFollowupWorkerDeps, LeasedLeadFollowupWorkItem } from './types.ts';
 
 export type LeadFollowupWorkStore = Pick<
   LeadFollowupWorkerDeps,
   'acquireLease' | 'getFollowupWork' | 'saveFollowupWork'
 >;
+
+export class StaleFollowupWorkLeaseError extends Error {
+  constructor(message = 'stale_followup_work_lease') {
+    super(message);
+    this.name = 'StaleFollowupWorkLeaseError';
+  }
+}
+
+function isConditionalCheckFailed(error: unknown): boolean {
+  return (error as { name?: string } | null)?.name === 'ConditionalCheckFailedException';
+}
 
 export function createDynamoLeadFollowupWorkStore(args: {
   db: DynamoDBDocumentClient | null;
@@ -51,20 +62,37 @@ export function createDynamoLeadFollowupWorkStore(args: {
         );
         return true;
       } catch (error: unknown) {
-        if ((error as { name?: string } | null)?.name === 'ConditionalCheckFailedException') {
+        if (isConditionalCheckFailed(error)) {
           return false;
         }
         throw error;
       }
     },
-    saveFollowupWork: async (record: LeadFollowupWorkItem) => {
+    saveFollowupWork: async (record: LeasedLeadFollowupWorkItem) => {
       if (!args.db || !args.tableName) return;
-      await args.db.send(
-        new PutCommand({
-          TableName: args.tableName,
-          Item: stripUndefinedValues(record),
-        }),
-      );
+      if (!record.lease_id) {
+        throw new StaleFollowupWorkLeaseError('Cannot save follow-up work without an active lease.');
+      }
+      try {
+        await args.db.send(
+          new PutCommand({
+            TableName: args.tableName,
+            Item: stripUndefinedValues(record),
+            ConditionExpression: '#lease_id = :lease_id',
+            ExpressionAttributeNames: {
+              '#lease_id': 'lease_id',
+            },
+            ExpressionAttributeValues: {
+              ':lease_id': record.lease_id,
+            },
+          }),
+        );
+      } catch (error: unknown) {
+        if (isConditionalCheckFailed(error)) {
+          throw new StaleFollowupWorkLeaseError();
+        }
+        throw error;
+      }
     },
   };
 }

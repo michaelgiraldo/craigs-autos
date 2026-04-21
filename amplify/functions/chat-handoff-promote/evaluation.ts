@@ -1,3 +1,4 @@
+import type OpenAI from 'openai';
 import { generateLeadSummary } from './lead-summary';
 import type { LeadAttachment, LeadSummary, TranscriptLine } from './lead-types';
 import { phoneToE164, extractCustomerContact } from './text-utils';
@@ -47,7 +48,7 @@ export type ChatLeadEvaluation =
   | ChatLeadEvaluationReady;
 
 type EvaluateChatLeadArgs = {
-  openai: unknown;
+  openai: OpenAI;
   threadId: string;
   assistantName: string;
   locale: string;
@@ -75,7 +76,7 @@ function hydrateLeadSummary(
 
 export async function evaluateChatLead(args: EvaluateChatLeadArgs): Promise<ChatLeadEvaluation> {
   const { threadTitle, threadUser, attachments, lines } = await buildTranscript({
-    openai: args.openai as never,
+    openai: args.openai,
     threadId: args.threadId,
     assistantName: args.assistantName,
   });
@@ -119,7 +120,7 @@ export async function evaluateChatLead(args: EvaluateChatLeadArgs): Promise<Chat
   }
 
   const leadSummary = await generateLeadSummary({
-    openai: args.openai as never,
+    openai: args.openai,
     leadSummaryModel: args.leadSummaryModel,
     locale: args.locale,
     pageUrl: args.pageUrl,

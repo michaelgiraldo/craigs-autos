@@ -19,6 +19,13 @@ test('chat handoff remains an intake adapter and does not send follow-up directl
   assert.match(handler, /createLeadFollowupWorkItem/);
   assert.match(handler, /followupWork\.putIfAbsent/);
   assert.match(handler, /invokeLeadFollowupWorker/);
+  assert.doesNotMatch(handler, /completed:\s*(true|false)/);
+
+  const reservationIndex = handler.indexOf('followupWork.putIfAbsent');
+  const leadPersistenceIndex = handler.indexOf('persistedLead = await persistCapturedChatLead');
+  assert.ok(reservationIndex > -1);
+  assert.ok(leadPersistenceIndex > -1);
+  assert.ok(reservationIndex < leadPersistenceIndex);
 
   for (const deletedPath of [
     'amplify/functions/chat-handoff-promote/dedupe-store.ts',

@@ -5,7 +5,11 @@ import type {
   LeadFollowupOutreachResult,
   LeadFollowupWorkItem,
 } from '../_lead-platform/domain/lead-followup-work.ts';
-import type { LeadFollowupWorkerDeps, LeadFollowupWorkflowOutcome } from './types.ts';
+import type {
+  LeadFollowupWorkerDeps,
+  LeadFollowupWorkflowOutcome,
+  LeasedLeadFollowupWorkItem,
+} from './types.ts';
 
 export function isEmailFirst(record: LeadFollowupWorkItem): boolean {
   return record.capture_channel === 'email' || record.preferred_outreach_channel === 'email';
@@ -39,9 +43,33 @@ export function getOutreachResult(record: LeadFollowupWorkItem): LeadFollowupOut
   return null;
 }
 
+export function isStaleFollowupWorkLeaseError(error: unknown): boolean {
+  return (
+    error instanceof Error &&
+    (error.name === 'StaleFollowupWorkLeaseError' ||
+      error.message === 'stale_followup_work_lease')
+  );
+}
+
+export function staleLeaseOutcome(): LeadFollowupWorkflowOutcome {
+  return {
+    statusCode: 200,
+    body: { ok: true, skipped: true, reason: 'stale_lease' },
+  };
+}
+
+function requireActiveLease(record: LeadFollowupWorkItem): LeasedLeadFollowupWorkItem {
+  if (!record.lease_id) {
+    const error = new Error('stale_followup_work_lease');
+    error.name = 'StaleFollowupWorkLeaseError';
+    throw error;
+  }
+  return record as LeasedLeadFollowupWorkItem;
+}
+
 export async function persistRecord(deps: LeadFollowupWorkerDeps, record: LeadFollowupWorkItem) {
   record.updated_at = deps.nowEpochSeconds();
-  await deps.saveFollowupWork(record);
+  await deps.saveFollowupWork(requireActiveLease(record));
 }
 
 function chooseEmailSubject(record: LeadFollowupWorkItem, generatedSubject: string): string {
@@ -242,6 +270,10 @@ export async function failWorkflow(args: {
   record: LeadFollowupWorkItem;
   error: unknown;
 }): Promise<LeadFollowupWorkflowOutcome> {
+  if (isStaleFollowupWorkLeaseError(args.error)) {
+    return staleLeaseOutcome();
+  }
+
   const { message } = getErrorDetails(args.error);
   args.record.status = 'error';
   args.record.lock_expires_at = undefined;
