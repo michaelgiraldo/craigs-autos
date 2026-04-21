@@ -15,6 +15,7 @@ import { createLeadPlatformRuntime } from '../_lead-platform/runtime.ts';
 import {
   captureLeadSource,
   LeadSourceCaptureError,
+  shouldRepairLeadSourceWork,
 } from '../_lead-platform/services/capture-lead-source.ts';
 import { decodeBody, emptyResponse, getHttpMethod, jsonResponse } from '../_shared/http.ts';
 import { getErrorDetails } from '../_shared/safe.ts';
@@ -154,7 +155,7 @@ export const handler = async (
 
   try {
     const existingWork = await repos.followupWork.getByIdempotencyKey(`chat:${threadId}`);
-    if (existingWork) {
+    if (existingWork && !shouldRepairLeadSourceWork(existingWork)) {
       return jsonResponse(200, existingWorkResponse(existingWork));
     }
 

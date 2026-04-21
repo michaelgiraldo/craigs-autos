@@ -35,10 +35,13 @@ idempotency record is the shared follow-up work item:
 - `idempotency_key = chat:<cthr_...>`
 - `followup_work_id` is deterministically derived from the idempotency key for logs/API responses.
 
-If the work item is `queued` or `processing`, chat handoff returns
+If the work item is `queued` or `processing`, chat handoff usually returns
 `status = "already_accepted"` and does not rerun lead persistence or worker
-invocation. If the work item is `error`, it returns `status = "worker_failed"`.
-If the work item is `completed`, it returns `status = "worker_completed"`.
+invocation. A queued work item missing lead linkage is repaired by rerunning
+idempotent lead persistence, updating the work item, invoking the worker, and
+returning `status = "accepted"`. If the work item is `error`, it returns
+`status = "worker_failed"`. If the work item is `completed`, it returns
+`status = "worker_completed"`.
 
 ## Retention
 

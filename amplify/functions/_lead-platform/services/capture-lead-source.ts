@@ -49,6 +49,15 @@ function receiptFromExistingWork(existingWork: LeadFollowupWorkItem): LeadSource
   };
 }
 
+export function shouldRepairLeadSourceWork(workItem: LeadFollowupWorkItem): boolean {
+  return (
+    workItem.status === 'queued' &&
+    !workItem.lease_id &&
+    typeof workItem.lock_expires_at !== 'number' &&
+    (!workItem.journey_id || !workItem.lead_record_id)
+  );
+}
+
 async function markWorkError(args: {
   error: unknown;
   nowEpochSeconds: () => number;
@@ -78,29 +87,13 @@ async function tryMarkWorkError(args: {
   }
 }
 
-export async function captureLeadSource(args: {
+async function persistAndDispatchLeadSource(args: {
   invokeFollowup: (idempotencyKey: string) => Promise<void>;
   nowEpochSeconds: () => number;
   persistLead: () => Promise<PersistedLeadContext | null>;
   repos: LeadPlatformRepos;
   workItem: LeadFollowupWorkItem;
 }): Promise<LeadSourceCaptureReceipt> {
-  const reserved = await args.repos.followupWork.putIfAbsent(args.workItem);
-  if (!reserved) {
-    const existingWork = await args.repos.followupWork.getByIdempotencyKey(
-      args.workItem.idempotency_key,
-    );
-    if (existingWork) return receiptFromExistingWork(existingWork);
-    return {
-      status: 'already_accepted',
-      followupWorkId: args.workItem.followup_work_id,
-      followupWorkStatus: args.workItem.status,
-      idempotencyKey: args.workItem.idempotency_key,
-      leadRecordId: args.workItem.lead_record_id,
-      workItem: null,
-    };
-  }
-
   let leadContext: PersistedLeadContext | null;
   try {
     leadContext = await args.persistLead();
@@ -154,4 +147,41 @@ export async function captureLeadSource(args: {
     leadRecordId: updatedWorkItem.lead_record_id,
     workItem: updatedWorkItem,
   };
+}
+
+export async function captureLeadSource(args: {
+  invokeFollowup: (idempotencyKey: string) => Promise<void>;
+  nowEpochSeconds: () => number;
+  persistLead: () => Promise<PersistedLeadContext | null>;
+  repos: LeadPlatformRepos;
+  workItem: LeadFollowupWorkItem;
+}): Promise<LeadSourceCaptureReceipt> {
+  const reserved = await args.repos.followupWork.putIfAbsent(args.workItem);
+  if (!reserved) {
+    const existingWork = await args.repos.followupWork.getByIdempotencyKey(
+      args.workItem.idempotency_key,
+    );
+    if (existingWork) {
+      if (shouldRepairLeadSourceWork(existingWork)) {
+        return persistAndDispatchLeadSource({
+          invokeFollowup: args.invokeFollowup,
+          nowEpochSeconds: args.nowEpochSeconds,
+          persistLead: args.persistLead,
+          repos: args.repos,
+          workItem: existingWork,
+        });
+      }
+      return receiptFromExistingWork(existingWork);
+    }
+    return {
+      status: 'already_accepted',
+      followupWorkId: args.workItem.followup_work_id,
+      followupWorkStatus: args.workItem.status,
+      idempotencyKey: args.workItem.idempotency_key,
+      leadRecordId: args.workItem.lead_record_id,
+      workItem: null,
+    };
+  }
+
+  return persistAndDispatchLeadSource(args);
 }

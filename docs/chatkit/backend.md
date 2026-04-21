@@ -351,6 +351,9 @@ Semantics:
 - `status = "deferred"`: chat is still active/not idle; no follow-up work exists.
 - `status = "accepted"`: this request reserved work, persisted the lead, and invoked the worker.
 - `status = "already_accepted"`: work already exists in `queued` or `processing`; no lead persistence or worker invocation is rerun.
+- Incomplete queued work with missing lead linkage is treated as repairable: the
+  endpoint re-runs idempotent lead persistence, updates the reserved work item,
+  invokes the worker, and returns `status = "accepted"`.
 - `status = "worker_failed"`: work already exists in `error`; no lead persistence or worker invocation is rerun, and the frontend keeps the handoff eligible for a future retry/operator repair instead of marking it completed.
 - `status = "worker_completed"`: work already exists in `completed`.
 - The worker owns leasing with `LEAD_FOLLOWUP_LEASE_SECONDS`.

@@ -24,8 +24,11 @@ test('chat handoff remains an intake adapter and does not send follow-up directl
   assert.match(handler, /invokeLeadFollowupWorker/);
   assert.doesNotMatch(handler, /completed:\s*(true|false)/);
 
-  const reservationIndex = captureService.indexOf('followupWork.putIfAbsent');
-  const leadPersistenceIndex = captureService.indexOf('await args.persistLead()');
+  const captureFunction = captureService.slice(
+    captureService.indexOf('export async function captureLeadSource'),
+  );
+  const reservationIndex = captureFunction.indexOf('followupWork.putIfAbsent');
+  const leadPersistenceIndex = captureFunction.indexOf('persistAndDispatchLeadSource(args)');
   assert.ok(reservationIndex > -1);
   assert.ok(leadPersistenceIndex > -1);
   assert.ok(reservationIndex < leadPersistenceIndex);
