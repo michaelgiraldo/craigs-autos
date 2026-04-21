@@ -42,6 +42,7 @@ function makeRepos(
     followupWork: {
       acquireLease: async () => false,
       getByIdempotencyKey: async () => existingWork,
+      listByStatus: async () => [],
       put: async (record: LeadFollowupWorkItem) => {
         writes.push({ ...record });
       },

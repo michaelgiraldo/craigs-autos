@@ -268,4 +268,10 @@ export function configureLeadDataTables(backend: CraigsBackend): void {
       leadFollowupWorkerLambda.functionName,
     );
   }
+
+  leadFollowupWorkerLambda.grantInvoke(leadAdminApiLambda);
+  leadAdminApiLambda.addEnvironment(
+    'LEAD_FOLLOWUP_WORKER_FUNCTION_NAME',
+    leadFollowupWorkerLambda.functionName,
+  );
 }

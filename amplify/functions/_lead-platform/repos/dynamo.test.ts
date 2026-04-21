@@ -3,6 +3,7 @@ import test from 'node:test';
 import type { PutCommand, QueryCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import {
   DynamoLeadConversionFeedbackOutboxRepo,
+  DynamoLeadFollowupWorkRepo,
   DynamoJourneysRepo,
   DynamoLeadContactsRepo,
   DynamoLeadRecordsRepo,
@@ -187,6 +188,21 @@ test('DynamoLeadConversionFeedbackOutboxRepo.listByStatus queries retry-ready st
   );
   assert.equal(command.input.ScanIndexForward, true);
   assert.equal(command.input.Limit, 10);
+});
+
+test('DynamoLeadFollowupWorkRepo.listByStatus queries the operational status index', async () => {
+  const { db, commands } = createDbStub();
+  const repo = new DynamoLeadFollowupWorkRepo(db as never, 'LeadFollowupWorkTable');
+
+  await repo.listByStatus('error', { limit: 25 });
+
+  assert.equal(commands.length, 1);
+  const command = commands[0] as QueryCommand & { input: Record<string, unknown> };
+  assert.equal(command.input.TableName, 'LeadFollowupWorkTable');
+  assert.equal(command.input.IndexName, 'status-updated_at-index');
+  assert.equal(command.input.KeyConditionExpression, '#status = :status');
+  assert.equal(command.input.ScanIndexForward, false);
+  assert.equal(command.input.Limit, 25);
 });
 
 test('DynamoLeadConversionFeedbackOutboxRepo.acquireLease conditionally leases queued work', async () => {

@@ -1,10 +1,21 @@
 import { emptyResponse, getHttpMethod, jsonResponse } from '../_shared/http.ts';
+import { PUBLIC_API_ROUTES } from '@craigs/contracts/public-api-contract';
 import { isAuthorized, unauthorizedResponse } from './auth.ts';
+import { resolveLeadFollowupWorkManually, retryLeadFollowupWork } from './followup-work.ts';
 import { listLeadAdminPage } from './list-leads.ts';
 import { qualifyLeadRecord } from './qualify-lead.ts';
-import { parseLeadAdminListRequest, parseLeadQualificationRequest } from './request.ts';
+import {
+  parseLeadAdminListRequest,
+  parseLeadFollowupWorkActionRequest,
+  parseLeadQualificationRequest,
+} from './request.ts';
 import { createProductionLeadAdminDeps } from './runtime.ts';
 import type { LambdaEvent, LambdaResult, LeadAdminDeps } from './types.ts';
+
+function getAdminRoute(event: LambdaEvent): string {
+  const path = event.rawPath ?? event.requestContext?.http?.path ?? '';
+  return path.replace(/^\/+/, '');
+}
 
 export function createLeadAdminHandler(deps: LeadAdminDeps) {
   return async (event: LambdaEvent): Promise<LambdaResult> => {
@@ -28,6 +39,35 @@ export function createLeadAdminHandler(deps: LeadAdminDeps) {
     }
 
     if (method === 'POST') {
+      const route = getAdminRoute(event);
+      if (route.endsWith(PUBLIC_API_ROUTES.adminFollowupRetry)) {
+        const parsedRequest = parseLeadFollowupWorkActionRequest(event);
+        if (!parsedRequest.ok) return parsedRequest.response;
+
+        const result = await retryLeadFollowupWork(deps, parsedRequest.value);
+        if (!result.ok) return jsonResponse(result.statusCode, { error: result.error });
+
+        return jsonResponse(200, {
+          ok: true,
+          idempotency_key: parsedRequest.value.idempotencyKey,
+          invoked: result.invoked,
+        });
+      }
+
+      if (route.endsWith(PUBLIC_API_ROUTES.adminFollowupManual)) {
+        const parsedRequest = parseLeadFollowupWorkActionRequest(event);
+        if (!parsedRequest.ok) return parsedRequest.response;
+
+        const result = await resolveLeadFollowupWorkManually(deps, parsedRequest.value);
+        if (!result.ok) return jsonResponse(result.statusCode, { error: result.error });
+
+        return jsonResponse(200, {
+          ok: true,
+          idempotency_key: parsedRequest.value.idempotencyKey,
+          status: 'completed',
+        });
+      }
+
       const parsedRequest = parseLeadQualificationRequest(event);
       if (!parsedRequest.ok) return parsedRequest.response;
 

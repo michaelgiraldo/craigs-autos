@@ -388,6 +388,22 @@ Delivery reliability:
   final save, later workers see `sending`, avoid a duplicate provider call, and
   mark the work `error` with `delivery_attempt_unconfirmed` for operator repair.
 
+### Follow-Up Operations
+
+The admin API exposes an operational follow-up queue alongside lead records:
+
+- `GET /admin/leads` includes non-completed `followup_work` rows for `queued`,
+  `processing`, and `error` work.
+- `POST /admin/leads/followup-work/retry` re-invokes `lead-followup-worker` by
+  `idempotency_key` only when the record is not completed, is not actively
+  leased, is not a fresh queued item, and does not have an unconfirmed `sending`
+  delivery attempt.
+- `POST /admin/leads/followup-work/manual` marks non-completed work as manually
+  resolved without sending customer/provider messages.
+- Lead-critical Lambda error and throttle alarms are defined in backend CDK
+  wiring. They create CloudWatch alarms but do not attach notification actions
+  until an alarm destination is configured.
+
 ### Summary generation (Responses.parse)
 
 The shop notification email includes an internal AI summary generated from the transcript.

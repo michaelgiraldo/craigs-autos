@@ -3,6 +3,7 @@ import { defineBackend } from '@aws-amplify/backend';
 import { configureDynamoTables } from './backend/dynamo';
 import { configureEmailIntake } from './backend/email-intake';
 import { applyLambdaDescriptions } from './backend/lambda-descriptions';
+import { configureMonitoring } from './backend/monitoring';
 import { configureLambdaPermissions } from './backend/permissions';
 import { addPublicApiOutputs, createPublicHttpApi } from './backend/public-api';
 import type { CraigsBackend } from './backend/types';
@@ -32,6 +33,7 @@ applyLambdaDescriptions(backend);
 configureLambdaPermissions(backend);
 configureDynamoTables(backend);
 configureEmailIntake(backend);
+configureMonitoring(backend);
 
 const publicApiStack = backend.createStack('public-api');
 const publicApi = createPublicHttpApi(publicApiStack, backend);

@@ -1,12 +1,18 @@
 import {
   GetCommand,
   PutCommand,
+  QueryCommand,
   UpdateCommand,
   type DynamoDBDocumentClient,
 } from '@aws-sdk/lib-dynamodb';
-import type { LeadFollowupWorkItem } from '../../domain/lead-followup-work.ts';
+import type {
+  LeadFollowupWorkItem,
+  LeadFollowupWorkStatus,
+} from '../../domain/lead-followup-work.ts';
 import type { LeadFollowupWorkRepo } from '../followup-work-repo.ts';
 import { stripUndefinedValues } from './helpers.ts';
+
+const FOLLOWUP_WORK_STATUS_UPDATED_AT_INDEX = 'status-updated_at-index';
 
 export class DynamoLeadFollowupWorkRepo implements LeadFollowupWorkRepo {
   private readonly db: DynamoDBDocumentClient;
@@ -25,6 +31,30 @@ export class DynamoLeadFollowupWorkRepo implements LeadFollowupWorkRepo {
       }),
     );
     return (result.Item as LeadFollowupWorkItem | undefined) ?? null;
+  }
+
+  async listByStatus(
+    status: LeadFollowupWorkStatus,
+    options: {
+      limit?: number;
+    } = {},
+  ): Promise<LeadFollowupWorkItem[]> {
+    const result = await this.db.send(
+      new QueryCommand({
+        TableName: this.tableName,
+        IndexName: FOLLOWUP_WORK_STATUS_UPDATED_AT_INDEX,
+        KeyConditionExpression: '#status = :status',
+        ExpressionAttributeNames: {
+          '#status': 'status',
+        },
+        ExpressionAttributeValues: {
+          ':status': status,
+        },
+        Limit: options.limit,
+        ScanIndexForward: false,
+      }),
+    );
+    return (result.Items as LeadFollowupWorkItem[] | undefined) ?? [];
   }
 
   async acquireLease(args: {

@@ -1,4 +1,5 @@
 import type {
+  LeadAdminFollowupWorkSummary,
   LeadAdminJourneySummary,
   LeadAdminRecordSummary,
 } from '../_lead-platform/services/admin.ts';
@@ -6,6 +7,7 @@ import type {
 export type LambdaEvent = {
   headers?: Record<string, string | undefined> | null;
   requestContext?: { http?: { method?: string; path?: string } } | null;
+  rawPath?: string | null;
   httpMethod?: string;
   rawQueryString?: string | null;
   queryStringParameters?: Record<string, string | undefined> | null;
@@ -33,6 +35,19 @@ export type LeadAdminDeps = {
     limit: number;
     cursor?: CursorKey;
   }) => Promise<{ items: LeadAdminJourneySummary[]; lastEvaluatedKey?: CursorKey }>;
+  listFollowupWork: (args: {
+    limit: number;
+    nowEpochSeconds: number;
+  }) => Promise<{ items: LeadAdminFollowupWorkSummary[] }>;
+  retryFollowupWork: (args: {
+    idempotencyKey: string;
+    nowEpochSeconds: number;
+  }) => Promise<{ ok: true; invoked: boolean } | { ok: false; statusCode: number; error: string }>;
+  resolveFollowupWorkManually: (args: {
+    idempotencyKey: string;
+    nowEpochSeconds: number;
+    reason: string;
+  }) => Promise<{ ok: true } | { ok: false; statusCode: number; error: string }>;
   updateLeadRecordQualification: (args: {
     leadRecordId: string;
     qualified: boolean;
@@ -51,4 +66,9 @@ export type LeadAdminListRequest = {
 export type LeadQualificationRequest = {
   leadRecordId: string;
   qualified: boolean;
+};
+
+export type LeadFollowupWorkActionRequest = {
+  idempotencyKey: string;
+  reason: string;
 };

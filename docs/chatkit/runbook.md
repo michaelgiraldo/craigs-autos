@@ -265,7 +265,28 @@ Note:
 - There is no separate chat dispatch ledger. Do not add one back unless the shared
   outbox architecture changes.
 
-## Scenario E: Wrong language / wrong hours / wrong agent behavior
+## Scenario E: Follow-up work is failed or stuck
+
+Start in the admin lead dashboard:
+
+1) Open the `Follow-Up Work` table.
+2) Check the `status`, source, delivery statuses, issue text, and
+   `idempotency_key`.
+3) Use `Retry` only when the row allows it. Retry re-invokes the worker; it does
+   not create another lead or bypass idempotency.
+4) Use `Manual` when the row has `delivery_attempt_unconfirmed` or Craig already
+   handled the customer outside automation.
+5) If neither action is appropriate, inspect CloudWatch logs for
+   `lead-followup-worker` and the DynamoDB `LeadFollowupWork` row by
+   `idempotency_key`.
+
+Rules:
+
+- Do not delete `LeadFollowupWork` to force a retry.
+- Do not retry a row that has a `sending` channel unless the admin action allows it.
+- A manual resolution intentionally stops automation for that work item.
+
+## Scenario F: Wrong language / wrong hours / wrong agent behavior
 
 Language issues:
 

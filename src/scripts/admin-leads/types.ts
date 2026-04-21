@@ -102,9 +102,43 @@ export type JourneyItem = {
   updated_at_ms?: number;
 };
 
+export type FollowupWorkItem = {
+  idempotency_key?: string;
+  followup_work_id?: string;
+  source_event_id?: string;
+  status?: string;
+  capture_channel?: string;
+  lead_record_id?: string | null;
+  journey_id?: string | null;
+  name?: string;
+  email?: string;
+  phone?: string;
+  vehicle?: string;
+  service?: string;
+  origin?: string;
+  page_url?: string;
+  sms_status?: string | null;
+  email_status?: string | null;
+  owner_email_status?: string | null;
+  outreach_result?: string | null;
+  error?: string | null;
+  lock_expires_at?: number | null;
+  created_at?: number;
+  updated_at?: number;
+  age_seconds?: number;
+  stale?: boolean;
+  retry_allowed?: boolean;
+  manual_resolution_allowed?: boolean;
+  action_block_reason?: string | null;
+  operator_resolution?: string | null;
+  operator_resolution_reason?: string | null;
+  operator_resolved_at?: number | null;
+};
+
 export type LeadsApiResponse = {
   lead_records?: LeadRecordItem[];
   journeys?: JourneyItem[];
+  followup_work?: FollowupWorkItem[];
   next_records_cursor?: string | null;
   next_journeys_cursor?: string | null;
 };
@@ -116,6 +150,7 @@ export type AdminLeadsState = {
   loading: boolean;
   leadRecords: LeadRecordItem[];
   journeys: JourneyItem[];
+  followupWork: FollowupWorkItem[];
   error: string | null;
   filterQualified: QualificationFilter;
   recordsCursor: string | null;
@@ -128,4 +163,6 @@ export type AdminLeadsActions = {
   onLogout: () => void;
   onRefresh: () => void;
   onUpdateLead: (leadRecordId: string, qualified: boolean) => void;
+  onRetryFollowupWork: (idempotencyKey: string) => void;
+  onResolveFollowupWorkManually: (idempotencyKey: string) => void;
 };

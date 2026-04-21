@@ -6,8 +6,16 @@ import type {
   LeadConversionFeedbackOutcome,
 } from '../domain/conversion-feedback.ts';
 import type { LeadContact } from '../domain/contact.ts';
+import {
+  createLeadFollowupWorkItem,
+  type LeadFollowupWorkItem,
+} from '../domain/lead-followup-work.ts';
 import type { LeadRecord } from '../domain/lead-record.ts';
-import { toLeadAdminRecordSummary } from './admin.ts';
+import {
+  getLeadFollowupRetryBlockReason,
+  toLeadAdminFollowupWorkSummary,
+  toLeadAdminRecordSummary,
+} from './admin.ts';
 
 function makeLeadRecord(): LeadRecord {
   return {
@@ -87,6 +95,31 @@ function makeContact(): LeadContact {
     quo_tags: [],
     created_at_ms: 1_000,
     updated_at_ms: 1_000,
+  };
+}
+
+function makeFollowupWork(overrides: Partial<LeadFollowupWorkItem> = {}): LeadFollowupWorkItem {
+  return {
+    ...createLeadFollowupWorkItem({
+      attribution: null,
+      captureChannel: 'form',
+      email: 'alex@example.com',
+      followupWorkId: 'form_abc',
+      idempotencyKey: 'form:abc',
+      locale: 'en',
+      message: 'Seat tear',
+      name: 'Alex',
+      nowEpochSeconds: 1_000,
+      origin: 'form:submit',
+      pageUrl: 'https://craigs.autos/en/request-a-quote',
+      phone: '+14085550100',
+      service: 'seat repair',
+      siteLabel: 'craigs.autos',
+      sourceEventId: 'abc',
+      userId: 'anon-user',
+      vehicle: '1969 Camaro',
+    }),
+    ...overrides,
   };
 }
 
@@ -184,5 +217,38 @@ test('toLeadAdminRecordSummary exposes conversion decisions, outbox state, and l
   assert.deepEqual(
     summary.conversion_feedback_detail.outcomes.map((outcome) => outcome.outcome_id),
     ['new', 'old'],
+  );
+});
+
+test('toLeadAdminFollowupWorkSummary exposes actionable failed follow-up work', () => {
+  const summary = toLeadAdminFollowupWorkSummary({
+    nowEpochSeconds: 2_000,
+    record: makeFollowupWork({
+      status: 'error',
+      updated_at: 1_100,
+      sms_status: 'failed',
+      sms_error: 'QUO unavailable',
+      lead_record_id: 'lead-1',
+    }),
+  });
+
+  assert.equal(summary.status, 'error');
+  assert.equal(summary.error, 'QUO unavailable');
+  assert.equal(summary.stale, true);
+  assert.equal(summary.retry_allowed, true);
+  assert.equal(summary.manual_resolution_allowed, true);
+});
+
+test('getLeadFollowupRetryBlockReason blocks unconfirmed delivery attempts', () => {
+  assert.equal(
+    getLeadFollowupRetryBlockReason({
+      nowEpochSeconds: 2_000,
+      record: makeFollowupWork({
+        status: 'error',
+        sms_status: 'sending',
+        owner_email_error: 'delivery_attempt_unconfirmed',
+      }),
+    }),
+    'delivery_attempt_unconfirmed',
   );
 });

@@ -8,6 +8,8 @@ export const PUBLIC_API_ROUTES = {
   leadActionLinks: 'lead-action-links',
   adminLeads: 'admin/leads',
   adminLeadQualification: 'admin/leads/qualification',
+  adminFollowupRetry: 'admin/leads/followup-work/retry',
+  adminFollowupManual: 'admin/leads/followup-work/manual',
 };
 
 export function publicApiPath(route) {

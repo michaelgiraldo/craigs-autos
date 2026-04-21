@@ -149,6 +149,7 @@ test('syncQuoLeadContact upserts Quo contacts and persists remote tags', async (
     followupWork: {
       acquireLease: async () => false,
       getByIdempotencyKey: async () => null,
+      listByStatus: async () => [],
       put: async () => undefined,
       putIfAbsent: async () => true,
     },

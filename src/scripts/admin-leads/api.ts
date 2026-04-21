@@ -41,6 +41,8 @@ async function assertOk(response: Response, fallbackMessage: string): Promise<vo
 export function createAdminLeadsApi() {
   let listEndpoint: string | null = null;
   let qualificationEndpoint: string | null = null;
+  let followupRetryEndpoint: string | null = null;
+  let followupManualEndpoint: string | null = null;
 
   const resolveEndpoint = async (
     route: PublicApiRoute,
@@ -69,6 +71,22 @@ export function createAdminLeadsApi() {
       qualificationEndpoint,
     );
     return qualificationEndpoint;
+  };
+
+  const resolveFollowupRetryEndpoint = async (): Promise<string> => {
+    followupRetryEndpoint = await resolveEndpoint(
+      PUBLIC_API_ROUTES.adminFollowupRetry,
+      followupRetryEndpoint,
+    );
+    return followupRetryEndpoint;
+  };
+
+  const resolveFollowupManualEndpoint = async (): Promise<string> => {
+    followupManualEndpoint = await resolveEndpoint(
+      PUBLIC_API_ROUTES.adminFollowupManual,
+      followupManualEndpoint,
+    );
+    return followupManualEndpoint;
   };
 
   return {
@@ -122,6 +140,45 @@ export function createAdminLeadsApi() {
       );
 
       await assertOk(response, 'Update failed.');
+      await response.json();
+    },
+
+    async retryFollowupWork(args: { auth: string; idempotencyKey: string }): Promise<void> {
+      const resolvedEndpoint = await resolveFollowupRetryEndpoint();
+      const response = await fetch(
+        resolvedEndpoint,
+        withFetchTimeout({
+          method: 'POST',
+          headers: jsonHeaders(args.auth),
+          body: JSON.stringify({
+            idempotency_key: args.idempotencyKey,
+          }),
+        }),
+      );
+
+      await assertOk(response, 'Retry failed.');
+      await response.json();
+    },
+
+    async resolveFollowupWorkManually(args: {
+      auth: string;
+      idempotencyKey: string;
+      reason: string;
+    }): Promise<void> {
+      const resolvedEndpoint = await resolveFollowupManualEndpoint();
+      const response = await fetch(
+        resolvedEndpoint,
+        withFetchTimeout({
+          method: 'POST',
+          headers: jsonHeaders(args.auth),
+          body: JSON.stringify({
+            idempotency_key: args.idempotencyKey,
+            reason: args.reason,
+          }),
+        }),
+      );
+
+      await assertOk(response, 'Manual resolution failed.');
       await response.json();
     },
   };

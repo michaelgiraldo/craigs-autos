@@ -5,6 +5,7 @@ import type {
   CursorKey,
   LambdaEvent,
   LambdaResult,
+  LeadFollowupWorkActionRequest,
   LeadAdminListRequest,
   LeadQualificationRequest,
 } from './types.ts';
@@ -14,6 +15,11 @@ const MAX_LIMIT = 500;
 const postPayloadSchema = z.looseObject({
   lead_record_id: z.unknown().optional(),
   qualified: z.unknown().optional(),
+});
+
+const followupActionPayloadSchema = z.looseObject({
+  idempotency_key: z.unknown().optional(),
+  reason: z.unknown().optional(),
 });
 
 type ParsedRequest<T> =
@@ -95,6 +101,41 @@ export function parseLeadQualificationRequest(
     value: {
       leadRecordId: leadRecordIdResult.data,
       qualified: qualifiedResult.data,
+    },
+  };
+}
+
+export function parseLeadFollowupWorkActionRequest(
+  event: LambdaEvent,
+): ParsedRequest<LeadFollowupWorkActionRequest> {
+  let parsedPayload: z.infer<typeof followupActionPayloadSchema>;
+  try {
+    const body = decodeBody(event);
+    const parsed = body ? JSON.parse(body) : {};
+    const result = followupActionPayloadSchema.safeParse(parsed);
+    if (!result.success) {
+      return { ok: false, response: jsonResponse(400, { error: 'Invalid request payload' }) };
+    }
+    parsedPayload = result.data;
+  } catch {
+    return { ok: false, response: jsonResponse(400, { error: 'Invalid JSON body' }) };
+  }
+
+  const idempotencyKeyResult = z.string().trim().min(1).safeParse(parsedPayload.idempotency_key);
+  if (!idempotencyKeyResult.success) {
+    return { ok: false, response: jsonResponse(400, { error: 'Missing idempotency_key' }) };
+  }
+
+  const reasonResult = z.string().trim().max(500).optional().safeParse(parsedPayload.reason);
+
+  return {
+    ok: true,
+    value: {
+      idempotencyKey: idempotencyKeyResult.data,
+      reason:
+        reasonResult.success && reasonResult.data
+          ? reasonResult.data
+          : 'Resolved manually from the admin follow-up queue.',
     },
   };
 }

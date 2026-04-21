@@ -82,6 +82,18 @@ export function createPublicHttpApi(scope: Construct, backend: CraigsBackend): H
       integrationId: 'AdminLeadQualificationIntegration',
       lambda: getLambda(backend.leadAdminApi),
     },
+    {
+      path: publicApiPath(PUBLIC_API_ROUTES.adminFollowupRetry),
+      methods: [HttpMethod.POST],
+      integrationId: 'AdminFollowupRetryIntegration',
+      lambda: getLambda(backend.leadAdminApi),
+    },
+    {
+      path: publicApiPath(PUBLIC_API_ROUTES.adminFollowupManual),
+      methods: [HttpMethod.POST],
+      integrationId: 'AdminFollowupManualIntegration',
+      lambda: getLambda(backend.leadAdminApi),
+    },
   ];
 
   for (const route of routes) {

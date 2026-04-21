@@ -8,6 +8,8 @@ export declare const PUBLIC_API_ROUTES: {
   readonly leadActionLinks: 'lead-action-links';
   readonly adminLeads: 'admin/leads';
   readonly adminLeadQualification: 'admin/leads/qualification';
+  readonly adminFollowupRetry: 'admin/leads/followup-work/retry';
+  readonly adminFollowupManual: 'admin/leads/followup-work/manual';
 };
 
 export type PublicApiRoute = (typeof PUBLIC_API_ROUTES)[keyof typeof PUBLIC_API_ROUTES];

@@ -70,6 +70,9 @@ export type LeadFollowupWorkItem = {
   owner_email_status: LeadFollowupSendStatus;
   owner_email_message_id: string;
   owner_email_error: string;
+  operator_resolution?: 'manual_followup';
+  operator_resolution_reason?: string;
+  operator_resolved_at?: number;
   source_message_id?: string;
   source_references?: string;
   email_thread_key?: string;

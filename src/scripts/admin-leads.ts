@@ -14,6 +14,7 @@ export const initAdminLeads = (app = document.getElementById('admin-leads-app'))
     loading: false,
     leadRecords: [],
     journeys: [],
+    followupWork: [],
     error: null,
     filterQualified: '',
     recordsCursor: null,
@@ -36,6 +37,7 @@ export const initAdminLeads = (app = document.getElementById('admin-leads-app'))
     if (reset) {
       state.leadRecords = [];
       state.journeys = [];
+      state.followupWork = [];
       state.recordsCursor = null;
       state.journeysCursor = null;
     }
@@ -50,6 +52,7 @@ export const initAdminLeads = (app = document.getElementById('admin-leads-app'))
       });
       state.leadRecords = data.lead_records || [];
       state.journeys = data.journeys || [];
+      state.followupWork = data.followup_work || [];
       state.recordsCursor = data.next_records_cursor || null;
       state.journeysCursor = data.next_journeys_cursor || null;
       state.loading = false;
@@ -85,6 +88,47 @@ export const initAdminLeads = (app = document.getElementById('admin-leads-app'))
     }
   };
 
+  const retryFollowupWork = async (idempotencyKey: string) => {
+    state.loading = true;
+    render();
+
+    try {
+      await api.retryFollowupWork({
+        auth: state.auth,
+        idempotencyKey,
+      });
+      await fetchLeads(true);
+    } catch (error) {
+      if (isAdminUnauthorizedError(error)) {
+        clearAuth();
+      }
+      state.loading = false;
+      state.error = error instanceof Error ? error.message : 'Retry failed.';
+      render();
+    }
+  };
+
+  const resolveFollowupWorkManually = async (idempotencyKey: string) => {
+    state.loading = true;
+    render();
+
+    try {
+      await api.resolveFollowupWorkManually({
+        auth: state.auth,
+        idempotencyKey,
+        reason: 'Resolved manually from the admin follow-up queue.',
+      });
+      await fetchLeads(true);
+    } catch (error) {
+      if (isAdminUnauthorizedError(error)) {
+        clearAuth();
+      }
+      state.loading = false;
+      state.error = error instanceof Error ? error.message : 'Manual resolution failed.';
+      render();
+    }
+  };
+
   const onLogin = (password: string) => {
     const token = btoa(`admin:${password}`);
     state.auth = `Basic ${token}`;
@@ -107,6 +151,9 @@ export const initAdminLeads = (app = document.getElementById('admin-leads-app'))
     onLogin,
     onLogout: logout,
     onRefresh: () => void fetchLeads(true),
+    onRetryFollowupWork: (idempotencyKey) => void retryFollowupWork(idempotencyKey),
+    onResolveFollowupWorkManually: (idempotencyKey) =>
+      void resolveFollowupWorkManually(idempotencyKey),
     onUpdateLead: (leadRecordId, qualified) => void updateLead(leadRecordId, qualified),
   };
 

@@ -96,6 +96,5 @@ test('follow-up work uses idempotency key as the only durable lookup identity', 
   assert.match(repoContract, /getByIdempotencyKey/);
   assert.doesNotMatch(repoContract, /getByFollowupWorkId/);
   assert.doesNotMatch(dynamoRepo, /followup_work_id-index/);
-  assert.doesNotMatch(dynamoRepo, /QueryCommand/);
   assert.doesNotMatch(leadDataInfra, /followup_work_id-index/);
 });
