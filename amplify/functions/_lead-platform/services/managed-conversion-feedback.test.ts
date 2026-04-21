@@ -138,6 +138,13 @@ function createRepos() {
       listByLeadRecordId: async () => [] as JourneyEvent[],
       scanPage: async () => ({ items: [] as JourneyEvent[] }),
     },
+    followupWork: {
+      acquireLease: async () => false,
+      getById: async () => null,
+      getByIdempotencyKey: async () => null,
+      put: async () => undefined,
+      putIfAbsent: async () => true,
+    },
     leadRecords: {
       getById: async () => null,
       listByContactId: async () => [],

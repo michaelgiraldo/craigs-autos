@@ -1,7 +1,10 @@
-import type { QuoteDrafts, QuoteRequestRecord } from '../_lead-platform/domain/quote-request.ts';
+import type {
+  LeadFollowupDrafts,
+  LeadFollowupWorkItem,
+} from '../_lead-platform/domain/lead-followup-work.ts';
 
 export type LeadFollowupWorkerEvent = {
-  quote_request_id?: string | null;
+  followup_work_id?: string | null;
 };
 
 export type LambdaResult = {
@@ -10,11 +13,11 @@ export type LambdaResult = {
   body: string;
 };
 
-export type QuoteDraftGeneration = {
+export type LeadFollowupDraftGeneration = {
   aiError: string;
   aiModel: string;
   aiStatus: 'generated' | 'fallback';
-  drafts: QuoteDrafts;
+  drafts: LeadFollowupDrafts;
 };
 
 export type LeadFollowupWorkerDeps = {
@@ -22,31 +25,31 @@ export type LeadFollowupWorkerDeps = {
   smsAutomationEnabled: boolean;
   createLeaseId?: () => string;
   nowEpochSeconds: () => number;
-  getQuoteRequest: (quoteRequestId: string) => Promise<QuoteRequestRecord | null>;
+  getFollowupWork: (followupWorkId: string) => Promise<LeadFollowupWorkItem | null>;
   acquireLease: (args: {
-    quoteRequestId: string;
+    followupWorkId: string;
     leaseId: string;
     nowEpoch: number;
     leaseExpiresAt: number;
   }) => Promise<boolean>;
-  saveQuoteRequest: (record: QuoteRequestRecord) => Promise<void>;
-  generateDrafts: (record: QuoteRequestRecord) => Promise<QuoteDraftGeneration>;
+  saveFollowupWork: (record: LeadFollowupWorkItem) => Promise<void>;
+  generateDrafts: (record: LeadFollowupWorkItem) => Promise<LeadFollowupDraftGeneration>;
   sendSms: (args: {
     toE164: string;
     body: string;
   }) => Promise<{ id: string; status: string | null }>;
   sendCustomerEmail: (args: {
-    record: QuoteRequestRecord;
+    record: LeadFollowupWorkItem;
     to: string;
     subject: string;
     body: string;
   }) => Promise<{ messageId: string }>;
-  sendOwnerEmail: (args: { record: QuoteRequestRecord }) => Promise<{ messageId: string }>;
-  cleanupInboundEmailSource?: (record: QuoteRequestRecord) => Promise<void>;
-  syncLeadRecord?: (record: QuoteRequestRecord) => Promise<void>;
+  sendOwnerEmail: (args: { record: LeadFollowupWorkItem }) => Promise<{ messageId: string }>;
+  cleanupInboundEmailSource?: (record: LeadFollowupWorkItem) => Promise<void>;
+  syncLeadRecord?: (record: LeadFollowupWorkItem) => Promise<void>;
 };
 
-export type QuoteWorkflowOutcome = {
+export type LeadFollowupWorkflowOutcome = {
   body: Record<string, unknown>;
   statusCode: number;
 };

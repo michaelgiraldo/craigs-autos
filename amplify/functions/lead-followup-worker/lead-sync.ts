@@ -1,6 +1,6 @@
-import type { QuoteRequestRecord } from '../_lead-platform/domain/quote-request.ts';
+import type { LeadFollowupWorkItem } from '../_lead-platform/domain/lead-followup-work.ts';
 import type { LeadPlatformRepos } from '../_lead-platform/repos/dynamo.ts';
-import { applyLeadFollowupWorkerToLeadRecord } from '../_lead-platform/services/quote-request.ts';
+import { applyLeadFollowupWorkerToLeadRecord } from '../_lead-platform/services/followup-work.ts';
 import type { LeadFollowupWorkerDeps } from './types.ts';
 
 export function createLeadFollowupWorkerLeadSync(args: {
@@ -11,7 +11,7 @@ export function createLeadFollowupWorkerLeadSync(args: {
   repos: LeadPlatformRepos | null;
   source: string | null;
 }): LeadFollowupWorkerDeps['syncLeadRecord'] {
-  return async (record: QuoteRequestRecord) => {
+  return async (record: LeadFollowupWorkItem) => {
     if (!args.repos) return;
     await applyLeadFollowupWorkerToLeadRecord({
       repos: args.repos,

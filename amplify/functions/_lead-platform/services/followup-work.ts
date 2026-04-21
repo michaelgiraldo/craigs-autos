@@ -1,7 +1,8 @@
 import type { LeadContact } from '../domain/contact.ts';
+import type { AttributionSnapshot } from '../domain/attribution.ts';
 import type { Journey } from '../domain/journey.ts';
 import type { LeadRecord } from '../domain/lead-record.ts';
-import type { QuoteRequestRecord } from '../domain/quote-request.ts';
+import type { LeadFollowupWorkItem } from '../domain/lead-followup-work.ts';
 import type { LeadPlatformRepos } from '../repos/dynamo.ts';
 import {
   buildQuoteRequestOutreachEvents,
@@ -13,7 +14,7 @@ import { upsertLeadBundle } from './persist.ts';
 import { syncQuoLeadContact } from './quo-sync.ts';
 
 export type QuoteRequestLeadIntake = {
-  attribution: QuoteRequestRecord['attribution'];
+  attribution: AttributionSnapshot | null;
   clientEventId: string | null;
   email: string;
   journeyId: string | null;
@@ -26,7 +27,7 @@ export type QuoteRequestLeadIntake = {
   phone: string;
   service: string;
   siteLabel: string;
-  quoteRequestId: string;
+  followupWorkId: string;
   userId: string;
   vehicle: string;
 };
@@ -56,7 +57,7 @@ export async function persistQuoteRequestLeadIntake(args: {
   repos: LeadPlatformRepos;
 }): Promise<PersistedQuoteRequestLead> {
   const bundle = buildFormLeadBundle({
-    quoteRequestId: args.input.quoteRequestId,
+    quoteRequestId: args.input.followupWorkId,
     occurredAt: args.input.occurredAtMs,
     journeyId: args.input.journeyId,
     clientEventId: args.input.clientEventId,
@@ -84,7 +85,7 @@ export async function persistQuoteRequestLeadIntake(args: {
 
 async function resolveLeadContext(
   repos: LeadPlatformRepos,
-  record: QuoteRequestRecord,
+  record: LeadFollowupWorkItem,
 ): Promise<ResolvedLeadContext | null> {
   const directLeadRecord = record.lead_record_id
     ? await repos.leadRecords.getById(record.lead_record_id)
@@ -111,7 +112,7 @@ async function resolveLeadContext(
 
 export async function applyLeadFollowupWorkerToLeadRecord(args: {
   repos: LeadPlatformRepos;
-  record: QuoteRequestRecord;
+  record: LeadFollowupWorkItem;
   quoConfig: QuoteLeadSyncConfig;
 }): Promise<void> {
   const resolved = await resolveLeadContext(args.repos, args.record);
@@ -145,7 +146,7 @@ export async function applyLeadFollowupWorkerToLeadRecord(args: {
     occurredAtMs,
     recordedAtMs: occurredAtMs,
     record: args.record,
-    discriminator: `${args.record.quote_request_id}:${args.record.updated_at}`,
+    discriminator: `${args.record.followup_work_id}:${args.record.updated_at}`,
   });
   await args.repos.journeyEvents.appendMany(outreachEvents);
 

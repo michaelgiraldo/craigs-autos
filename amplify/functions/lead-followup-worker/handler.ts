@@ -16,12 +16,12 @@ export function createLeadFollowupWorkerHandler(deps: LeadFollowupWorkerDeps) {
 
     const parsed = parseLeadFollowupWorkerEvent(event);
     if (!parsed.ok) {
-      return json(400, { error: 'Missing quote_request_id' });
+      return json(400, { error: 'Missing followup_work_id' });
     }
 
     const outcome = await processLeadFollowupWorker({
       deps,
-      quoteRequestId: parsed.quoteRequestId,
+      followupWorkId: parsed.followupWorkId,
     });
     return json(outcome.statusCode, outcome.body);
   };

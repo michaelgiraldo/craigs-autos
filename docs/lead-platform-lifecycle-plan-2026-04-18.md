@@ -105,7 +105,7 @@ Why:
 
 Implementation:
 
-- Keep quote submit promotion in `_lead-platform/services/quote-request.ts`.
+- Keep quote submit promotion and follow-up sync in `_lead-platform/services/followup-work.ts`.
 - Keep chat promotion in `_lead-platform/services/intake-chat.ts` until it can be renamed cleanly.
 - Introduce shared promotion helpers only when quote and chat need the same behavior.
 - Keep contact normalization and merge logic in named lead-core services:

@@ -5,8 +5,10 @@
     "noEmit": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
+    "erasableSyntaxOnly": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
+    "verbatimModuleSyntax": true,
     "skipLibCheck": true
   }
 }

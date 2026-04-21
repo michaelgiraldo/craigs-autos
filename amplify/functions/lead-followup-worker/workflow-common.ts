@@ -2,20 +2,20 @@ import { buildReplySubject } from '../_shared/email-threading.ts';
 import { getErrorDetails } from '../_shared/safe.ts';
 import { isPlausibleEmail, phoneToE164 } from '../_shared/text-utils.ts';
 import type {
-  QuoteOutreachResult,
-  QuoteRequestRecord,
-} from '../_lead-platform/domain/quote-request.ts';
-import type { LeadFollowupWorkerDeps, QuoteWorkflowOutcome } from './types.ts';
+  LeadFollowupOutreachResult,
+  LeadFollowupWorkItem,
+} from '../_lead-platform/domain/lead-followup-work.ts';
+import type { LeadFollowupWorkerDeps, LeadFollowupWorkflowOutcome } from './types.ts';
 
-export function isEmailFirst(record: QuoteRequestRecord): boolean {
+export function isEmailFirst(record: LeadFollowupWorkItem): boolean {
   return record.capture_channel === 'email' || record.preferred_outreach_channel === 'email';
 }
 
-export function getUsableEmail(record: QuoteRequestRecord): string {
+export function getUsableEmail(record: LeadFollowupWorkItem): string {
   return isPlausibleEmail(record.email) ? record.email.trim() : '';
 }
 
-export function getOutreachResult(record: QuoteRequestRecord): QuoteOutreachResult {
+export function getOutreachResult(record: LeadFollowupWorkItem): LeadFollowupOutreachResult {
   const hasPhone = Boolean(phoneToE164(record.phone));
   const hasEmail = isPlausibleEmail(record.email);
 
@@ -39,18 +39,18 @@ export function getOutreachResult(record: QuoteRequestRecord): QuoteOutreachResu
   return null;
 }
 
-export async function persistRecord(deps: LeadFollowupWorkerDeps, record: QuoteRequestRecord) {
+export async function persistRecord(deps: LeadFollowupWorkerDeps, record: LeadFollowupWorkItem) {
   record.updated_at = deps.nowEpochSeconds();
-  await deps.saveQuoteRequest(record);
+  await deps.saveFollowupWork(record);
 }
 
-function chooseEmailSubject(record: QuoteRequestRecord, generatedSubject: string): string {
+function chooseEmailSubject(record: LeadFollowupWorkItem, generatedSubject: string): string {
   return isEmailFirst(record) && record.inbound_email_subject
     ? buildReplySubject(record.inbound_email_subject)
     : generatedSubject;
 }
 
-export async function ensureDrafts(deps: LeadFollowupWorkerDeps, record: QuoteRequestRecord) {
+export async function ensureDrafts(deps: LeadFollowupWorkerDeps, record: LeadFollowupWorkItem) {
   if (isEmailFirst(record) && record.email_subject && record.email_body) {
     const replySubject = chooseEmailSubject(record, record.email_subject);
     if (replySubject !== record.email_subject) {
@@ -77,7 +77,7 @@ export async function ensureDrafts(deps: LeadFollowupWorkerDeps, record: QuoteRe
 
 export async function attemptSmsOutreach(
   deps: LeadFollowupWorkerDeps,
-  record: QuoteRequestRecord,
+  record: LeadFollowupWorkItem,
   usablePhone: string | null,
 ) {
   if (usablePhone && record.sms_status !== 'sent') {
@@ -111,7 +111,7 @@ export async function attemptSmsOutreach(
 
 export async function skipSmsForEmailFirst(
   deps: LeadFollowupWorkerDeps,
-  record: QuoteRequestRecord,
+  record: LeadFollowupWorkItem,
 ) {
   if (!record.sms_status) {
     record.sms_status = 'skipped';
@@ -121,7 +121,7 @@ export async function skipSmsForEmailFirst(
 
 export async function attemptEmailOutreach(
   deps: LeadFollowupWorkerDeps,
-  record: QuoteRequestRecord,
+  record: LeadFollowupWorkItem,
   usablePhone: string | null,
   usableEmail: string,
 ) {
@@ -161,7 +161,10 @@ export async function attemptEmailOutreach(
   }
 }
 
-async function cleanupInboundEmailSource(deps: LeadFollowupWorkerDeps, record: QuoteRequestRecord) {
+async function cleanupInboundEmailSource(
+  deps: LeadFollowupWorkerDeps,
+  record: LeadFollowupWorkItem,
+) {
   if (
     !deps.cleanupInboundEmailSource ||
     !record.inbound_email_s3_bucket ||
@@ -179,8 +182,8 @@ async function cleanupInboundEmailSource(deps: LeadFollowupWorkerDeps, record: Q
 
 async function sendOwnerNotification(
   deps: LeadFollowupWorkerDeps,
-  record: QuoteRequestRecord,
-): Promise<QuoteWorkflowOutcome | null> {
+  record: LeadFollowupWorkItem,
+): Promise<LeadFollowupWorkflowOutcome | null> {
   if (record.owner_email_status === 'sent') {
     return null;
   }
@@ -207,10 +210,10 @@ async function sendOwnerNotification(
 
 export async function completeWorkflow(args: {
   deps: LeadFollowupWorkerDeps;
-  quoteRequestId: string;
-  record: QuoteRequestRecord;
-}): Promise<QuoteWorkflowOutcome> {
-  const { deps, quoteRequestId, record } = args;
+  followupWorkId: string;
+  record: LeadFollowupWorkItem;
+}): Promise<LeadFollowupWorkflowOutcome> {
+  const { deps, followupWorkId, record } = args;
 
   record.outreach_result = getOutreachResult(record);
 
@@ -228,7 +231,7 @@ export async function completeWorkflow(args: {
     statusCode: 200,
     body: {
       ok: true,
-      quote_request_id: quoteRequestId,
+      followup_work_id: followupWorkId,
       outreach_result: record.outreach_result,
     },
   };
@@ -236,9 +239,9 @@ export async function completeWorkflow(args: {
 
 export async function failWorkflow(args: {
   deps: LeadFollowupWorkerDeps;
-  record: QuoteRequestRecord;
+  record: LeadFollowupWorkItem;
   error: unknown;
-}): Promise<QuoteWorkflowOutcome> {
+}): Promise<LeadFollowupWorkflowOutcome> {
   const { message } = getErrorDetails(args.error);
   args.record.status = 'error';
   args.record.lock_expires_at = undefined;

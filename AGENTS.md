@@ -19,11 +19,13 @@ If you are new here, start with:
 - Hosting: AWS Amplify (Gen2) for static hosting + one public HTTP API routed to Lambdas.
 - Chat/agent: OpenAI ChatKit UI runtime + managed workflow in Agent Builder.
 - Lead delivery:
-  - chat: AWS SES transcript + internal AI summary to the shop
-  - form: `QuoteRequests` queue + async follow-up worker
+  - form, email, and chat all persist a lead bundle and enqueue `LeadFollowupWork`
+  - `lead-followup-worker` owns the first customer response, owner notification,
+    QUO SMS, SES customer email, and lead outreach sync
 - Reliability:
-  - chat idempotency keyed by ChatKit thread id (`cthr_...`)
-  - form idempotency / workflow state keyed by `quote_request_id`
+  - source-specific intake ledgers prevent duplicate source capture
+  - first-response idempotency is keyed by `LeadFollowupWork.idempotency_key`
+  - worker lease/workflow state is keyed by `followup_work_id`
 
 ## Key documentation
 
@@ -154,10 +156,7 @@ Do not store these in the frontend or in git.
 
 - SES must be configured in the same region as the Amplify backend.
 - Sender identity must be verified.
-- Defaults live in `amplify/functions/chat-handoff-promote/resource.ts`:
-  - `LEAD_TO_EMAIL` (recipient, default from `/business-profile/business-profile`)
-  - `LEAD_FROM_EMAIL` (sender, default from `/business-profile/business-profile`)
-- Quote follow-up defaults live in `amplify/functions/lead-followup-worker/resource.ts`:
+- Follow-up defaults live in `amplify/functions/lead-followup-worker/resource.ts`:
   - `CONTACT_TO_EMAIL` / `CONTACT_FROM_EMAIL`
   - `QUOTE_CUSTOMER_*`
 - Inbound email intake uses the hidden SES recipient
@@ -181,7 +180,7 @@ Identifiers:
 If you are debugging, always start by getting the thread id (`cthr_...`) and then:
 
 - OpenAI logs: `https://platform.openai.com/logs/cthr_...`
-- DynamoDB dedupe record (keyed by `thread_id = cthr_...`)
+- DynamoDB `LeadFollowupWork` record (`idempotency_key = chat:cthr_...`)
 - CloudWatch logs for the Lambda functions
 
 ## Where to make changes (rule of thumb)
@@ -207,30 +206,34 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
   - Change `amplify/functions/chat-session-create/handler.ts` (deploy required).
   - Also update the local mirror in `server/chatkit-dev.mjs`.
 
-- Chat lead handoff / notification email / idempotency:
+- Chat lead handoff / lead capture / idempotency:
   - Change `amplify/functions/chat-handoff-promote/*` and/or `amplify/backend.ts`.
+  - Chat handoff evaluates the thread, persists the lead, enqueues `LeadFollowupWork`,
+    and invokes `lead-followup-worker`.
+  - Do not send SES/QUO directly from `chat-handoff-promote`.
   - Shared outreach draft generation lives in `amplify/functions/_lead-platform/services/outreach-drafts.ts`.
   - Generic QUO client code lives in `amplify/functions/_shared/quo-client.ts`.
   - Generic text utilities live in `amplify/functions/_shared/text-utils.ts`.
 
-- Quote form follow-up workflow:
+- Shared lead follow-up workflow:
   - Lambda wrapper lives in `amplify/functions/quote-request-submit/handler.ts`
   - Request parsing lives in `amplify/functions/quote-request-submit/request.ts`
   - Intake validation lives in `amplify/functions/quote-request-submit/validation.ts`
   - Quote submit orchestration lives in `amplify/functions/quote-request-submit/submit-quote-request.ts`
   - AWS runtime wiring lives in `amplify/functions/quote-request-submit/runtime.ts`
-  - Quote request record shape lives in `amplify/functions/_lead-platform/domain/quote-request.ts`
-  - Journey/lead persistence and follow-up sync live in `amplify/functions/_lead-platform/services/quote-request.ts`
+  - Follow-up work shape lives in `amplify/functions/_lead-platform/domain/lead-followup-work.ts`
+  - Shared follow-up work Dynamo repo lives in `amplify/functions/_lead-platform/repos/dynamo/followup-work.ts`
+  - Journey/lead persistence and follow-up sync live in `amplify/functions/_lead-platform/services/followup-work.ts`
   - Async follow-up Lambda wrapper lives in `amplify/functions/lead-followup-worker/handler.ts`
   - Async follow-up orchestration lives in `amplify/functions/lead-followup-worker/process-lead-followup-worker.ts`
   - Follow-up state transitions live in `amplify/functions/lead-followup-worker/workflow.ts`
-  - DynamoDB quote request storage lives in `amplify/functions/lead-followup-worker/quote-request-store.ts`
+  - DynamoDB follow-up storage lives in `amplify/functions/lead-followup-worker/followup-work-store.ts`
   - SES/QUO adapters live in `amplify/functions/lead-followup-worker/customer-email.ts`, `owner-email.ts`, and `quo-sms.ts`
   - AWS/OpenAI/env wiring lives in `amplify/functions/lead-followup-worker/runtime.ts`
   - Do not put quote-submit business logic back into `handler.ts`; keep the handler as transport/response mapping
   - Do not put async follow-up business logic back into `lead-followup-worker/handler.ts`; keep the handler as transport/response mapping
   - Do not recreate worker-local lead sync helpers; follow-up outcomes should update lead records through the lead platform service
-  - QUO may be intentionally disabled; when that is true, quote requests should stay in manual follow-up rather than surfacing as SMS failures
+  - QUO may be intentionally disabled; when that is true, follow-up work should stay in manual follow-up rather than surfacing as SMS failures
 
 - Inbound email intake:
   - Google Workspace setup and runbook live in `docs/email-intake.md`
@@ -240,6 +243,7 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
   - OpenAI classification/drafting lives in `amplify/functions/email-intake-capture/evaluation.ts`
   - Intake orchestration lives in `amplify/functions/email-intake-capture/process-email-intake.ts`
   - Email lead bundle construction lives in `amplify/functions/_lead-platform/services/intake-email.ts`
+  - Accepted emails enqueue `LeadFollowupWork`; they do not create legacy quote queue records
   - Email-first follow-up behavior lives in `amplify/functions/lead-followup-worker/workflow.ts`
   - Threaded customer email lives in `amplify/functions/lead-followup-worker/customer-email.ts`
   - Owner photo attachment loading lives in `amplify/functions/lead-followup-worker/inbound-email-attachments.ts`
@@ -340,13 +344,13 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
 - Run: `npm run validate:content && npm run build`
 - Smoke test: `en`, `es`, `zh-hans`, `ar` (RTL)
 
-### Update email template
+### Update follow-up email templates
 
-- Edit: `amplify/functions/chat-handoff-promote/email-delivery.ts` (`sendTranscriptEmail`)
-- Keep both:
-  - HTML readable in Gmail desktop + mobile
-  - text version useful for quick scanning
-- Test with a NEW thread id (idempotency blocks re-sends for old threads).
+- Customer email: `amplify/functions/lead-followup-worker/customer-email.ts`
+- Owner email: `amplify/functions/lead-followup-worker/owner-email.ts`
+- Shared owner content: `amplify/functions/lead-followup-worker/email-content.ts`
+- Keep both HTML and text paths readable in Gmail desktop + mobile.
+- Test with a new `followup_work_id`; completed work is intentionally idempotent.
 
 ### Update quote request intake or lead follow-up
 
@@ -366,19 +370,18 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
   - `npm run build`
   - `npm run build:release` if the change affects release-generated social assets
 - Validate:
-  - form submit creates a `quote_request_id`
-  - `QuoteRequests` record moves `queued -> processing -> completed|error`
+  - form submit creates a `followup_work_id`
+  - `LeadFollowupWork` moves `queued -> processing -> completed|error`
   - owner email is sent
   - journey / lead record updates appear in admin
 
-### Change idempotency timing (lease/cooldown/ttl)
+### Change follow-up idempotency timing (lease/ttl)
 
-- Edit constants in `amplify/functions/chat-handoff-promote/handler.ts`:
-  - `LEAD_DEDUPE_LEASE_SECONDS`
-  - `LEAD_DEDUPE_ERROR_COOLDOWN_SECONDS`
-  - `LEAD_DEDUPE_TTL_DAYS`
+- Edit:
+  - `LEAD_FOLLOWUP_LEASE_SECONDS` in `amplify/functions/lead-followup-worker/process-lead-followup-worker.ts`
+  - `LEAD_FOLLOWUP_WORK_TTL_DAYS` in `amplify/functions/_lead-platform/domain/lead-followup-work.ts`
 - Validate:
-  - no duplicate handoffs/emails for the same `cthr_...`
+  - no duplicate first responses for the same source event
   - errors do not cause retry storms
 
 ### Change triggers (idle/pagehide/close)
@@ -388,8 +391,8 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
   - `idle`, `pagehide`, `chat_closed`
 - Confirm behavior:
   - `idle` fires after a quiet period (timer resets on in-chat activity)
-  - backend completes handoff once contact exists and readiness gates pass
-  - DynamoDB enforces "complete once per thread"
+  - backend enqueues follow-up work once contact exists and readiness gates pass
+  - DynamoDB enforces one first-response work item per `chat:cthr_...` idempotency key
 
 ## Security and privacy
 

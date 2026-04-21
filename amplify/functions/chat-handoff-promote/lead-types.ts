@@ -58,26 +58,4 @@ export type LeadSummary = {
   missing_info: string[];
 };
 
-export type LeadDedupeStatus = 'processing' | 'completed' | 'error';
-
-export type LeadDedupeRecord = {
-  thread_id: string;
-  status: LeadDedupeStatus;
-  lock_expires_at?: number;
-  lease_id?: string;
-  created_at?: number;
-  updated_at?: number;
-  attempts?: number;
-  completed_at?: number;
-  message_id?: string;
-  email_sent_at?: number;
-  email_message_id?: string;
-  quo_sent_at?: number;
-  quo_message_id?: string;
-  quo_last_error?: string;
-  last_reason?: string;
-  last_error?: string;
-  ttl?: number;
-};
-
 export type LeadAttributionPayload = AttributionSnapshot | null;

@@ -27,6 +27,7 @@ function responseForSubmitResult(result: SubmitQuoteRequestResult) {
 
   return jsonResponse(200, {
     ok: true,
+    followup_work_id: result.followupWorkId,
     ...(result.leadRecordId ? { lead_record_id: result.leadRecordId } : {}),
   });
 }

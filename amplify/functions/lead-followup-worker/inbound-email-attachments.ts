@@ -1,7 +1,7 @@
 import { GetObjectCommand, type S3Client } from '@aws-sdk/client-s3';
 import PostalMime, { type Attachment } from 'postal-mime';
 import type { OutgoingEmailAttachment } from '../_shared/outgoing-email.ts';
-import type { QuoteRequestRecord } from '../_lead-platform/domain/quote-request.ts';
+import type { LeadFollowupWorkItem } from '../_lead-platform/domain/lead-followup-work.ts';
 
 const ACCEPTED_PHOTO_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
 const MAX_OWNER_ATTACHMENT_BYTES = 8 * 1024 * 1024;
@@ -28,7 +28,7 @@ function extensionForMime(mimeType: string): string {
 
 export function createInboundEmailPhotoAttachmentLoader(args: {
   s3: S3Client | null;
-}): (record: QuoteRequestRecord) => Promise<OutgoingEmailAttachment[]> {
+}): (record: LeadFollowupWorkItem) => Promise<OutgoingEmailAttachment[]> {
   return async (record) => {
     if (!args.s3 || !record.inbound_email_s3_bucket || !record.inbound_email_s3_key) {
       return [];

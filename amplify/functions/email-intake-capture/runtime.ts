@@ -1,7 +1,7 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { LambdaClient, InvokeCommand } from '@aws-sdk/client-lambda';
 import { DeleteObjectCommand, GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
+import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import OpenAI from 'openai';
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
@@ -22,7 +22,6 @@ const envSchema = z.object({
   EMAIL_INTAKE_ORIGINAL_RECIPIENT: z.string().trim().email(),
   EMAIL_INTAKE_RECIPIENT: z.string().trim().email(),
   LEAD_FOLLOWUP_WORKER_FUNCTION_NAME: z.string().trim().min(1),
-  QUOTE_REQUESTS_TABLE_NAME: z.string().trim().min(1),
   SHOP_ADDRESS: z.string().trim().min(1),
   SHOP_NAME: z.string().trim().min(1),
   SHOP_PHONE_DISPLAY: z.string().trim().min(1),
@@ -112,20 +111,20 @@ export function createEmailIntakeRuntime(env: NodeJS.ProcessEnv = process.env): 
       Boolean(lambda) &&
       Boolean(s3) &&
       leadPlatformRuntime.configValid,
-    createQuoteRequestId: () => `email_${randomUUID()}`,
+    createFollowupWorkId: () => `email_${randomUUID()}`,
     deleteRawEmail: async (source) => {
       if (!s3) return;
       await s3.send(new DeleteObjectCommand({ Bucket: source.bucket, Key: source.key }));
     },
     evaluateLead: createOpenAiEmailLeadEvaluator({ config, openai }),
     getRawEmail: (source) => streamToBuffer(source, s3),
-    invokeFollowup: async (quoteRequestId) => {
+    invokeFollowup: async (followupWorkId) => {
       if (!lambda || !parsedEnv.success) return;
       await lambda.send(
         new InvokeCommand({
           FunctionName: parsedEnv.data.LEAD_FOLLOWUP_WORKER_FUNCTION_NAME,
           InvocationType: 'Event',
-          Payload: Buffer.from(JSON.stringify({ quote_request_id: quoteRequestId })),
+          Payload: Buffer.from(JSON.stringify({ followup_work_id: followupWorkId })),
         }),
       );
     },
@@ -138,14 +137,8 @@ export function createEmailIntakeRuntime(env: NodeJS.ProcessEnv = process.env): 
       leadPlatformRuntime,
       siteLabel: config.siteLabel,
     }),
-    queueQuoteRequest: async (record) => {
-      if (!db || !parsedEnv.success) return;
-      await db.send(
-        new PutCommand({
-          TableName: parsedEnv.data.QUOTE_REQUESTS_TABLE_NAME,
-          Item: record,
-        }),
-      );
+    enqueueFollowupWork: async (record) => {
+      await leadPlatformRuntime.repos?.followupWork.putIfAbsent(record);
     },
   };
 }

@@ -1,12 +1,14 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import type { QuoteRequestRecord } from '../_lead-platform/domain/quote-request.ts';
+import type { LeadFollowupWorkItem } from '../_lead-platform/domain/lead-followup-work.ts';
 import { processLeadFollowupWorker } from './process-lead-followup-worker.ts';
 import type { LeadFollowupWorkerDeps } from './types.ts';
 
-function makeRecord(overrides: Partial<QuoteRequestRecord> = {}): QuoteRequestRecord {
+function makeRecord(overrides: Partial<LeadFollowupWorkItem> = {}): LeadFollowupWorkItem {
   return {
-    quote_request_id: 'quote-request-1',
+    followup_work_id: 'followup-work-1',
+    idempotency_key: 'form:followup-work-1',
+    source_event_id: 'followup-work-1',
     status: 'queued',
     created_at: 1_000,
     updated_at: 1_000,
@@ -17,6 +19,7 @@ function makeRecord(overrides: Partial<QuoteRequestRecord> = {}): QuoteRequestRe
     vehicle: '2018 Toyota Camry',
     service: 'seat-repair',
     message: 'Driver seat tear',
+    capture_channel: 'form',
     origin: 'https://craigs.autos/request-a-quote',
     site_label: 'craigs.autos',
     journey_id: 'journey-1',
@@ -54,9 +57,9 @@ function makeDeps(overrides: Partial<LeadFollowupWorkerDeps> = {}): LeadFollowup
     smsAutomationEnabled: true,
     createLeaseId: () => 'lease-1',
     nowEpochSeconds: () => 2_000,
-    getQuoteRequest: async () => makeRecord(),
+    getFollowupWork: async () => makeRecord(),
     acquireLease: async () => true,
-    saveQuoteRequest: async () => undefined,
+    saveFollowupWork: async () => undefined,
     generateDrafts: async () => ({
       aiError: '',
       aiModel: 'gpt-test',
@@ -75,26 +78,26 @@ function makeDeps(overrides: Partial<LeadFollowupWorkerDeps> = {}): LeadFollowup
   };
 }
 
-test('processLeadFollowupWorker returns 404 when the quote request is missing', async () => {
+test('processLeadFollowupWorker returns 404 when the follow-up work is missing', async () => {
   const result = await processLeadFollowupWorker({
-    deps: makeDeps({ getQuoteRequest: async () => null }),
-    quoteRequestId: 'missing-quote request',
+    deps: makeDeps({ getFollowupWork: async () => null }),
+    followupWorkId: 'missing-follow-up work',
   });
 
   assert.equal(result.statusCode, 404);
-  assert.deepEqual(result.body, { error: 'Quote request not found' });
+  assert.deepEqual(result.body, { error: 'Follow-up work not found' });
 });
 
 test('processLeadFollowupWorker skips records that are already complete or actively leased', async () => {
   const completed = await processLeadFollowupWorker({
-    deps: makeDeps({ getQuoteRequest: async () => makeRecord({ status: 'completed' }) }),
-    quoteRequestId: 'quote-request-1',
+    deps: makeDeps({ getFollowupWork: async () => makeRecord({ status: 'completed' }) }),
+    followupWorkId: 'followup-work-1',
   });
   const inProgress = await processLeadFollowupWorker({
     deps: makeDeps({
-      getQuoteRequest: async () => makeRecord({ status: 'processing', lock_expires_at: 2_500 }),
+      getFollowupWork: async () => makeRecord({ status: 'processing', lock_expires_at: 2_500 }),
     }),
-    quoteRequestId: 'quote-request-1',
+    followupWorkId: 'followup-work-1',
   });
 
   assert.deepEqual(completed.body, { ok: true, skipped: true, reason: 'already_completed' });
@@ -104,7 +107,7 @@ test('processLeadFollowupWorker skips records that are already complete or activ
 test('processLeadFollowupWorker skips when the lease cannot be acquired', async () => {
   const result = await processLeadFollowupWorker({
     deps: makeDeps({ acquireLease: async () => false }),
-    quoteRequestId: 'quote-request-1',
+    followupWorkId: 'followup-work-1',
   });
 
   assert.equal(result.statusCode, 200);
@@ -112,19 +115,19 @@ test('processLeadFollowupWorker skips when the lease cannot be acquired', async 
 });
 
 test('processLeadFollowupWorker syncs the mutated completed record after workflow success', async () => {
-  let synced: QuoteRequestRecord | null = null;
+  let synced: LeadFollowupWorkItem | null = null;
   const result = await processLeadFollowupWorker({
     deps: makeDeps({
       syncLeadRecord: async (record) => {
         synced = { ...record };
       },
     }),
-    quoteRequestId: 'quote-request-1',
+    followupWorkId: 'followup-work-1',
   });
 
   assert.equal(result.statusCode, 200);
   assert.ok(synced);
-  const syncedRecord = synced as QuoteRequestRecord;
+  const syncedRecord = synced as LeadFollowupWorkItem;
   assert.equal(syncedRecord.status, 'completed');
   assert.equal(syncedRecord.sms_status, 'sent');
   assert.equal(syncedRecord.owner_email_status, 'sent');

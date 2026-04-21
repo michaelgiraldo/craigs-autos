@@ -1,47 +1,35 @@
+import { InvokeCommand } from '@aws-sdk/client-lambda';
 import { z } from 'zod';
 import { LEAD_EVENTS } from '@craigs/contracts/lead-event-contract';
+import { createLeadFollowupWorkItem } from '../_lead-platform/domain/lead-followup-work.ts';
+import { createLeadSourceEvent } from '../_lead-platform/domain/lead-source-event.ts';
 import { createStableJourneyId } from '../_lead-platform/domain/ids.ts';
 import { sanitizeAttributionSnapshot } from '../_lead-platform/domain/attribution.ts';
 import { createLeadPlatformRuntime } from '../_lead-platform/runtime.ts';
 import { decodeBody, emptyResponse, getHttpMethod, jsonResponse } from '../_shared/http.ts';
 import { getErrorDetails } from '../_shared/safe.ts';
-import {
-  acquireLeadHandoffLease,
-  getLeadDedupeRecord,
-  markLeadHandoffError,
-} from './dedupe-store.ts';
-import type { ChatHandoffPromoteRequest, LambdaEvent, LambdaResult } from './lead-types';
-import { createMessageLinkUrl as createMessageLinkTokenUrl } from './message-link';
+import type {
+  ChatHandoffPromoteRequest,
+  LambdaEvent,
+  LambdaResult,
+  LeadSummary,
+  TranscriptLine,
+} from './lead-types';
 import { deleteLeadRetrySchedule, upsertLeadRetrySchedule } from './retry-scheduler.ts';
 import {
   LEAD_IDLE_DELAY_SECONDS,
-  LEAD_EMAIL_RAW_MESSAGE_MAX_BYTES,
   LEAD_RETRY_GRACE_SECONDS,
-  LEAD_ACTION_LINK_TTL_DAYS,
-  SHOP_ADDRESS,
   SHOP_NAME,
   SHOP_PHONE_DIGITS,
   SHOP_PHONE_DISPLAY,
-  leadFromEmail,
+  leadFollowupLambda,
+  leadFollowupWorkerFunctionName,
   leadSummaryModel,
-  leadToEmail,
-  messageLinkDb,
-  messageLinkTokenTableName,
   nowEpochSeconds,
   openai,
-  quoApiKey,
-  quoEnabled,
-  quoFromPhoneNumberId,
-  quoContactExternalIdPrefix,
-  quoContactSource,
-  quoLeadTagsFieldKey,
-  quoLeadTagsFieldName,
-  quoUserId,
-  ses,
   isValidThreadId,
 } from './runtime.ts';
 import { evaluateChatLead } from './evaluation.ts';
-import { runChatOutreach } from './outreach-workflow.ts';
 import { persistCapturedChatLead } from './promotion.ts';
 import { persistChatWorkflowEvent } from './workflow-events.ts';
 
@@ -56,6 +44,35 @@ const chatHandoffPromotePayloadSchema = z.looseObject({
 });
 
 const leadPlatformRuntime = createLeadPlatformRuntime(process.env);
+
+function formatChatLeadMessage(args: {
+  leadSummary: LeadSummary;
+  lines: TranscriptLine[];
+}): string {
+  const summary = args.leadSummary.summary?.trim() || 'Chat lead captured from website chat.';
+  const transcript = args.lines
+    .map((line) => `${line.speaker}: ${line.text}`.trim())
+    .filter(Boolean)
+    .join('\n')
+    .slice(0, 3_000);
+
+  if (!transcript) return summary.slice(0, 4_000);
+  return `${summary}\n\nTranscript:\n${transcript}`.slice(0, 4_000);
+}
+
+async function invokeLeadFollowupWorker(followupWorkId: string): Promise<void> {
+  if (!leadFollowupLambda || !leadFollowupWorkerFunctionName.trim()) {
+    throw new Error('Lead follow-up worker is not configured');
+  }
+
+  await leadFollowupLambda.send(
+    new InvokeCommand({
+      FunctionName: leadFollowupWorkerFunctionName,
+      InvocationType: 'Event',
+      Payload: Buffer.from(JSON.stringify({ followup_work_id: followupWorkId })),
+    }),
+  );
+}
 
 export const handler = async (
   event: LambdaEvent | ChatHandoffPromoteRequest,
@@ -74,7 +91,7 @@ export const handler = async (
     return jsonResponse(405, { error: 'Method not allowed' });
   }
 
-  if (!openai || !leadPlatformRuntime.configValid) {
+  if (!openai || !leadPlatformRuntime.configValid || !leadFollowupLambda) {
     return jsonResponse(500, { error: 'Server missing configuration' });
   }
 
@@ -121,29 +138,23 @@ export const handler = async (
   const repos = leadPlatformRuntime.repos;
 
   try {
-    // Fast path: if this handoff is already complete, don't re-fetch transcripts or re-run outreach.
-    const now = nowEpochSeconds();
-    try {
-      const record = await getLeadDedupeRecord(threadId);
-      if (record?.status === 'completed') {
-        return jsonResponse(200, {
-          ok: true,
-          completed: true,
-          reason: 'already_completed',
-          completed_at: record.completed_at ?? null,
-        });
-      }
-      const lockExpiresAt =
-        typeof record?.lock_expires_at === 'number' ? record.lock_expires_at : 0;
-      if (record?.status === 'processing' && lockExpiresAt > now) {
-        return jsonResponse(200, { ok: true, completed: false, reason: 'in_progress' });
-      }
-      if (record?.status === 'error' && lockExpiresAt > now) {
-        return jsonResponse(200, { ok: true, completed: false, reason: 'cooldown' });
-      }
-    } catch (err: unknown) {
-      const { name, message } = getErrorDetails(err);
-      console.error('Lead dedupe read failed', name, message);
+    const existingWork = await repos?.followupWork.getByIdempotencyKey(`chat:${threadId}`);
+    if (existingWork?.status === 'queued' || existingWork?.status === 'processing') {
+      return jsonResponse(200, {
+        ok: true,
+        completed: false,
+        reason: 'followup_in_progress',
+        followup_work_id: existingWork.followup_work_id,
+      });
+    }
+    if (existingWork?.status === 'completed') {
+      return jsonResponse(200, {
+        ok: true,
+        completed: true,
+        reason: 'already_completed',
+        followup_work_id: existingWork.followup_work_id,
+        ...(existingWork.lead_record_id ? { lead_record_id: existingWork.lead_record_id } : {}),
+      });
     }
 
     const evaluation = await evaluateChatLead({
@@ -221,132 +232,88 @@ export const handler = async (
         scheduled_for: scheduledFor,
       });
     }
-    const {
-      attachments,
-      threadTitle,
-      threadUser,
-      lines,
+    const { threadTitle, threadUser, lines, leadSummary, customerPhone, customerEmail } =
+      evaluation;
+
+    const persistedLead = await persistCapturedChatLead({
+      repos,
+      threadId,
+      journeyId,
+      reason,
+      locale,
+      pageUrl,
+      userId: threadUser ?? chatUser,
+      attribution,
       leadSummary,
       customerPhone,
       customerEmail,
-      customerPhoneE164,
-    } = evaluation;
+      nowEpochSeconds,
+    });
 
-    // Acquire a per-thread lease before handoff so we never run the completed workflow twice
-    // for the same thread, even if multiple browser lifecycle events trigger this endpoint.
-    const lease = await acquireLeadHandoffLease({ threadId, reason });
-    if (!lease.acquired) {
-      if (lease.record?.status === 'completed') {
-        return jsonResponse(200, {
-          ok: true,
-          completed: true,
-          reason: 'already_completed',
-          completed_at: lease.record.completed_at ?? null,
-        });
-      }
-      const lockExpiresAt =
-        typeof lease.record?.lock_expires_at === 'number' ? lease.record.lock_expires_at : 0;
-      if (lease.record?.status === 'error' && lockExpiresAt > nowEpochSeconds()) {
-        return jsonResponse(200, { ok: true, completed: false, reason: 'cooldown' });
-      }
-      return jsonResponse(200, { ok: true, completed: false, reason: 'in_progress' });
-    }
-
-    let automatedTextSent = false;
-    let leadRecordId: string | null = null;
-    try {
-      const progress = await getLeadDedupeRecord(threadId);
-      const outreach = await runChatOutreach({
-        progress,
-        leaseId: lease.leaseId,
-        threadId,
+    const followupWorkId = `chat_${threadId}`;
+    const idempotencyKey = `chat:${threadId}`;
+    const sourceEvent = createLeadSourceEvent({
+      attribution,
+      contactId: persistedLead?.contactId ?? null,
+      email: customerEmail ?? leadSummary.customer_email ?? '',
+      idempotencyKey,
+      journeyId: persistedLead?.journeyId ?? journeyId,
+      leadRecordId: persistedLead?.leadRecordId ?? null,
+      locale,
+      message: formatChatLeadMessage({ leadSummary, lines }),
+      metadata: {
         reason,
-        locale,
-        pageUrl,
-        chatUser: threadUser ?? chatUser,
-        threadTitle,
-        attachments,
-        transcript: lines,
-        leadSummary,
-        attribution,
-        customerPhone,
-        customerPhoneE164,
-        quoEnabled,
-        quoApiKey: quoApiKey ?? null,
-        quoFromPhoneNumberId: quoFromPhoneNumberId ?? null,
-        quoUserId: quoUserId ?? null,
-        leadToEmail,
-        leadFromEmail,
-        shopName: SHOP_NAME,
-        shopPhoneDisplay: SHOP_PHONE_DISPLAY,
-        shopPhoneDigits: SHOP_PHONE_DIGITS,
-        shopAddress: SHOP_ADDRESS,
-        leadEmailRawMessageMaxBytes: LEAD_EMAIL_RAW_MESSAGE_MAX_BYTES,
-        nowEpochSeconds,
-        createMessageLinkUrl: (linkArgs) =>
-          createMessageLinkTokenUrl({
-            messageLinkDb,
-            messageLinkTokenTableName,
-            threadId: linkArgs.threadId,
-            kind: linkArgs.kind,
-            toPhone: linkArgs.toPhone,
-            body: linkArgs.body,
-            baseUrl: linkArgs.baseUrl,
-            ttlDays: LEAD_ACTION_LINK_TTL_DAYS,
-            nowEpochSeconds,
-          }),
-        ses,
-      });
-      automatedTextSent = outreach.automatedTextSent;
+        thread_title: threadTitle,
+      },
+      name: leadSummary.customer_name,
+      occurredAtMs: nowEpochSeconds() * 1000,
+      origin: `chat:${reason}`,
+      pageUrl,
+      phone: customerPhone ?? leadSummary.customer_phone ?? '',
+      service: leadSummary.project ?? '',
+      siteLabel: SHOP_NAME,
+      source: 'chat',
+      sourceEventId: threadId,
+      userId: threadUser ?? chatUser,
+      vehicle: leadSummary.vehicle ?? '',
+    });
 
-      try {
-        leadRecordId = await persistCapturedChatLead({
-          repos,
-          threadId,
-          journeyId,
-          reason,
-          locale,
-          pageUrl,
-          userId: threadUser ?? chatUser,
-          attribution,
-          leadSummary,
-          customerPhone,
-          customerEmail,
-          initialOutreach: outreach.initialOutreach,
-          nowEpochSeconds,
-          quoApiKey: quoApiKey ?? null,
-          quoLeadTagsFieldKey: quoLeadTagsFieldKey ?? null,
-          quoLeadTagsFieldName: quoLeadTagsFieldName ?? null,
-          quoContactSource: quoContactSource ?? null,
-          quoContactExternalIdPrefix: quoContactExternalIdPrefix ?? null,
-        });
-      } catch (err: unknown) {
-        const { name, message } = getErrorDetails(err);
-        console.error('Lead persistence failed', name, message);
-      }
+    const workItem = createLeadFollowupWorkItem({
+      attribution: sourceEvent.attribution,
+      captureChannel: sourceEvent.source,
+      contactId: sourceEvent.contact_id,
+      email: sourceEvent.email,
+      followupWorkId,
+      idempotencyKey: sourceEvent.idempotency_key,
+      journeyId: sourceEvent.journey_id,
+      leadRecordId: sourceEvent.lead_record_id,
+      locale: sourceEvent.locale,
+      message: sourceEvent.message,
+      name: sourceEvent.name,
+      nowEpochSeconds: nowEpochSeconds(),
+      origin: sourceEvent.origin,
+      pageUrl: sourceEvent.page_url,
+      phone: sourceEvent.phone,
+      preferredOutreachChannel: 'sms',
+      service: sourceEvent.service,
+      siteLabel: sourceEvent.site_label,
+      sourceEventId: sourceEvent.source_event_id,
+      chatThreadId: threadId,
+      chatThreadTitle: threadTitle,
+      userId: sourceEvent.user_id,
+      vehicle: sourceEvent.vehicle,
+    });
 
-      await deleteLeadRetrySchedule(threadId);
-    } catch (err: unknown) {
-      const { message } = getErrorDetails(err);
-      try {
-        await markLeadHandoffError({
-          threadId,
-          leaseId: lease.leaseId,
-          errorMessage: message ?? 'Failed to promote chat handoff',
-        });
-      } catch (markErr: unknown) {
-        const { name, message: markMessage } = getErrorDetails(markErr);
-        console.error('Lead dedupe mark error failed', name, markMessage);
-      }
-      throw err;
-    }
+    await repos?.followupWork.putIfAbsent(workItem);
+    await invokeLeadFollowupWorker(followupWorkId);
+    await deleteLeadRetrySchedule(threadId);
 
     return jsonResponse(200, {
       ok: true,
-      completed: true,
+      completed: false,
       reason,
-      automated_text_sent: automatedTextSent,
-      ...(leadRecordId ? { lead_record_id: leadRecordId } : {}),
+      followup_work_id: followupWorkId,
+      ...(persistedLead?.leadRecordId ? { lead_record_id: persistedLead.leadRecordId } : {}),
     });
   } catch (err: unknown) {
     const { name, message } = getErrorDetails(err);

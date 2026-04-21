@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import type { QuoteRequestRecord } from '../_lead-platform/domain/quote-request.ts';
+import type { LeadFollowupWorkItem } from '../_lead-platform/domain/lead-followup-work.ts';
 import { processEmailIntakeEvent } from './process-email-intake.ts';
 import type {
   EmailIntakeDeps,
@@ -37,7 +37,7 @@ function makeDeps(overrides: Partial<EmailIntakeDeps> = {}): EmailIntakeDeps {
       siteLabel: 'craigs.autos',
     },
     configValid: true,
-    createQuoteRequestId: () => 'email_quote_1',
+    createFollowupWorkId: () => 'email_quote_1',
     deleteRawEmail: async () => undefined,
     evaluateLead: async ({ email }) => ({
       aiError: '',
@@ -81,7 +81,7 @@ function makeDeps(overrides: Partial<EmailIntakeDeps> = {}): EmailIntakeDeps {
       journeyId: 'journey-1',
       leadRecordId: 'lead-1',
     }),
-    queueQuoteRequest: async () => undefined,
+    enqueueFollowupWork: async () => undefined,
     ...overrides,
   };
 }
@@ -101,7 +101,7 @@ function s3Event(source: S3EmailSource = { bucket: 'email-bucket', key: 'raw/mes
 
 test('email intake queues an accepted Google-routed lead for email-first follow-up', async () => {
   const persistedInputs: PersistEmailLeadInput[] = [];
-  const queuedRecords: QuoteRequestRecord[] = [];
+  const queuedRecords: LeadFollowupWorkItem[] = [];
   let invokedQuoteRequestId = '';
   let deleted = false;
 
@@ -109,8 +109,8 @@ test('email intake queues an accepted Google-routed lead for email-first follow-
     deleteRawEmail: async () => {
       deleted = true;
     },
-    invokeFollowup: async (quoteRequestId) => {
-      invokedQuoteRequestId = quoteRequestId;
+    invokeFollowup: async (followupWorkId) => {
+      invokedQuoteRequestId = followupWorkId;
     },
     persistEmailLead: async (input) => {
       persistedInputs.push(input);
@@ -120,7 +120,7 @@ test('email intake queues an accepted Google-routed lead for email-first follow-
         leadRecordId: 'lead-1',
       };
     },
-    queueQuoteRequest: async (record) => {
+    enqueueFollowupWork: async (record) => {
       queuedRecords.push(record);
     },
   });

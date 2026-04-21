@@ -3,8 +3,8 @@
 This document describes the AWS backend for ChatKit lead intake:
 
 - How sessions are minted (ephemeral client secrets)
-- How transcripts are fetched, evaluated, and handed off to the shop
-- How idempotency is enforced (complete once per ChatKit thread id)
+- How transcripts are fetched, evaluated, persisted, and queued for shared follow-up
+- How idempotency is enforced through `LeadFollowupWork`
 
 Related docs:
 
@@ -21,10 +21,9 @@ Related docs:
     - Lambda functions
     - Public HTTP API routes
     - API CORS configuration
-    - SES IAM permissions
-    - DynamoDB idempotency table
+    - SES IAM permissions for the shared follow-up worker
+    - DynamoDB `LeadFollowupWork` table
     - Journey-first lead tables
-    - `QuoteRequests` queue table
     - Build outputs (`custom.api_base_url`)
 
 - Session minting function:
@@ -34,9 +33,16 @@ Related docs:
 - Chat lead handoff function:
   - `amplify/functions/chat-handoff-promote/resource.ts`
   - `amplify/functions/chat-handoff-promote/handler.ts`
-  - `amplify/functions/chat-handoff-promote/email-delivery.ts`
   - `amplify/functions/chat-handoff-promote/lead-summary.ts`
   - `amplify/functions/chat-handoff-promote/transcript.ts`
+
+- Shared first-response worker:
+  - `amplify/functions/lead-followup-worker/handler.ts`
+  - `amplify/functions/lead-followup-worker/process-lead-followup-worker.ts`
+  - `amplify/functions/lead-followup-worker/workflow.ts`
+  - `amplify/functions/lead-followup-worker/customer-email.ts`
+  - `amplify/functions/lead-followup-worker/owner-email.ts`
+  - `amplify/functions/lead-followup-worker/quo-sms.ts`
 
 - Message link resolver function:
   - `amplify/functions/lead-action-link-resolve/resource.ts`
@@ -67,29 +73,28 @@ Craig's business identity and lead-delivery defaults are sourced from
 `CRAIGS_LEAD_ENV_DEFAULTS` instead of duplicating shop name, phone, address,
 email, domain, map URL, QUO source, or QUO external-id strings.
 
-Shop notification email defaults (can be overridden later):
-
-- `LEAD_TO_EMAIL` (default from `packages/business-profile/src/business-profile.js`)
-- `LEAD_FROM_EMAIL` (default from `packages/business-profile/src/business-profile.js`)
 - `LEAD_SUMMARY_MODEL` (default: `gpt-5.2-2025-12-11`)
 - `MANAGED_CONVERSION_DESTINATIONS` (legacy/env bootstrap only; prefer the config-as-code CLI below)
-
-Idempotency wiring (injected by `amplify/backend.ts`):
-
-- `LEAD_DEDUPE_TABLE_NAME`
-- `LEAD_ACTION_LINKS_TABLE_NAME` (for both `lead-action-link-resolve` and `chat-handoff-promote`)
 
 Journey-first lead wiring (injected by `amplify/backend.ts`):
 
 - `LEAD_CONTACTS_TABLE_NAME`
 - `LEAD_JOURNEYS_TABLE_NAME`
 - `LEAD_JOURNEY_EVENTS_TABLE_NAME`
+- `LEAD_FOLLOWUP_WORK_TABLE_NAME`
 - `LEAD_RECORDS_TABLE_NAME`
 - `LEAD_CONVERSION_DECISIONS_TABLE_NAME`
 - `LEAD_CONVERSION_FEEDBACK_OUTBOX_TABLE_NAME`
 - `LEAD_CONVERSION_FEEDBACK_OUTCOMES_TABLE_NAME`
 - `PROVIDER_CONVERSION_DESTINATIONS_TABLE_NAME`
-- `LEAD_ACTION_LINKS_TABLE_NAME`
+
+Follow-up producer wiring (injected by `amplify/backend/dynamo/lead-data.ts`):
+
+- `LEAD_FOLLOWUP_WORKER_FUNCTION_NAME` on quote submit, email intake, and chat handoff
+
+Action-link resolver wiring:
+
+- `LEAD_ACTION_LINKS_TABLE_NAME` on `lead-action-link-resolve`
 
 Managed-conversion worker defaults:
 
@@ -153,20 +158,16 @@ Lifecycle rules:
 - The active lifecycle refactor plan and edge-case matrix live in `docs/lead-platform-lifecycle-plan-2026-04-18.md`.
 - Meaningful visitor actions should append journey events; only quote submit success and completed chat handoff currently promote a journey to a lead record.
 
-Quote form wiring (injected by `amplify/backend.ts`):
+Shared lead follow-up code:
 
-- `QUOTE_REQUESTS_TABLE_NAME`
-- `LEAD_FOLLOWUP_WORKER_FUNCTION_NAME`
-
-Quote request domain code:
-
-- Quote request record types and default state live in `amplify/functions/_lead-platform/domain/quote-request.ts`.
-- Quote request journey persistence and follow-up-to-lead sync live in `amplify/functions/_lead-platform/services/quote-request.ts`.
+- Follow-up work record types and default state live in `amplify/functions/_lead-platform/domain/lead-followup-work.ts`.
+- Follow-up work DynamoDB access lives in `amplify/functions/_lead-platform/repos/dynamo/followup-work.ts`.
+- Form lead persistence and follow-up-to-lead sync live in `amplify/functions/_lead-platform/services/followup-work.ts`.
 - Quote request HTTP response mapping lives in `amplify/functions/quote-request-submit/handler.ts`.
 - Quote request parsing, validation, submit orchestration, and AWS runtime wiring live in separate files under `amplify/functions/quote-request-submit/`.
-- Quote follow-up HTTP response mapping lives in `amplify/functions/lead-followup-worker/handler.ts`.
-- Quote follow-up orchestration, state transitions, DynamoDB storage, SES delivery, QUO SMS, lead sync, and AWS/OpenAI runtime wiring live in separate files under `amplify/functions/lead-followup-worker/`.
-- Public submit handlers and async workers should call the lead-core service instead of keeping separate worker-local lead sync logic.
+- The shared follow-up worker HTTP response mapping lives in `amplify/functions/lead-followup-worker/handler.ts`.
+- Follow-up orchestration, state transitions, DynamoDB storage, SES delivery, QUO SMS, lead sync, and AWS/OpenAI runtime wiring live in separate files under `amplify/functions/lead-followup-worker/`.
+- Public submit/intake/handoff handlers should enqueue `LeadFollowupWork`; they should not send SES or QUO directly.
 
 Shared backend utilities:
 
@@ -278,8 +279,8 @@ Purpose:
 - Extract actionable contact info
 - Generate internal helper content (summary/next steps/call script/outreach)
 - Persist the captured lead journey
-- Send the shop notification email via SES and QUO SMS when configured
-- Enforce complete-once behavior with DynamoDB
+- Enqueue `LeadFollowupWork` for the shared worker
+- Enforce first-response idempotency through `LeadFollowupWork.idempotency_key`
 
 Implementation:
 
@@ -313,14 +314,11 @@ Implementation:
    - We intentionally avoid "handoff after every assistant response" because it can
      snapshot the thread mid-conversation (see `docs/chatkit/chat-handoff-promote-before-after.md`).
    - Final completion gate is `handoff_ready` from the summary model.
-8) Acquire handoff lease in DynamoDB (threadId-keyed)
-9) Run handoff side effects:
-   - QUO SMS when enabled/configured
-   - multipart MIME shop email via SES (plain text + HTML + optional inline images)
-   - journey-first lead persistence
-10) Mark DynamoDB record as `completed` (or `error` with cooldown)
+8) Persist the journey-first lead bundle.
+9) Create `LeadFollowupWork` with `idempotency_key = chat:<threadId>`.
+10) Asynchronously invoke `lead-followup-worker`.
 
-### Idempotency: DynamoDB lease model
+### Idempotency: LeadFollowupWork
 
 Idempotency is required because the frontend can call the chat lead handoff endpoint
 multiple times:
@@ -333,73 +331,40 @@ Also: users can open multiple tabs/devices.
 
 Design:
 
-- DynamoDB table: `ChatHandoffPromoteDedupeTable`
-  - partition key: `thread_id` (string)
+- DynamoDB table: `LeadFollowupWork`
+  - partition key: `followup_work_id` (string)
+  - GSI: `idempotency_key-index`
   - TTL attribute: `ttl`
-  - removal policy: RETAIN (safe for production)
+  - removal policy: `DESTROY` in this hard-cut implementation
 
-Record states:
+Chat uses:
 
-- `processing` (lease acquired; a handoff is in progress)
-- `completed` (handoff side effects completed)
-- `error` (handoff failed; short cooldown to avoid retry storms)
-
-Key fields stored:
-
-- `thread_id`
-- `status`
-- `lease_id`
-- `lock_expires_at`
-- `completed_at`
-- `email_sent_at`
-- `email_message_id` (SES MessageId)
-- `quo_sent_at`
-- `quo_message_id`
-- `attempts`
-- `last_error`
-- `ttl` (for automatic cleanup)
+- `followup_work_id = chat_<cthr_...>`
+- `idempotency_key = chat:<cthr_...>`
 
 Semantics:
 
-- If record is `completed`: endpoint returns `{ completed: true, reason: "already_completed" }` without reprocessing.
-- If record is `processing` and lease not expired: endpoint returns `{ completed: false, reason: "in_progress" }`.
-- If record is `error` and cooldown not expired: endpoint returns `{ completed: false, reason: "cooldown" }`.
-- Otherwise: acquire lease, run handoff, mark completed or mark error.
+- If a chat work item is `queued` or `processing`, the handoff endpoint returns `followup_in_progress`.
+- If a chat work item is `completed`, the endpoint returns `already_completed`.
+- The worker owns leasing with `LEAD_FOLLOWUP_LEASE_SECONDS`.
 
-Lease/cooldown tuning constants live in `amplify/functions/chat-handoff-promote/handler.ts`:
+### SES and QUO delivery
 
-- `LEAD_DEDUPE_LEASE_SECONDS`
-- `LEAD_DEDUPE_ERROR_COOLDOWN_SECONDS`
-- `LEAD_DEDUPE_TTL_DAYS`
-
-### SES email sending
-
-SES is used for email delivery.
+SES and QUO delivery are centralized in `lead-followup-worker`, not `chat-handoff-promote`.
 
 Permissions:
 
 - `ses:SendEmail`
 - `ses:SendRawEmail`
 
-are granted in `amplify/backend.ts`.
+are granted to the worker in backend wiring.
 
-Email template assembly:
+Delivery code:
 
-- `sendTranscriptEmail(...)` in `amplify/functions/chat-handoff-promote/email-delivery.ts`
-
-It produces:
-
-- plain text part
-- HTML part with:
-  - clickable phone/email/thread links
-  - quick-action chips (tel/sms/mail/open page/open logs)
-  - call script prompts
-  - copy/paste drafts (SMS, email subject/body, suggested outreach)
-  - transcript
-- optional inline photos rendered with `Content-ID` CID references when attachments are
-  small image previews from attachment storage
-
-If you modify the email template, keep both HTML and text in sync.
+- Customer email: `amplify/functions/lead-followup-worker/customer-email.ts`
+- Owner email: `amplify/functions/lead-followup-worker/owner-email.ts`
+- Owner email content: `amplify/functions/lead-followup-worker/email-content.ts`
+- QUO SMS: `amplify/functions/lead-followup-worker/quo-sms.ts`
 
 ### Summary generation (Responses.parse)
 
@@ -452,19 +417,24 @@ current branch environment.
 ### Change email recipient or sender
 
 1) Update:
-   - `amplify/functions/chat-handoff-promote/resource.ts`
+   - `amplify/functions/lead-followup-worker/resource.ts`
 2) Verify sender identity in SES for the region.
 3) Deploy.
 
-### Change email template
+### Change follow-up email template
 
-1) Update `sendTranscriptEmail(...)` in `amplify/functions/chat-handoff-promote/email-delivery.ts`.
+1) Update the worker email adapters/content:
+   - `amplify/functions/lead-followup-worker/customer-email.ts`
+   - `amplify/functions/lead-followup-worker/owner-email.ts`
+   - `amplify/functions/lead-followup-worker/email-content.ts`
 2) Keep HTML + text versions usable (shop staff may read either).
-3) Deploy and test by starting a new thread (idempotency blocks re-sends).
+3) Deploy and test with a new lead source event (completed follow-up work blocks re-sends).
 
-### Change idempotency timing (lease/cooldown/ttl)
+### Change idempotency timing (lease/ttl)
 
-1) Update constants in `amplify/functions/chat-handoff-promote/handler.ts`.
+1) Update:
+   - `LEAD_FOLLOWUP_LEASE_SECONDS` in `amplify/functions/lead-followup-worker/process-lead-followup-worker.ts`
+   - `LEAD_FOLLOWUP_WORK_TTL_DAYS` in `amplify/functions/_lead-platform/domain/lead-followup-work.ts`
 2) Deploy.
 3) Validate:
    - duplicates do not occur

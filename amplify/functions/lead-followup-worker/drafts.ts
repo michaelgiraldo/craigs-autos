@@ -1,13 +1,16 @@
 import type OpenAI from 'openai';
 import { getErrorDetails } from '../_shared/safe.ts';
-import type { QuoteDrafts, QuoteRequestRecord } from '../_lead-platform/domain/quote-request.ts';
+import type {
+  LeadFollowupDrafts,
+  LeadFollowupWorkItem,
+} from '../_lead-platform/domain/lead-followup-work.ts';
 import { buildOutreachDrafts } from '../_lead-platform/services/outreach-drafts.ts';
 
-type QuoteDraftGenerationResult = {
+type LeadFollowupDraftGenerationResult = {
   aiError: string;
   aiModel: string;
   aiStatus: 'generated' | 'fallback';
-  drafts: QuoteDrafts;
+  drafts: LeadFollowupDrafts;
 };
 
 function compact(value: string): string {
@@ -17,7 +20,7 @@ function compact(value: string): string {
     .trim();
 }
 
-function missingInfoForQuoteRequest(record: QuoteRequestRecord): string[] {
+function missingInfoForQuoteRequest(record: LeadFollowupWorkItem): string[] {
   const missing: string[] = [];
   if (!record.vehicle) missing.push('vehicle details');
   if (!record.service) missing.push('service needed');
@@ -26,13 +29,13 @@ function missingInfoForQuoteRequest(record: QuoteRequestRecord): string[] {
   return missing;
 }
 
-export function buildFallbackQuoteDrafts(args: {
-  record: QuoteRequestRecord;
+export function buildFallbackLeadFollowupDrafts(args: {
+  record: LeadFollowupWorkItem;
   shopAddress: string;
   shopName: string;
   shopPhoneDigits: string;
   shopPhoneDisplay: string;
-}): QuoteDrafts {
+}): LeadFollowupDrafts {
   const drafts = buildOutreachDrafts({
     leadSummary: {
       customer_name: args.record.name || null,
@@ -54,7 +57,7 @@ export function buildFallbackQuoteDrafts(args: {
   };
 }
 
-function sanitizeDraftOutput(input: unknown): QuoteDrafts | null {
+function sanitizeDraftOutput(input: unknown): LeadFollowupDrafts | null {
   if (!input || typeof input !== 'object') return null;
   const data = input as Record<string, unknown>;
   const smsBody = typeof data.sms_body === 'string' ? compact(data.sms_body) : '';
@@ -71,16 +74,16 @@ function sanitizeDraftOutput(input: unknown): QuoteDrafts | null {
   return { smsBody, emailSubject, emailBody, missingInfo };
 }
 
-export async function generateQuoteDrafts(args: {
+export async function generateLeadFollowupDrafts(args: {
   openai: OpenAI | null;
   model: string;
-  record: QuoteRequestRecord;
+  record: LeadFollowupWorkItem;
   shopAddress: string;
   shopName: string;
   shopPhoneDigits: string;
   shopPhoneDisplay: string;
-}): Promise<QuoteDraftGenerationResult> {
-  const fallbackDrafts = buildFallbackQuoteDrafts(args);
+}): Promise<LeadFollowupDraftGenerationResult> {
+  const fallbackDrafts = buildFallbackLeadFollowupDrafts(args);
   const model = args.model.trim();
 
   if (!args.openai || !model) {
@@ -96,7 +99,7 @@ export async function generateQuoteDrafts(args: {
     const response = await args.openai.responses.parse({
       model,
       instructions: [
-        'You draft the first customer follow-up for an auto upholstery quote request.',
+        'You draft the first customer follow-up for an auto upholstery follow-up work.',
         'This is not a price quote. It is an acknowledgment and next-step message.',
         '',
         'Rules:',

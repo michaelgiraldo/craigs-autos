@@ -1,16 +1,18 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { LEAD_EVENTS } from '@craigs/contracts/lead-event-contract';
-import type { QuoteRequestRecord } from '../domain/quote-request.ts';
+import type { LeadFollowupWorkItem } from '../domain/lead-followup-work.ts';
 import type { LeadContact } from '../domain/contact.ts';
 import type { Journey } from '../domain/journey.ts';
 import type { JourneyEvent } from '../domain/journey-event.ts';
 import type { LeadRecord } from '../domain/lead-record.ts';
-import { applyLeadFollowupWorkerToLeadRecord } from './quote-request.ts';
+import { applyLeadFollowupWorkerToLeadRecord } from './followup-work.ts';
 
-function makeQuoteRecord(overrides: Partial<QuoteRequestRecord> = {}): QuoteRequestRecord {
+function makeQuoteRecord(overrides: Partial<LeadFollowupWorkItem> = {}): LeadFollowupWorkItem {
   return {
-    quote_request_id: 'quote-request-1',
+    followup_work_id: 'quote-request-1',
+    idempotency_key: 'form:quote-request-1',
+    source_event_id: 'quote-request-1',
     status: 'completed',
     created_at: 1_000,
     updated_at: 2_000,
@@ -21,6 +23,7 @@ function makeQuoteRecord(overrides: Partial<QuoteRequestRecord> = {}): QuoteRequ
     vehicle: '2018 Toyota Camry',
     service: 'seat-repair',
     message: 'Driver seat tear',
+    capture_channel: 'form',
     origin: 'https://example.test/contact',
     site_label: 'example.test',
     journey_id: 'journey-1',

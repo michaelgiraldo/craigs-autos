@@ -1,7 +1,7 @@
 import type {
-  QuoteOutreachResult,
-  QuoteRequestRecord,
-} from '../_lead-platform/domain/quote-request.ts';
+  LeadFollowupOutreachResult,
+  LeadFollowupWorkItem,
+} from '../_lead-platform/domain/lead-followup-work.ts';
 import { escapeHtml } from '../_shared/text-utils.ts';
 
 function compact(value: string): string {
@@ -11,8 +11,8 @@ function compact(value: string): string {
     .trim();
 }
 
-export function buildQuoteContext(record: QuoteRequestRecord): string {
-  return [record.vehicle, record.service].filter(Boolean).join(' - ') || 'quote request';
+export function buildQuoteContext(record: LeadFollowupWorkItem): string {
+  return [record.vehicle, record.service].filter(Boolean).join(' - ') || 'follow-up work';
 }
 
 export function buildCustomerEmailHtml(body: string): string {
@@ -29,7 +29,10 @@ export function buildCustomerEmailHtml(body: string): string {
   `;
 }
 
-export function buildResultLabel(result: QuoteOutreachResult, smsConfigured: boolean): string {
+export function buildResultLabel(
+  result: LeadFollowupOutreachResult,
+  smsConfigured: boolean,
+): string {
   switch (result) {
     case 'sms_sent':
       return 'SMS sent via QUO';
@@ -50,7 +53,10 @@ export function buildResultLabel(result: QuoteOutreachResult, smsConfigured: boo
   }
 }
 
-export function buildOwnerEmailContent(args: { record: QuoteRequestRecord; resultLabel: string }): {
+export function buildOwnerEmailContent(args: {
+  record: LeadFollowupWorkItem;
+  resultLabel: string;
+}): {
   subject: string;
   text: string;
   html: string;

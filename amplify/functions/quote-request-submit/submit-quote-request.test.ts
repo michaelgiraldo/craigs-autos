@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import type { QuoteRequestRecord } from '../_lead-platform/domain/quote-request.ts';
-import type { QuoteRequestLeadIntake } from '../_lead-platform/services/quote-request.ts';
+import type { LeadFollowupWorkItem } from '../_lead-platform/domain/lead-followup-work.ts';
+import type { QuoteRequestLeadIntake } from '../_lead-platform/services/followup-work.ts';
 import type { QuoteRequestSubmitRequest } from './request.ts';
 import { submitQuoteRequest } from './submit-quote-request.ts';
 
@@ -29,14 +29,14 @@ function makeRequest(
   };
 }
 
-test('submitQuoteRequest persists lead context before queueing the quote request', async () => {
-  const queued: QuoteRequestRecord[] = [];
+test('submitQuoteRequest persists lead context before queueing the follow-up work', async () => {
+  const queued: LeadFollowupWorkItem[] = [];
   const persistedInputs: QuoteRequestLeadIntake[] = [];
   const invoked: string[] = [];
 
   const result = await submitQuoteRequest(makeRequest(), {
     configValid: true,
-    createQuoteRequestId: () => 'quote-request-1',
+    createFollowupWorkId: () => 'quote-request-1',
     nowEpochSeconds: () => 1_000,
     siteLabel: 'craigs.autos',
     persistQuoteRequest: async (input) => {
@@ -47,11 +47,11 @@ test('submitQuoteRequest persists lead context before queueing the quote request
         leadRecordId: 'lead-1',
       };
     },
-    queueQuoteRequest: async (record) => {
+    enqueueFollowupWork: async (record) => {
       queued.push(record);
     },
-    invokeFollowup: async (quoteRequestId) => {
-      invoked.push(quoteRequestId);
+    invokeFollowup: async (followupWorkId) => {
+      invoked.push(followupWorkId);
     },
   });
 
@@ -59,18 +59,21 @@ test('submitQuoteRequest persists lead context before queueing the quote request
   assert.equal(result.journeyId, 'journey-1');
   assert.equal(result.leadRecordId, 'lead-1');
   assert.equal(persistedInputs[0]?.occurredAtMs, 1_000_000);
+  assert.equal(persistedInputs[0]?.followupWorkId, 'form_client-event-1');
+  assert.equal(queued[0]?.followup_work_id, 'form_client-event-1');
+  assert.equal(queued[0]?.idempotency_key, 'form:client-event-1');
   assert.equal(queued[0]?.lead_record_id, 'lead-1');
   assert.equal(queued[0]?.contact_id, 'contact-1');
-  assert.deepEqual(invoked, ['quote-request-1']);
+  assert.deepEqual(invoked, ['form_client-event-1']);
 });
 
 test('submitQuoteRequest smoke mode verifies lead persistence without queueing follow-up', async () => {
-  const queued: QuoteRequestRecord[] = [];
+  const queued: LeadFollowupWorkItem[] = [];
   const invoked: string[] = [];
 
   const result = await submitQuoteRequest(makeRequest({ isSmokeTest: true }), {
     configValid: true,
-    createQuoteRequestId: () => 'quote-request-smoke',
+    createFollowupWorkId: () => 'quote-request-smoke',
     nowEpochSeconds: () => 2_000,
     siteLabel: 'craigs.autos',
     persistQuoteRequest: async () => ({
@@ -78,11 +81,11 @@ test('submitQuoteRequest smoke mode verifies lead persistence without queueing f
       journeyId: 'journey-smoke',
       leadRecordId: 'lead-smoke',
     }),
-    queueQuoteRequest: async (record) => {
+    enqueueFollowupWork: async (record) => {
       queued.push(record);
     },
-    invokeFollowup: async (quoteRequestId) => {
-      invoked.push(quoteRequestId);
+    invokeFollowup: async (followupWorkId) => {
+      invoked.push(followupWorkId);
     },
   });
 
@@ -93,15 +96,15 @@ test('submitQuoteRequest smoke mode verifies lead persistence without queueing f
   assert.equal(invoked.length, 0);
 });
 
-test('submitQuoteRequest marks queued quote request as error when follow-up dispatch fails', async () => {
-  const queued: QuoteRequestRecord[] = [];
+test('submitQuoteRequest marks queued follow-up work as error when follow-up dispatch fails', async () => {
+  const queued: LeadFollowupWorkItem[] = [];
 
   const result = await submitQuoteRequest(makeRequest(), {
     configValid: true,
-    createQuoteRequestId: () => 'quote-request-error',
+    createFollowupWorkId: () => 'quote-request-error',
     nowEpochSeconds: () => 3_000,
     siteLabel: 'craigs.autos',
-    queueQuoteRequest: async (record) => {
+    enqueueFollowupWork: async (record) => {
       queued.push(record);
     },
     invokeFollowup: async () => {
@@ -113,5 +116,5 @@ test('submitQuoteRequest marks queued quote request as error when follow-up disp
   assert.equal(queued.length, 2);
   assert.equal(queued[0]?.status, 'queued');
   assert.equal(queued[1]?.status, 'error');
-  assert.equal(queued[1]?.quote_request_id, 'quote-request-error');
+  assert.equal(queued[1]?.followup_work_id, 'form_client-event-1');
 });

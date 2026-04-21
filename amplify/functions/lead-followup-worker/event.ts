@@ -1,14 +1,14 @@
 import type { LeadFollowupWorkerEvent } from './types.ts';
 
 export type ParsedLeadFollowupWorkerEvent =
-  | { ok: true; quoteRequestId: string }
-  | { ok: false; reason: 'missing_quote_request_id' };
+  | { ok: true; followupWorkId: string }
+  | { ok: false; reason: 'missing_followup_work_id' };
 
 export function parseLeadFollowupWorkerEvent(
   event: LeadFollowupWorkerEvent,
 ): ParsedLeadFollowupWorkerEvent {
-  const quoteRequestId =
-    typeof event?.quote_request_id === 'string' ? event.quote_request_id.trim() : '';
-  if (!quoteRequestId) return { ok: false, reason: 'missing_quote_request_id' };
-  return { ok: true, quoteRequestId };
+  const followupWorkId =
+    typeof event?.followup_work_id === 'string' ? event.followup_work_id.trim() : '';
+  if (!followupWorkId) return { ok: false, reason: 'missing_followup_work_id' };
+  return { ok: true, followupWorkId };
 }

@@ -1,22 +1,22 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createQuoteRequestSubmitHandler } from './handler.ts';
-import type { QuoteRequestRecord } from '../_lead-platform/domain/quote-request.ts';
+import type { LeadFollowupWorkItem } from '../_lead-platform/domain/lead-followup-work.ts';
 
 test('quote-request-submit queues lead follow-up when phone is provided', async () => {
-  const queued: QuoteRequestRecord[] = [];
+  const queued: LeadFollowupWorkItem[] = [];
   const invoked: string[] = [];
 
   const handler = createQuoteRequestSubmitHandler({
     configValid: true,
-    createQuoteRequestId: () => 'quote-request-1',
+    createFollowupWorkId: () => 'quote-request-1',
     nowEpochSeconds: () => 1_000,
     siteLabel: 'example.test',
-    queueQuoteRequest: async (record) => {
+    enqueueFollowupWork: async (record) => {
       queued.push(record);
     },
-    invokeFollowup: async (quoteRequestId) => {
-      invoked.push(quoteRequestId);
+    invokeFollowup: async (followupWorkId) => {
+      invoked.push(followupWorkId);
     },
   });
 
@@ -42,10 +42,10 @@ test('quote-request-submit queues lead follow-up when phone is provided', async 
 test('quote-request-submit rejects non-POST HTTP methods', async () => {
   const handler = createQuoteRequestSubmitHandler({
     configValid: true,
-    createQuoteRequestId: () => 'quote-request-method',
+    createFollowupWorkId: () => 'quote-request-method',
     nowEpochSeconds: () => 1_000,
     siteLabel: 'example.test',
-    queueQuoteRequest: async () => undefined,
+    enqueueFollowupWork: async () => undefined,
     invokeFollowup: async () => undefined,
   });
 
@@ -59,10 +59,10 @@ test('quote-request-submit rejects non-POST HTTP methods', async () => {
 test('quote-request-submit rejects invalid JSON bodies before validation', async () => {
   const handler = createQuoteRequestSubmitHandler({
     configValid: true,
-    createQuoteRequestId: () => 'quote-request-json',
+    createFollowupWorkId: () => 'quote-request-json',
     nowEpochSeconds: () => 1_000,
     siteLabel: 'example.test',
-    queueQuoteRequest: async () => undefined,
+    enqueueFollowupWork: async () => undefined,
     invokeFollowup: async () => undefined,
   });
 
@@ -76,19 +76,19 @@ test('quote-request-submit rejects invalid JSON bodies before validation', async
 });
 
 test('quote-request-submit queues lead follow-up when email is provided without phone', async () => {
-  const queued: QuoteRequestRecord[] = [];
+  const queued: LeadFollowupWorkItem[] = [];
   const invoked: string[] = [];
 
   const handler = createQuoteRequestSubmitHandler({
     configValid: true,
-    createQuoteRequestId: () => 'quote-request-2',
+    createFollowupWorkId: () => 'quote-request-2',
     nowEpochSeconds: () => 2_000,
     siteLabel: 'example.test',
-    queueQuoteRequest: async (record) => {
+    enqueueFollowupWork: async (record) => {
       queued.push(record);
     },
-    invokeFollowup: async (quoteRequestId) => {
-      invoked.push(quoteRequestId);
+    invokeFollowup: async (followupWorkId) => {
+      invoked.push(followupWorkId);
     },
   });
 
@@ -110,10 +110,10 @@ test('quote-request-submit queues lead follow-up when email is provided without 
 test('quote-request-submit rejects requests without a contact method', async () => {
   const handler = createQuoteRequestSubmitHandler({
     configValid: true,
-    createQuoteRequestId: () => 'quote-request-3',
+    createFollowupWorkId: () => 'quote-request-3',
     nowEpochSeconds: () => 3_000,
     siteLabel: 'example.test',
-    queueQuoteRequest: async () => undefined,
+    enqueueFollowupWork: async () => undefined,
     invokeFollowup: async () => undefined,
   });
 
@@ -130,13 +130,13 @@ test('quote-request-submit rejects requests without a contact method', async () 
   assert.match(result.body, /phone number or email/);
 });
 
-test('quote-request-submit returns benign success for honeypot quote requests', async () => {
+test('quote-request-submit returns benign success for honeypot follow-up works', async () => {
   const handler = createQuoteRequestSubmitHandler({
     configValid: true,
-    createQuoteRequestId: () => 'quote-request-4',
+    createFollowupWorkId: () => 'quote-request-4',
     nowEpochSeconds: () => 4_000,
     siteLabel: 'example.test',
-    queueQuoteRequest: async () => undefined,
+    enqueueFollowupWork: async () => undefined,
     invokeFollowup: async () => undefined,
   });
 
@@ -153,12 +153,12 @@ test('quote-request-submit returns benign success for honeypot quote requests', 
 });
 
 test('quote-request-submit internal smoke mode persists the lead bundle without queuing follow-up', async () => {
-  const queued: QuoteRequestRecord[] = [];
+  const queued: LeadFollowupWorkItem[] = [];
   const invoked: string[] = [];
 
   const handler = createQuoteRequestSubmitHandler({
     configValid: true,
-    createQuoteRequestId: () => 'quote-request-smoke',
+    createFollowupWorkId: () => 'quote-request-smoke',
     nowEpochSeconds: () => 5_000,
     siteLabel: 'example.test',
     persistQuoteRequest: async () => ({
@@ -166,11 +166,11 @@ test('quote-request-submit internal smoke mode persists the lead bundle without 
       leadRecordId: 'lead-smoke',
       contactId: 'contact-smoke',
     }),
-    queueQuoteRequest: async (record) => {
+    enqueueFollowupWork: async (record) => {
       queued.push(record);
     },
-    invokeFollowup: async (quoteRequestId) => {
-      invoked.push(quoteRequestId);
+    invokeFollowup: async (followupWorkId) => {
+      invoked.push(followupWorkId);
     },
   });
 
@@ -191,11 +191,11 @@ test('quote-request-submit internal smoke mode persists the lead bundle without 
 });
 
 test('quote-request-submit queues lead follow-up with immutable lead linkage context', async () => {
-  const queued: QuoteRequestRecord[] = [];
+  const queued: LeadFollowupWorkItem[] = [];
 
   const handler = createQuoteRequestSubmitHandler({
     configValid: true,
-    createQuoteRequestId: () => 'quote-request-linked',
+    createFollowupWorkId: () => 'quote-request-linked',
     nowEpochSeconds: () => 6_000,
     siteLabel: 'example.test',
     persistQuoteRequest: async () => ({
@@ -203,7 +203,7 @@ test('quote-request-submit queues lead follow-up with immutable lead linkage con
       leadRecordId: 'lead-linked',
       contactId: 'contact-linked',
     }),
-    queueQuoteRequest: async (record) => {
+    enqueueFollowupWork: async (record) => {
       queued.push(record);
     },
     invokeFollowup: async () => undefined,

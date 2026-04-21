@@ -9,7 +9,7 @@ Inbound email lead intake is backend-only. It does not add a public website rout
 3. SES receives mail for the `email-intake.craigs.autos` subdomain and stores raw MIME in the private S3 inbox.
 4. S3 object creation invokes `email-intake-capture`.
 5. The Lambda parses MIME, validates the Google route headers, rejects replies/auto-responses/non-leads, and sends only email text plus JPEG/PNG/WebP photo attachments to OpenAI.
-6. Accepted leads are persisted into the journey-first lead tables, queued as `QuoteRequests`, and handed to `lead-followup-worker`.
+6. Accepted leads are persisted into the journey-first lead tables, queued as `LeadFollowupWork`, and handed to `lead-followup-worker`.
 7. The worker sends the first customer response by email, using `victor@craigs.autos` for `From` and `Reply-To`, not `contact@craigs.autos`.
 8. The worker sends the shop notification and attaches accepted inbound photos when they still fit the owner email budget.
 9. Raw S3 mail is explicitly deleted after completed processing. Rejected/skipped messages are deleted by the intake Lambda. A 1-day S3 lifecycle rule is only a safety net.
@@ -51,6 +51,8 @@ SES only has one active receipt rule set per region. This backend activates `cra
 - MIME parsing/photo filtering: `amplify/functions/email-intake-capture/mime.ts`
 - OpenAI classification/drafting: `amplify/functions/email-intake-capture/evaluation.ts`
 - Email lead bundle: `amplify/functions/_lead-platform/services/intake-email.ts`
+- Shared follow-up work domain: `amplify/functions/_lead-platform/domain/lead-followup-work.ts`
+- Shared follow-up work repo: `amplify/functions/_lead-platform/repos/dynamo/followup-work.ts`
 - Email-first follow-up branch: `amplify/functions/lead-followup-worker/workflow.ts`
 - Threaded customer email: `amplify/functions/lead-followup-worker/customer-email.ts`
 - Owner photo attachment loading: `amplify/functions/lead-followup-worker/inbound-email-attachments.ts`
@@ -61,7 +63,7 @@ SES only has one active receipt rule set per region. This backend activates `cra
 - PDFs, documents, ZIP files, and HEIC are ignored in v1.
 - Replies and messages with `In-Reply-To` or `References` are skipped before OpenAI.
 - Internal `@craigs.autos` senders, auto-submitted mail, mailing lists, and delivery reports are skipped.
-- One automatic customer response is queued per email thread ledger key.
+- One automatic customer response is queued per email thread ledger key and `LeadFollowupWork.idempotency_key`.
 - Unsupported or skipped raw S3 mail is deleted immediately.
 
 ## Validation

@@ -32,7 +32,7 @@ test('validateQuoteRequestSubmitRequest accepts either phone or email with a nam
   assert.deepEqual(validateQuoteRequestSubmitRequest(makeRequest({ phone: '' })), { ok: true });
 });
 
-test('validateQuoteRequestSubmitRequest treats honeypot quote requests as benign bot traffic', () => {
+test('validateQuoteRequestSubmitRequest treats honeypot follow-up works as benign bot traffic', () => {
   assert.deepEqual(validateQuoteRequestSubmitRequest(makeRequest({ company: 'bot field' })), {
     ok: false,
     kind: 'honeypot',

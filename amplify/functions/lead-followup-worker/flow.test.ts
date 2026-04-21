@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createQuoteRequestSubmitHandler } from '../quote-request-submit/handler.ts';
-import type { QuoteRequestRecord } from '../_lead-platform/domain/quote-request.ts';
+import type { LeadFollowupWorkItem } from '../_lead-platform/domain/lead-followup-work.ts';
 import { createLeadFollowupWorkerHandler } from './handler.ts';
 
 function makeStore() {
-  return new Map<string, QuoteRequestRecord>();
+  return new Map<string, LeadFollowupWorkItem>();
 }
 
 test('async quote flow sends SMS first and notifies the owner end-to-end', async () => {
@@ -18,10 +18,10 @@ test('async quote flow sends SMS first and notifies the owner end-to-end', async
     configValid: true,
     smsAutomationEnabled: true,
     nowEpochSeconds: () => 2_000,
-    getQuoteRequest: async (quoteRequestId) => quoteRequests.get(quoteRequestId) ?? null,
+    getFollowupWork: async (followupWorkId) => quoteRequests.get(followupWorkId) ?? null,
     acquireLease: async () => true,
-    saveQuoteRequest: async (record) => {
-      quoteRequests.set(record.quote_request_id, { ...record });
+    saveFollowupWork: async (record) => {
+      quoteRequests.set(record.followup_work_id, { ...record });
     },
     generateDrafts: async () => ({
       aiError: '',
@@ -43,21 +43,21 @@ test('async quote flow sends SMS first and notifies the owner end-to-end', async
       return { messageId: 'email-123' };
     },
     sendOwnerEmail: async ({ record }) => {
-      ownerEmails.push(record.quote_request_id);
+      ownerEmails.push(record.followup_work_id);
       return { messageId: 'owner-123' };
     },
   });
 
   const quoteRequestSubmit = createQuoteRequestSubmitHandler({
     configValid: true,
-    createQuoteRequestId: () => 'quote-request-1',
+    createFollowupWorkId: () => 'followup-work-1',
     nowEpochSeconds: () => 1_000,
     siteLabel: 'example.test',
-    queueQuoteRequest: async (record) => {
-      quoteRequests.set(record.quote_request_id, { ...record });
+    enqueueFollowupWork: async (record) => {
+      quoteRequests.set(record.followup_work_id, { ...record });
     },
-    invokeFollowup: async (quoteRequestId) => {
-      const result = await leadFollowupWorker({ quote_request_id: quoteRequestId });
+    invokeFollowup: async (followupWorkId) => {
+      const result = await leadFollowupWorker({ followup_work_id: followupWorkId });
       assert.equal(result.statusCode, 200);
     },
   });
@@ -80,7 +80,7 @@ test('async quote flow sends SMS first and notifies the owner end-to-end', async
   assert.equal(customerEmails.length, 0);
   assert.equal(ownerEmails.length, 1);
 
-  const stored = quoteRequests.get('quote-request-1');
+  const stored = quoteRequests.get('followup-work-1');
   assert.equal(stored?.status, 'completed');
   assert.equal(stored?.sms_status, 'sent');
   assert.equal(stored?.email_status, 'skipped');
@@ -88,7 +88,7 @@ test('async quote flow sends SMS first and notifies the owner end-to-end', async
   assert.equal(stored?.outreach_result, 'sms_sent');
 });
 
-test('async quote flow falls back to email when the stored quote request has no phone number', async () => {
+test('async quote flow falls back to email when the stored follow-up work has no phone number', async () => {
   const quoteRequests = makeStore();
   const smsSends: Array<{ toE164: string; body: string }> = [];
   const customerEmails: string[] = [];
@@ -98,10 +98,10 @@ test('async quote flow falls back to email when the stored quote request has no 
     configValid: true,
     smsAutomationEnabled: true,
     nowEpochSeconds: () => 2_000,
-    getQuoteRequest: async (quoteRequestId) => quoteRequests.get(quoteRequestId) ?? null,
+    getFollowupWork: async (followupWorkId) => quoteRequests.get(followupWorkId) ?? null,
     acquireLease: async () => true,
-    saveQuoteRequest: async (record) => {
-      quoteRequests.set(record.quote_request_id, { ...record });
+    saveFollowupWork: async (record) => {
+      quoteRequests.set(record.followup_work_id, { ...record });
     },
     generateDrafts: async () => ({
       aiError: '',
@@ -123,13 +123,15 @@ test('async quote flow falls back to email when the stored quote request has no 
       return { messageId: 'email-123' };
     },
     sendOwnerEmail: async ({ record }) => {
-      ownerEmails.push(record.quote_request_id);
+      ownerEmails.push(record.followup_work_id);
       return { messageId: 'owner-123' };
     },
   });
 
-  quoteRequests.set('quote-request-2', {
-    quote_request_id: 'quote-request-2',
+  quoteRequests.set('followup-work-2', {
+    followup_work_id: 'followup-work-2',
+    idempotency_key: 'form:followup-work-2',
+    source_event_id: 'followup-work-2',
     status: 'queued',
     created_at: 1_000,
     updated_at: 1_000,
@@ -140,6 +142,7 @@ test('async quote flow falls back to email when the stored quote request has no 
     vehicle: '1969 Camaro',
     service: 'full-restoration',
     message: 'Looking for interior restoration.',
+    capture_channel: 'form',
     origin: 'https://example.test/en/request-a-quote',
     site_label: 'example.test',
     journey_id: null,
@@ -169,30 +172,30 @@ test('async quote flow falls back to email when the stored quote request has no 
     owner_email_error: '',
   });
 
-  const result = await leadFollowupWorker({ quote_request_id: 'quote-request-2' });
+  const result = await leadFollowupWorker({ followup_work_id: 'followup-work-2' });
 
   assert.equal(result.statusCode, 200);
   assert.equal(smsSends.length, 0);
   assert.deepEqual(customerEmails, ['customer@example.com']);
   assert.equal(ownerEmails.length, 1);
 
-  const stored = quoteRequests.get('quote-request-2');
+  const stored = quoteRequests.get('followup-work-2');
   assert.equal(stored?.status, 'completed');
   assert.equal(stored?.sms_status, 'skipped');
   assert.equal(stored?.email_status, 'sent');
   assert.equal(stored?.outreach_result, 'email_sent_fallback');
 });
 
-test('quote request submit marks the quote request as error when worker invocation fails', async () => {
+test('follow-up work submit marks the follow-up work as error when worker invocation fails', async () => {
   const quoteRequests = makeStore();
 
   const quoteRequestSubmit = createQuoteRequestSubmitHandler({
     configValid: true,
-    createQuoteRequestId: () => 'quote-request-3',
+    createFollowupWorkId: () => 'followup-work-3',
     nowEpochSeconds: () => 1_000,
     siteLabel: 'example.test',
-    queueQuoteRequest: async (record) => {
-      quoteRequests.set(record.quote_request_id, { ...record });
+    enqueueFollowupWork: async (record) => {
+      quoteRequests.set(record.followup_work_id, { ...record });
     },
     invokeFollowup: async () => {
       throw new Error('worker unavailable');
@@ -209,10 +212,10 @@ test('quote request submit marks the quote request as error when worker invocati
   });
 
   assert.equal(result.statusCode, 502);
-  assert.equal(quoteRequests.get('quote-request-3')?.status, 'error');
+  assert.equal(quoteRequests.get('followup-work-3')?.status, 'error');
 });
 
-test('async quote flow marks phone-only quote requests for manual follow-up when SMS automation is off', async () => {
+test('async quote flow marks phone-only follow-up works for manual follow-up when SMS automation is off', async () => {
   const quoteRequests = makeStore();
   const smsSends: Array<{ toE164: string; body: string }> = [];
   const customerEmails: string[] = [];
@@ -222,10 +225,10 @@ test('async quote flow marks phone-only quote requests for manual follow-up when
     configValid: true,
     smsAutomationEnabled: false,
     nowEpochSeconds: () => 2_500,
-    getQuoteRequest: async (quoteRequestId) => quoteRequests.get(quoteRequestId) ?? null,
+    getFollowupWork: async (followupWorkId) => quoteRequests.get(followupWorkId) ?? null,
     acquireLease: async () => true,
-    saveQuoteRequest: async (record) => {
-      quoteRequests.set(record.quote_request_id, { ...record });
+    saveFollowupWork: async (record) => {
+      quoteRequests.set(record.followup_work_id, { ...record });
     },
     generateDrafts: async () => ({
       aiError: '',
@@ -247,21 +250,21 @@ test('async quote flow marks phone-only quote requests for manual follow-up when
       return { messageId: 'email-should-not-send' };
     },
     sendOwnerEmail: async ({ record }) => {
-      ownerEmails.push(record.quote_request_id);
+      ownerEmails.push(record.followup_work_id);
       return { messageId: 'owner-456' };
     },
   });
 
   const quoteRequestSubmit = createQuoteRequestSubmitHandler({
     configValid: true,
-    createQuoteRequestId: () => 'quote-request-4',
+    createFollowupWorkId: () => 'followup-work-4',
     nowEpochSeconds: () => 1_500,
     siteLabel: 'craigs.autos',
-    queueQuoteRequest: async (record) => {
-      quoteRequests.set(record.quote_request_id, { ...record });
+    enqueueFollowupWork: async (record) => {
+      quoteRequests.set(record.followup_work_id, { ...record });
     },
-    invokeFollowup: async (quoteRequestId) => {
-      const result = await leadFollowupWorker({ quote_request_id: quoteRequestId });
+    invokeFollowup: async (followupWorkId) => {
+      const result = await leadFollowupWorker({ followup_work_id: followupWorkId });
       assert.equal(result.statusCode, 200);
     },
   });
@@ -284,7 +287,7 @@ test('async quote flow marks phone-only quote requests for manual follow-up when
   assert.equal(customerEmails.length, 0);
   assert.equal(ownerEmails.length, 1);
 
-  const stored = quoteRequests.get('quote-request-4');
+  const stored = quoteRequests.get('followup-work-4');
   assert.equal(stored?.status, 'completed');
   assert.equal(stored?.sms_status, 'skipped');
   assert.equal(stored?.sms_error, 'manual_followup_required');

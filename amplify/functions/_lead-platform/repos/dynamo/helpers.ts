@@ -14,3 +14,15 @@ export function removeNullKeys<T extends Record<string, unknown>>(
   }
   return next;
 }
+
+export function stripUndefinedValues<T extends Record<string, unknown>>(
+  item: T,
+): Record<string, unknown> {
+  const next: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(item)) {
+    if (value !== undefined) {
+      next[key] = value;
+    }
+  }
+  return next;
+}

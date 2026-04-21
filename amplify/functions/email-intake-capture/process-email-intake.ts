@@ -1,8 +1,9 @@
 import { createHash } from 'node:crypto';
 import {
-  createQuoteRequestRecord,
-  type QuoteRequestRecord,
-} from '../_lead-platform/domain/quote-request.ts';
+  createLeadFollowupWorkItem,
+  type LeadFollowupWorkItem,
+} from '../_lead-platform/domain/lead-followup-work.ts';
+import { createLeadSourceEvent } from '../_lead-platform/domain/lead-source-event.ts';
 import { normalizeEmailMessageId } from '../_shared/email-threading.ts';
 import { isPlausibleEmail, normalizeWhitespace } from '../_shared/text-utils.ts';
 import { parseInboundEmail } from './mime.ts';
@@ -134,7 +135,7 @@ async function markBoth(
   ]);
 }
 
-function createRecord(args: {
+function createFollowupWork(args: {
   deps: EmailIntakeDeps;
   email: ParsedInboundEmail;
   evaluation: Awaited<ReturnType<EmailIntakeDeps['evaluateLead']>>;
@@ -143,20 +144,49 @@ function createRecord(args: {
     journeyId: string | null;
     leadRecordId: string | null;
   };
-  quoteRequestId: string;
+  followupWorkId: string;
   routeStatus: string;
   source: S3EmailSource;
   threadKey: string;
-}): QuoteRequestRecord {
+}): LeadFollowupWorkItem {
   const now = args.deps.nowEpochSeconds();
   const customerMessage = normalizeWhitespace(
     args.evaluation.projectSummary || args.email.text || args.email.subject || 'Inbound email lead',
   ).slice(0, 4_000);
-  const record = createQuoteRequestRecord({
+  const sourceMessageId = normalizeEmailMessageId(args.email.messageId);
+  const sourceEvent = createLeadSourceEvent({
     attribution: null,
-    captureChannel: 'email',
     contactId: args.leadContext.contactId,
     email: args.evaluation.customerEmail ?? args.email.from?.address ?? '',
+    idempotencyKey: args.threadKey,
+    journeyId: args.leadContext.journeyId,
+    leadRecordId: args.leadContext.leadRecordId,
+    locale: 'en',
+    message: customerMessage,
+    metadata: {
+      attachment_count: args.email.attachmentCount,
+      photo_attachment_count: args.email.photoAttachments.length,
+      route_status: args.routeStatus,
+      unsupported_attachment_count: args.email.unsupportedAttachmentCount,
+    },
+    name: args.evaluation.customerName ?? args.email.from?.name ?? '',
+    occurredAtMs: now * 1000,
+    origin: `email:${args.deps.config.originalRecipient}`,
+    pageUrl: '',
+    phone: args.evaluation.customerPhone ?? '',
+    service: args.evaluation.service ?? '',
+    siteLabel: args.deps.config.siteLabel,
+    source: 'email',
+    sourceEventId: sourceMessageId || args.threadKey,
+    userId: '',
+    vehicle: args.evaluation.vehicle ?? '',
+  });
+
+  const record = createLeadFollowupWorkItem({
+    attribution: sourceEvent.attribution,
+    captureChannel: sourceEvent.source,
+    contactId: sourceEvent.contact_id,
+    email: sourceEvent.email,
     emailThreadKey: args.threadKey,
     inboundAttachmentCount: args.email.attachmentCount,
     inboundEmailS3Bucket: args.source.bucket,
@@ -164,24 +194,26 @@ function createRecord(args: {
     inboundEmailSubject: args.email.subject,
     inboundPhotoAttachmentCount: args.email.photoAttachments.length,
     inboundRouteStatus: args.routeStatus,
-    journeyId: args.leadContext.journeyId,
-    leadRecordId: args.leadContext.leadRecordId,
-    locale: 'en',
-    message: customerMessage,
-    name: args.evaluation.customerName ?? args.email.from?.name ?? '',
+    journeyId: sourceEvent.journey_id,
+    leadRecordId: sourceEvent.lead_record_id,
+    locale: sourceEvent.locale,
+    message: sourceEvent.message,
+    name: sourceEvent.name,
     nowEpochSeconds: now,
-    origin: `email:${args.deps.config.originalRecipient}`,
-    pageUrl: '',
-    phone: args.evaluation.customerPhone ?? '',
+    origin: sourceEvent.origin,
+    pageUrl: sourceEvent.page_url,
+    phone: sourceEvent.phone,
     preferredOutreachChannel: 'email',
-    quoteRequestId: args.quoteRequestId,
-    service: args.evaluation.service ?? '',
-    siteLabel: args.deps.config.siteLabel,
-    sourceMessageId: normalizeEmailMessageId(args.email.messageId),
+    followupWorkId: args.followupWorkId,
+    idempotencyKey: sourceEvent.idempotency_key,
+    sourceEventId: sourceEvent.source_event_id,
+    service: sourceEvent.service,
+    siteLabel: sourceEvent.site_label,
+    sourceMessageId,
     sourceReferences: args.email.references,
     unsupportedAttachmentCount: args.email.unsupportedAttachmentCount,
-    userId: '',
-    vehicle: args.evaluation.vehicle ?? '',
+    userId: sourceEvent.user_id,
+    vehicle: sourceEvent.vehicle,
   });
 
   record.missing_info = args.evaluation.missingInfo;
@@ -275,14 +307,14 @@ export async function processEmailIntakeEvent(event: S3EmailIntakeEvent, deps: E
         continue;
       }
 
-      const quoteRequestId = deps.createQuoteRequestId();
+      const followupWorkId = deps.createFollowupWorkId();
       const persistedLead = await deps.persistEmailLead({
         customerEmail,
         customerLanguage: evaluation.customerLanguage,
         customerMessage: evaluation.projectSummary || email.text,
         customerName: evaluation.customerName ?? email.from?.name ?? null,
         customerPhone: evaluation.customerPhone,
-        emailIntakeId: quoteRequestId,
+        emailIntakeId: followupWorkId,
         messageId: normalizeEmailMessageId(email.messageId),
         missingInfo: evaluation.missingInfo,
         originalRecipient: deps.config.originalRecipient,
@@ -295,7 +327,7 @@ export async function processEmailIntakeEvent(event: S3EmailIntakeEvent, deps: E
         unsupportedAttachmentCount: email.unsupportedAttachmentCount,
         vehicle: evaluation.vehicle,
       });
-      const record = createRecord({
+      const record = createFollowupWork({
         deps,
         email,
         evaluation: {
@@ -307,20 +339,20 @@ export async function processEmailIntakeEvent(event: S3EmailIntakeEvent, deps: E
           journeyId: persistedLead?.journeyId ?? null,
           leadRecordId: persistedLead?.leadRecordId ?? null,
         },
-        quoteRequestId,
+        followupWorkId,
         routeStatus: route.status,
         source,
         threadKey,
       });
 
-      await deps.queueQuoteRequest(record);
-      await deps.invokeFollowup(quoteRequestId);
+      await deps.enqueueFollowupWork(record);
+      await deps.invokeFollowup(followupWorkId);
       await markBoth(deps, {
         messageLedgerKey,
         threadLedgerKey,
         status: 'queued',
       });
-      results.push({ key: source.key, queued: true, quote_request_id: quoteRequestId });
+      results.push({ key: source.key, queued: true, followup_work_id: followupWorkId });
     } catch (error: unknown) {
       await markBoth(deps, {
         messageLedgerKey,

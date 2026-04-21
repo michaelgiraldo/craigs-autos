@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { sanitizeAttributionSnapshot } from '../_lead-platform/domain/attribution.ts';
-import { normalizeString } from '../_lead-platform/domain/quote-request.ts';
+import { normalizeWorkString } from '../_lead-platform/domain/lead-followup-work.ts';
 import { decodeBody } from '../_shared/http.ts';
 
 export type LambdaHeaders = Record<string, string | undefined>;
@@ -54,7 +54,7 @@ const payloadSchema = z.looseObject({
 });
 
 function readOrigin(headers: LambdaHeaders | null | undefined): string {
-  return normalizeString(headers?.origin || headers?.Origin);
+  return normalizeWorkString(headers?.origin || headers?.Origin);
 }
 
 export function parseQuoteRequestSubmitRequest(
@@ -81,28 +81,28 @@ export function parseQuoteRequestSubmitRequest(
   }
 
   const payload = payloadResult.data;
-  const pageUrl = normalizeString(payload.pageUrl);
+  const pageUrl = normalizeWorkString(payload.pageUrl);
   const origin = readOrigin(event.headers);
 
   return {
     ok: true,
     request: {
       attribution: sanitizeAttributionSnapshot(payload.attribution),
-      clientEventId: normalizeString(payload.client_event_id) || null,
-      company: normalizeString(payload.company),
+      clientEventId: normalizeWorkString(payload.client_event_id) || null,
+      company: normalizeWorkString(payload.company),
       effectivePageUrl: pageUrl || origin,
-      email: normalizeString(payload.email),
+      email: normalizeWorkString(payload.email),
       isSmokeTest: !isHttpRequest && payload.__smoke_test === true,
-      journeyId: normalizeString(payload.journey_id) || null,
-      locale: normalizeString(payload.locale),
-      message: normalizeString(payload.message),
-      name: normalizeString(payload.name),
+      journeyId: normalizeWorkString(payload.journey_id) || null,
+      locale: normalizeWorkString(payload.locale),
+      message: normalizeWorkString(payload.message),
+      name: normalizeWorkString(payload.name),
       origin,
       pageUrl,
-      phone: normalizeString(payload.phone),
-      service: normalizeString(payload.service),
-      userId: normalizeString(payload.user),
-      vehicle: normalizeString(payload.vehicle),
+      phone: normalizeWorkString(payload.phone),
+      service: normalizeWorkString(payload.service),
+      userId: normalizeWorkString(payload.user),
+      vehicle: normalizeWorkString(payload.vehicle),
     },
   };
 }

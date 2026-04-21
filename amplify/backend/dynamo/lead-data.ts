@@ -8,6 +8,7 @@ type LeadDataTables = {
   conversionDecisions: Table;
   conversionFeedbackOutbox: Table;
   conversionFeedbackOutcomes: Table;
+  followupWork: Table;
   journeys: Table;
   journeyEvents: Table;
   providerConversionDestinations: Table;
@@ -85,6 +86,24 @@ function createLeadDataTables(stack: Stack): LeadDataTables {
     sortKey: { name: 'occurred_at_ms', type: AttributeType.NUMBER },
   });
 
+  const followupWork = new Table(stack, 'LeadFollowupWork', {
+    billingMode: BillingMode.PAY_PER_REQUEST,
+    partitionKey: { name: 'followup_work_id', type: AttributeType.STRING },
+    timeToLiveAttribute: 'ttl',
+    removalPolicy: RemovalPolicy.DESTROY,
+  });
+
+  followupWork.addGlobalSecondaryIndex({
+    indexName: 'idempotency_key-index',
+    partitionKey: { name: 'idempotency_key', type: AttributeType.STRING },
+  });
+
+  followupWork.addGlobalSecondaryIndex({
+    indexName: 'status-updated_at-index',
+    partitionKey: { name: 'status', type: AttributeType.STRING },
+    sortKey: { name: 'updated_at', type: AttributeType.NUMBER },
+  });
+
   const conversionDecisions = new Table(stack, 'LeadConversionDecisions', {
     billingMode: BillingMode.PAY_PER_REQUEST,
     partitionKey: { name: 'decision_id', type: AttributeType.STRING },
@@ -151,6 +170,7 @@ function createLeadDataTables(stack: Stack): LeadDataTables {
     conversionDecisions,
     conversionFeedbackOutbox,
     conversionFeedbackOutcomes,
+    followupWork,
     journeys,
     journeyEvents,
     providerConversionDestinations,
@@ -163,6 +183,7 @@ function grantLeadDataAccess(lambda: LambdaWithEnvironment, tables: LeadDataTabl
   tables.conversionDecisions.grantReadWriteData(lambda);
   tables.conversionFeedbackOutbox.grantReadWriteData(lambda);
   tables.conversionFeedbackOutcomes.grantReadWriteData(lambda);
+  tables.followupWork.grantReadWriteData(lambda);
   tables.journeys.grantReadWriteData(lambda);
   tables.journeyEvents.grantReadWriteData(lambda);
   tables.providerConversionDestinations.grantReadWriteData(lambda);
@@ -181,6 +202,7 @@ function grantLeadDataAccess(lambda: LambdaWithEnvironment, tables: LeadDataTabl
     'LEAD_CONVERSION_FEEDBACK_OUTCOMES_TABLE_NAME',
     tables.conversionFeedbackOutcomes.tableName,
   );
+  lambda.addEnvironment('LEAD_FOLLOWUP_WORK_TABLE_NAME', tables.followupWork.tableName);
   lambda.addEnvironment('LEAD_JOURNEYS_TABLE_NAME', tables.journeys.tableName);
   lambda.addEnvironment('LEAD_JOURNEY_EVENTS_TABLE_NAME', tables.journeyEvents.tableName);
   lambda.addEnvironment(
@@ -194,16 +216,28 @@ export function configureLeadDataTables(backend: CraigsBackend): void {
   // Journey-first lead substrate used by click, chat, and form capture flows.
   const leadDataStack = Stack.of(getLambda(backend.chatHandoffPromote));
   const tables = createLeadDataTables(leadDataStack);
-
-  for (const lambda of [
+  const leadFollowupWorkerLambda = getLambda(backend.leadFollowupWorker);
+  const followupProducers = [
     getLambda(backend.quoteRequestSubmit),
     getLambda(backend.emailIntakeCapture),
-    getLambda(backend.leadFollowupWorker),
-    getLambda(backend.managedConversionFeedbackWorker),
     getLambda(backend.chatHandoffPromote),
+  ];
+
+  for (const lambda of [
+    ...followupProducers,
+    leadFollowupWorkerLambda,
+    getLambda(backend.managedConversionFeedbackWorker),
     getLambda(backend.leadInteractionCapture),
     getLambda(backend.leadAdminApi),
   ]) {
     grantLeadDataAccess(lambda, tables);
+  }
+
+  for (const lambda of followupProducers) {
+    leadFollowupWorkerLambda.grantInvoke(lambda);
+    lambda.addEnvironment(
+      'LEAD_FOLLOWUP_WORKER_FUNCTION_NAME',
+      leadFollowupWorkerLambda.functionName,
+    );
   }
 }

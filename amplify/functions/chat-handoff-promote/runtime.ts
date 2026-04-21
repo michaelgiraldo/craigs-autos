@@ -1,6 +1,4 @@
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
-import { SESv2Client } from '@aws-sdk/client-sesv2';
+import { LambdaClient } from '@aws-sdk/client-lambda';
 import { SchedulerClient } from '@aws-sdk/client-scheduler';
 import OpenAI from 'openai';
 import { z } from 'zod';
@@ -18,32 +16,12 @@ const apiKey = parsedChatHandoffPromoteEnv.success
 
 export const openai = apiKey ? new OpenAI({ apiKey }) : null;
 
-export const leadDedupeTableName = process.env.LEAD_DEDUPE_TABLE_NAME;
-export const leadDedupeDb = leadDedupeTableName?.trim()
-  ? DynamoDBDocumentClient.from(new DynamoDBClient({}))
+export const leadFollowupWorkerFunctionName = process.env.LEAD_FOLLOWUP_WORKER_FUNCTION_NAME ?? '';
+export const leadFollowupLambda = leadFollowupWorkerFunctionName.trim()
+  ? new LambdaClient({})
   : null;
 
-export const messageLinkTokenTableName = process.env.LEAD_ACTION_LINKS_TABLE_NAME;
-export const messageLinkDb = messageLinkTokenTableName?.trim()
-  ? DynamoDBDocumentClient.from(new DynamoDBClient({}))
-  : null;
-
-export const leadToEmail = process.env.LEAD_TO_EMAIL ?? CRAIGS_LEAD_ENV_DEFAULTS.LEAD_TO_EMAIL;
-export const leadFromEmail =
-  process.env.LEAD_FROM_EMAIL ?? CRAIGS_LEAD_ENV_DEFAULTS.LEAD_FROM_EMAIL;
 export const leadSummaryModel = process.env.LEAD_SUMMARY_MODEL ?? 'gpt-5.2-2025-12-11';
-export const quoEnabled = isEnabledValue(process.env.QUO_ENABLED);
-export const quoApiKey = process.env.QUO_API_KEY?.trim() ?? '';
-export const quoFromPhoneNumberId = process.env.QUO_FROM_PHONE_NUMBER_ID?.trim() ?? '';
-export const quoUserId = process.env.QUO_USER_ID?.trim() ?? '';
-export const quoContactSource =
-  process.env.QUO_CONTACT_SOURCE?.trim() ?? CRAIGS_LEAD_ENV_DEFAULTS.QUO_CONTACT_SOURCE;
-export const quoContactExternalIdPrefix =
-  process.env.QUO_CONTACT_EXTERNAL_ID_PREFIX?.trim() ??
-  CRAIGS_LEAD_ENV_DEFAULTS.QUO_CONTACT_EXTERNAL_ID_PREFIX;
-export const quoLeadTagsFieldKey = process.env.QUO_LEAD_TAGS_FIELD_KEY?.trim() ?? '';
-export const quoLeadTagsFieldName =
-  process.env.QUO_LEAD_TAGS_FIELD_NAME?.trim() ?? CRAIGS_LEAD_ENV_DEFAULTS.QUO_LEAD_TAGS_FIELD_NAME;
 export const leadRetrySchedulerRoleArn = process.env.LEAD_RETRY_SCHEDULER_ROLE_ARN ?? '';
 export const leadRetryScheduleGroupName = process.env.LEAD_RETRY_SCHEDULE_GROUP ?? 'default';
 
@@ -52,34 +30,18 @@ export const SHOP_PHONE_DISPLAY =
   process.env.SHOP_PHONE_DISPLAY ?? CRAIGS_LEAD_ENV_DEFAULTS.SHOP_PHONE_DISPLAY;
 export const SHOP_PHONE_DIGITS =
   process.env.SHOP_PHONE_DIGITS ?? CRAIGS_LEAD_ENV_DEFAULTS.SHOP_PHONE_DIGITS;
-export const SHOP_ADDRESS = process.env.SHOP_ADDRESS ?? CRAIGS_LEAD_ENV_DEFAULTS.SHOP_ADDRESS;
 
-export const ses = new SESv2Client({});
 export const scheduler = leadRetrySchedulerRoleArn ? new SchedulerClient({}) : null;
 
-export const LEAD_DEDUPE_LEASE_SECONDS = 120;
-export const LEAD_DEDUPE_ERROR_COOLDOWN_SECONDS = 60;
-export const LEAD_DEDUPE_TTL_DAYS = 30;
 export const LEAD_IDLE_DELAY_SECONDS = 300;
 export const LEAD_RETRY_GRACE_SECONDS = 5;
-export const LEAD_ATTRIBUTION_TTL_DAYS = 180;
-export const LEAD_ACTION_LINK_TTL_DAYS = 7;
-export const LEAD_EMAIL_RAW_MESSAGE_MAX_BYTES = 28 * 1024 * 1024;
 
 export function isValidThreadId(value: string): boolean {
   return value.startsWith('cthr_') && value.length > 'cthr_'.length;
 }
 
-export function isEnabledValue(value: string | undefined): boolean {
-  return /^(1|true|yes)$/i.test((value ?? '').trim());
-}
-
 export function nowEpochSeconds(): number {
   return Math.floor(Date.now() / 1000);
-}
-
-export function ttlSecondsFromNow(days: number): number {
-  return nowEpochSeconds() + days * 24 * 60 * 60;
 }
 
 export function latestActivityEpochSeconds(lines: TranscriptLine[]): number | null {

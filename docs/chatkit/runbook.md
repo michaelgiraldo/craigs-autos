@@ -63,43 +63,46 @@ Confirm it contains:
 
 If these are missing or wrong, the frontend may be calling a placeholder URL.
 
-### 4) Check DynamoDB idempotency record (complete once per thread)
+### 4) Check DynamoDB follow-up work (complete once per thread)
 
-The chat lead handoff system uses DynamoDB to ensure only one handoff completes per `cthr_...`.
+The chat lead handoff system uses `LeadFollowupWork` to ensure only one first response
+is created for a `cthr_...`.
 
 Goal:
 
-- Determine whether the backend thinks it already completed the handoff.
+- Determine whether the backend already queued, processed, or completed first response work.
 
 How to find the table name:
 
 - In AWS Lambda console:
-  - Function: `chat-handoff-promote`
-  - Configuration -> Environment variables -> `LEAD_DEDUPE_TABLE_NAME`
+  - Function: `chat-handoff-promote` or `lead-followup-worker`
+  - Configuration -> Environment variables -> `LEAD_FOLLOWUP_WORK_TABLE_NAME`
 
-Once you have the table name, you can query by thread id:
+Once you have the table name, query the `idempotency_key-index`:
 
 AWS CLI example:
 
 ```sh
-aws dynamodb get-item \
+aws dynamodb query \
   --region us-west-1 \
-  --table-name "<LEAD_DEDUPE_TABLE_NAME>" \
-  --key '{"thread_id":{"S":"cthr_..."} }'
+  --table-name "<LEAD_FOLLOWUP_WORK_TABLE_NAME>" \
+  --index-name "idempotency_key-index" \
+  --key-condition-expression "idempotency_key = :key" \
+  --expression-attribute-values '{":key":{"S":"chat:cthr_..."}}'
 ```
 
 Interpretation:
 
 - `status = completed`:
-  - The backend believes the handoff completed.
-  - Look at `completed_at`, `email_sent_at`, `email_message_id`, `quo_sent_at`, and `quo_message_id`.
+  - The worker completed first-response handling.
+  - Look at `sms_status`, `email_status`, `owner_email_status`, provider ids, and errors.
 
 - `status = processing` and `lock_expires_at` in the future:
-  - A handoff is in progress (or a client died mid-handoff).
-  - Wait ~2 minutes (lease default) and retry.
+  - The worker is processing the item.
+  - Wait for the worker lease to expire or inspect CloudWatch.
 
-- `status = error` and `lock_expires_at` in the future:
-  - The last send failed and is in cooldown.
+- `status = error`:
+  - Delivery or owner notification failed.
   - Check CloudWatch logs for the error.
 
 ### 5) Check CloudWatch logs for the Lambda functions
@@ -235,28 +238,31 @@ Notes on "handoff_ready":
 
 ## Scenario D: Duplicate chat lead handoffs
 
-Duplicates should not occur because DynamoDB dedupe is keyed by `thread_id`.
+Duplicates should not occur because shared follow-up work is keyed by
+`idempotency_key = chat:<cthr_...>`.
 
 If you see duplicates, check:
 
 1) Are the emails for the same `cthr_...`?
    - If different thread ids, they are not duplicates; the user created multiple threads.
 
-2) DynamoDB record history:
-   - Verify `status` transitions and `attempts`.
+2) DynamoDB `LeadFollowupWork`:
+   - Verify only one item exists for `idempotency_key = chat:<cthr_...>`.
+   - Verify `status`, `sms_status`, `email_status`, and `owner_email_status`.
 
 3) Multiple environments:
    - Are two different backends completing handoff (ex: staging + prod)?
 
 Potential causes:
 
-- Dedupe table not configured (LEAD_DEDUPE_TABLE_NAME missing) in that environment.
-- A forced re-send happened (table item deleted).
+- `LEAD_FOLLOWUP_WORK_TABLE_NAME` missing in that environment.
+- A forced re-send happened by deleting the work item.
+- Two environments processed the same thread with different follow-up tables.
 
 Note:
 
-- The dedupe table is still active infrastructure even though Craig's lead storage is now journey-first.
-- Do not delete `ChatHandoffPromoteDedupeTable` unless the chat handoff idempotency implementation is replaced.
+- There is no separate chat dispatch ledger. Do not add one back unless the shared
+  outbox architecture changes.
 
 ## Scenario E: Wrong language / wrong hours / wrong agent behavior
 

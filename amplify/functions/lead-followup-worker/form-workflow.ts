@@ -1,5 +1,5 @@
 import { phoneToE164 } from '../_shared/text-utils.ts';
-import type { LeadFollowupWorkerDeps, QuoteWorkflowOutcome } from './types.ts';
+import type { LeadFollowupWorkerDeps, LeadFollowupWorkflowOutcome } from './types.ts';
 import {
   attemptEmailOutreach,
   attemptSmsOutreach,
@@ -8,14 +8,14 @@ import {
   failWorkflow,
   getUsableEmail,
 } from './workflow-common.ts';
-import type { QuoteRequestRecord } from '../_lead-platform/domain/quote-request.ts';
+import type { LeadFollowupWorkItem } from '../_lead-platform/domain/lead-followup-work.ts';
 
 export async function runFormFollowupWorkflow(args: {
   deps: LeadFollowupWorkerDeps;
-  record: QuoteRequestRecord;
-  quoteRequestId: string;
-}): Promise<QuoteWorkflowOutcome> {
-  const { deps, record, quoteRequestId } = args;
+  record: LeadFollowupWorkItem;
+  followupWorkId: string;
+}): Promise<LeadFollowupWorkflowOutcome> {
+  const { deps, record, followupWorkId } = args;
 
   try {
     await ensureDrafts(deps, record);
@@ -26,7 +26,7 @@ export async function runFormFollowupWorkflow(args: {
     await attemptSmsOutreach(deps, record, usablePhone);
     await attemptEmailOutreach(deps, record, usablePhone, usableEmail);
 
-    return await completeWorkflow({ deps, quoteRequestId, record });
+    return await completeWorkflow({ deps, followupWorkId, record });
   } catch (error: unknown) {
     return failWorkflow({ deps, record, error });
   }

@@ -6,17 +6,17 @@ import OpenAI from 'openai';
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { createLeadPlatformRuntime } from '../_lead-platform/runtime.ts';
-import { generateQuoteDrafts } from './drafts.ts';
+import { generateLeadFollowupDrafts } from './drafts.ts';
 import { createSesCustomerEmailSender } from './customer-email.ts';
 import { createInboundEmailPhotoAttachmentLoader } from './inbound-email-attachments.ts';
 import { createLeadFollowupWorkerLeadSync } from './lead-sync.ts';
 import { createSesOwnerEmailSender } from './owner-email.ts';
 import { createQuoSmsSender } from './quo-sms.ts';
-import { createDynamoQuoteRequestStore } from './quote-request-store.ts';
+import { createDynamoLeadFollowupWorkStore } from './followup-work-store.ts';
 import type { LeadFollowupWorkerDeps } from './types.ts';
 
 const leadFollowupWorkerEnvSchema = z.object({
-  QUOTE_REQUESTS_TABLE_NAME: z.string().trim().min(1),
+  LEAD_FOLLOWUP_WORK_TABLE_NAME: z.string().trim().min(1),
   CONTACT_FROM_EMAIL: z.string().trim().email(),
   CONTACT_TO_EMAIL: z.string().trim().email(),
   CONTACT_SITE_LABEL: z.string().trim().min(1),
@@ -54,13 +54,13 @@ export function createLeadFollowupWorkerRuntime(
       ? new OpenAI({ apiKey: parsedEnv.data.CHATKIT_OPENAI_API_KEY })
       : null;
   const quoEnabled = parsedEnv.success && parsedEnv.data.QUO_ENABLED === 'true';
-  const quoteStore = createDynamoQuoteRequestStore({
+  const followupWorkStore = createDynamoLeadFollowupWorkStore({
     db: runtimeDb,
-    tableName: parsedEnv.success ? parsedEnv.data.QUOTE_REQUESTS_TABLE_NAME : '',
+    tableName: parsedEnv.success ? parsedEnv.data.LEAD_FOLLOWUP_WORK_TABLE_NAME : '',
   });
 
   return {
-    ...quoteStore,
+    ...followupWorkStore,
     configValid:
       parsedEnv.success &&
       Boolean(runtimeDb) &&
@@ -70,7 +70,7 @@ export function createLeadFollowupWorkerRuntime(
     smsAutomationEnabled: quoEnabled,
     nowEpochSeconds: () => Math.floor(Date.now() / 1000),
     generateDrafts: (record) =>
-      generateQuoteDrafts({
+      generateLeadFollowupDrafts({
         openai: runtimeOpenAi,
         model: parsedEnv.success ? parsedEnv.data.QUOTE_OUTREACH_MODEL : '',
         record,

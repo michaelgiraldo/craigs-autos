@@ -4,6 +4,7 @@ import { DynamoLeadConversionFeedbackOutboxRepo } from './dynamo/conversion-feed
 import { DynamoLeadConversionFeedbackOutcomesRepo } from './dynamo/conversion-feedback-outcomes.ts';
 import { DynamoLeadContactsRepo } from './dynamo/contacts.ts';
 import { DynamoJourneyEventsRepo } from './dynamo/events.ts';
+import { DynamoLeadFollowupWorkRepo } from './dynamo/followup-work.ts';
 import { DynamoJourneysRepo } from './dynamo/journeys.ts';
 import { DynamoLeadRecordsRepo } from './dynamo/lead-records.ts';
 import { DynamoProviderConversionDestinationsRepo } from './dynamo/provider-conversion-destinations.ts';
@@ -12,6 +13,7 @@ import type { LeadConversionFeedbackOutboxRepo } from './conversion-feedback-out
 import type { LeadConversionFeedbackOutcomesRepo } from './conversion-feedback-outcomes-repo.ts';
 import type { LeadContactsRepo } from './contacts-repo.ts';
 import type { JourneyEventsRepo } from './events-repo.ts';
+import type { LeadFollowupWorkRepo } from './followup-work-repo.ts';
 import type { JourneysRepo } from './journeys-repo.ts';
 import type { LeadRecordsRepo } from './lead-records-repo.ts';
 import type { ProviderConversionDestinationsRepo } from './provider-conversion-destinations-repo.ts';
@@ -21,6 +23,7 @@ export {
   DynamoLeadConversionDecisionsRepo,
   DynamoLeadConversionFeedbackOutboxRepo,
   DynamoLeadConversionFeedbackOutcomesRepo,
+  DynamoLeadFollowupWorkRepo,
   DynamoJourneyEventsRepo,
   DynamoJourneysRepo,
   DynamoLeadRecordsRepo,
@@ -31,6 +34,7 @@ export type LeadPlatformRepos = {
   contacts: LeadContactsRepo;
   journeys: JourneysRepo;
   journeyEvents: JourneyEventsRepo;
+  followupWork: LeadFollowupWorkRepo;
   leadRecords: LeadRecordsRepo;
   conversionDecisions: LeadConversionDecisionsRepo;
   conversionFeedbackOutbox: LeadConversionFeedbackOutboxRepo;
@@ -43,6 +47,7 @@ export function createDynamoLeadPlatformRepos(args: {
   contactsTableName: string;
   journeysTableName: string;
   journeyEventsTableName: string;
+  followupWorkTableName: string;
   leadRecordsTableName: string;
   conversionDecisionsTableName: string;
   conversionFeedbackOutboxTableName: string;
@@ -53,6 +58,7 @@ export function createDynamoLeadPlatformRepos(args: {
     contacts: new DynamoLeadContactsRepo(args.db, args.contactsTableName),
     journeys: new DynamoJourneysRepo(args.db, args.journeysTableName),
     journeyEvents: new DynamoJourneyEventsRepo(args.db, args.journeyEventsTableName),
+    followupWork: new DynamoLeadFollowupWorkRepo(args.db, args.followupWorkTableName),
     leadRecords: new DynamoLeadRecordsRepo(args.db, args.leadRecordsTableName),
     conversionDecisions: new DynamoLeadConversionDecisionsRepo(
       args.db,

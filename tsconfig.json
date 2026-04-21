@@ -2,7 +2,9 @@
   "extends": "astro/tsconfigs/strict",
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2025"],
-    "types": []
+    "types": [],
+    "erasableSyntaxOnly": true,
+    "verbatimModuleSyntax": true
   },
   "include": [".astro/types.d.ts", "src/**/*"],
   "exclude": ["dist", "amplify", "scripts", "server", "shared"]

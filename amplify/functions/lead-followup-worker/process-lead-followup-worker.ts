@@ -1,16 +1,16 @@
 import { randomUUID } from 'node:crypto';
-import type { QuoteRequestRecord } from '../_lead-platform/domain/quote-request.ts';
-import type { LeadFollowupWorkerDeps, QuoteWorkflowOutcome } from './types.ts';
+import type { LeadFollowupWorkItem } from '../_lead-platform/domain/lead-followup-work.ts';
+import type { LeadFollowupWorkerDeps, LeadFollowupWorkflowOutcome } from './types.ts';
 import { runLeadFollowupWorkerWorkflow } from './workflow.ts';
 
-export const QUOTE_LEASE_SECONDS = 5 * 60;
+export const LEAD_FOLLOWUP_LEASE_SECONDS = 5 * 60;
 
 function buildProcessingRecord(args: {
-  existing: QuoteRequestRecord;
+  existing: LeadFollowupWorkItem;
   leaseExpiresAt: number;
   leaseId: string;
   nowEpoch: number;
-}): QuoteRequestRecord {
+}): LeadFollowupWorkItem {
   return {
     ...args.existing,
     status: 'processing',
@@ -22,14 +22,14 @@ function buildProcessingRecord(args: {
 
 export async function processLeadFollowupWorker(args: {
   deps: LeadFollowupWorkerDeps;
-  quoteRequestId: string;
-}): Promise<QuoteWorkflowOutcome> {
-  const { deps, quoteRequestId } = args;
+  followupWorkId: string;
+}): Promise<LeadFollowupWorkflowOutcome> {
+  const { deps, followupWorkId } = args;
   const now = deps.nowEpochSeconds();
-  const existing = await deps.getQuoteRequest(quoteRequestId);
+  const existing = await deps.getFollowupWork(followupWorkId);
 
   if (!existing) {
-    return { statusCode: 404, body: { error: 'Quote request not found' } };
+    return { statusCode: 404, body: { error: 'Follow-up work not found' } };
   }
 
   if (existing.status === 'completed') {
@@ -41,9 +41,9 @@ export async function processLeadFollowupWorker(args: {
   }
 
   const leaseId = deps.createLeaseId ? deps.createLeaseId() : randomUUID();
-  const leaseExpiresAt = now + QUOTE_LEASE_SECONDS;
+  const leaseExpiresAt = now + LEAD_FOLLOWUP_LEASE_SECONDS;
   const leaseAcquired = await deps.acquireLease({
-    quoteRequestId,
+    followupWorkId,
     leaseId,
     nowEpoch: now,
     leaseExpiresAt,
@@ -62,7 +62,7 @@ export async function processLeadFollowupWorker(args: {
   const outcome = await runLeadFollowupWorkerWorkflow({
     deps,
     record,
-    quoteRequestId,
+    followupWorkId,
   });
 
   if (deps.syncLeadRecord) {

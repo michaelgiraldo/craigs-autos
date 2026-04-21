@@ -1,39 +1,40 @@
 import type { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import { GetCommand, PutCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
-import type { QuoteRequestRecord } from '../_lead-platform/domain/quote-request.ts';
+import type { LeadFollowupWorkItem } from '../_lead-platform/domain/lead-followup-work.ts';
+import { stripUndefinedValues } from '../_lead-platform/repos/dynamo/helpers.ts';
 import type { LeadFollowupWorkerDeps } from './types.ts';
 
-export type QuoteRequestStore = Pick<
+export type LeadFollowupWorkStore = Pick<
   LeadFollowupWorkerDeps,
-  'acquireLease' | 'getQuoteRequest' | 'saveQuoteRequest'
+  'acquireLease' | 'getFollowupWork' | 'saveFollowupWork'
 >;
 
-export function createDynamoQuoteRequestStore(args: {
+export function createDynamoLeadFollowupWorkStore(args: {
   db: DynamoDBDocumentClient | null;
   tableName: string;
-}): QuoteRequestStore {
+}): LeadFollowupWorkStore {
   return {
-    getQuoteRequest: async (quoteRequestId: string) => {
+    getFollowupWork: async (followupWorkId: string) => {
       if (!args.db || !args.tableName) return null;
       const result = await args.db.send(
         new GetCommand({
           TableName: args.tableName,
-          Key: { quote_request_id: quoteRequestId },
+          Key: { followup_work_id: followupWorkId },
         }),
       );
-      return (result.Item as QuoteRequestRecord | undefined) ?? null;
+      return (result.Item as LeadFollowupWorkItem | undefined) ?? null;
     },
-    acquireLease: async ({ quoteRequestId, leaseId, nowEpoch, leaseExpiresAt }) => {
+    acquireLease: async ({ followupWorkId, leaseId, nowEpoch, leaseExpiresAt }) => {
       if (!args.db || !args.tableName) return false;
       try {
         await args.db.send(
           new UpdateCommand({
             TableName: args.tableName,
-            Key: { quote_request_id: quoteRequestId },
+            Key: { followup_work_id: followupWorkId },
             UpdateExpression:
               'SET #status = :processing, lease_id = :leaseId, lock_expires_at = :lockExpiresAt, updated_at = :updatedAt',
             ConditionExpression:
-              'attribute_not_exists(lock_expires_at) OR lock_expires_at < :nowEpoch OR #status IN (:queued, :error)',
+              'attribute_exists(followup_work_id) AND (attribute_not_exists(lock_expires_at) OR lock_expires_at < :nowEpoch OR #status IN (:queued, :error))',
             ExpressionAttributeNames: {
               '#status': 'status',
             },
@@ -56,12 +57,12 @@ export function createDynamoQuoteRequestStore(args: {
         throw error;
       }
     },
-    saveQuoteRequest: async (record: QuoteRequestRecord) => {
+    saveFollowupWork: async (record: LeadFollowupWorkItem) => {
       if (!args.db || !args.tableName) return;
       await args.db.send(
         new PutCommand({
           TableName: args.tableName,
-          Item: record,
+          Item: stripUndefinedValues(record),
         }),
       );
     },

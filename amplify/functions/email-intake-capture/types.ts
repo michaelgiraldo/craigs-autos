@@ -1,4 +1,4 @@
-import type { QuoteRequestRecord } from '../_lead-platform/domain/quote-request.ts';
+import type { LeadFollowupWorkItem } from '../_lead-platform/domain/lead-followup-work.ts';
 
 export type S3EmailIntakeEvent = {
   Records?: Array<{
@@ -60,18 +60,18 @@ export type PersistedEmailLead = {
 export type EmailIntakeDeps = {
   config: EmailIntakeConfig;
   configValid: boolean;
-  createQuoteRequestId: () => string;
+  createFollowupWorkId: () => string;
   deleteRawEmail: (source: S3EmailSource) => Promise<void>;
+  enqueueFollowupWork: (record: LeadFollowupWorkItem) => Promise<void>;
   evaluateLead: (args: {
     email: ParsedInboundEmail;
     photos: ParsedPhotoAttachment[];
   }) => Promise<EmailLeadEvaluation>;
   getRawEmail: (source: S3EmailSource) => Promise<Buffer>;
-  invokeFollowup: (quoteRequestId: string) => Promise<void>;
+  invokeFollowup: (followupWorkId: string) => Promise<void>;
   ledger: EmailIntakeLedger;
   nowEpochSeconds: () => number;
   persistEmailLead: (args: PersistEmailLeadInput) => Promise<PersistedEmailLead | null>;
-  queueQuoteRequest: (record: QuoteRequestRecord) => Promise<void>;
 };
 
 export type ParsedAddress = {
