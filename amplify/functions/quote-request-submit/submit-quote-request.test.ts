@@ -37,7 +37,7 @@ function makeRepos(writes: LeadFollowupWorkItem[], steps: string[] = []): LeadPl
     followupWork: {
       getByIdempotencyKey: async (idempotencyKey: string) => records.get(idempotencyKey) ?? null,
       listByStatus: async (status: LeadFollowupWorkItem['status']) =>
-        [...records.values()].filter((record) => record.status === status),
+        Array.from(records.values()).filter((record) => record.status === status),
       acquireLease: async () => false,
       putIfAbsent: async (record: LeadFollowupWorkItem) => {
         steps.push('reserve');
