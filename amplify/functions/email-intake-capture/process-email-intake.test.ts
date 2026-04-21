@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import type { LeadFollowupWorkItem } from '../_lead-platform/domain/lead-followup-work.ts';
+import type { LeadPlatformRepos } from '../_lead-platform/repos/dynamo.ts';
 import { processEmailIntakeEvent } from './process-email-intake.ts';
 import type {
   EmailIntakeDeps,
@@ -22,11 +23,33 @@ function rawEmail(headers: Record<string, string>, body: string): Buffer {
   );
 }
 
+function makeRepos(writes: LeadFollowupWorkItem[]): LeadPlatformRepos {
+  const records = new Map<string, LeadFollowupWorkItem>();
+  return {
+    followupWork: {
+      getByIdempotencyKey: async (idempotencyKey: string) => records.get(idempotencyKey) ?? null,
+      getByFollowupWorkId: async (followupWorkId: string) =>
+        [...records.values()].find((record) => record.followup_work_id === followupWorkId) ?? null,
+      acquireLease: async () => false,
+      putIfAbsent: async (record: LeadFollowupWorkItem) => {
+        if (records.has(record.idempotency_key)) return false;
+        records.set(record.idempotency_key, { ...record });
+        writes.push({ ...record });
+        return true;
+      },
+      put: async (record: LeadFollowupWorkItem) => {
+        records.set(record.idempotency_key, { ...record });
+        writes.push({ ...record });
+      },
+    },
+  } as unknown as LeadPlatformRepos;
+}
+
 function makeDeps(overrides: Partial<EmailIntakeDeps> = {}): EmailIntakeDeps {
   const statuses = new Map<string, { reason: string; status: EmailIntakeLedgerStatus }>();
+  const writes: LeadFollowupWorkItem[] = [];
   return {
     config: {
-      allowDirectIntake: false,
       googleRouteHeaderValue: 'contact-public-intake',
       intakeRecipient: 'contact-intake@email-intake.craigs.autos',
       model: 'gpt-test',
@@ -37,7 +60,6 @@ function makeDeps(overrides: Partial<EmailIntakeDeps> = {}): EmailIntakeDeps {
       siteLabel: 'craigs.autos',
     },
     configValid: true,
-    createFollowupWorkId: () => 'email_quote_1',
     deleteRawEmail: async () => undefined,
     evaluateLead: async ({ email }) => ({
       aiError: '',
@@ -81,7 +103,7 @@ function makeDeps(overrides: Partial<EmailIntakeDeps> = {}): EmailIntakeDeps {
       journeyId: 'journey-1',
       leadRecordId: 'lead-1',
     }),
-    enqueueFollowupWork: async () => undefined,
+    repos: makeRepos(writes),
     ...overrides,
   };
 }
@@ -102,15 +124,15 @@ function s3Event(source: S3EmailSource = { bucket: 'email-bucket', key: 'raw/mes
 test('email intake queues an accepted Google-routed lead for email-first follow-up', async () => {
   const persistedInputs: PersistEmailLeadInput[] = [];
   const queuedRecords: LeadFollowupWorkItem[] = [];
-  let invokedQuoteRequestId = '';
+  let invokedIdempotencyKey = '';
   let deleted = false;
 
   const deps = makeDeps({
     deleteRawEmail: async () => {
       deleted = true;
     },
-    invokeFollowup: async (followupWorkId) => {
-      invokedQuoteRequestId = followupWorkId;
+    invokeFollowup: async (idempotencyKey) => {
+      invokedIdempotencyKey = idempotencyKey;
     },
     persistEmailLead: async (input) => {
       persistedInputs.push(input);
@@ -120,24 +142,23 @@ test('email intake queues an accepted Google-routed lead for email-first follow-
         leadRecordId: 'lead-1',
       };
     },
-    enqueueFollowupWork: async (record) => {
-      queuedRecords.push(record);
-    },
+    repos: makeRepos(queuedRecords),
   });
 
   const result = await processEmailIntakeEvent(s3Event(), deps);
 
   assert.equal(result.ok, true);
   assert.equal(deleted, false);
-  assert.equal(invokedQuoteRequestId, 'email_quote_1');
+  assert.equal(invokedIdempotencyKey.startsWith('email:'), true);
   assert.equal(persistedInputs[0]?.customerEmail, 'customer@example.com');
   assert.equal(queuedRecords[0]?.capture_channel, 'email');
   assert.equal(queuedRecords[0]?.preferred_outreach_channel, 'email');
-  assert.equal(queuedRecords[0]?.email_status, null);
-  assert.equal(queuedRecords[0]?.email_subject, '');
-  assert.equal(queuedRecords[0]?.email_body, '');
-  assert.equal(queuedRecords[0]?.sms_body, '');
-  assert.equal(queuedRecords[0]?.source_message_id, '<message-1@example.com>');
+  assert.equal(queuedRecords[1]?.lead_record_id, 'lead-1');
+  assert.equal(queuedRecords[1]?.email_status, null);
+  assert.equal(queuedRecords[1]?.email_subject, '');
+  assert.equal(queuedRecords[1]?.email_body, '');
+  assert.equal(queuedRecords[1]?.sms_body, '');
+  assert.equal(queuedRecords[1]?.source_message_id, '<message-1@example.com>');
 });
 
 test('email intake rejects existing email threads before OpenAI and deletes raw mail', async () => {

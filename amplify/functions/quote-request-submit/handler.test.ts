@@ -2,23 +2,53 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createQuoteRequestSubmitHandler } from './handler.ts';
 import type { LeadFollowupWorkItem } from '../_lead-platform/domain/lead-followup-work.ts';
+import type { LeadPlatformRepos } from '../_lead-platform/repos/dynamo.ts';
+import type { SubmitQuoteRequestDeps } from './submit-quote-request.ts';
+
+function makeRepos(writes: LeadFollowupWorkItem[]): LeadPlatformRepos {
+  const records = new Map<string, LeadFollowupWorkItem>();
+  return {
+    followupWork: {
+      getByIdempotencyKey: async (idempotencyKey: string) => records.get(idempotencyKey) ?? null,
+      getByFollowupWorkId: async (followupWorkId: string) =>
+        [...records.values()].find((record) => record.followup_work_id === followupWorkId) ?? null,
+      acquireLease: async () => false,
+      putIfAbsent: async (record: LeadFollowupWorkItem) => {
+        if (records.has(record.idempotency_key)) return false;
+        records.set(record.idempotency_key, { ...record });
+        writes.push({ ...record });
+        return true;
+      },
+      put: async (record: LeadFollowupWorkItem) => {
+        records.set(record.idempotency_key, { ...record });
+        writes.push({ ...record });
+      },
+    },
+  } as unknown as LeadPlatformRepos;
+}
+
+function makeDeps(
+  overrides: Partial<SubmitQuoteRequestDeps> = {},
+): SubmitQuoteRequestDeps & { invoked: string[]; writes: LeadFollowupWorkItem[] } {
+  const writes: LeadFollowupWorkItem[] = [];
+  const invoked: string[] = [];
+  return {
+    configValid: true,
+    nowEpochSeconds: () => 1_000,
+    repos: makeRepos(writes),
+    siteLabel: 'example.test',
+    invokeFollowup: async (idempotencyKey) => {
+      invoked.push(idempotencyKey);
+    },
+    ...overrides,
+    invoked,
+    writes,
+  };
+}
 
 test('quote-request-submit queues lead follow-up when phone is provided', async () => {
-  const queued: LeadFollowupWorkItem[] = [];
-  const invoked: string[] = [];
-
-  const handler = createQuoteRequestSubmitHandler({
-    configValid: true,
-    createFollowupWorkId: () => 'quote-request-1',
-    nowEpochSeconds: () => 1_000,
-    siteLabel: 'example.test',
-    enqueueFollowupWork: async (record) => {
-      queued.push(record);
-    },
-    invokeFollowup: async (followupWorkId) => {
-      invoked.push(followupWorkId);
-    },
-  });
+  const deps = makeDeps();
+  const handler = createQuoteRequestSubmitHandler(deps);
 
   const result = await handler({
     requestContext: { http: { method: 'POST' } },
@@ -30,24 +60,17 @@ test('quote-request-submit queues lead follow-up when phone is provided', async 
       vehicle: '2018 Toyota Camry',
       service: 'seat-repair',
       message: 'Driver seat tear',
+      client_event_id: 'form-submit-1',
     }),
   });
 
   assert.equal(result.statusCode, 200);
-  assert.equal(queued.length, 1);
-  assert.equal(queued[0]?.phone, '(408) 555-0101');
-  assert.equal(invoked[0], 'quote-request-1');
+  assert.equal(deps.writes[0]?.phone, '(408) 555-0101');
+  assert.equal(deps.invoked[0], 'form:form-submit-1');
 });
 
 test('quote-request-submit rejects non-POST HTTP methods', async () => {
-  const handler = createQuoteRequestSubmitHandler({
-    configValid: true,
-    createFollowupWorkId: () => 'quote-request-method',
-    nowEpochSeconds: () => 1_000,
-    siteLabel: 'example.test',
-    enqueueFollowupWork: async () => undefined,
-    invokeFollowup: async () => undefined,
-  });
+  const handler = createQuoteRequestSubmitHandler(makeDeps());
 
   const result = await handler({
     requestContext: { http: { method: 'GET' } },
@@ -57,14 +80,7 @@ test('quote-request-submit rejects non-POST HTTP methods', async () => {
 });
 
 test('quote-request-submit rejects invalid JSON bodies before validation', async () => {
-  const handler = createQuoteRequestSubmitHandler({
-    configValid: true,
-    createFollowupWorkId: () => 'quote-request-json',
-    nowEpochSeconds: () => 1_000,
-    siteLabel: 'example.test',
-    enqueueFollowupWork: async () => undefined,
-    invokeFollowup: async () => undefined,
-  });
+  const handler = createQuoteRequestSubmitHandler(makeDeps());
 
   const result = await handler({
     requestContext: { http: { method: 'POST' } },
@@ -76,21 +92,8 @@ test('quote-request-submit rejects invalid JSON bodies before validation', async
 });
 
 test('quote-request-submit queues lead follow-up when email is provided without phone', async () => {
-  const queued: LeadFollowupWorkItem[] = [];
-  const invoked: string[] = [];
-
-  const handler = createQuoteRequestSubmitHandler({
-    configValid: true,
-    createFollowupWorkId: () => 'quote-request-2',
-    nowEpochSeconds: () => 2_000,
-    siteLabel: 'example.test',
-    enqueueFollowupWork: async (record) => {
-      queued.push(record);
-    },
-    invokeFollowup: async (followupWorkId) => {
-      invoked.push(followupWorkId);
-    },
-  });
+  const deps = makeDeps({ nowEpochSeconds: () => 2_000 });
+  const handler = createQuoteRequestSubmitHandler(deps);
 
   const result = await handler({
     requestContext: { http: { method: 'POST' } },
@@ -98,24 +101,17 @@ test('quote-request-submit queues lead follow-up when email is provided without 
       name: 'Customer',
       email: 'customer@example.com',
       phone: '',
+      client_event_id: 'form-submit-2',
     }),
   });
 
   assert.equal(result.statusCode, 200);
-  assert.equal(queued.length, 1);
-  assert.equal(queued[0]?.email, 'customer@example.com');
-  assert.equal(invoked[0], 'quote-request-2');
+  assert.equal(deps.writes[0]?.email, 'customer@example.com');
+  assert.equal(deps.invoked[0], 'form:form-submit-2');
 });
 
 test('quote-request-submit rejects requests without a contact method', async () => {
-  const handler = createQuoteRequestSubmitHandler({
-    configValid: true,
-    createFollowupWorkId: () => 'quote-request-3',
-    nowEpochSeconds: () => 3_000,
-    siteLabel: 'example.test',
-    enqueueFollowupWork: async () => undefined,
-    invokeFollowup: async () => undefined,
-  });
+  const handler = createQuoteRequestSubmitHandler(makeDeps({ nowEpochSeconds: () => 3_000 }));
 
   const result = await handler({
     requestContext: { http: { method: 'POST' } },
@@ -123,6 +119,7 @@ test('quote-request-submit rejects requests without a contact method', async () 
       name: 'Customer',
       email: '',
       phone: '',
+      client_event_id: 'form-submit-3',
     }),
   });
 
@@ -131,14 +128,7 @@ test('quote-request-submit rejects requests without a contact method', async () 
 });
 
 test('quote-request-submit returns benign success for honeypot follow-up works', async () => {
-  const handler = createQuoteRequestSubmitHandler({
-    configValid: true,
-    createFollowupWorkId: () => 'quote-request-4',
-    nowEpochSeconds: () => 4_000,
-    siteLabel: 'example.test',
-    enqueueFollowupWork: async () => undefined,
-    invokeFollowup: async () => undefined,
-  });
+  const handler = createQuoteRequestSubmitHandler(makeDeps({ nowEpochSeconds: () => 4_000 }));
 
   const result = await handler({
     requestContext: { http: { method: 'POST' } },
@@ -146,6 +136,7 @@ test('quote-request-submit returns benign success for honeypot follow-up works',
       name: 'Spam',
       phone: '(408) 555-0101',
       company: 'bot-field',
+      client_event_id: 'form-submit-4',
     }),
   });
 
@@ -153,26 +144,15 @@ test('quote-request-submit returns benign success for honeypot follow-up works',
 });
 
 test('quote-request-submit internal smoke mode persists the lead bundle without queuing follow-up', async () => {
-  const queued: LeadFollowupWorkItem[] = [];
-  const invoked: string[] = [];
-
-  const handler = createQuoteRequestSubmitHandler({
-    configValid: true,
-    createFollowupWorkId: () => 'quote-request-smoke',
+  const deps = makeDeps({
     nowEpochSeconds: () => 5_000,
-    siteLabel: 'example.test',
     persistQuoteRequest: async () => ({
       journeyId: 'journey-smoke',
       leadRecordId: 'lead-smoke',
       contactId: 'contact-smoke',
     }),
-    enqueueFollowupWork: async (record) => {
-      queued.push(record);
-    },
-    invokeFollowup: async (followupWorkId) => {
-      invoked.push(followupWorkId);
-    },
   });
+  const handler = createQuoteRequestSubmitHandler(deps);
 
   const result = await handler({
     __smoke_test: true,
@@ -183,31 +163,23 @@ test('quote-request-submit internal smoke mode persists the lead bundle without 
   } as unknown as Parameters<typeof handler>[0]);
 
   assert.equal(result.statusCode, 200);
-  assert.equal(queued.length, 0);
-  assert.equal(invoked.length, 0);
+  assert.equal(deps.writes.length, 0);
+  assert.equal(deps.invoked.length, 0);
   assert.match(result.body, /"smoke_test":true/);
   assert.match(result.body, /"journey_id":"journey-smoke"/);
   assert.match(result.body, /"lead_record_id":"lead-smoke"/);
 });
 
 test('quote-request-submit queues lead follow-up with immutable lead linkage context', async () => {
-  const queued: LeadFollowupWorkItem[] = [];
-
-  const handler = createQuoteRequestSubmitHandler({
-    configValid: true,
-    createFollowupWorkId: () => 'quote-request-linked',
+  const deps = makeDeps({
     nowEpochSeconds: () => 6_000,
-    siteLabel: 'example.test',
     persistQuoteRequest: async () => ({
       journeyId: 'journey-linked',
       leadRecordId: 'lead-linked',
       contactId: 'contact-linked',
     }),
-    enqueueFollowupWork: async (record) => {
-      queued.push(record);
-    },
-    invokeFollowup: async () => undefined,
   });
+  const handler = createQuoteRequestSubmitHandler(deps);
 
   const result = await handler({
     requestContext: { http: { method: 'POST' } },
@@ -219,14 +191,14 @@ test('quote-request-submit queues lead follow-up with immutable lead linkage con
       pageUrl: 'https://example.test/en/contact',
       user: 'anon-user',
       attribution: { utm_source: 'google' },
+      client_event_id: 'form-submit-linked',
     }),
   });
 
   assert.equal(result.statusCode, 200);
-  assert.equal(queued.length, 1);
-  assert.equal(queued[0]?.journey_id, 'journey-linked');
-  assert.equal(queued[0]?.lead_record_id, 'lead-linked');
-  assert.equal(queued[0]?.contact_id, 'contact-linked');
-  assert.equal(queued[0]?.page_url, 'https://example.test/en/contact');
-  assert.equal(queued[0]?.user_id, 'anon-user');
+  assert.equal(deps.writes.at(-1)?.journey_id, 'journey-linked');
+  assert.equal(deps.writes.at(-1)?.lead_record_id, 'lead-linked');
+  assert.equal(deps.writes.at(-1)?.contact_id, 'contact-linked');
+  assert.equal(deps.writes.at(-1)?.page_url, 'https://example.test/en/contact');
+  assert.equal(deps.writes.at(-1)?.user_id, 'anon-user');
 });

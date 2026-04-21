@@ -83,6 +83,14 @@ export function createClientEventId(prefix = 'evt'): string {
   return `${prefix}_${randomUUID()}`;
 }
 
+export function createStableLeadFollowupWorkId(args: {
+  idempotencyKey: string;
+  prefix?: string | null;
+}): string {
+  const prefix = args.prefix?.trim() || 'followup_work';
+  return createStableId(prefix, ['lead-followup-work', args.idempotencyKey.trim()]);
+}
+
 export function createStableConversionDecisionId(args: {
   leadRecordId: string;
   decisionType: string;

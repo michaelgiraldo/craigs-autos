@@ -16,12 +16,12 @@ export function createLeadFollowupWorkerHandler(deps: LeadFollowupWorkerDeps) {
 
     const parsed = parseLeadFollowupWorkerEvent(event);
     if (!parsed.ok) {
-      return json(400, { error: 'Missing followup_work_id' });
+      return json(400, { error: 'Missing idempotency_key' });
     }
 
     const outcome = await processLeadFollowupWorker({
       deps,
-      followupWorkId: parsed.followupWorkId,
+      idempotencyKey: parsed.idempotencyKey,
     });
     return json(outcome.statusCode, outcome.body);
   };

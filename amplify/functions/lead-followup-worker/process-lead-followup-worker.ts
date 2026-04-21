@@ -22,11 +22,11 @@ function buildProcessingRecord(args: {
 
 export async function processLeadFollowupWorker(args: {
   deps: LeadFollowupWorkerDeps;
-  followupWorkId: string;
+  idempotencyKey: string;
 }): Promise<LeadFollowupWorkflowOutcome> {
-  const { deps, followupWorkId } = args;
+  const { deps, idempotencyKey } = args;
   const now = deps.nowEpochSeconds();
-  const existing = await deps.getFollowupWork(followupWorkId);
+  const existing = await deps.getFollowupWork(idempotencyKey);
 
   if (!existing) {
     return { statusCode: 404, body: { error: 'Follow-up work not found' } };
@@ -43,7 +43,7 @@ export async function processLeadFollowupWorker(args: {
   const leaseId = deps.createLeaseId ? deps.createLeaseId() : randomUUID();
   const leaseExpiresAt = now + LEAD_FOLLOWUP_LEASE_SECONDS;
   const leaseAcquired = await deps.acquireLease({
-    followupWorkId,
+    idempotencyKey,
     leaseId,
     nowEpoch: now,
     leaseExpiresAt,
@@ -62,7 +62,7 @@ export async function processLeadFollowupWorker(args: {
   const outcome = await runLeadFollowupWorkerWorkflow({
     deps,
     record,
-    followupWorkId,
+    followupWorkId: existing.followup_work_id,
   });
 
   if (deps.syncLeadRecord && outcome.body.reason !== 'stale_lease') {

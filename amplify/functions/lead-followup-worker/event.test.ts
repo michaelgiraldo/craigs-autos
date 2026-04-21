@@ -2,20 +2,20 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { parseLeadFollowupWorkerEvent } from './event.ts';
 
-test('parseLeadFollowupWorkerEvent trims valid follow-up work ids', () => {
-  assert.deepEqual(parseLeadFollowupWorkerEvent({ followup_work_id: ' followup-work-1 ' }), {
+test('parseLeadFollowupWorkerEvent trims valid idempotency keys', () => {
+  assert.deepEqual(parseLeadFollowupWorkerEvent({ idempotency_key: ' form:followup-work-1 ' }), {
     ok: true,
-    followupWorkId: 'followup-work-1',
+    idempotencyKey: 'form:followup-work-1',
   });
 });
 
-test('parseLeadFollowupWorkerEvent rejects missing follow-up work ids', () => {
+test('parseLeadFollowupWorkerEvent rejects missing idempotency keys', () => {
   assert.deepEqual(parseLeadFollowupWorkerEvent({}), {
     ok: false,
-    reason: 'missing_followup_work_id',
+    reason: 'missing_idempotency_key',
   });
-  assert.deepEqual(parseLeadFollowupWorkerEvent({ followup_work_id: '   ' }), {
+  assert.deepEqual(parseLeadFollowupWorkerEvent({ idempotency_key: '   ' }), {
     ok: false,
-    reason: 'missing_followup_work_id',
+    reason: 'missing_idempotency_key',
   });
 });

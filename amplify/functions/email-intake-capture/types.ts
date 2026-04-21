@@ -1,4 +1,4 @@
-import type { LeadFollowupWorkItem } from '../_lead-platform/domain/lead-followup-work.ts';
+import type { LeadPlatformRepos } from '../_lead-platform/repos/dynamo.ts';
 
 export type S3EmailIntakeEvent = {
   Records?: Array<{
@@ -15,7 +15,6 @@ export type S3EmailSource = {
 };
 
 export type EmailIntakeConfig = {
-  allowDirectIntake: boolean;
   googleRouteHeaderValue: string;
   intakeRecipient: string;
   model: string;
@@ -60,18 +59,17 @@ export type PersistedEmailLead = {
 export type EmailIntakeDeps = {
   config: EmailIntakeConfig;
   configValid: boolean;
-  createFollowupWorkId: () => string;
   deleteRawEmail: (source: S3EmailSource) => Promise<void>;
-  enqueueFollowupWork: (record: LeadFollowupWorkItem) => Promise<void>;
   evaluateLead: (args: {
     email: ParsedInboundEmail;
     photos: ParsedPhotoAttachment[];
   }) => Promise<EmailLeadEvaluation>;
   getRawEmail: (source: S3EmailSource) => Promise<Buffer>;
-  invokeFollowup: (followupWorkId: string) => Promise<void>;
+  invokeFollowup: (idempotencyKey: string) => Promise<void>;
   ledger: EmailIntakeLedger;
   nowEpochSeconds: () => number;
   persistEmailLead: (args: PersistEmailLeadInput) => Promise<PersistedEmailLead | null>;
+  repos: LeadPlatformRepos | null;
 };
 
 export type ParsedAddress = {

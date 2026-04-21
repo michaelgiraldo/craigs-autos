@@ -4,7 +4,7 @@ import type {
 } from '../_lead-platform/domain/lead-followup-work.ts';
 
 export type LeadFollowupWorkerEvent = {
-  followup_work_id?: string | null;
+  idempotency_key?: string | null;
 };
 
 export type LambdaResult = {
@@ -29,9 +29,9 @@ export type LeadFollowupWorkerDeps = {
   smsAutomationEnabled: boolean;
   createLeaseId?: () => string;
   nowEpochSeconds: () => number;
-  getFollowupWork: (followupWorkId: string) => Promise<LeadFollowupWorkItem | null>;
+  getFollowupWork: (idempotencyKey: string) => Promise<LeadFollowupWorkItem | null>;
   acquireLease: (args: {
-    followupWorkId: string;
+    idempotencyKey: string;
     leaseId: string;
     nowEpoch: number;
     leaseExpiresAt: number;

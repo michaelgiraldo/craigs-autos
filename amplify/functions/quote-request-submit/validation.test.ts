@@ -8,7 +8,7 @@ function makeRequest(
 ): QuoteRequestSubmitRequest {
   return {
     attribution: null,
-    clientEventId: null,
+    clientEventId: 'form-event-1',
     company: '',
     effectivePageUrl: 'https://craigs.autos/en/request-a-quote',
     email: 'customer@example.com',
@@ -47,6 +47,15 @@ test('validateQuoteRequestSubmitRequest rejects missing contact methods', () => 
   assert.equal(result.ok, false);
   assert.equal(result.statusCode, 400);
   assert.match(JSON.stringify(result.body), /phone number or email/);
+});
+
+test('validateQuoteRequestSubmitRequest requires a client event id for public form submissions', () => {
+  assert.deepEqual(validateQuoteRequestSubmitRequest(makeRequest({ clientEventId: null })), {
+    ok: false,
+    kind: 'invalid',
+    statusCode: 400,
+    body: { error: 'client_event_id is required.' },
+  });
 });
 
 test('validateQuoteRequestSubmitRequest rejects malformed email and phone values', () => {

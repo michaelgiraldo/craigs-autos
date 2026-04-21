@@ -3,7 +3,9 @@ import {
   createLeadFollowupWorkItem,
   type LeadFollowupWorkItem,
 } from '../_lead-platform/domain/lead-followup-work.ts';
+import { createStableLeadFollowupWorkId } from '../_lead-platform/domain/ids.ts';
 import { createLeadSourceEvent } from '../_lead-platform/domain/lead-source-event.ts';
+import { captureLeadSource } from '../_lead-platform/services/capture-lead-source.ts';
 import { normalizeEmailMessageId } from '../_shared/email-threading.ts';
 import { isPlausibleEmail, normalizeWhitespace } from '../_shared/text-utils.ts';
 import { parseInboundEmail } from './mime.ts';
@@ -300,25 +302,13 @@ export async function processEmailIntakeEvent(event: S3EmailIntakeEvent, deps: E
         continue;
       }
 
-      const followupWorkId = deps.createFollowupWorkId();
-      const persistedLead = await deps.persistEmailLead({
-        customerEmail,
-        customerLanguage: evaluation.customerLanguage,
-        customerMessage: evaluation.projectSummary || email.text,
-        customerName: evaluation.customerName ?? email.from?.name ?? null,
-        customerPhone: evaluation.customerPhone,
-        emailIntakeId: followupWorkId,
-        messageId: normalizeEmailMessageId(email.messageId),
-        missingInfo: evaluation.missingInfo,
-        originalRecipient: deps.config.originalRecipient,
-        photoAttachmentCount: email.photoAttachments.length,
-        projectSummary: evaluation.projectSummary,
-        routeStatus: route.status,
-        service: evaluation.service,
-        subject: email.subject,
-        threadKey,
-        unsupportedAttachmentCount: email.unsupportedAttachmentCount,
-        vehicle: evaluation.vehicle,
+      if (!deps.repos) {
+        throw new Error('Lead platform repositories are not configured');
+      }
+
+      const followupWorkId = createStableLeadFollowupWorkId({
+        idempotencyKey: threadKey,
+        prefix: 'email',
       });
       const record = createFollowupWork({
         deps,
@@ -328,9 +318,9 @@ export async function processEmailIntakeEvent(event: S3EmailIntakeEvent, deps: E
           customerEmail,
         },
         leadContext: {
-          contactId: persistedLead?.contactId ?? null,
-          journeyId: persistedLead?.journeyId ?? null,
-          leadRecordId: persistedLead?.leadRecordId ?? null,
+          contactId: null,
+          journeyId: null,
+          leadRecordId: null,
         },
         followupWorkId,
         routeStatus: route.status,
@@ -338,14 +328,38 @@ export async function processEmailIntakeEvent(event: S3EmailIntakeEvent, deps: E
         threadKey,
       });
 
-      await deps.enqueueFollowupWork(record);
-      await deps.invokeFollowup(followupWorkId);
+      const receipt = await captureLeadSource({
+        invokeFollowup: deps.invokeFollowup,
+        nowEpochSeconds: deps.nowEpochSeconds,
+        persistLead: () =>
+          deps.persistEmailLead({
+            customerEmail,
+            customerLanguage: evaluation.customerLanguage,
+            customerMessage: evaluation.projectSummary || email.text,
+            customerName: evaluation.customerName ?? email.from?.name ?? null,
+            customerPhone: evaluation.customerPhone,
+            emailIntakeId: followupWorkId,
+            messageId: normalizeEmailMessageId(email.messageId),
+            missingInfo: evaluation.missingInfo,
+            originalRecipient: deps.config.originalRecipient,
+            photoAttachmentCount: email.photoAttachments.length,
+            projectSummary: evaluation.projectSummary,
+            routeStatus: route.status,
+            service: evaluation.service,
+            subject: email.subject,
+            threadKey,
+            unsupportedAttachmentCount: email.unsupportedAttachmentCount,
+            vehicle: evaluation.vehicle,
+          }),
+        repos: deps.repos,
+        workItem: record,
+      });
       await markBoth(deps, {
         messageLedgerKey,
         threadLedgerKey,
         status: 'queued',
       });
-      results.push({ key: source.key, queued: true, followup_work_id: followupWorkId });
+      results.push({ key: source.key, queued: true, followup_work_id: receipt.followupWorkId });
     } catch (error: unknown) {
       await markBoth(deps, {
         messageLedgerKey,

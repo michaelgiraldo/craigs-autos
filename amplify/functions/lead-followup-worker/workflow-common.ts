@@ -46,8 +46,7 @@ export function getOutreachResult(record: LeadFollowupWorkItem): LeadFollowupOut
 export function isStaleFollowupWorkLeaseError(error: unknown): boolean {
   return (
     error instanceof Error &&
-    (error.name === 'StaleFollowupWorkLeaseError' ||
-      error.message === 'stale_followup_work_lease')
+    (error.name === 'StaleFollowupWorkLeaseError' || error.message === 'stale_followup_work_lease')
   );
 }
 

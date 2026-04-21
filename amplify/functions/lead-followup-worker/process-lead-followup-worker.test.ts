@@ -81,7 +81,7 @@ function makeDeps(overrides: Partial<LeadFollowupWorkerDeps> = {}): LeadFollowup
 test('processLeadFollowupWorker returns 404 when the follow-up work is missing', async () => {
   const result = await processLeadFollowupWorker({
     deps: makeDeps({ getFollowupWork: async () => null }),
-    followupWorkId: 'missing-follow-up work',
+    idempotencyKey: 'form:missing-follow-up-work',
   });
 
   assert.equal(result.statusCode, 404);
@@ -91,13 +91,13 @@ test('processLeadFollowupWorker returns 404 when the follow-up work is missing',
 test('processLeadFollowupWorker skips records that are already complete or actively leased', async () => {
   const completed = await processLeadFollowupWorker({
     deps: makeDeps({ getFollowupWork: async () => makeRecord({ status: 'completed' }) }),
-    followupWorkId: 'followup-work-1',
+    idempotencyKey: 'form:followup-work-1',
   });
   const inProgress = await processLeadFollowupWorker({
     deps: makeDeps({
       getFollowupWork: async () => makeRecord({ status: 'processing', lock_expires_at: 2_500 }),
     }),
-    followupWorkId: 'followup-work-1',
+    idempotencyKey: 'form:followup-work-1',
   });
 
   assert.deepEqual(completed.body, { ok: true, skipped: true, reason: 'already_completed' });
@@ -107,7 +107,7 @@ test('processLeadFollowupWorker skips records that are already complete or activ
 test('processLeadFollowupWorker skips when the lease cannot be acquired', async () => {
   const result = await processLeadFollowupWorker({
     deps: makeDeps({ acquireLease: async () => false }),
-    followupWorkId: 'followup-work-1',
+    idempotencyKey: 'form:followup-work-1',
   });
 
   assert.equal(result.statusCode, 200);
@@ -122,7 +122,7 @@ test('processLeadFollowupWorker syncs the mutated completed record after workflo
         synced = { ...record };
       },
     }),
-    followupWorkId: 'followup-work-1',
+    idempotencyKey: 'form:followup-work-1',
   });
 
   assert.equal(result.statusCode, 200);

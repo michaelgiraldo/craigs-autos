@@ -2,10 +2,30 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createQuoteRequestSubmitHandler } from '../quote-request-submit/handler.ts';
 import type { LeadFollowupWorkItem } from '../_lead-platform/domain/lead-followup-work.ts';
+import type { LeadPlatformRepos } from '../_lead-platform/repos/dynamo.ts';
 import { createLeadFollowupWorkerHandler } from './handler.ts';
 
 function makeStore() {
   return new Map<string, LeadFollowupWorkItem>();
+}
+
+function makeRepos(store: Map<string, LeadFollowupWorkItem>): LeadPlatformRepos {
+  return {
+    followupWork: {
+      getByIdempotencyKey: async (idempotencyKey: string) => store.get(idempotencyKey) ?? null,
+      getByFollowupWorkId: async (followupWorkId: string) =>
+        [...store.values()].find((record) => record.followup_work_id === followupWorkId) ?? null,
+      acquireLease: async () => true,
+      putIfAbsent: async (record: LeadFollowupWorkItem) => {
+        if (store.has(record.idempotency_key)) return false;
+        store.set(record.idempotency_key, { ...record });
+        return true;
+      },
+      put: async (record: LeadFollowupWorkItem) => {
+        store.set(record.idempotency_key, { ...record });
+      },
+    },
+  } as unknown as LeadPlatformRepos;
 }
 
 test('async quote flow sends SMS first and notifies the owner end-to-end', async () => {
@@ -18,10 +38,10 @@ test('async quote flow sends SMS first and notifies the owner end-to-end', async
     configValid: true,
     smsAutomationEnabled: true,
     nowEpochSeconds: () => 2_000,
-    getFollowupWork: async (followupWorkId) => quoteRequests.get(followupWorkId) ?? null,
+    getFollowupWork: async (idempotencyKey) => quoteRequests.get(idempotencyKey) ?? null,
     acquireLease: async () => true,
     saveFollowupWork: async (record) => {
-      quoteRequests.set(record.followup_work_id, { ...record });
+      quoteRequests.set(record.idempotency_key, { ...record });
     },
     generateDrafts: async () => ({
       aiError: '',
@@ -50,14 +70,11 @@ test('async quote flow sends SMS first and notifies the owner end-to-end', async
 
   const quoteRequestSubmit = createQuoteRequestSubmitHandler({
     configValid: true,
-    createFollowupWorkId: () => 'followup-work-1',
     nowEpochSeconds: () => 1_000,
+    repos: makeRepos(quoteRequests),
     siteLabel: 'example.test',
-    enqueueFollowupWork: async (record) => {
-      quoteRequests.set(record.followup_work_id, { ...record });
-    },
-    invokeFollowup: async (followupWorkId) => {
-      const result = await leadFollowupWorker({ followup_work_id: followupWorkId });
+    invokeFollowup: async (idempotencyKey) => {
+      const result = await leadFollowupWorker({ idempotency_key: idempotencyKey });
       assert.equal(result.statusCode, 200);
     },
   });
@@ -72,6 +89,7 @@ test('async quote flow sends SMS first and notifies the owner end-to-end', async
       vehicle: '2018 Toyota Camry',
       service: 'seat-repair',
       message: 'Driver seat tear',
+      client_event_id: 'flow-1',
     }),
   });
 
@@ -80,7 +98,7 @@ test('async quote flow sends SMS first and notifies the owner end-to-end', async
   assert.equal(customerEmails.length, 0);
   assert.equal(ownerEmails.length, 1);
 
-  const stored = quoteRequests.get('followup-work-1');
+  const stored = quoteRequests.get('form:flow-1');
   assert.equal(stored?.status, 'completed');
   assert.equal(stored?.sms_status, 'sent');
   assert.equal(stored?.email_status, 'skipped');
@@ -98,10 +116,10 @@ test('async quote flow falls back to email when the stored follow-up work has no
     configValid: true,
     smsAutomationEnabled: true,
     nowEpochSeconds: () => 2_000,
-    getFollowupWork: async (followupWorkId) => quoteRequests.get(followupWorkId) ?? null,
+    getFollowupWork: async (idempotencyKey) => quoteRequests.get(idempotencyKey) ?? null,
     acquireLease: async () => true,
     saveFollowupWork: async (record) => {
-      quoteRequests.set(record.followup_work_id, { ...record });
+      quoteRequests.set(record.idempotency_key, { ...record });
     },
     generateDrafts: async () => ({
       aiError: '',
@@ -128,7 +146,7 @@ test('async quote flow falls back to email when the stored follow-up work has no
     },
   });
 
-  quoteRequests.set('followup-work-2', {
+  quoteRequests.set('form:followup-work-2', {
     followup_work_id: 'followup-work-2',
     idempotency_key: 'form:followup-work-2',
     source_event_id: 'followup-work-2',
@@ -172,14 +190,14 @@ test('async quote flow falls back to email when the stored follow-up work has no
     owner_email_error: '',
   });
 
-  const result = await leadFollowupWorker({ followup_work_id: 'followup-work-2' });
+  const result = await leadFollowupWorker({ idempotency_key: 'form:followup-work-2' });
 
   assert.equal(result.statusCode, 200);
   assert.equal(smsSends.length, 0);
   assert.deepEqual(customerEmails, ['customer@example.com']);
   assert.equal(ownerEmails.length, 1);
 
-  const stored = quoteRequests.get('followup-work-2');
+  const stored = quoteRequests.get('form:followup-work-2');
   assert.equal(stored?.status, 'completed');
   assert.equal(stored?.sms_status, 'skipped');
   assert.equal(stored?.email_status, 'sent');
@@ -191,12 +209,9 @@ test('follow-up work submit marks the follow-up work as error when worker invoca
 
   const quoteRequestSubmit = createQuoteRequestSubmitHandler({
     configValid: true,
-    createFollowupWorkId: () => 'followup-work-3',
     nowEpochSeconds: () => 1_000,
+    repos: makeRepos(quoteRequests),
     siteLabel: 'example.test',
-    enqueueFollowupWork: async (record) => {
-      quoteRequests.set(record.followup_work_id, { ...record });
-    },
     invokeFollowup: async () => {
       throw new Error('worker unavailable');
     },
@@ -208,11 +223,12 @@ test('follow-up work submit marks the follow-up work as error when worker invoca
     body: JSON.stringify({
       name: 'Customer',
       phone: '(617) 306-2716',
+      client_event_id: 'flow-3',
     }),
   });
 
   assert.equal(result.statusCode, 502);
-  assert.equal(quoteRequests.get('followup-work-3')?.status, 'error');
+  assert.equal(quoteRequests.get('form:flow-3')?.status, 'error');
 });
 
 test('async quote flow marks phone-only follow-up works for manual follow-up when SMS automation is off', async () => {
@@ -225,10 +241,10 @@ test('async quote flow marks phone-only follow-up works for manual follow-up whe
     configValid: true,
     smsAutomationEnabled: false,
     nowEpochSeconds: () => 2_500,
-    getFollowupWork: async (followupWorkId) => quoteRequests.get(followupWorkId) ?? null,
+    getFollowupWork: async (idempotencyKey) => quoteRequests.get(idempotencyKey) ?? null,
     acquireLease: async () => true,
     saveFollowupWork: async (record) => {
-      quoteRequests.set(record.followup_work_id, { ...record });
+      quoteRequests.set(record.idempotency_key, { ...record });
     },
     generateDrafts: async () => ({
       aiError: '',
@@ -257,14 +273,11 @@ test('async quote flow marks phone-only follow-up works for manual follow-up whe
 
   const quoteRequestSubmit = createQuoteRequestSubmitHandler({
     configValid: true,
-    createFollowupWorkId: () => 'followup-work-4',
     nowEpochSeconds: () => 1_500,
+    repos: makeRepos(quoteRequests),
     siteLabel: 'craigs.autos',
-    enqueueFollowupWork: async (record) => {
-      quoteRequests.set(record.followup_work_id, { ...record });
-    },
-    invokeFollowup: async (followupWorkId) => {
-      const result = await leadFollowupWorker({ followup_work_id: followupWorkId });
+    invokeFollowup: async (idempotencyKey) => {
+      const result = await leadFollowupWorker({ idempotency_key: idempotencyKey });
       assert.equal(result.statusCode, 200);
     },
   });
@@ -279,6 +292,7 @@ test('async quote flow marks phone-only follow-up works for manual follow-up whe
       vehicle: '1967 Mustang',
       service: 'classic-interior',
       message: 'Need a manual follow-up while text automation is offline.',
+      client_event_id: 'flow-4',
     }),
   });
 
@@ -287,7 +301,7 @@ test('async quote flow marks phone-only follow-up works for manual follow-up whe
   assert.equal(customerEmails.length, 0);
   assert.equal(ownerEmails.length, 1);
 
-  const stored = quoteRequests.get('followup-work-4');
+  const stored = quoteRequests.get('form:flow-4');
   assert.equal(stored?.status, 'completed');
   assert.equal(stored?.sms_status, 'skipped');
   assert.equal(stored?.sms_error, 'manual_followup_required');

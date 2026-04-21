@@ -18,24 +18,24 @@ export class DynamoLeadFollowupWorkRepo implements LeadFollowupWorkRepo {
     this.tableName = tableName;
   }
 
-  async getById(followupWorkId: string): Promise<LeadFollowupWorkItem | null> {
+  async getByIdempotencyKey(idempotencyKey: string): Promise<LeadFollowupWorkItem | null> {
     const result = await this.db.send(
       new GetCommand({
         TableName: this.tableName,
-        Key: { followup_work_id: followupWorkId },
+        Key: { idempotency_key: idempotencyKey },
       }),
     );
     return (result.Item as LeadFollowupWorkItem | undefined) ?? null;
   }
 
-  async getByIdempotencyKey(idempotencyKey: string): Promise<LeadFollowupWorkItem | null> {
+  async getByFollowupWorkId(followupWorkId: string): Promise<LeadFollowupWorkItem | null> {
     const result = await this.db.send(
       new QueryCommand({
         TableName: this.tableName,
-        IndexName: 'idempotency_key-index',
-        KeyConditionExpression: 'idempotency_key = :idempotency_key',
+        IndexName: 'followup_work_id-index',
+        KeyConditionExpression: 'followup_work_id = :followup_work_id',
         ExpressionAttributeValues: {
-          ':idempotency_key': idempotencyKey,
+          ':followup_work_id': followupWorkId,
         },
         Limit: 1,
       }),
@@ -44,7 +44,7 @@ export class DynamoLeadFollowupWorkRepo implements LeadFollowupWorkRepo {
   }
 
   async acquireLease(args: {
-    followupWorkId: string;
+    idempotencyKey: string;
     leaseId: string;
     nowEpoch: number;
     leaseExpiresAt: number;
@@ -53,7 +53,7 @@ export class DynamoLeadFollowupWorkRepo implements LeadFollowupWorkRepo {
       await this.db.send(
         new UpdateCommand({
           TableName: this.tableName,
-          Key: { followup_work_id: args.followupWorkId },
+          Key: { idempotency_key: args.idempotencyKey },
           UpdateExpression:
             'SET #status = :processing, #lease_id = :lease_id, #lock_expires_at = :lock_expires_at, #updated_at = :now',
           ExpressionAttributeNames: {
@@ -70,7 +70,7 @@ export class DynamoLeadFollowupWorkRepo implements LeadFollowupWorkRepo {
             ':now': args.nowEpoch,
           },
           ConditionExpression:
-            'attribute_exists(followup_work_id) AND #status <> :completed AND (attribute_not_exists(#lock_expires_at) OR #lock_expires_at < :now)',
+            'attribute_exists(idempotency_key) AND #status <> :completed AND (attribute_not_exists(#lock_expires_at) OR #lock_expires_at < :now)',
         }),
       );
       return true;
@@ -97,7 +97,7 @@ export class DynamoLeadFollowupWorkRepo implements LeadFollowupWorkRepo {
         new PutCommand({
           TableName: this.tableName,
           Item: stripUndefinedValues(item),
-          ConditionExpression: 'attribute_not_exists(followup_work_id)',
+          ConditionExpression: 'attribute_not_exists(idempotency_key)',
         }),
       );
       return true;

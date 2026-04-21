@@ -25,27 +25,27 @@ export function createDynamoLeadFollowupWorkStore(args: {
   tableName: string;
 }): LeadFollowupWorkStore {
   return {
-    getFollowupWork: async (followupWorkId: string) => {
+    getFollowupWork: async (idempotencyKey: string) => {
       if (!args.db || !args.tableName) return null;
       const result = await args.db.send(
         new GetCommand({
           TableName: args.tableName,
-          Key: { followup_work_id: followupWorkId },
+          Key: { idempotency_key: idempotencyKey },
         }),
       );
       return (result.Item as LeadFollowupWorkItem | undefined) ?? null;
     },
-    acquireLease: async ({ followupWorkId, leaseId, nowEpoch, leaseExpiresAt }) => {
+    acquireLease: async ({ idempotencyKey, leaseId, nowEpoch, leaseExpiresAt }) => {
       if (!args.db || !args.tableName) return false;
       try {
         await args.db.send(
           new UpdateCommand({
             TableName: args.tableName,
-            Key: { followup_work_id: followupWorkId },
+            Key: { idempotency_key: idempotencyKey },
             UpdateExpression:
               'SET #status = :processing, lease_id = :leaseId, lock_expires_at = :lockExpiresAt, updated_at = :updatedAt',
             ConditionExpression:
-              'attribute_exists(followup_work_id) AND (attribute_not_exists(lock_expires_at) OR lock_expires_at < :nowEpoch OR #status IN (:queued, :error))',
+              'attribute_exists(idempotency_key) AND (attribute_not_exists(lock_expires_at) OR lock_expires_at < :nowEpoch OR #status IN (:queued, :error))',
             ExpressionAttributeNames: {
               '#status': 'status',
             },
@@ -71,7 +71,9 @@ export function createDynamoLeadFollowupWorkStore(args: {
     saveFollowupWork: async (record: LeasedLeadFollowupWorkItem) => {
       if (!args.db || !args.tableName) return;
       if (!record.lease_id) {
-        throw new StaleFollowupWorkLeaseError('Cannot save follow-up work without an active lease.');
+        throw new StaleFollowupWorkLeaseError(
+          'Cannot save follow-up work without an active lease.',
+        );
       }
       try {
         await args.db.send(

@@ -3,7 +3,6 @@ import { LambdaClient, InvokeCommand } from '@aws-sdk/client-lambda';
 import { DeleteObjectCommand, GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import OpenAI from 'openai';
-import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { createLeadPlatformRuntime } from '../_lead-platform/runtime.ts';
 import { buildEmailLeadBundle } from '../_lead-platform/services/intake-email.ts';
@@ -15,7 +14,6 @@ import type { EmailIntakeDeps, PersistEmailLeadInput, S3EmailSource } from './ty
 const envSchema = z.object({
   CHATKIT_OPENAI_API_KEY: z.string().trim().optional(),
   CONTACT_SITE_LABEL: z.string().trim().min(1),
-  EMAIL_INTAKE_ALLOW_DIRECT: z.string().trim().optional(),
   EMAIL_INTAKE_GOOGLE_ROUTE_HEADER: z.string().trim().min(1),
   EMAIL_INTAKE_LEDGER_TABLE_NAME: z.string().trim().min(1),
   EMAIL_INTAKE_MODEL: z.string().trim().min(1),
@@ -84,9 +82,6 @@ export function createEmailIntakeRuntime(env: NodeJS.ProcessEnv = process.env): 
   const lambda = parsedEnv.success ? new LambdaClient({}) : null;
   const leadPlatformRuntime = createLeadPlatformRuntime(env);
   const config = {
-    allowDirectIntake: parsedEnv.success
-      ? (parsedEnv.data.EMAIL_INTAKE_ALLOW_DIRECT ?? '') === 'true'
-      : false,
     googleRouteHeaderValue: parsedEnv.success
       ? parsedEnv.data.EMAIL_INTAKE_GOOGLE_ROUTE_HEADER
       : '',
@@ -111,20 +106,19 @@ export function createEmailIntakeRuntime(env: NodeJS.ProcessEnv = process.env): 
       Boolean(lambda) &&
       Boolean(s3) &&
       leadPlatformRuntime.configValid,
-    createFollowupWorkId: () => `email_${randomUUID()}`,
     deleteRawEmail: async (source) => {
       if (!s3) return;
       await s3.send(new DeleteObjectCommand({ Bucket: source.bucket, Key: source.key }));
     },
     evaluateLead: createOpenAiEmailLeadEvaluator({ config, openai }),
     getRawEmail: (source) => streamToBuffer(source, s3),
-    invokeFollowup: async (followupWorkId) => {
+    invokeFollowup: async (idempotencyKey) => {
       if (!lambda || !parsedEnv.success) return;
       await lambda.send(
         new InvokeCommand({
           FunctionName: parsedEnv.data.LEAD_FOLLOWUP_WORKER_FUNCTION_NAME,
           InvocationType: 'Event',
-          Payload: Buffer.from(JSON.stringify({ followup_work_id: followupWorkId })),
+          Payload: Buffer.from(JSON.stringify({ idempotency_key: idempotencyKey })),
         }),
       );
     },
@@ -137,8 +131,6 @@ export function createEmailIntakeRuntime(env: NodeJS.ProcessEnv = process.env): 
       leadPlatformRuntime,
       siteLabel: config.siteLabel,
     }),
-    enqueueFollowupWork: async (record) => {
-      await leadPlatformRuntime.repos?.followupWork.putIfAbsent(record);
-    },
+    repos: leadPlatformRuntime.repos,
   };
 }

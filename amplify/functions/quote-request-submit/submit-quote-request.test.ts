@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import type { LeadFollowupWorkItem } from '../_lead-platform/domain/lead-followup-work.ts';
+import type { LeadPlatformRepos } from '../_lead-platform/repos/dynamo.ts';
 import type { QuoteRequestLeadIntake } from '../_lead-platform/services/followup-work.ts';
 import type { QuoteRequestSubmitRequest } from './request.ts';
 import { submitQuoteRequest } from './submit-quote-request.ts';
@@ -29,17 +30,43 @@ function makeRequest(
   };
 }
 
-test('submitQuoteRequest persists lead context before queueing the follow-up work', async () => {
-  const queued: LeadFollowupWorkItem[] = [];
+function makeRepos(writes: LeadFollowupWorkItem[], steps: string[] = []): LeadPlatformRepos {
+  const records = new Map<string, LeadFollowupWorkItem>();
+  return {
+    followupWork: {
+      getByIdempotencyKey: async (idempotencyKey: string) => records.get(idempotencyKey) ?? null,
+      getByFollowupWorkId: async (followupWorkId: string) =>
+        [...records.values()].find((record) => record.followup_work_id === followupWorkId) ?? null,
+      acquireLease: async () => false,
+      putIfAbsent: async (record: LeadFollowupWorkItem) => {
+        steps.push('reserve');
+        if (records.has(record.idempotency_key)) return false;
+        records.set(record.idempotency_key, { ...record });
+        writes.push({ ...record });
+        return true;
+      },
+      put: async (record: LeadFollowupWorkItem) => {
+        steps.push('put');
+        records.set(record.idempotency_key, { ...record });
+        writes.push({ ...record });
+      },
+    },
+  } as unknown as LeadPlatformRepos;
+}
+
+test('submitQuoteRequest reserves follow-up work before persisting the lead', async () => {
+  const writes: LeadFollowupWorkItem[] = [];
   const persistedInputs: QuoteRequestLeadIntake[] = [];
   const invoked: string[] = [];
+  const steps: string[] = [];
 
   const result = await submitQuoteRequest(makeRequest(), {
     configValid: true,
-    createFollowupWorkId: () => 'quote-request-1',
     nowEpochSeconds: () => 1_000,
+    repos: makeRepos(writes, steps),
     siteLabel: 'craigs.autos',
     persistQuoteRequest: async (input) => {
+      steps.push('persist');
       persistedInputs.push(input);
       return {
         contactId: 'contact-1',
@@ -47,11 +74,9 @@ test('submitQuoteRequest persists lead context before queueing the follow-up wor
         leadRecordId: 'lead-1',
       };
     },
-    enqueueFollowupWork: async (record) => {
-      queued.push(record);
-    },
-    invokeFollowup: async (followupWorkId) => {
-      invoked.push(followupWorkId);
+    invokeFollowup: async (idempotencyKey) => {
+      steps.push('invoke');
+      invoked.push(idempotencyKey);
     },
   });
 
@@ -60,61 +85,57 @@ test('submitQuoteRequest persists lead context before queueing the follow-up wor
   assert.equal(result.leadRecordId, 'lead-1');
   assert.equal(persistedInputs[0]?.occurredAtMs, 1_000_000);
   assert.equal(persistedInputs[0]?.followupWorkId, 'form_client-event-1');
-  assert.equal(queued[0]?.followup_work_id, 'form_client-event-1');
-  assert.equal(queued[0]?.idempotency_key, 'form:client-event-1');
-  assert.equal(queued[0]?.lead_record_id, 'lead-1');
-  assert.equal(queued[0]?.contact_id, 'contact-1');
-  assert.deepEqual(invoked, ['form_client-event-1']);
+  assert.deepEqual(steps, ['reserve', 'persist', 'put', 'invoke']);
+  assert.equal(writes[0]?.followup_work_id, 'form_client-event-1');
+  assert.equal(writes[0]?.idempotency_key, 'form:client-event-1');
+  assert.equal(writes[0]?.lead_record_id, null);
+  assert.equal(writes[1]?.lead_record_id, 'lead-1');
+  assert.equal(writes[1]?.contact_id, 'contact-1');
+  assert.deepEqual(invoked, ['form:client-event-1']);
 });
 
 test('submitQuoteRequest smoke mode verifies lead persistence without queueing follow-up', async () => {
-  const queued: LeadFollowupWorkItem[] = [];
+  const writes: LeadFollowupWorkItem[] = [];
   const invoked: string[] = [];
 
   const result = await submitQuoteRequest(makeRequest({ isSmokeTest: true }), {
     configValid: true,
-    createFollowupWorkId: () => 'quote-request-smoke',
     nowEpochSeconds: () => 2_000,
+    repos: makeRepos(writes),
     siteLabel: 'craigs.autos',
     persistQuoteRequest: async () => ({
       contactId: 'contact-smoke',
       journeyId: 'journey-smoke',
       leadRecordId: 'lead-smoke',
     }),
-    enqueueFollowupWork: async (record) => {
-      queued.push(record);
-    },
-    invokeFollowup: async (followupWorkId) => {
-      invoked.push(followupWorkId);
+    invokeFollowup: async (idempotencyKey) => {
+      invoked.push(idempotencyKey);
     },
   });
 
   assert.equal(result.kind, 'smoke_test');
   assert.equal(result.journeyId, 'journey-smoke');
   assert.equal(result.leadRecordId, 'lead-smoke');
-  assert.equal(queued.length, 0);
+  assert.equal(writes.length, 0);
   assert.equal(invoked.length, 0);
 });
 
 test('submitQuoteRequest marks queued follow-up work as error when follow-up dispatch fails', async () => {
-  const queued: LeadFollowupWorkItem[] = [];
+  const writes: LeadFollowupWorkItem[] = [];
 
   const result = await submitQuoteRequest(makeRequest(), {
     configValid: true,
-    createFollowupWorkId: () => 'quote-request-error',
     nowEpochSeconds: () => 3_000,
+    repos: makeRepos(writes),
     siteLabel: 'craigs.autos',
-    enqueueFollowupWork: async (record) => {
-      queued.push(record);
-    },
     invokeFollowup: async () => {
       throw new Error('worker unavailable');
     },
   });
 
   assert.equal(result.kind, 'followup_invoke_failed');
-  assert.equal(queued.length, 2);
-  assert.equal(queued[0]?.status, 'queued');
-  assert.equal(queued[1]?.status, 'error');
-  assert.equal(queued[1]?.followup_work_id, 'form_client-event-1');
+  assert.equal(writes.length, 3);
+  assert.equal(writes[0]?.status, 'queued');
+  assert.equal(writes[2]?.status, 'error');
+  assert.equal(writes[2]?.followup_work_id, 'form_client-event-1');
 });

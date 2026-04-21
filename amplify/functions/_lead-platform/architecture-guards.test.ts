@@ -11,18 +11,21 @@ function readRepoFile(relativePath: string): string {
 
 test('chat handoff remains an intake adapter and does not send follow-up directly', () => {
   const handler = readRepoFile('amplify/functions/chat-handoff-promote/handler.ts');
+  const captureService = readRepoFile(
+    'amplify/functions/_lead-platform/services/capture-lead-source.ts',
+  );
 
   assert.doesNotMatch(handler, /runChatOutreach/);
   assert.doesNotMatch(handler, /sendTranscriptEmail/);
   assert.doesNotMatch(handler, /dedupe-store/);
   assert.doesNotMatch(handler, /SESv2Client/);
   assert.match(handler, /createLeadFollowupWorkItem/);
-  assert.match(handler, /followupWork\.putIfAbsent/);
+  assert.match(handler, /captureLeadSource/);
   assert.match(handler, /invokeLeadFollowupWorker/);
   assert.doesNotMatch(handler, /completed:\s*(true|false)/);
 
-  const reservationIndex = handler.indexOf('followupWork.putIfAbsent');
-  const leadPersistenceIndex = handler.indexOf('persistedLead = await persistCapturedChatLead');
+  const reservationIndex = captureService.indexOf('followupWork.putIfAbsent');
+  const leadPersistenceIndex = captureService.indexOf('await args.persistLead()');
   assert.ok(reservationIndex > -1);
   assert.ok(leadPersistenceIndex > -1);
   assert.ok(reservationIndex < leadPersistenceIndex);
@@ -42,6 +45,9 @@ test('form and email intake enqueue shared follow-up work instead of quote queue
     'amplify/functions/email-intake-capture/process-email-intake.ts',
   );
   const emailRuntime = readRepoFile('amplify/functions/email-intake-capture/runtime.ts');
+  const captureService = readRepoFile(
+    'amplify/functions/_lead-platform/services/capture-lead-source.ts',
+  );
 
   for (const source of [formSubmit, emailIntake, emailRuntime]) {
     assert.doesNotMatch(source, /createQuoteRequestRecord/);
@@ -50,6 +56,9 @@ test('form and email intake enqueue shared follow-up work instead of quote queue
   }
 
   assert.match(formSubmit, /createLeadFollowupWorkItem/);
+  assert.match(formSubmit, /captureLeadSource/);
   assert.match(emailIntake, /createLeadFollowupWorkItem/);
-  assert.match(emailRuntime, /followupWork\.putIfAbsent/);
+  assert.match(emailIntake, /captureLeadSource/);
+  assert.match(captureService, /followupWork\.putIfAbsent/);
+  assert.doesNotMatch(emailRuntime, /enqueueFollowupWork/);
 });

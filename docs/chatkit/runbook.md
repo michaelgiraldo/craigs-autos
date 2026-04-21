@@ -78,17 +78,15 @@ How to find the table name:
   - Function: `chat-handoff-promote` or `lead-followup-worker`
   - Configuration -> Environment variables -> `LEAD_FOLLOWUP_WORK_TABLE_NAME`
 
-Once you have the table name, query the `idempotency_key-index`:
+Once you have the table name, get the `LeadFollowupWork` item by its primary key:
 
 AWS CLI example:
 
 ```sh
-aws dynamodb query \
+aws dynamodb get-item \
   --region us-west-1 \
   --table-name "<LEAD_FOLLOWUP_WORK_TABLE_NAME>" \
-  --index-name "idempotency_key-index" \
-  --key-condition-expression "idempotency_key = :key" \
-  --expression-attribute-values '{":key":{"S":"chat:cthr_..."}}'
+  --key '{"idempotency_key":{"S":"chat:cthr_..."}}'
 ```
 
 Interpretation:

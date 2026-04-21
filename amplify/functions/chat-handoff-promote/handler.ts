@@ -6,10 +6,16 @@ import {
   type LeadFollowupWorkItem,
 } from '../_lead-platform/domain/lead-followup-work.ts';
 import { createLeadSourceEvent } from '../_lead-platform/domain/lead-source-event.ts';
-import { createStableJourneyId } from '../_lead-platform/domain/ids.ts';
+import {
+  createStableJourneyId,
+  createStableLeadFollowupWorkId,
+} from '../_lead-platform/domain/ids.ts';
 import { sanitizeAttributionSnapshot } from '../_lead-platform/domain/attribution.ts';
-import type { LeadPlatformRepos } from '../_lead-platform/repos/dynamo.ts';
 import { createLeadPlatformRuntime } from '../_lead-platform/runtime.ts';
+import {
+  captureLeadSource,
+  LeadSourceCaptureError,
+} from '../_lead-platform/services/capture-lead-source.ts';
 import { decodeBody, emptyResponse, getHttpMethod, jsonResponse } from '../_shared/http.ts';
 import { getErrorDetails } from '../_shared/safe.ts';
 import type {
@@ -65,7 +71,7 @@ function formatChatLeadMessage(args: {
   return `${summary}\n\nTranscript:\n${transcript}`.slice(0, 4_000);
 }
 
-async function invokeLeadFollowupWorker(followupWorkId: string): Promise<void> {
+async function invokeLeadFollowupWorker(idempotencyKey: string): Promise<void> {
   if (!leadFollowupLambda || !leadFollowupWorkerFunctionName.trim()) {
     throw new Error('Lead follow-up worker is not configured');
   }
@@ -74,7 +80,7 @@ async function invokeLeadFollowupWorker(followupWorkId: string): Promise<void> {
     new InvokeCommand({
       FunctionName: leadFollowupWorkerFunctionName,
       InvocationType: 'Event',
-      Payload: Buffer.from(JSON.stringify({ followup_work_id: followupWorkId })),
+      Payload: Buffer.from(JSON.stringify({ idempotency_key: idempotencyKey })),
     }),
   );
 }
@@ -93,24 +99,6 @@ function existingWorkResponse(existingWork: LeadFollowupWorkItem): ChatHandoffRe
     followup_work_status: existingWork.status,
     ...(existingWork.lead_record_id ? { lead_record_id: existingWork.lead_record_id } : {}),
   };
-}
-
-async function markWorkItemError(args: {
-  repos: LeadPlatformRepos;
-  workItem: LeadFollowupWorkItem;
-  error: unknown;
-  fallbackMessage: string;
-}): Promise<LeadFollowupWorkItem> {
-  const { message } = getErrorDetails(args.error);
-  const erroredWorkItem: LeadFollowupWorkItem = {
-    ...args.workItem,
-    status: 'error',
-    lock_expires_at: undefined,
-    owner_email_error: message ?? args.fallbackMessage,
-    updated_at: nowEpochSeconds(),
-  };
-  await args.repos.followupWork.put(erroredWorkItem);
-  return erroredWorkItem;
 }
 
 export const handler = async (
@@ -267,8 +255,8 @@ export const handler = async (
     const { threadTitle, threadUser, lines, leadSummary, customerPhone, customerEmail } =
       evaluation;
 
-    const followupWorkId = `chat_${threadId}`;
     const idempotencyKey = `chat:${threadId}`;
+    const followupWorkId = createStableLeadFollowupWorkId({ idempotencyKey, prefix: 'chat' });
     const sourceEvent = createLeadSourceEvent({
       attribution,
       contactId: null,
@@ -321,83 +309,69 @@ export const handler = async (
       vehicle: sourceEvent.vehicle,
     });
 
-    const reserved = await repos.followupWork.putIfAbsent(workItem);
-    if (!reserved) {
-      const acceptedWork =
-        (await repos.followupWork.getByIdempotencyKey(idempotencyKey)) ??
-        (await repos.followupWork.getById(followupWorkId));
-      return jsonResponse(
-        200,
-        acceptedWork
-          ? existingWorkResponse(acceptedWork)
-          : ({
-              ok: true,
-              status: 'already_accepted',
-              reason: 'followup_reserved',
-              followup_work_id: followupWorkId,
-            } satisfies ChatHandoffResponse),
-      );
-    }
-
-    let persistedLead: Awaited<ReturnType<typeof persistCapturedChatLead>>;
+    let receipt: Awaited<ReturnType<typeof captureLeadSource>>;
     try {
-      persistedLead = await persistCapturedChatLead({
-        repos,
-        threadId,
-        journeyId,
-        reason,
-        locale,
-        pageUrl,
-        userId: threadUser ?? chatUser,
-        attribution,
-        leadSummary,
-        customerPhone,
-        customerEmail,
+      receipt = await captureLeadSource({
+        invokeFollowup: invokeLeadFollowupWorker,
         nowEpochSeconds,
-      });
-    } catch (error: unknown) {
-      await markWorkItemError({
+        persistLead: async () => {
+          const persistedLead = await persistCapturedChatLead({
+            repos,
+            threadId,
+            journeyId,
+            reason,
+            locale,
+            pageUrl,
+            userId: threadUser ?? chatUser,
+            attribution,
+            leadSummary,
+            customerPhone,
+            customerEmail,
+            nowEpochSeconds,
+          });
+          return {
+            contactId: persistedLead?.contactId ?? null,
+            journeyId: persistedLead?.journeyId ?? journeyId,
+            leadRecordId: persistedLead?.leadRecordId ?? null,
+          };
+        },
         repos,
         workItem,
-        error,
-        fallbackMessage: 'Chat lead persistence failed',
       });
+    } catch (error: unknown) {
+      if (error instanceof LeadSourceCaptureError && error.stage === 'invoke_worker') {
+        const { message } = getErrorDetails(error);
+        await persistChatWorkflowEvent({
+          repos,
+          journeyId,
+          threadId,
+          eventName: LEAD_EVENTS.chatHandoffError,
+          occurredAtMs: Date.now(),
+          recordedAtMs: Date.now(),
+          reason: message ?? 'lead_followup_worker_invoke_failed',
+          locale,
+          pageUrl,
+          userId: threadUser ?? chatUser,
+          attribution,
+        });
+        return jsonResponse(502, { error: 'Unable to submit chat handoff right now.' });
+      }
       throw error;
     }
 
-    const updatedWorkItem: LeadFollowupWorkItem = {
-      ...workItem,
-      contact_id: persistedLead?.contactId ?? null,
-      journey_id: persistedLead?.journeyId ?? journeyId,
-      lead_record_id: persistedLead?.leadRecordId ?? null,
-      updated_at: nowEpochSeconds(),
-    };
-    await repos.followupWork.put(updatedWorkItem);
-
-    try {
-      await invokeLeadFollowupWorker(followupWorkId);
-    } catch (error: unknown) {
-      const { message } = getErrorDetails(error);
-      await markWorkItemError({
-        repos,
-        workItem: updatedWorkItem,
-        error,
-        fallbackMessage: 'Lead follow-up worker invocation failed',
-      });
-      await persistChatWorkflowEvent({
-        repos,
-        journeyId,
-        threadId,
-        eventName: LEAD_EVENTS.chatHandoffError,
-        occurredAtMs: Date.now(),
-        recordedAtMs: Date.now(),
-        reason: message ?? 'lead_followup_worker_invoke_failed',
-        locale,
-        pageUrl,
-        userId: threadUser ?? chatUser,
-        attribution,
-      });
-      return jsonResponse(502, { error: 'Unable to submit chat handoff right now.' });
+    if (receipt.status !== 'accepted') {
+      return jsonResponse(
+        200,
+        receipt.workItem
+          ? existingWorkResponse(receipt.workItem)
+          : ({
+              ok: true,
+              status: receipt.status,
+              reason: 'followup_reserved',
+              followup_work_id: receipt.followupWorkId,
+              followup_work_status: receipt.followupWorkStatus,
+            } satisfies ChatHandoffResponse),
+      );
     }
 
     try {
@@ -410,9 +384,9 @@ export const handler = async (
       ok: true,
       status: 'accepted',
       reason,
-      followup_work_id: followupWorkId,
-      followup_work_status: updatedWorkItem.status,
-      ...(persistedLead?.leadRecordId ? { lead_record_id: persistedLead.leadRecordId } : {}),
+      followup_work_id: receipt.followupWorkId,
+      followup_work_status: receipt.followupWorkStatus,
+      ...(receipt.leadRecordId ? { lead_record_id: receipt.leadRecordId } : {}),
     } satisfies ChatHandoffResponse);
   } catch (err: unknown) {
     const { name, message } = getErrorDetails(err);

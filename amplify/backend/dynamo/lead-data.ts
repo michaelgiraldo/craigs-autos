@@ -88,14 +88,14 @@ function createLeadDataTables(stack: Stack): LeadDataTables {
 
   const followupWork = new Table(stack, 'LeadFollowupWork', {
     billingMode: BillingMode.PAY_PER_REQUEST,
-    partitionKey: { name: 'followup_work_id', type: AttributeType.STRING },
+    partitionKey: { name: 'idempotency_key', type: AttributeType.STRING },
     timeToLiveAttribute: 'ttl',
     removalPolicy: RemovalPolicy.DESTROY,
   });
 
   followupWork.addGlobalSecondaryIndex({
-    indexName: 'idempotency_key-index',
-    partitionKey: { name: 'idempotency_key', type: AttributeType.STRING },
+    indexName: 'followup_work_id-index',
+    partitionKey: { name: 'followup_work_id', type: AttributeType.STRING },
   });
 
   followupWork.addGlobalSecondaryIndex({

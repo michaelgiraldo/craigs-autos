@@ -1,25 +1,28 @@
 import {
   createLeadFollowupWorkItem,
   normalizeWorkString,
-  type LeadFollowupWorkItem,
 } from '../_lead-platform/domain/lead-followup-work.ts';
+import { createStableLeadFollowupWorkId } from '../_lead-platform/domain/ids.ts';
 import { createLeadSourceEvent } from '../_lead-platform/domain/lead-source-event.ts';
+import type { LeadPlatformRepos } from '../_lead-platform/repos/dynamo.ts';
+import {
+  captureLeadSource,
+  LeadSourceCaptureError,
+} from '../_lead-platform/services/capture-lead-source.ts';
 import type {
   PersistedQuoteRequestLead,
   QuoteRequestLeadIntake,
 } from '../_lead-platform/services/followup-work.ts';
-import { getErrorDetails } from '../_shared/safe.ts';
 import type { QuoteRequestSubmitRequest } from './request.ts';
 
 export type SubmitQuoteRequestDeps = {
   configValid: boolean;
-  createFollowupWorkId: () => string;
-  enqueueFollowupWork: (record: LeadFollowupWorkItem) => Promise<void>;
-  invokeFollowup: (followupWorkId: string) => Promise<void>;
+  invokeFollowup: (idempotencyKey: string) => Promise<void>;
   nowEpochSeconds: () => number;
   persistQuoteRequest?: (
     input: QuoteRequestLeadIntake,
   ) => Promise<PersistedQuoteRequestLead | null>;
+  repos: LeadPlatformRepos | null;
   siteLabel: string;
 };
 
@@ -61,49 +64,77 @@ function buildFormFollowupWorkId(request: QuoteRequestSubmitRequest, fallbackId:
   return clientEventId ? `form_${clientEventId}` : fallbackId;
 }
 
+function buildFormIdempotencyKey(request: QuoteRequestSubmitRequest): string {
+  const clientEventId = normalizeWorkString(request.clientEventId);
+  if (clientEventId) return `form:${clientEventId}`;
+  const fallback = [
+    request.journeyId,
+    request.userId,
+    request.email,
+    request.phone,
+    request.name,
+    request.vehicle,
+    request.service,
+    request.message,
+  ]
+    .map((value) => normalizeWorkString(value))
+    .join('|');
+  return `form:${fallback}`;
+}
+
 export async function submitQuoteRequest(
   request: QuoteRequestSubmitRequest,
   deps: SubmitQuoteRequestDeps,
 ): Promise<SubmitQuoteRequestResult> {
   const now = deps.nowEpochSeconds();
-  const followupWorkId = buildFormFollowupWorkId(request, deps.createFollowupWorkId());
-  const persistedLead = deps.persistQuoteRequest
-    ? await deps.persistQuoteRequest({
-        attribution: request.attribution,
-        clientEventId: request.clientEventId,
-        email: request.email,
-        journeyId: request.journeyId,
-        locale: request.locale,
-        message: request.message,
-        name: request.name,
-        occurredAtMs: now * 1000,
-        origin: request.origin,
-        pageUrl: request.effectivePageUrl,
-        phone: request.phone,
-        service: request.service,
-        siteLabel: deps.siteLabel,
-        followupWorkId,
-        userId: request.userId,
-        vehicle: request.vehicle,
-      })
-    : null;
-  const leadContext = leadContextFromPersistedLead(persistedLead, request);
+  const idempotencyKey = buildFormIdempotencyKey(request);
+  const followupWorkId = buildFormFollowupWorkId(
+    request,
+    createStableLeadFollowupWorkId({ idempotencyKey, prefix: 'form' }),
+  );
+
+  const persistLead = () =>
+    deps.persistQuoteRequest
+      ? deps.persistQuoteRequest({
+          attribution: request.attribution,
+          clientEventId: request.clientEventId,
+          email: request.email,
+          journeyId: request.journeyId,
+          locale: request.locale,
+          message: request.message,
+          name: request.name,
+          occurredAtMs: now * 1000,
+          origin: request.origin,
+          pageUrl: request.effectivePageUrl,
+          phone: request.phone,
+          service: request.service,
+          siteLabel: deps.siteLabel,
+          followupWorkId,
+          userId: request.userId,
+          vehicle: request.vehicle,
+        })
+      : Promise.resolve(null);
 
   if (request.isSmokeTest) {
+    const persistedLead = await persistLead();
+    const leadContext = leadContextFromPersistedLead(persistedLead, request);
     return {
       kind: 'smoke_test',
       ...leadContext,
     };
   }
 
-  const idempotencyKey = `form:${request.clientEventId || followupWorkId}`;
+  if (!deps.repos) {
+    throw new Error('Lead platform repositories are not configured');
+  }
+
   const sourceEvent = createLeadSourceEvent({
     attribution: request.attribution,
-    contactId: leadContext.contactId,
+    contactId: null,
     email: request.email,
     idempotencyKey,
-    journeyId: leadContext.journeyId,
-    leadRecordId: leadContext.leadRecordId,
+    journeyId: request.journeyId,
+    leadRecordId: null,
     locale: request.locale,
     message: request.message,
     metadata: {
@@ -145,28 +176,36 @@ export async function submitQuoteRequest(
     vehicle: sourceEvent.vehicle,
   });
 
-  await deps.enqueueFollowupWork(record);
-
   try {
-    await deps.invokeFollowup(followupWorkId);
-  } catch (error: unknown) {
-    const { name: errorName, message: errorMessage } = getErrorDetails(error);
-    console.error('Failed to invoke lead follow-up worker.', errorName, errorMessage);
-    await deps.enqueueFollowupWork({
-      ...record,
-      status: 'error',
-      updated_at: deps.nowEpochSeconds(),
+    const receipt = await captureLeadSource({
+      invokeFollowup: deps.invokeFollowup,
+      nowEpochSeconds: deps.nowEpochSeconds,
+      persistLead: async () => leadContextFromPersistedLead(await persistLead(), request),
+      repos: deps.repos,
+      workItem: record,
     });
+    const leadContext = {
+      contactId: receipt.workItem?.contact_id ?? null,
+      journeyId: receipt.workItem?.journey_id ?? request.journeyId,
+      leadRecordId: receipt.leadRecordId,
+    };
     return {
-      kind: 'followup_invoke_failed',
-      followupWorkId,
+      kind: 'submitted',
+      followupWorkId: receipt.followupWorkId,
       ...leadContext,
     };
+  } catch (error: unknown) {
+    if (error instanceof LeadSourceCaptureError && error.stage === 'invoke_worker') {
+      console.error('Failed to invoke lead follow-up worker.', error);
+      const erroredWork = await deps.repos.followupWork.getByIdempotencyKey(idempotencyKey);
+      return {
+        kind: 'followup_invoke_failed',
+        contactId: erroredWork?.contact_id ?? null,
+        journeyId: erroredWork?.journey_id ?? request.journeyId,
+        leadRecordId: erroredWork?.lead_record_id ?? null,
+        followupWorkId,
+      };
+    }
+    throw error;
   }
-
-  return {
-    kind: 'submitted',
-    followupWorkId,
-    ...leadContext,
-  };
 }

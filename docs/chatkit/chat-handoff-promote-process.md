@@ -8,7 +8,7 @@ follow-up outbox migration.
 - `amplify/functions/chat-session-create`: creates short-lived OpenAI session secrets for the browser.
 - `amplify/functions/chat-handoff-promote`: evaluates a ChatKit thread, reserves `LeadFollowupWork`, persists the captured lead, and invokes the worker.
 - `amplify/functions/lead-followup-worker`: owns first-response delivery, owner notification, QUO SMS, SES customer email, and lead outreach sync.
-- `DynamoDB LeadFollowupWork`: durable first-response outbox with `followup_work_id`, `idempotency_key`, status, lease fields, provider results, and TTL.
+- `DynamoDB LeadFollowupWork`: durable first-response outbox keyed by `idempotency_key`, with `followup_work_id`, status, lease fields, provider results, and TTL.
 - `DynamoDB LeadJourneys/LeadRecords/LeadContacts/LeadJourneyEvents`: journey-first operational lead storage.
 - `OpenAI ChatKit`: canonical thread, transcript history, and hosted attachment context.
 
@@ -32,8 +32,8 @@ Customer chats in ChatKit
 Chat handoff no longer has a separate chat dispatch ledger. The canonical
 idempotency record is the shared follow-up work item:
 
-- `followup_work_id = chat_<cthr_...>`
 - `idempotency_key = chat:<cthr_...>`
+- `followup_work_id` is deterministically derived from the idempotency key for logs/API responses.
 
 If the work item is `queued`, `processing`, or `error`, chat handoff returns
 `status = "already_accepted"` and does not rerun lead persistence or worker

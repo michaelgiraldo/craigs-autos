@@ -167,7 +167,7 @@ Shared lead follow-up code:
 - Quote request parsing, validation, submit orchestration, and AWS runtime wiring live in separate files under `amplify/functions/quote-request-submit/`.
 - The shared follow-up worker HTTP response mapping lives in `amplify/functions/lead-followup-worker/handler.ts`.
 - Follow-up orchestration, state transitions, DynamoDB storage, SES delivery, QUO SMS, lead sync, and AWS/OpenAI runtime wiring live in separate files under `amplify/functions/lead-followup-worker/`.
-- Public submit/intake/handoff handlers should enqueue `LeadFollowupWork`; they should not send SES or QUO directly.
+- Public submit/intake/handoff handlers should reserve `LeadFollowupWork`; they should not send SES or QUO directly.
 
 Shared backend utilities:
 
@@ -334,15 +334,15 @@ Also: users can open multiple tabs/devices.
 Design:
 
 - DynamoDB table: `LeadFollowupWork`
-  - partition key: `followup_work_id` (string)
-  - GSI: `idempotency_key-index`
+  - partition key: `idempotency_key` (string)
+  - GSI: `followup_work_id-index`
   - TTL attribute: `ttl`
   - removal policy: `DESTROY` in this hard-cut implementation
 
 Chat uses:
 
-- `followup_work_id = chat_<cthr_...>`
 - `idempotency_key = chat:<cthr_...>`
+- `followup_work_id` is deterministically derived from the idempotency key.
 
 Semantics:
 

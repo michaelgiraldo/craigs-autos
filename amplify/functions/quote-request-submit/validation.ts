@@ -30,6 +30,15 @@ export function validateQuoteRequestSubmitRequest(
     };
   }
 
+  if (!request.clientEventId && !request.isSmokeTest) {
+    return {
+      ok: false,
+      kind: 'invalid',
+      statusCode: 400,
+      body: { error: 'client_event_id is required.' },
+    };
+  }
+
   if (!isValidEmail(request.email)) {
     return {
       ok: false,

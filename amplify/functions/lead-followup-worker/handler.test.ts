@@ -80,7 +80,7 @@ test('lead-followup-worker sends SMS first and still notifies the owner', async 
     sendOwnerEmail: async () => ({ messageId: 'owner-123' }),
   });
 
-  const result = await handler({ followup_work_id: 'followup-work-1' });
+  const result = await handler({ idempotency_key: 'form:followup-work-1' });
 
   assert.equal(result.statusCode, 200);
   assert.equal(current.sms_status, 'sent');
@@ -134,7 +134,7 @@ test('lead-followup-worker stops before delivery when a workflow save loses its 
     },
   });
 
-  const result = await handler({ followup_work_id: 'followup-work-1' });
+  const result = await handler({ idempotency_key: 'form:followup-work-1' });
 
   assert.equal(result.statusCode, 200);
   assert.match(result.body, /stale_lease/);
@@ -143,7 +143,7 @@ test('lead-followup-worker stops before delivery when a workflow save loses its 
   assert.equal(ownerEmailTouched, false);
 });
 
-test('lead-followup-worker rejects missing follow-up work ids before touching dependencies', async () => {
+test('lead-followup-worker rejects missing idempotency keys before touching dependencies', async () => {
   let touched = false;
   const handler = createLeadFollowupWorkerHandler({
     configValid: true,
@@ -169,7 +169,7 @@ test('lead-followup-worker rejects missing follow-up work ids before touching de
     },
   });
 
-  const result = await handler({ followup_work_id: '   ' });
+  const result = await handler({ idempotency_key: '   ' });
 
   assert.equal(result.statusCode, 400);
   assert.equal(touched, false);
@@ -203,7 +203,7 @@ test('lead-followup-worker falls back to customer email when phone is missing', 
     sendOwnerEmail: async () => ({ messageId: 'owner-email-123' }),
   });
 
-  const result = await handler({ followup_work_id: 'followup-work-1' });
+  const result = await handler({ idempotency_key: 'form:followup-work-1' });
 
   assert.equal(result.statusCode, 200);
   assert.equal(current.sms_status, 'skipped');
@@ -256,7 +256,7 @@ test('lead-followup-worker sends email first for inbound email leads and cleans 
     },
   });
 
-  const result = await handler({ followup_work_id: 'followup-work-1' });
+  const result = await handler({ idempotency_key: 'form:followup-work-1' });
 
   assert.equal(result.statusCode, 200);
   assert.equal(smsTouched, false);
@@ -313,7 +313,7 @@ test('lead-followup-worker preserves inbound email subject for generated email r
     sendOwnerEmail: async () => ({ messageId: 'owner-email-123' }),
   });
 
-  const result = await handler({ followup_work_id: 'followup-work-1' });
+  const result = await handler({ idempotency_key: 'form:followup-work-1' });
 
   assert.equal(result.statusCode, 200);
   assert.deepEqual(customerEmailSubjects, [
@@ -356,7 +356,7 @@ test('lead-followup-worker records SMS failure when no email fallback exists', a
     sendOwnerEmail: async () => ({ messageId: 'owner-email-123' }),
   });
 
-  const result = await handler({ followup_work_id: 'followup-work-1' });
+  const result = await handler({ idempotency_key: 'form:followup-work-1' });
 
   assert.equal(result.statusCode, 200);
   assert.equal(current.sms_status, 'failed');
@@ -386,7 +386,7 @@ test('lead-followup-worker skips duplicate sends when the follow-up work is alre
     },
   });
 
-  const result = await handler({ followup_work_id: 'followup-work-1' });
+  const result = await handler({ idempotency_key: 'form:followup-work-1' });
 
   assert.equal(result.statusCode, 200);
   assert.match(result.body, /already_completed/);
@@ -420,7 +420,7 @@ test('lead-followup-worker marks phone-only follow-up works for manual follow-up
     sendOwnerEmail: async () => ({ messageId: 'owner-email-123' }),
   });
 
-  const result = await handler({ followup_work_id: 'followup-work-1' });
+  const result = await handler({ idempotency_key: 'form:followup-work-1' });
 
   assert.equal(result.statusCode, 200);
   assert.equal(current.sms_status, 'skipped');

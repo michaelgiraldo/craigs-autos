@@ -19,13 +19,14 @@ If you are new here, start with:
 - Hosting: AWS Amplify (Gen2) for static hosting + one public HTTP API routed to Lambdas.
 - Chat/agent: OpenAI ChatKit UI runtime + managed workflow in Agent Builder.
 - Lead delivery:
-  - form, email, and chat all persist a lead bundle and enqueue `LeadFollowupWork`
+  - form, email, and chat all reserve `LeadFollowupWork`, persist a lead bundle,
+    and hand the work to `lead-followup-worker`
   - `lead-followup-worker` owns the first customer response, owner notification,
     QUO SMS, SES customer email, and lead outreach sync
 - Reliability:
   - source-specific intake ledgers prevent duplicate source capture
   - first-response idempotency is keyed by `LeadFollowupWork.idempotency_key`
-  - worker lease/workflow state is keyed by `followup_work_id`
+  - worker lease/workflow state is keyed by `LeadFollowupWork.idempotency_key`
 
 ## Key documentation
 
@@ -208,7 +209,7 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
 
 - Chat lead handoff / lead capture / idempotency:
   - Change `amplify/functions/chat-handoff-promote/*` and/or `amplify/backend.ts`.
-  - Chat handoff evaluates the thread, persists the lead, enqueues `LeadFollowupWork`,
+  - Chat handoff evaluates the thread, reserves `LeadFollowupWork`, persists the lead,
     and invokes `lead-followup-worker`.
   - Do not send SES/QUO directly from `chat-handoff-promote`.
   - Shared outreach draft generation lives in `amplify/functions/_lead-platform/services/outreach-drafts.ts`.
@@ -243,7 +244,7 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
   - OpenAI classification/drafting lives in `amplify/functions/email-intake-capture/evaluation.ts`
   - Intake orchestration lives in `amplify/functions/email-intake-capture/process-email-intake.ts`
   - Email lead bundle construction lives in `amplify/functions/_lead-platform/services/intake-email.ts`
-  - Accepted emails enqueue `LeadFollowupWork`; they do not create legacy quote queue records
+  - Accepted emails reserve `LeadFollowupWork`; they do not create legacy quote queue records
   - Email-first follow-up behavior lives in `amplify/functions/lead-followup-worker/workflow.ts`
   - Threaded customer email lives in `amplify/functions/lead-followup-worker/customer-email.ts`
   - Owner photo attachment loading lives in `amplify/functions/lead-followup-worker/inbound-email-attachments.ts`
@@ -350,7 +351,7 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
 - Owner email: `amplify/functions/lead-followup-worker/owner-email.ts`
 - Shared owner content: `amplify/functions/lead-followup-worker/email-content.ts`
 - Keep both HTML and text paths readable in Gmail desktop + mobile.
-- Test with a new `followup_work_id`; completed work is intentionally idempotent.
+- Test with a new `idempotency_key`; completed work is intentionally idempotent.
 
 ### Update quote request intake or lead follow-up
 
@@ -370,7 +371,7 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
   - `npm run build`
   - `npm run build:release` if the change affects release-generated social assets
 - Validate:
-  - form submit creates a `followup_work_id`
+  - form submit creates a `LeadFollowupWork` item keyed by `idempotency_key`
   - `LeadFollowupWork` moves `queued -> processing -> completed|error`
   - owner email is sent
   - journey / lead record updates appear in admin
