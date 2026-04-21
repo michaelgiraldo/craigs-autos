@@ -123,6 +123,12 @@ export function useChatHandoffPromote({
             ...baseEvent,
             lead_reason: backendReason || 'unknown',
           });
+        } else if (backendStatus === 'worker_failed') {
+          pushLeadDataLayer(LEAD_EVENTS.chatHandoffError, {
+            ...baseEvent,
+            error_code: 'worker_failed',
+            lead_reason: backendReason || 'followup_error',
+          });
         } else {
           pushLeadDataLayer(LEAD_EVENTS.chatHandoffError, {
             ...baseEvent,

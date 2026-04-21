@@ -188,6 +188,8 @@ The frontend also does a lightweight dedupe to reduce backend calls:
 
 The key is set only when `/chat-handoffs` returns `status = "accepted"`,
 `status = "already_accepted"`, or `status = "worker_completed"`.
+It is not set for `status = "worker_failed"` because that means the backend
+reserved work but the follow-up worker needs repair/retry.
 
 If that key is present, the frontend stops calling the chat lead handoff endpoint.
 

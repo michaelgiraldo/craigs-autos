@@ -8,7 +8,11 @@ export type PersistedLeadContext = {
   leadRecordId: string | null;
 };
 
-export type LeadSourceCaptureStatus = 'accepted' | 'already_accepted' | 'worker_completed';
+export type LeadSourceCaptureStatus =
+  | 'accepted'
+  | 'already_accepted'
+  | 'worker_failed'
+  | 'worker_completed';
 
 export type LeadSourceCaptureReceipt = {
   status: LeadSourceCaptureStatus;
@@ -34,8 +38,9 @@ export class LeadSourceCaptureError extends Error {
 
 function receiptFromExistingWork(existingWork: LeadFollowupWorkItem): LeadSourceCaptureReceipt {
   const completed = existingWork.status === 'completed';
+  const failed = existingWork.status === 'error';
   return {
-    status: completed ? 'worker_completed' : 'already_accepted',
+    status: completed ? 'worker_completed' : failed ? 'worker_failed' : 'already_accepted',
     followupWorkId: existingWork.followup_work_id,
     followupWorkStatus: existingWork.status,
     idempotencyKey: existingWork.idempotency_key,

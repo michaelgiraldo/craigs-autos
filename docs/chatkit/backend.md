@@ -291,7 +291,8 @@ Implementation:
 1) Validate input (must include a valid `cthr_...`)
 2) Dedupe fast path:
    - If `LeadFollowupWork.idempotency_key = chat:<threadId>` already exists,
-     return `status = "already_accepted"` or `status = "worker_completed"`
+     return `status = "already_accepted"`, `status = "worker_failed"`, or
+     `status = "worker_completed"`
 3) Fetch transcript from OpenAI:
    - `openai.beta.chatkit.threads.retrieve(threadId)`
    - `openai.beta.chatkit.threads.listItems(threadId, { order: "asc" })` (paged)
@@ -349,7 +350,8 @@ Semantics:
 - `status = "blocked"`: chat is not actionable; no follow-up work exists.
 - `status = "deferred"`: chat is still active/not idle; no follow-up work exists.
 - `status = "accepted"`: this request reserved work, persisted the lead, and invoked the worker.
-- `status = "already_accepted"`: work already exists in `queued`, `processing`, or `error`; no lead persistence or worker invocation is rerun.
+- `status = "already_accepted"`: work already exists in `queued` or `processing`; no lead persistence or worker invocation is rerun.
+- `status = "worker_failed"`: work already exists in `error`; no lead persistence or worker invocation is rerun, and the frontend keeps the handoff eligible for a future retry/operator repair instead of marking it completed.
 - `status = "worker_completed"`: work already exists in `completed`.
 - The worker owns leasing with `LEAD_FOLLOWUP_LEASE_SECONDS`.
 

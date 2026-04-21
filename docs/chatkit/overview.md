@@ -143,7 +143,7 @@ Browser            chat-handoff-promote Lambda        DynamoDB             Worke
   |                        |----------------------->|                   |               |
   |                        | existing work?         |                   |               |
   |                        |<-----------------------|                   |               |
-  |                        | if existing -> status already_accepted/worker_completed
+  |                        | if existing -> status already_accepted/worker_failed/worker_completed
   |                        | threads.listItems + summary                  |
   |                        |-------------------------------------------->|               |
   |                        | ready/deferred/blocked                       |

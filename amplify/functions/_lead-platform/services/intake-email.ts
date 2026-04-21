@@ -1,8 +1,5 @@
-import {
-  createClientEventId,
-  createStableJourneyId,
-  createStableLeadRecordId,
-} from '../domain/ids.ts';
+import { createHash } from 'node:crypto';
+import { createStableJourneyId, createStableLeadRecordId } from '../domain/ids.ts';
 import { LEAD_EVENTS } from '@craigs/contracts/lead-event-contract';
 import {
   buildLeadTitle,
@@ -46,6 +43,16 @@ export type EmailLeadIntakeInput = {
   qualification?: Partial<LeadQualificationSnapshot>;
   missingInfo?: string[];
 };
+
+function createStableEmailIntakeClientEventId(input: EmailLeadIntakeInput): string {
+  const source =
+    trimToNull(input.messageId, 300) ??
+    trimToNull(input.emailIntakeId, 300) ??
+    trimToNull(input.threadKey, 300) ??
+    'unknown';
+  const digest = createHash('sha256').update(source).digest('hex').slice(0, 24);
+  return `email_intake_${digest}`;
+}
 
 export function buildEmailLeadBundle(input: EmailLeadIntakeInput): JourneyBundle {
   const occurredAtMs = input.occurredAt;
@@ -148,7 +155,7 @@ export function buildEmailLeadBundle(input: EmailLeadIntakeInput): JourneyBundle
       occurredAtMs,
       recordedAtMs,
       actor: 'customer',
-      clientEventId: input.clientEventId ?? createClientEventId('email_intake'),
+      clientEventId: input.clientEventId ?? createStableEmailIntakeClientEventId(input),
       discriminator: input.messageId || input.emailIntakeId,
       payload: {
         metadata,

@@ -135,8 +135,9 @@ If the summary is not yet ready, the response includes:
 - The summary model can be executed multiple times BEFORE the first successful handoff
   (once per trigger call).
 - AFTER a successful handoff, the backend returns `status = "already_accepted"` for
-  queued/processing/error work or `status = "worker_completed"` for completed work
-  without recomputing or rerunning side effects.
+  queued/processing work, `status = "worker_failed"` for errored work, or
+  `status = "worker_completed"` for completed work without recomputing or rerunning
+  side effects.
 
 ## Notes for future improvements
 

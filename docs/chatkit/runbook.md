@@ -215,7 +215,8 @@ Checks (in order):
    - Browser DevTools -> Network -> look for `POST /chat-handoffs`.
 3) Check DynamoDB record:
    - If `/chat-handoffs` returned `status = "accepted"`, this request reserved work and invoked the worker.
-   - If it returned `status = "already_accepted"`, a queued/processing/error work item already exists.
+   - If it returned `status = "already_accepted"`, a queued/processing work item already exists.
+   - If it returned `status = "worker_failed"`, an errored work item already exists and needs worker/debug repair.
    - If it returned `status = "worker_completed"`, the worker already completed first-response handling.
    - If missing, the endpoint may not have been hit or may have crashed before writing.
 4) CloudWatch logs for `chat-handoff-promote`.

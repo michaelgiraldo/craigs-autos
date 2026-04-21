@@ -42,6 +42,7 @@ import {
 } from './runtime.ts';
 import { evaluateChatLead } from './evaluation.ts';
 import { persistCapturedChatLead } from './promotion.ts';
+import { existingWorkResponse } from './work-response.ts';
 import { persistChatWorkflowEvent } from './workflow-events.ts';
 
 const chatHandoffPromotePayloadSchema = z.looseObject({
@@ -83,22 +84,6 @@ async function invokeLeadFollowupWorker(idempotencyKey: string): Promise<void> {
       Payload: Buffer.from(JSON.stringify({ idempotency_key: idempotencyKey })),
     }),
   );
-}
-
-function existingWorkResponse(existingWork: LeadFollowupWorkItem): ChatHandoffResponse {
-  const isCompleted = existingWork.status === 'completed';
-  return {
-    ok: true,
-    status: isCompleted ? 'worker_completed' : 'already_accepted',
-    reason: isCompleted
-      ? 'already_completed'
-      : existingWork.status === 'error'
-        ? 'followup_error'
-        : 'followup_in_progress',
-    followup_work_id: existingWork.followup_work_id,
-    followup_work_status: existingWork.status,
-    ...(existingWork.lead_record_id ? { lead_record_id: existingWork.lead_record_id } : {}),
-  };
 }
 
 export const handler = async (

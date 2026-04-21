@@ -31,6 +31,7 @@ export type ChatHandoffStatus =
   | 'deferred'
   | 'accepted'
   | 'already_accepted'
+  | 'worker_failed'
   | 'worker_completed';
 
 export type ChatHandoffResponse = {

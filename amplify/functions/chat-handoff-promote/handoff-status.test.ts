@@ -18,3 +18,8 @@ test('frontend chat handoff statuses map blocked and deferred distinctly', () =>
   assert.equal(getChatHandoffEventForStatus('deferred'), LEAD_EVENTS.chatHandoffDeferred);
   assert.equal(getChatHandoffEventForStatus('unexpected'), LEAD_EVENTS.chatHandoffError);
 });
+
+test('frontend chat handoff status keeps worker failures out of completed analytics', () => {
+  assert.equal(isCompletedChatHandoffStatus('worker_failed'), false);
+  assert.equal(getChatHandoffEventForStatus('worker_failed'), LEAD_EVENTS.chatHandoffError);
+});

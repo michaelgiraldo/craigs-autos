@@ -14,5 +14,6 @@ export function getChatHandoffEventForStatus(status: string): string {
   if (isCompletedChatHandoffStatus(status)) return LEAD_EVENTS.chatHandoffCompleted;
   if (status === 'blocked') return LEAD_EVENTS.chatHandoffBlocked;
   if (status === 'deferred') return LEAD_EVENTS.chatHandoffDeferred;
+  if (status === 'worker_failed') return LEAD_EVENTS.chatHandoffError;
   return LEAD_EVENTS.chatHandoffError;
 }
