@@ -1,0 +1,27 @@
+{
+  "$schema": "./node_modules/knip/schema.json",
+  "workspaces": {
+    ".": {
+      "entry": [
+        "astro.config.mjs",
+        "amplify/backend.ts",
+        "amplify/functions/**/handler.ts",
+        "scripts/**/*.{mjs,ts}",
+        "server/**/*.mjs",
+        "src/content.config.ts",
+        "src/pages/**/*.{astro,mdx}",
+        "src/scripts/**/*.{js,ts}"
+      ],
+      "project": [
+        "amplify/**/*.{js,mjs,ts}",
+        "astro.config.mjs",
+        "packages/**/*.{js,ts,d.ts}",
+        "scripts/**/*.{js,mjs,ts}",
+        "server/**/*.{js,mjs,ts}",
+        "src/**/*.{astro,js,jsx,mdx,ts,tsx}"
+      ],
+      "ignoreBinaries": ["zsh"],
+      "ignoreDependencies": ["@aws-amplify/backend-cli"]
+    }
+  }
+}

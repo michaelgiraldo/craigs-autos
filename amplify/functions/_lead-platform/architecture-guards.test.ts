@@ -33,10 +33,21 @@ test('chat handoff remains an intake adapter and does not send follow-up directl
   for (const deletedPath of [
     'amplify/functions/chat-handoff-promote/dedupe-store.ts',
     'amplify/functions/chat-handoff-promote/outreach-workflow.ts',
+    'amplify/functions/chat-handoff-promote/attachments.ts',
+    'amplify/functions/chat-handoff-promote/email-mime.ts',
     'amplify/backend/dynamo/chat-handoff-dedupe.ts',
   ]) {
     assert.equal(existsSync(path.join(repoRoot, deletedPath)), false);
   }
+});
+
+test('orphaned qualified export code stays out until an export workflow exists', () => {
+  assert.equal(
+    existsSync(
+      path.join(repoRoot, 'amplify/functions/_lead-platform/services/export-qualified-cases.ts'),
+    ),
+    false,
+  );
 });
 
 test('form and email intake enqueue shared follow-up work instead of quote queue records', () => {

@@ -18,6 +18,7 @@
     "verify:backend-types": "npm run typecheck:backend",
     "test:backend": "node --experimental-strip-types --test --test-concurrency=1 \"amplify/functions/**/*.test.ts\"",
     "verify:backend": "npm run typecheck:backend && npm run test:backend",
+    "knip": "knip",
     "lint": "biome lint amplify/functions server scripts packages src/scripts",
     "format:check": "biome check --formatter-enabled=true --linter-enabled=false --assist-enabled=false amplify/functions server scripts packages src/scripts",
     "deps:update": "zsh tools/deps-update.sh",
@@ -58,7 +59,8 @@
     "@aws-sdk/client-scheduler": "^3.1033.0",
     "@aws-sdk/client-sesv2": "^3.1033.0",
     "@aws-sdk/lib-dynamodb": "^3.1033.0",
-    "@openai/chatkit": "^1.6.0",
+    "@craigs/business-profile": "file:packages/business-profile",
+    "@craigs/contracts": "file:packages/contracts",
     "@openai/chatkit-react": "^1.5.0",
     "@resvg/resvg-js": "^2.6.2",
     "astro": "^6.1.8",
@@ -78,6 +80,7 @@
     "aws-cdk-lib": "^2.250.0",
     "constructs": "^10.6.0",
     "glob": "^13.0.6",
+    "knip": "^6.6.0",
     "playwright": "^1.59.1",
     "typescript": "^6.0.3"
   }
