@@ -38,3 +38,22 @@ test('buildChatLeadBundle emits a single handoff success event in the promotion 
   );
   assert.equal(handoffEvents.length, 1);
 });
+
+test('buildChatLeadBundle records the customer chat action on the lead read model', () => {
+  const bundle = buildChatLeadBundle({
+    threadId: 'thread-3',
+    occurredAt: 1_000,
+    journeyId: 'journey-chat-action',
+    name: 'Morgan Example',
+    email: 'morgan@example.com',
+  });
+
+  assert.equal(bundle.journey.first_action, 'chat_first_message_sent');
+  assert.equal(bundle.journey.latest_action, 'chat_first_message_sent');
+  assert.deepEqual(bundle.journey.action_types, ['chat_first_message_sent']);
+  assert.equal(bundle.journey.action_count, 1);
+  assert.equal(bundle.leadRecord?.first_action, 'chat_first_message_sent');
+  assert.equal(bundle.leadRecord?.latest_action, 'chat_first_message_sent');
+  assert.deepEqual(bundle.leadRecord?.action_types, ['chat_first_message_sent']);
+  assert.equal(bundle.leadRecord?.action_count, 1);
+});

@@ -80,6 +80,7 @@ export function buildChatLeadBundle(input: ChatLeadIntakeInput): JourneyBundle {
   const qualification = buildDefaultQualificationSnapshot(input.qualification);
   const project = trimToNull(input.project, 160);
   const summary = trimToNull(input.summary, 4_000);
+  const actionTypes = ['chat_first_message_sent' as const];
 
   const journey: Journey = {
     journey_id: journeyId,
@@ -88,10 +89,10 @@ export function buildChatLeadBundle(input: ChatLeadIntakeInput): JourneyBundle {
     journey_status: 'captured',
     status_reason: trimToNull(input.reason, 120),
     capture_channel: 'chat',
-    first_action: null,
-    latest_action: null,
-    action_types: [],
-    action_count: 0,
+    first_action: 'chat_first_message_sent',
+    latest_action: 'chat_first_message_sent',
+    action_types: [...actionTypes],
+    action_count: actionTypes.length,
     lead_user_id: metadata.lead_user_id,
     thread_id: metadata.thread_id,
     locale: metadata.locale,
@@ -124,10 +125,10 @@ export function buildChatLeadBundle(input: ChatLeadIntakeInput): JourneyBundle {
     attribution: input.attribution ?? null,
     latest_outreach: latestOutreach,
     qualification,
-    first_action: null,
-    latest_action: null,
-    action_types: [],
-    action_count: 0,
+    first_action: 'chat_first_message_sent' as const,
+    latest_action: 'chat_first_message_sent' as const,
+    action_types: [...actionTypes],
+    action_count: actionTypes.length,
     created_at_ms: occurredAtMs,
     updated_at_ms: occurredAtMs,
   };
