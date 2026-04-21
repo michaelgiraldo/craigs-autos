@@ -109,6 +109,20 @@ function isChatSessionResponse(response) {
   }
 }
 
+async function waitForPersistedChatThread(page, timeoutMs) {
+  const handle = await page.waitForFunction(
+    () => {
+      const threadId = window.sessionStorage.getItem('chatkit-thread-id');
+      return typeof threadId === 'string' && /^cthr_[A-Za-z0-9_-]+$/.test(threadId)
+        ? threadId
+        : false;
+    },
+    null,
+    { timeout: timeoutMs },
+  );
+  return await handle.jsonValue();
+}
+
 function ensureLocalChatkitEnv() {
   const hasProcessEnv = Boolean(process.env.OPENAI_API_KEY && process.env.CHATKIT_WORKFLOW_ID);
   if (hasProcessEnv) return;
@@ -321,6 +335,8 @@ async function checkChatFlow(browser, baseUrl, timeoutMs) {
 
     const frame = await waitForChatFrame(page, timeoutMs);
     await frame.getByRole('button', { name: /^Seat$/i }).click({ timeout: timeoutMs });
+    const threadId = await waitForPersistedChatThread(page, timeoutMs);
+    logStep('Chat thread', threadId);
     await frame.getByRole('heading', { name: 'You said:' }).waitFor({ timeout: timeoutMs });
     await frame.getByRole('heading', { name: 'The assistant said:' }).waitFor({
       timeout: timeoutMs,
