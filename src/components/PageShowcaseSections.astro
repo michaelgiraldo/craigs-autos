@@ -1,36 +1,30 @@
 ---
-import type {
-	BeforeAfterPair,
-	GalleryImage,
-	LocaleKey,
-	LocalizedText,
-	ShowcaseSectionWithMedia,
-} from '../types/site';
-import { getShowcaseSections } from '../data/galleries/page-showcase.js';
+import type { LocaleKey, LocalizedText, ShowcaseSectionWithMedia } from '../types/site';
+import { getShowcaseSections } from '../data/galleries/page-showcase';
 import BeforeAfterPairGrid from './BeforeAfterPairGrid.astro';
 import LightboxGallery from './LightboxGallery.astro';
 
 interface Props {
-	locale?: LocaleKey;
-	showcaseId: string;
+  locale?: LocaleKey;
+  showcaseId: string;
 }
 
 const { locale = 'en', showcaseId } = Astro.props as Props;
-const sections = (await getShowcaseSections(showcaseId)) as ShowcaseSectionWithMedia[];
+const sections = await getShowcaseSections(showcaseId);
 const resolveCopy = (value?: LocalizedText) => value?.[locale] ?? value?.en ?? '';
 ---
 
 {sections.map((section: ShowcaseSectionWithMedia) =>
 	section.type === 'beforeAfter' ? (
 		<BeforeAfterPairGrid
-			pairs={(section.pairs ?? []) as BeforeAfterPair[]}
+			pairs={section.pairs ?? []}
 			locale={locale}
 			label={resolveCopy(section.title)}
 		/>
 	) : (
 		<section class="page-showcase" aria-label={resolveCopy(section.title)}>
 			{resolveCopy(section.title) ? <h2>{resolveCopy(section.title)}</h2> : null}
-			<LightboxGallery images={(section.images ?? []) as GalleryImage[]} locale={locale} />
+			<LightboxGallery images={section.images ?? []} locale={locale} />
 		</section>
 	),
 )}

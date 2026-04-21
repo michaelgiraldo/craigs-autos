@@ -1,24 +1,24 @@
 ---
-import type { LocaleKey, LocalizedText, ProjectData } from '../types/site';
-import { getProject } from '../data/projects/index.js';
+import type { LocaleKey, LocalizedText } from '../types/site';
+import { getProject } from '../data/projects';
 import { getPageLabel } from '../lib/site-data/page-registry.js';
 import LightboxGallery from './LightboxGallery.astro';
 
 interface Props {
-	projectId: string;
-	locale?: LocaleKey;
+  projectId: string;
+  locale?: LocaleKey;
 }
 
 const { projectId, locale = 'en' } = Astro.props as Props;
-const project = (await getProject(projectId)) as ProjectData | undefined;
+const project = await getProject(projectId);
 
 if (!project) {
-	throw new Error(`Project not found: ${projectId}`);
+  throw new Error(`Project not found: ${projectId}`);
 }
 
 const resolveCopy = (value?: LocalizedText) => value?.[locale] ?? value?.en ?? '';
 const galleryTitle =
-	resolveCopy(project.copy?.galleryTitle) || getPageLabel('gallery', locale) || 'See Our Work';
+  resolveCopy(project.copy?.galleryTitle) || getPageLabel('gallery', locale) || 'See Our Work';
 const images = project.images ?? [];
 ---
 

@@ -1,19 +1,19 @@
 ---
-import type { LocaleKey, LocalizedText, ProjectData } from '../types/site';
+import type { LocaleKey, LocalizedText } from '../types/site';
 import PageHero from './PageHero.astro';
 import ProjectGallery from './ProjectGallery.astro';
-import { getProject } from '../data/projects/index.js';
+import { getProject } from '../data/projects';
 
 interface Props {
-	projectId: string;
-	locale?: LocaleKey;
+  projectId: string;
+  locale?: LocaleKey;
 }
 
 const { projectId, locale = 'en' } = Astro.props as Props;
-const project = (await getProject(projectId)) as ProjectData | undefined;
+const project = await getProject(projectId);
 
 if (!project) {
-	throw new Error(`Project not found: ${projectId}`);
+  throw new Error(`Project not found: ${projectId}`);
 }
 
 const resolveCopy = (value?: LocalizedText) => value?.[locale] ?? value?.en ?? '';
