@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import type { LeadFollowupWorkItem } from '../_lead-platform/domain/lead-followup-work.ts';
+import { createStableLeadFollowupWorkId } from '../_lead-platform/domain/ids.ts';
 import type { LeadPlatformRepos } from '../_lead-platform/repos/dynamo.ts';
 import type { QuoteRequestLeadIntake } from '../_lead-platform/services/followup-work.ts';
 import type { QuoteRequestSubmitRequest } from './request.ts';
@@ -59,6 +60,10 @@ test('submitQuoteRequest reserves follow-up work before persisting the lead', as
   const persistedInputs: QuoteRequestLeadIntake[] = [];
   const invoked: string[] = [];
   const steps: string[] = [];
+  const expectedFollowupWorkId = createStableLeadFollowupWorkId({
+    idempotencyKey: 'form:client-event-1',
+    prefix: 'form',
+  });
 
   const result = await submitQuoteRequest(makeRequest(), {
     configValid: true,
@@ -84,9 +89,9 @@ test('submitQuoteRequest reserves follow-up work before persisting the lead', as
   assert.equal(result.journeyId, 'journey-1');
   assert.equal(result.leadRecordId, 'lead-1');
   assert.equal(persistedInputs[0]?.occurredAtMs, 1_000_000);
-  assert.equal(persistedInputs[0]?.followupWorkId, 'form_client-event-1');
+  assert.equal(persistedInputs[0]?.followupWorkId, expectedFollowupWorkId);
   assert.deepEqual(steps, ['reserve', 'persist', 'put', 'invoke']);
-  assert.equal(writes[0]?.followup_work_id, 'form_client-event-1');
+  assert.equal(writes[0]?.followup_work_id, expectedFollowupWorkId);
   assert.equal(writes[0]?.idempotency_key, 'form:client-event-1');
   assert.equal(writes[0]?.lead_record_id, null);
   assert.equal(writes[1]?.lead_record_id, 'lead-1');
@@ -122,6 +127,10 @@ test('submitQuoteRequest smoke mode verifies lead persistence without queueing f
 
 test('submitQuoteRequest marks queued follow-up work as error when follow-up dispatch fails', async () => {
   const writes: LeadFollowupWorkItem[] = [];
+  const expectedFollowupWorkId = createStableLeadFollowupWorkId({
+    idempotencyKey: 'form:client-event-1',
+    prefix: 'form',
+  });
 
   const result = await submitQuoteRequest(makeRequest(), {
     configValid: true,
@@ -137,5 +146,5 @@ test('submitQuoteRequest marks queued follow-up work as error when follow-up dis
   assert.equal(writes.length, 3);
   assert.equal(writes[0]?.status, 'queued');
   assert.equal(writes[2]?.status, 'error');
-  assert.equal(writes[2]?.followup_work_id, 'form_client-event-1');
+  assert.equal(writes[2]?.followup_work_id, expectedFollowupWorkId);
 });

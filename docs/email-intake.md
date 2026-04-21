@@ -68,6 +68,9 @@ SES only has one active receipt rule set per region. This backend activates `cra
 - Replies and messages with `In-Reply-To` or `References` are skipped before OpenAI.
 - Internal `@craigs.autos` senders, auto-submitted mail, mailing lists, and delivery reports are skipped.
 - One automatic customer response is queued per email thread ledger key and `LeadFollowupWork.idempotency_key`.
+- The email `followup_work_id` is deterministically derived from the email
+  thread idempotency key; the hidden SES message id is not used as the durable
+  work identity.
 - Unsupported or skipped raw S3 mail is deleted immediately.
 
 ## Validation

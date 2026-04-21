@@ -340,10 +340,12 @@ Design:
   - TTL attribute: `ttl`
   - removal policy: `DESTROY` in this hard-cut implementation
 
-Chat uses:
+Source contract:
 
-- `idempotency_key = chat:<cthr_...>`
-- `followup_work_id` is deterministically derived from the idempotency key.
+- `idempotency_key` is the canonical uniqueness key for first response work.
+- `followup_work_id` is a deterministic id derived from `idempotency_key`; it is
+  for logs, API responses, and support lookups, not uniqueness.
+- Current prefixes are `form:...`, `email:...`, and `chat:<cthr_...>`.
 
 Semantics:
 

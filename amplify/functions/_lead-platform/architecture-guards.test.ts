@@ -55,6 +55,7 @@ test('orphaned qualified export code stays out until an export workflow exists',
 
 test('form and email intake enqueue shared follow-up work instead of quote queue records', () => {
   const formSubmit = readRepoFile('amplify/functions/quote-request-submit/submit-quote-request.ts');
+  const chatHandoff = readRepoFile('amplify/functions/chat-handoff-promote/handler.ts');
   const emailIntake = readRepoFile(
     'amplify/functions/email-intake-capture/process-email-intake.ts',
   );
@@ -71,8 +72,18 @@ test('form and email intake enqueue shared follow-up work instead of quote queue
 
   assert.match(formSubmit, /createLeadFollowupWorkItem/);
   assert.match(formSubmit, /captureLeadSource/);
+  assert.match(formSubmit, /createStableLeadFollowupWorkId\(\{\s*idempotencyKey,\s*prefix: 'form'/);
+  assert.doesNotMatch(formSubmit, /form_\$\{clientEventId\}/);
   assert.match(emailIntake, /createLeadFollowupWorkItem/);
   assert.match(emailIntake, /captureLeadSource/);
+  assert.match(
+    emailIntake,
+    /createStableLeadFollowupWorkId\(\{\s*idempotencyKey: threadKey,\s*prefix: 'email'/,
+  );
+  assert.match(
+    chatHandoff,
+    /createStableLeadFollowupWorkId\(\{\s*idempotencyKey,\s*prefix: 'chat'/,
+  );
   assert.match(captureService, /followupWork\.putIfAbsent/);
   assert.doesNotMatch(emailRuntime, /enqueueFollowupWork/);
 });

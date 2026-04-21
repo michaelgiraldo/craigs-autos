@@ -59,11 +59,6 @@ function leadContextFromPersistedLead(
   };
 }
 
-function buildFormFollowupWorkId(request: QuoteRequestSubmitRequest, fallbackId: string): string {
-  const clientEventId = normalizeWorkString(request.clientEventId);
-  return clientEventId ? `form_${clientEventId}` : fallbackId;
-}
-
 function buildFormIdempotencyKey(request: QuoteRequestSubmitRequest): string {
   const clientEventId = normalizeWorkString(request.clientEventId);
   if (clientEventId) return `form:${clientEventId}`;
@@ -88,10 +83,7 @@ export async function submitQuoteRequest(
 ): Promise<SubmitQuoteRequestResult> {
   const now = deps.nowEpochSeconds();
   const idempotencyKey = buildFormIdempotencyKey(request);
-  const followupWorkId = buildFormFollowupWorkId(
-    request,
-    createStableLeadFollowupWorkId({ idempotencyKey, prefix: 'form' }),
-  );
+  const followupWorkId = createStableLeadFollowupWorkId({ idempotencyKey, prefix: 'form' });
 
   const persistLead = () =>
     deps.persistQuoteRequest
