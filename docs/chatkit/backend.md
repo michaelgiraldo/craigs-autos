@@ -376,6 +376,16 @@ Delivery code:
 - Owner email content: `amplify/functions/lead-followup-worker/email-content.ts`
 - QUO SMS: `amplify/functions/lead-followup-worker/quo-sms.ts`
 
+Delivery reliability:
+
+- Before each external SMS/customer-email/owner-email provider call, the worker
+  saves that channel as `sending` under the active lease.
+- If the provider call returns, the worker updates the channel to `sent` or
+  `failed` with the provider message id or error.
+- If the lease is lost or the Lambda stops after a provider call but before the
+  final save, later workers see `sending`, avoid a duplicate provider call, and
+  mark the work `error` with `delivery_attempt_unconfirmed` for operator repair.
+
 ### Summary generation (Responses.parse)
 
 The shop notification email includes an internal AI summary generated from the transcript.

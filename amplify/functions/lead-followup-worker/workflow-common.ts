@@ -3,6 +3,7 @@ import { getErrorDetails } from '../_shared/safe.ts';
 import { isPlausibleEmail, phoneToE164 } from '../_shared/text-utils.ts';
 import type {
   LeadFollowupOutreachResult,
+  LeadFollowupSendStatus,
   LeadFollowupWorkItem,
 } from '../_lead-platform/domain/lead-followup-work.ts';
 import type {
@@ -57,6 +58,35 @@ export function staleLeaseOutcome(): LeadFollowupWorkflowOutcome {
   };
 }
 
+function isDeliveryAttemptInProgress(status: LeadFollowupSendStatus): boolean {
+  return status === 'sending';
+}
+
+function hasPendingDeliveryAttempt(record: LeadFollowupWorkItem): boolean {
+  return (
+    isDeliveryAttemptInProgress(record.sms_status) ||
+    isDeliveryAttemptInProgress(record.email_status) ||
+    isDeliveryAttemptInProgress(record.owner_email_status)
+  );
+}
+
+async function pendingDeliveryAttemptOutcome(
+  deps: LeadFollowupWorkerDeps,
+  record: LeadFollowupWorkItem,
+): Promise<LeadFollowupWorkflowOutcome> {
+  record.status = 'error';
+  record.lock_expires_at = undefined;
+  record.owner_email_error = record.owner_email_error || 'delivery_attempt_unconfirmed';
+  await persistRecord(deps, record);
+  return {
+    statusCode: 502,
+    body: {
+      error: 'Delivery attempt outcome is unknown.',
+      reason: 'delivery_attempt_unconfirmed',
+    },
+  };
+}
+
 function requireActiveLease(record: LeadFollowupWorkItem): LeasedLeadFollowupWorkItem {
   if (!record.lease_id) {
     const error = new Error('stale_followup_work_lease');
@@ -107,6 +137,10 @@ export async function attemptSmsOutreach(
   record: LeadFollowupWorkItem,
   usablePhone: string | null,
 ) {
+  if (record.sms_status === 'sending') {
+    return;
+  }
+
   if (usablePhone && record.sms_status !== 'sent') {
     if (!deps.smsAutomationEnabled) {
       record.sms_status = 'skipped';
@@ -115,6 +149,10 @@ export async function attemptSmsOutreach(
       await persistRecord(deps, record);
       return;
     }
+
+    record.sms_status = 'sending';
+    record.sms_error = '';
+    await persistRecord(deps, record);
 
     try {
       const smsResult = await deps.sendSms({ toE164: usablePhone, body: record.sms_body });
@@ -152,6 +190,10 @@ export async function attemptEmailOutreach(
   usablePhone: string | null,
   usableEmail: string,
 ) {
+  if (record.email_status === 'sending') {
+    return;
+  }
+
   const shouldSendEmailFallback =
     usableEmail &&
     record.email_status !== 'sent' &&
@@ -161,6 +203,10 @@ export async function attemptEmailOutreach(
       !usablePhone);
 
   if (shouldSendEmailFallback) {
+    record.email_status = 'sending';
+    record.customer_email_error = '';
+    await persistRecord(deps, record);
+
     try {
       const emailResult = await deps.sendCustomerEmail({
         record,
@@ -211,9 +257,13 @@ async function sendOwnerNotification(
   deps: LeadFollowupWorkerDeps,
   record: LeadFollowupWorkItem,
 ): Promise<LeadFollowupWorkflowOutcome | null> {
-  if (record.owner_email_status === 'sent') {
+  if (record.owner_email_status === 'sent' || record.owner_email_status === 'sending') {
     return null;
   }
+
+  record.owner_email_status = 'sending';
+  record.owner_email_error = '';
+  await persistRecord(deps, record);
 
   try {
     const ownerEmailResult = await deps.sendOwnerEmail({ record });
@@ -243,6 +293,10 @@ export async function completeWorkflow(args: {
   const { deps, followupWorkId, record } = args;
 
   record.outreach_result = getOutreachResult(record);
+
+  if (hasPendingDeliveryAttempt(record)) {
+    return pendingDeliveryAttemptOutcome(deps, record);
+  }
 
   const ownerFailure = await sendOwnerNotification(deps, record);
   if (ownerFailure) {

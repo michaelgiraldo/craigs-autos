@@ -5,7 +5,7 @@ export const LEAD_FOLLOWUP_WORK_TTL_DAYS = 180;
 
 export type LeadFollowupWorkStatus = 'queued' | 'processing' | 'completed' | 'error';
 export type LeadFollowupAiStatus = 'generated' | 'fallback' | null;
-export type LeadFollowupSendStatus = 'sent' | 'failed' | 'skipped' | null;
+export type LeadFollowupSendStatus = 'sending' | 'sent' | 'failed' | 'skipped' | null;
 export type LeadFollowupOutreachChannel = 'sms' | 'email' | null;
 export type LeadFollowupPreferredOutreachChannel = 'sms' | 'email' | null;
 export type LeadFollowupOutreachResult =

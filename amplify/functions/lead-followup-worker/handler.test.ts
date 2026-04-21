@@ -143,6 +143,119 @@ test('lead-followup-worker stops before delivery when a workflow save loses its 
   assert.equal(ownerEmailTouched, false);
 });
 
+test('lead-followup-worker records SMS delivery attempt before provider send', async () => {
+  const saved: LeadFollowupWorkItem[] = [];
+  let current = makeRecord();
+  let smsTouched = false;
+  let customerEmailTouched = false;
+  let ownerEmailTouched = false;
+  const staleLeaseError = new Error('stale_followup_work_lease');
+  staleLeaseError.name = 'StaleFollowupWorkLeaseError';
+
+  const handler = createLeadFollowupWorkerHandler({
+    configValid: true,
+    smsAutomationEnabled: true,
+    nowEpochSeconds: () => 2_100,
+    getFollowupWork: async () => current,
+    acquireLease: async () => true,
+    saveFollowupWork: async (record) => {
+      if (record.sms_status === 'sent') {
+        throw staleLeaseError;
+      }
+      current = { ...record };
+      saved.push({ ...record });
+    },
+    generateDrafts: async () => ({
+      aiError: '',
+      aiModel: 'gpt-test',
+      aiStatus: 'generated',
+      drafts: {
+        smsBody: 'Please text us 2-4 photos.',
+        emailSubject: 'Test Upholstery - next steps',
+        emailBody: 'Please email us 2-4 photos.',
+        missingInfo: ['photos'],
+      },
+    }),
+    sendSms: async () => {
+      smsTouched = true;
+      assert.equal(current.sms_status, 'sending');
+      return { id: 'sms-123', status: 'sent' };
+    },
+    sendCustomerEmail: async () => {
+      customerEmailTouched = true;
+      return { messageId: 'email-123' };
+    },
+    sendOwnerEmail: async () => {
+      ownerEmailTouched = true;
+      return { messageId: 'owner-123' };
+    },
+  });
+
+  const result = await handler({ idempotency_key: 'form:followup-work-1' });
+
+  assert.equal(result.statusCode, 200);
+  assert.match(result.body, /stale_lease/);
+  assert.equal(smsTouched, true);
+  assert.equal(customerEmailTouched, false);
+  assert.equal(ownerEmailTouched, false);
+  assert.equal(
+    saved.some((record) => record.sms_status === 'sending'),
+    true,
+  );
+});
+
+test('lead-followup-worker does not repeat a pending SMS delivery attempt', async () => {
+  const saved: LeadFollowupWorkItem[] = [];
+  let smsTouched = false;
+  let customerEmailTouched = false;
+  let ownerEmailTouched = false;
+
+  const handler = createLeadFollowupWorkerHandler({
+    configValid: true,
+    smsAutomationEnabled: true,
+    nowEpochSeconds: () => 2_200,
+    getFollowupWork: async () =>
+      makeRecord({
+        status: 'processing',
+        sms_body: 'Please text us 2-4 photos.',
+        email_subject: 'Test Upholstery - next steps',
+        email_body: 'Please email us 2-4 photos.',
+        sms_status: 'sending',
+      }),
+    acquireLease: async () => true,
+    saveFollowupWork: async (record) => {
+      saved.push({ ...record });
+    },
+    generateDrafts: async () => {
+      throw new Error('should not generate drafts');
+    },
+    sendSms: async () => {
+      smsTouched = true;
+      return { id: 'sms-123', status: 'sent' };
+    },
+    sendCustomerEmail: async () => {
+      customerEmailTouched = true;
+      return { messageId: 'email-123' };
+    },
+    sendOwnerEmail: async () => {
+      ownerEmailTouched = true;
+      return { messageId: 'owner-123' };
+    },
+  });
+
+  const result = await handler({ idempotency_key: 'form:followup-work-1' });
+  const body = JSON.parse(result.body) as { reason?: string };
+
+  assert.equal(result.statusCode, 502);
+  assert.equal(body.reason, 'delivery_attempt_unconfirmed');
+  assert.equal(smsTouched, false);
+  assert.equal(customerEmailTouched, false);
+  assert.equal(ownerEmailTouched, false);
+  assert.equal(saved[0]?.status, 'error');
+  assert.equal(saved[0]?.sms_status, 'sending');
+  assert.equal(saved[0]?.owner_email_error, 'delivery_attempt_unconfirmed');
+});
+
 test('lead-followup-worker rejects missing idempotency keys before touching dependencies', async () => {
   let touched = false;
   const handler = createLeadFollowupWorkerHandler({
