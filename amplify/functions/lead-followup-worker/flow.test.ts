@@ -14,7 +14,7 @@ function makeRepos(store: Map<string, LeadFollowupWorkItem>): LeadPlatformRepos 
     followupWork: {
       getByIdempotencyKey: async (idempotencyKey: string) => store.get(idempotencyKey) ?? null,
       listByStatus: async (status: LeadFollowupWorkItem['status']) =>
-        Array.from(store.values()).filter((record) => record.status === status),
+        [...store.values()].filter((record) => record.status === status),
       acquireLease: async () => true,
       putIfAbsent: async (record: LeadFollowupWorkItem) => {
         if (store.has(record.idempotency_key)) return false;

@@ -95,8 +95,10 @@ function isPrimitiveConfigValue(value: unknown): value is PrimitiveConfigValue {
 
 function normalizeDestinationKey(value: unknown): ManagedConversionDestinationKey | null {
   if (typeof value !== 'string') return null;
-  const key = value.trim() as ManagedConversionDestinationKey;
-  return Object.keys(MANAGED_CONVERSION_DESTINATIONS).indexOf(key) >= 0 ? key : null;
+  const key = value.trim();
+  return Object.keys(MANAGED_CONVERSION_DESTINATIONS).includes(key)
+    ? (key as ManagedConversionDestinationKey)
+    : null;
 }
 
 function defaultDeliveryMode(

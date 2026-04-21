@@ -33,11 +33,7 @@ const OUTBOX_POSITIVE_STATUSES = new Set<ManagedConversionFeedbackStatus>([
 ]);
 
 function uniq(values: Array<string | null | undefined>): string[] {
-  const unique: string[] = [];
-  for (const value of values) {
-    if (value && unique.indexOf(value) === -1) unique.push(value);
-  }
-  return unique;
+  return Array.from(new Set(values.filter((value): value is string => Boolean(value))));
 }
 
 function mapStatusLabel(status: ManagedConversionFeedbackStatus): string {

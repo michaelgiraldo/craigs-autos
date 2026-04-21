@@ -11,7 +11,7 @@ function makeRepos(writes: LeadFollowupWorkItem[]): LeadPlatformRepos {
     followupWork: {
       getByIdempotencyKey: async (idempotencyKey: string) => records.get(idempotencyKey) ?? null,
       listByStatus: async (status: LeadFollowupWorkItem['status']) =>
-        Array.from(records.values()).filter((record) => record.status === status),
+        [...records.values()].filter((record) => record.status === status),
       acquireLease: async () => false,
       putIfAbsent: async (record: LeadFollowupWorkItem) => {
         if (records.has(record.idempotency_key)) return false;
@@ -196,10 +196,9 @@ test('quote-request-submit queues lead follow-up with immutable lead linkage con
   });
 
   assert.equal(result.statusCode, 200);
-  const latestWrite = deps.writes[deps.writes.length - 1];
-  assert.equal(latestWrite?.journey_id, 'journey-linked');
-  assert.equal(latestWrite?.lead_record_id, 'lead-linked');
-  assert.equal(latestWrite?.contact_id, 'contact-linked');
-  assert.equal(latestWrite?.page_url, 'https://example.test/en/contact');
-  assert.equal(latestWrite?.user_id, 'anon-user');
+  assert.equal(deps.writes.at(-1)?.journey_id, 'journey-linked');
+  assert.equal(deps.writes.at(-1)?.lead_record_id, 'lead-linked');
+  assert.equal(deps.writes.at(-1)?.contact_id, 'contact-linked');
+  assert.equal(deps.writes.at(-1)?.page_url, 'https://example.test/en/contact');
+  assert.equal(deps.writes.at(-1)?.user_id, 'anon-user');
 });

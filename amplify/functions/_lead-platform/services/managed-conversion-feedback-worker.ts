@@ -58,7 +58,7 @@ function retryDelayForAttempt(attemptCount: number, retryDelaysMs: number[]): nu
 }
 
 function terminalStatuses(): Set<ManagedConversionFeedbackStatus> {
-  const statuses: ManagedConversionFeedbackStatus[] = [
+  return new Set<ManagedConversionFeedbackStatus>([
     'validated',
     'manual',
     'sent',
@@ -71,8 +71,7 @@ function terminalStatuses(): Set<ManagedConversionFeedbackStatus> {
     'needs_destination_config',
     'needs_signal',
     'not_ready',
-  ];
-  return new Set(statuses);
+  ]);
 }
 
 function createOutcome(args: {
