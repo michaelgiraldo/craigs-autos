@@ -1,9 +1,7 @@
-import { GOOGLE_ADS_CONFIG_FIELDS } from './providers/google-ads/config.ts';
-import { YELP_CONFIG_FIELDS } from './providers/yelp/config.ts';
+import { MANAGED_CONVERSION_PROVIDER_DEFINITIONS } from './provider-catalog.ts';
 
 export const MANAGED_CONVERSION_PROVIDER_CONFIG_FIELDS = Object.freeze([
-  ...GOOGLE_ADS_CONFIG_FIELDS,
-  ...YELP_CONFIG_FIELDS,
+  ...MANAGED_CONVERSION_PROVIDER_DEFINITIONS.flatMap((definition) => definition.configFields),
 ]);
 
 export const MANAGED_CONVERSION_PROVIDER_ENV_KEYS = Object.freeze(

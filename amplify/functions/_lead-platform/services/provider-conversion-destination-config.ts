@@ -7,11 +7,8 @@ import type {
   ProviderConversionDestinationMode,
   ProviderConversionDestinationSource,
 } from '../domain/conversion-feedback.ts';
-import { MANAGED_CONVERSION_PROVIDER_DEFINITIONS } from './conversion-feedback/adapter-registry.ts';
-import type {
-  ManagedConversionProviderDefinition,
-  ProviderConfigField,
-} from './conversion-feedback/provider-definition.ts';
+import { MANAGED_CONVERSION_PROVIDER_DEFINITIONS } from './conversion-feedback/provider-catalog.ts';
+import type { ProviderConfigField } from './conversion-feedback/provider-definition.ts';
 import type { ProviderExecutionMode } from './conversion-feedback/adapter-types.ts';
 
 export const MANAGED_CONVERSION_DESTINATION_CONFIG_VERSION =
@@ -121,9 +118,7 @@ function parseConfigSource(value: unknown): ProviderConversionDestinationSource 
 }
 
 function configFieldsByProviderConfigKey(
-  definition:
-    | Pick<ManagedConversionProviderDefinition<unknown, unknown>, 'configFields'>
-    | undefined,
+  definition: { configFields: readonly ProviderConfigField[] } | undefined,
 ): Map<string, ProviderConfigField> {
   return new Map((definition?.configFields ?? []).map((field) => [field.providerConfigKey, field]));
 }
@@ -131,7 +126,9 @@ function configFieldsByProviderConfigKey(
 function parseProviderConfig(args: {
   destinationKey: ManagedConversionDestinationKey;
   definition:
-    | Pick<ManagedConversionProviderDefinition<unknown, unknown>, 'configFields'>
+    | {
+        configFields: readonly ProviderConfigField[];
+      }
     | undefined;
   rawProviderConfig: unknown;
   errors: string[];

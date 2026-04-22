@@ -30,8 +30,7 @@ export type ManagedConversionFeedbackContext = {
 };
 
 export type ManagedConversionFeedbackAdapter = {
-  key: ManagedConversionDestinationKey | 'manual';
+  key: ManagedConversionDestinationKey;
   label: string;
-  canHandle(destination: ProviderConversionDestination): boolean;
   deliver(args: ManagedConversionFeedbackContext): Promise<ManagedConversionFeedbackDeliveryResult>;
 };

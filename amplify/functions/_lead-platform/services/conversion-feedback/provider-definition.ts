@@ -45,7 +45,6 @@ export type ManagedConversionProviderDefinition<TConfig, TRequest> = {
   label: string;
   modes: readonly ProviderExecutionMode[];
   configFields: readonly ProviderConfigField[];
-  canHandle?: ManagedConversionFeedbackAdapter['canHandle'];
   parseConfig(
     env: Record<string, string | undefined>,
     providerConfig: Record<string, string | number | boolean | null | undefined>,
@@ -90,11 +89,6 @@ export function createAdapterFromProviderDefinition<TConfig, TRequest>(
   return {
     key: definition.key,
     label: definition.label,
-    canHandle(destination) {
-      return definition.canHandle
-        ? definition.canHandle(destination)
-        : destination.destination_key === definition.key;
-    },
     async deliver(context) {
       const config = definition.parseConfig(env, context.destination.provider_config);
       const mode = definition.getMode(config);

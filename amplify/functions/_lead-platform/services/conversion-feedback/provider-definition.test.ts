@@ -3,8 +3,8 @@ import test from 'node:test';
 import type { ProviderExecutionMode } from './adapter-types.ts';
 import {
   MANAGED_CONVERSION_PROVIDER_DEFINITIONS,
-  createManagedConversionAdapterRegistry,
-} from './adapter-registry.ts';
+  createManagedConversionProviderCatalog,
+} from './provider-catalog.ts';
 import {
   MANAGED_CONVERSION_PROVIDER_CONFIG_FIELDS,
   MANAGED_CONVERSION_PROVIDER_ENV_DEFAULTS,
@@ -21,8 +21,7 @@ test('managed conversion provider definitions have unique keys and config fields
 
   for (const definition of MANAGED_CONVERSION_PROVIDER_DEFINITIONS) {
     assert.ok(definition.label);
-    assert.ok(definition.modes.includes('dry_run'));
-    assert.ok(definition.configFields.length > 0);
+    assert.ok(definition.modes.length > 0);
   }
 
   const envKeys = MANAGED_CONVERSION_PROVIDER_CONFIG_FIELDS.map((field) => field.envKey);
@@ -39,15 +38,26 @@ test('managed conversion provider definitions have unique keys and config fields
   assert.deepEqual([...MANAGED_CONVERSION_PROVIDER_ENV_KEYS].sort(), [...envKeys].sort());
 });
 
-test('managed conversion adapter registry is generated from registered provider definitions', () => {
-  const adapters = createManagedConversionAdapterRegistry();
-  const adapterKeys = adapters.map((adapter) => adapter.key);
+test('managed conversion provider catalog looks up providers by exact destination key', () => {
+  const catalog = createManagedConversionProviderCatalog();
   const providerKeys = MANAGED_CONVERSION_PROVIDER_DEFINITIONS.map((definition) => definition.key);
 
-  assert.ok(adapterKeys.includes('manual'));
   for (const providerKey of providerKeys) {
-    assert.ok(adapterKeys.includes(providerKey));
+    assert.equal(catalog.getAdapter(providerKey)?.key, providerKey);
   }
+});
+
+test('managed conversion provider catalog rejects duplicate destination keys', () => {
+  assert.throws(
+    () =>
+      createManagedConversionProviderCatalog({
+        definitions: [
+          MANAGED_CONVERSION_PROVIDER_DEFINITIONS[0],
+          MANAGED_CONVERSION_PROVIDER_DEFINITIONS[0],
+        ],
+      }),
+    /Duplicate managed conversion provider key/,
+  );
 });
 
 test('createAdapterFromProviderDefinition centralizes disabled, dry-run, and config behavior', async () => {

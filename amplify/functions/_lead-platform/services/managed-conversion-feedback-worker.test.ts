@@ -13,7 +13,27 @@ import type { LeadRecord } from '../domain/lead-record.ts';
 import type { LeadPlatformRepos } from '../repos/dynamo.ts';
 import { processManagedConversionFeedbackBatch } from './managed-conversion-feedback-worker.ts';
 import type { ManagedConversionFeedbackAdapter } from './conversion-feedback/adapter-types.ts';
-import { createManualConversionFeedbackAdapter } from './conversion-feedback/providers/manual/adapter.ts';
+import {
+  createManagedConversionProviderCatalog,
+  type ManagedConversionFeedbackProviderResolver,
+} from './conversion-feedback/provider-catalog.ts';
+import { manualExportProviderDefinition } from './conversion-feedback/providers/manual/definition.ts';
+
+function createManualOnlyProviderResolver(): ManagedConversionFeedbackProviderResolver {
+  return createManagedConversionProviderCatalog({
+    definitions: [manualExportProviderDefinition],
+  });
+}
+
+function createProviderResolver(
+  ...providerAdapters: ManagedConversionFeedbackAdapter[]
+): ManagedConversionFeedbackProviderResolver {
+  return {
+    getAdapter(destinationKey) {
+      return providerAdapters.find((adapter) => adapter.key === destinationKey) ?? null;
+    },
+  };
+}
 
 function mapValues<T>(map: Map<string, T>): T[] {
   const values: T[] = [];
@@ -261,7 +281,7 @@ test('processManagedConversionFeedbackBatch marks manual exports without provide
     repos,
     nowMs: 2_000,
     workerId: 'worker-1',
-    adapters: [createManualConversionFeedbackAdapter()],
+    providerResolver: createManualOnlyProviderResolver(),
   });
 
   assert.equal(result.processed, 1);
@@ -293,21 +313,20 @@ test('processManagedConversionFeedbackBatch does not pretend provider API destin
     repos,
     nowMs: 2_000,
     workerId: 'worker-1',
-    adapters: [createManualConversionFeedbackAdapter()],
+    providerResolver: createManualOnlyProviderResolver(),
   });
 
   assert.equal(result.processed, 1);
   assert.equal(outbox.get('outbox-1')?.status, 'needs_destination_config');
   assert.equal(outbox.get('outbox-1')?.next_attempt_at_ms, null);
   assert.equal(outcomes[0].status, 'needs_destination_config');
-  assert.equal(outcomes[0].error_code, 'adapter_not_configured');
+  assert.equal(outcomes[0].error_code, 'provider_not_configured');
 });
 
 test('processManagedConversionFeedbackBatch retries provider exceptions before final failure', async () => {
   const failingAdapter: ManagedConversionFeedbackAdapter = {
     key: 'google_ads',
     label: 'Google Ads',
-    canHandle: (destination) => destination.destination_key === 'google_ads',
     deliver: async () => {
       throw new Error('temporary provider outage');
     },
@@ -331,7 +350,7 @@ test('processManagedConversionFeedbackBatch retries provider exceptions before f
     repos,
     nowMs: 2_000,
     workerId: 'worker-1',
-    adapters: [failingAdapter],
+    providerResolver: createProviderResolver(failingAdapter),
     config: {
       maxAttempts: 3,
       retryDelaysMs: [500],
@@ -351,7 +370,6 @@ test('processManagedConversionFeedbackBatch stops retrying after max attempts', 
   const failingAdapter: ManagedConversionFeedbackAdapter = {
     key: 'google_ads',
     label: 'Google Ads',
-    canHandle: (destination) => destination.destination_key === 'google_ads',
     deliver: async () => {
       throw new Error('permanent provider outage');
     },
@@ -376,7 +394,7 @@ test('processManagedConversionFeedbackBatch stops retrying after max attempts', 
     repos,
     nowMs: 2_000,
     workerId: 'worker-1',
-    adapters: [failingAdapter],
+    providerResolver: createProviderResolver(failingAdapter),
     config: {
       maxAttempts: 3,
       retryDelaysMs: [500],
@@ -400,7 +418,7 @@ test('processManagedConversionFeedbackBatch suppresses inactive decisions', asyn
     repos,
     nowMs: 2_000,
     workerId: 'worker-1',
-    adapters: [createManualConversionFeedbackAdapter()],
+    providerResolver: createManualOnlyProviderResolver(),
   });
 
   assert.equal(result.processed, 1);
@@ -423,7 +441,7 @@ test('processManagedConversionFeedbackBatch skips active leases and future attem
     repos,
     nowMs: 2_000,
     workerId: 'worker-1',
-    adapters: [createManualConversionFeedbackAdapter()],
+    providerResolver: createManualOnlyProviderResolver(),
     outboxId: 'outbox-1',
   });
 

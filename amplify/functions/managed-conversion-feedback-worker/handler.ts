@@ -30,7 +30,7 @@ export function createManagedConversionFeedbackWorkerHandler(
       repos: runtime.repos,
       nowMs: runtime.nowMs(),
       workerId: runtime.createWorkerId(),
-      adapters: runtime.adapters,
+      providerResolver: runtime.providerCatalog,
       outboxId: parseOptionalOutboxId(event),
       config: {
         batchSize: parseOptionalBatchSize(event) ?? runtime.batchSize,

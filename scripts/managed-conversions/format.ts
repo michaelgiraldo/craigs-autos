@@ -4,7 +4,7 @@ import type {
   LeadConversionFeedbackOutcome,
   ProviderConversionDestination,
 } from '../../amplify/functions/_lead-platform/domain/conversion-feedback.ts';
-import { MANAGED_CONVERSION_PROVIDER_CONFIG_FIELDS } from '../../amplify/functions/_lead-platform/services/conversion-feedback/adapter-registry.ts';
+import { MANAGED_CONVERSION_PROVIDER_CONFIG_FIELDS } from '../../amplify/functions/_lead-platform/services/conversion-feedback/provider-config-manifest.ts';
 
 export function redactDestination(
   destination: ProviderConversionDestination,

@@ -8,7 +8,7 @@ import {
   DynamoLeadConversionFeedbackOutboxRepo,
 } from '../../amplify/functions/_lead-platform/repos/dynamo.ts';
 import type { ManagedConversionFeedbackContext } from '../../amplify/functions/_lead-platform/services/conversion-feedback/adapter-types.ts';
-import { MANAGED_CONVERSION_PROVIDER_DEFINITIONS } from '../../amplify/functions/_lead-platform/services/conversion-feedback/adapter-registry.ts';
+import { MANAGED_CONVERSION_PROVIDER_DEFINITIONS } from '../../amplify/functions/_lead-platform/services/conversion-feedback/provider-catalog.ts';
 import type { ManagedConversionProviderDefinition } from '../../amplify/functions/_lead-platform/services/conversion-feedback/provider-definition.ts';
 import { tableEnvKeys } from './constants.ts';
 import {

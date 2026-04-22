@@ -9,9 +9,16 @@ import type {
 import type { LeadContact } from '../../../../domain/contact.ts';
 import type { LeadRecord } from '../../../../domain/lead-record.ts';
 import type { ProviderHttpClient } from '../../provider-http.ts';
-import { createGoogleAdsManagedConversionAdapter } from './adapter.ts';
+import { createAdapterFromProviderDefinition } from '../../provider-definition.ts';
 import { parseGoogleAdsManagedConversionConfig } from './config.ts';
+import { googleAdsProviderDefinition } from './definition.ts';
 import { buildGoogleAdsUploadClickConversionsPayload } from './payload.ts';
+
+function createGoogleAdsManagedConversionAdapter(
+  args: { env?: Record<string, string | undefined>; httpClient?: ProviderHttpClient } = {},
+) {
+  return createAdapterFromProviderDefinition(googleAdsProviderDefinition, args);
+}
 
 function sha256(value: string): string {
   return createHash('sha256').update(value).digest('hex');

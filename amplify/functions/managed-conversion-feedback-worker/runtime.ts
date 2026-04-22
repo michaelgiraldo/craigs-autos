@@ -1,8 +1,10 @@
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { createLeadPlatformRuntime } from '../_lead-platform/runtime.ts';
-import type { ManagedConversionFeedbackAdapter } from '../_lead-platform/services/conversion-feedback/adapter-types.ts';
-import { createManagedConversionAdapterRegistry } from '../_lead-platform/services/conversion-feedback/adapter-registry.ts';
+import {
+  createManagedConversionProviderCatalog,
+  type ManagedConversionProviderCatalog,
+} from '../_lead-platform/services/conversion-feedback/provider-catalog.ts';
 import { MANAGED_CONVERSION_PROVIDER_ENV_KEYS } from '../_lead-platform/services/conversion-feedback/provider-config-manifest.ts';
 import {
   DEFAULT_CONVERSION_FEEDBACK_BATCH_SIZE,
@@ -27,7 +29,7 @@ export type ManagedConversionFeedbackWorkerRuntime = {
   repos: ReturnType<typeof createLeadPlatformRuntime>['repos'];
   nowMs: () => number;
   createWorkerId: () => string;
-  adapters: ManagedConversionFeedbackAdapter[];
+  providerCatalog: ManagedConversionProviderCatalog;
   batchSize: number;
   leaseMs: number;
   maxAttempts: number;
@@ -48,7 +50,7 @@ export function createManagedConversionFeedbackWorkerRuntime(
     repos: leadPlatformRuntime.repos,
     nowMs: () => Date.now(),
     createWorkerId: () => `${functionName}:${randomUUID()}`,
-    adapters: createManagedConversionAdapterRegistry({ env }),
+    providerCatalog: createManagedConversionProviderCatalog({ env }),
     batchSize: parsed.success
       ? (parsed.data.MANAGED_CONVERSION_FEEDBACK_BATCH_SIZE ??
         DEFAULT_CONVERSION_FEEDBACK_BATCH_SIZE)

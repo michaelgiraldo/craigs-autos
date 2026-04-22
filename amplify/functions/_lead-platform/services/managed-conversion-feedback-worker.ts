@@ -5,17 +5,14 @@ import type {
 import type {
   LeadConversionFeedbackOutboxItem,
   LeadConversionFeedbackOutcome,
-  ProviderConversionDestination,
 } from '../domain/conversion-feedback.ts';
 import {
   createConversionFeedbackOutcomeId,
   createConversionFeedbackOutcomeSortKey,
 } from '../domain/ids.ts';
 import type { LeadPlatformRepos } from '../repos/dynamo.ts';
-import type {
-  ManagedConversionFeedbackAdapter,
-  ManagedConversionFeedbackDeliveryResult,
-} from './conversion-feedback/adapter-types.ts';
+import type { ManagedConversionFeedbackDeliveryResult } from './conversion-feedback/adapter-types.ts';
+import type { ManagedConversionFeedbackProviderResolver } from './conversion-feedback/provider-catalog.ts';
 
 export const DEFAULT_CONVERSION_FEEDBACK_BATCH_SIZE = 10;
 export const DEFAULT_CONVERSION_FEEDBACK_LEASE_MS = 5 * 60 * 1000;
@@ -142,13 +139,6 @@ function buildRetryItem(args: {
   };
 }
 
-function findAdapter(
-  adapters: ManagedConversionFeedbackAdapter[],
-  destination: ProviderConversionDestination,
-): ManagedConversionFeedbackAdapter | null {
-  return adapters.find((adapter) => adapter.canHandle(destination)) ?? null;
-}
-
 async function completeAttempt(args: {
   repos: LeadPlatformRepos;
   item: LeadConversionFeedbackOutboxItem;
@@ -197,7 +187,7 @@ async function completeAttempt(args: {
 async function processLeasedItem(args: {
   repos: LeadPlatformRepos;
   item: LeadConversionFeedbackOutboxItem;
-  adapters: ManagedConversionFeedbackAdapter[];
+  providerResolver: ManagedConversionFeedbackProviderResolver;
   nowMs: number;
   maxAttempts: number;
   retryDelaysMs: number[];
@@ -272,15 +262,15 @@ async function processLeasedItem(args: {
     });
   }
 
-  const adapter = findAdapter(args.adapters, destination);
+  const adapter = args.providerResolver.getAdapter(destination.destination_key);
   if (!adapter) {
     return completeAttempt({
       repos: args.repos,
       item: args.item,
       result: {
         status: 'needs_destination_config',
-        message: `No delivery adapter is configured for ${destination.destination_label}.`,
-        errorCode: 'adapter_not_configured',
+        message: `No conversion feedback provider is configured for ${destination.destination_label}.`,
+        errorCode: 'provider_not_configured',
         payload: {
           delivery_mode: destination.delivery_mode,
         },
@@ -330,7 +320,7 @@ export async function processManagedConversionFeedbackBatch(args: {
   repos: LeadPlatformRepos;
   nowMs: number;
   workerId: string;
-  adapters: ManagedConversionFeedbackAdapter[];
+  providerResolver: ManagedConversionFeedbackProviderResolver;
   config?: ManagedConversionFeedbackWorkerConfig;
   outboxId?: string | null;
 }): Promise<ManagedConversionFeedbackWorkerResult> {
@@ -385,7 +375,7 @@ export async function processManagedConversionFeedbackBatch(args: {
     const processed = await processLeasedItem({
       repos: args.repos,
       item: leasedItem,
-      adapters: args.adapters,
+      providerResolver: args.providerResolver,
       nowMs: args.nowMs,
       maxAttempts,
       retryDelaysMs,

@@ -9,9 +9,16 @@ import type {
 import type { LeadContact } from '../../../../domain/contact.ts';
 import type { LeadRecord } from '../../../../domain/lead-record.ts';
 import type { ProviderHttpClient } from '../../provider-http.ts';
-import { createYelpManagedConversionAdapter } from './adapter.ts';
+import { createAdapterFromProviderDefinition } from '../../provider-definition.ts';
 import { parseYelpManagedConversionConfig } from './config.ts';
+import { yelpProviderDefinition } from './definition.ts';
 import { buildYelpConversionPayload } from './payload.ts';
+
+function createYelpManagedConversionAdapter(
+  args: { env?: Record<string, string | undefined>; httpClient?: ProviderHttpClient } = {},
+) {
+  return createAdapterFromProviderDefinition(yelpProviderDefinition, args);
+}
 
 function sha256(value: string): string {
   return createHash('sha256').update(value).digest('hex');
