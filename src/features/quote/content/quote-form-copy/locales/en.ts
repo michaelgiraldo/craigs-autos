@@ -27,4 +27,8 @@ export const quoteFormCopyEn = {
   validationFallbackError:
     'We could not submit your quote request. Please try again or call the shop.',
   otherServiceLabel: 'Other / Not sure yet',
+  photosLabel: 'Photos',
+  photosHelper: 'Optional. Add a few clear photos if you have them.',
+  addPhotosLabel: 'Add photos',
+  removePhotoLabel: 'Remove photo',
 } satisfies QuoteFormLocaleCopy;

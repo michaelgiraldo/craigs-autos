@@ -1,6 +1,6 @@
 import type { ChangeEvent, RefObject } from 'react';
 import type { QuoteFormCopy } from '../../content/quote-form-copy';
-import type { QuoteRequestFormData, QuoteSubmitState } from './types';
+import type { QuotePhotoDraft, QuoteRequestFormData, QuoteSubmitState } from './types';
 
 type QuoteRequestFormFieldsProps = {
   copy: QuoteFormCopy;
@@ -9,7 +9,12 @@ type QuoteRequestFormFieldsProps = {
   onChange: (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
   ) => void;
+  onPhotoChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  onRemovePhoto: (photoId: string) => void;
+  onSelectPhotos: () => void;
   phoneInputRef: RefObject<HTMLInputElement | null>;
+  photoInputRef: RefObject<HTMLInputElement | null>;
+  photos: QuotePhotoDraft[];
   submitState: QuoteSubmitState;
 };
 
@@ -18,9 +23,16 @@ export function QuoteRequestFormFields({
   emailInputRef,
   form,
   onChange,
+  onPhotoChange,
+  onRemovePhoto,
+  onSelectPhotos,
   phoneInputRef,
+  photoInputRef,
+  photos,
   submitState,
 }: QuoteRequestFormFieldsProps) {
+  const isSubmitting = submitState === 'submitting';
+
   return (
     <>
       <div className="quote-request-form-grid">
@@ -100,6 +112,47 @@ export function QuoteRequestFormFields({
         />
       </label>
 
+      <div className="quote-request-form-field quote-request-form-field--full quote-photo-tray">
+        <span>{copy.photosLabel}</span>
+        <input
+          accept="image/jpeg,image/png,image/webp"
+          className="quote-photo-tray__input"
+          multiple
+          name="photos"
+          onChange={onPhotoChange}
+          ref={photoInputRef}
+          tabIndex={-1}
+          type="file"
+        />
+        <div className="quote-photo-tray__control">
+          <button disabled={isSubmitting} onClick={onSelectPhotos} type="button">
+            <span aria-hidden="true">+</span>
+            {copy.addPhotosLabel}
+          </button>
+          <p>{copy.photosHelper}</p>
+        </div>
+
+        {photos.length ? (
+          <ul className="quote-photo-tray__previews" aria-label={copy.photosLabel}>
+            {photos.map((photo, index) => (
+              <li key={photo.id} className="quote-photo-tray__preview">
+                <img alt={`${copy.photosLabel} ${index + 1}`} src={photo.previewUrl} />
+                <span title={photo.name}>{photo.name}</span>
+                <button
+                  aria-label={`${copy.removePhotoLabel}: ${photo.name}`}
+                  disabled={isSubmitting}
+                  onClick={() => onRemovePhoto(photo.id)}
+                  title={copy.removePhotoLabel}
+                  type="button"
+                >
+                  X
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+      </div>
+
       <label className="quote-request-form-honeypot" aria-hidden="true">
         <span>Company</span>
         <input
@@ -113,8 +166,8 @@ export function QuoteRequestFormFields({
       </label>
 
       <div className="quote-request-form-actions">
-        <button disabled={submitState === 'submitting'} type="submit">
-          {submitState === 'submitting' ? copy.submittingLabel : copy.submitLabel}
+        <button disabled={isSubmitting} type="submit">
+          {isSubmitting ? copy.submittingLabel : copy.submitLabel}
         </button>
       </div>
     </>

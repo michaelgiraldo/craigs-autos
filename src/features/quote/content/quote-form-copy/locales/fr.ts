@@ -28,4 +28,8 @@ export const quoteFormCopyFr = {
   validationFallbackError:
     'Nous n’avons pas pu envoyer votre demande de devis. Réessayez ou appelez l’atelier.',
   otherServiceLabel: 'Autre / Pas encore sûr',
+  photosLabel: 'Photos',
+  photosHelper: 'Facultatif. Ajoutez quelques photos nettes si vous en avez.',
+  addPhotosLabel: 'Ajouter des photos',
+  removePhotoLabel: 'Supprimer la photo',
 } satisfies QuoteFormLocaleCopy;

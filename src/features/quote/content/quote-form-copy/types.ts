@@ -24,6 +24,10 @@ export type QuoteFormLocaleCopy = {
   validationMissingEndpoint: string;
   validationFallbackError: string;
   otherServiceLabel: string;
+  photosLabel?: string;
+  photosHelper?: string;
+  addPhotosLabel?: string;
+  removePhotoLabel?: string;
 };
 
 export type QuoteServiceOption = {
@@ -60,6 +64,10 @@ export type QuoteFormCopy = {
   validationMissingEndpoint: string;
   validationFallbackError: string;
   serviceOptions: QuoteServiceOption[];
+  photosLabel: string;
+  photosHelper: string;
+  addPhotosLabel: string;
+  removePhotoLabel: string;
 };
 
 export type QuoteFormLocaleCopyMap = Record<LocaleKey, QuoteFormLocaleCopy>;

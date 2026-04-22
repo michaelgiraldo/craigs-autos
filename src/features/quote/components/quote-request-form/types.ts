@@ -17,4 +17,11 @@ export type QuoteRequestFormData = {
   company: string;
 };
 
+export type QuotePhotoDraft = {
+  id: string;
+  name: string;
+  previewUrl: string;
+  size: number;
+};
+
 export type QuoteSubmitState = 'idle' | 'submitting' | 'success' | 'error';

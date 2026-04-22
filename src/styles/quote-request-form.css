@@ -110,6 +110,128 @@
   color: rgba(75, 85, 99, 0.78);
 }
 
+.quote-photo-tray__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.quote-photo-tray__control {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem 0.85rem;
+  min-height: 3.25rem;
+  padding: 0.85rem 0.95rem;
+  border: 1px dashed rgba(17, 24, 39, 0.24);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.quote-photo-tray__control button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 2.55rem;
+  border: 0;
+  border-radius: var(--radius-pill);
+  padding: 0.65rem 0.95rem;
+  background: var(--color-ink);
+  color: #fff;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.quote-photo-tray__control button:hover:not(:disabled) {
+  background: var(--color-accent);
+}
+
+.quote-photo-tray__control button:disabled {
+  cursor: progress;
+  opacity: 0.75;
+}
+
+.quote-photo-tray__control button span {
+  display: inline-grid;
+  place-items: center;
+  width: 1.1rem;
+  height: 1.1rem;
+  color: inherit;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.quote-photo-tray__control p {
+  flex: 1 1 13rem;
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.quote-photo-tray__previews {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(7.25rem, 1fr));
+  gap: 0.65rem;
+  margin: 0.2rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.quote-photo-tray__preview {
+  position: relative;
+  display: grid;
+  grid-template-rows: 6rem auto;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid rgba(17, 24, 39, 0.12);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.quote-photo-tray__preview img {
+  width: 100%;
+  height: 6rem;
+  object-fit: cover;
+  background: rgba(17, 24, 39, 0.08);
+}
+
+.quote-photo-tray__preview > span {
+  overflow: hidden;
+  padding: 0.45rem 0.5rem;
+  color: var(--color-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.quote-photo-tray__preview button {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.35rem;
+  display: grid;
+  place-items: center;
+  width: 1.85rem;
+  height: 1.85rem;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(17, 24, 39, 0.78);
+  color: #fff;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.quote-photo-tray__preview button:hover:not(:disabled) {
+  background: var(--color-accent);
+}
+
 .quote-request-form-actions {
   display: flex;
   flex-wrap: wrap;

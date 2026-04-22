@@ -12,8 +12,20 @@ export default function QuoteRequestForm({
   compact = false,
 }: QuoteRequestFormProps) {
   const copy = getQuoteFormCopy(locale);
-  const { emailInputRef, errorMessage, form, handleSubmit, onChange, phoneInputRef, submitState } =
-    useQuoteRequestForm({ copy, locale, serviceKey });
+  const {
+    emailInputRef,
+    errorMessage,
+    form,
+    handleSubmit,
+    onChange,
+    onPhotoChange,
+    onRemovePhoto,
+    onSelectPhotos,
+    phoneInputRef,
+    photoInputRef,
+    photos,
+    submitState,
+  } = useQuoteRequestForm({ copy, locale, serviceKey });
 
   return (
     <section
@@ -36,7 +48,12 @@ export default function QuoteRequestForm({
             emailInputRef={emailInputRef}
             form={form}
             onChange={onChange}
+            onPhotoChange={onPhotoChange}
+            onRemovePhoto={onRemovePhoto}
+            onSelectPhotos={onSelectPhotos}
             phoneInputRef={phoneInputRef}
+            photoInputRef={photoInputRef}
+            photos={photos}
             submitState={submitState}
           />
           <QuoteRequestFormStatus

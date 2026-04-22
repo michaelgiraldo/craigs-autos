@@ -3,7 +3,7 @@ import { CHAT_COPY } from '../../../lib/site-data.js';
 import type { LocaleKey } from '../../../types/site';
 import { QUOTE_FORM_LOCALE_COPY } from './quote-form-copy/locales';
 import { getQuoteServiceOptions } from './quote-form-copy/service-options';
-import type { QuoteFormCopy } from './quote-form-copy/types';
+import type { QuoteFormCopy, QuoteFormLocaleCopy } from './quote-form-copy/types';
 
 export type { QuoteFormCopy } from './quote-form-copy/types';
 
@@ -14,7 +14,9 @@ function resolveLocaleKey(locale: LocaleKey): LocaleKey {
 export function getQuoteFormCopy(locale: LocaleKey): QuoteFormCopy {
   const resolvedLocale = resolveLocaleKey(locale);
   const chatCopy = CHAT_COPY[resolvedLocale] ?? CHAT_COPY.en;
-  const localeCopy = QUOTE_FORM_LOCALE_COPY[resolvedLocale] ?? QUOTE_FORM_LOCALE_COPY.en;
+  const localeCopy: QuoteFormLocaleCopy =
+    QUOTE_FORM_LOCALE_COPY[resolvedLocale] ?? QUOTE_FORM_LOCALE_COPY.en;
+  const defaultCopy: QuoteFormLocaleCopy = QUOTE_FORM_LOCALE_COPY.en;
   const serviceOptions = getQuoteServiceOptions(resolvedLocale, localeCopy.otherServiceLabel);
 
   return {
@@ -45,6 +47,14 @@ export function getQuoteFormCopy(locale: LocaleKey): QuoteFormCopy {
     validationInvalidEmail: localeCopy.validationInvalidEmail,
     validationMissingEndpoint: localeCopy.validationMissingEndpoint,
     validationFallbackError: localeCopy.validationFallbackError,
+    photosLabel: localeCopy.photosLabel ?? defaultCopy.photosLabel ?? 'Photos',
+    photosHelper:
+      localeCopy.photosHelper ??
+      defaultCopy.photosHelper ??
+      'Optional. Add a few clear photos if you have them.',
+    addPhotosLabel: localeCopy.addPhotosLabel ?? defaultCopy.addPhotosLabel ?? 'Add photos',
+    removePhotoLabel:
+      localeCopy.removePhotoLabel ?? defaultCopy.removePhotoLabel ?? 'Remove photo',
     serviceOptions,
   };
 }
