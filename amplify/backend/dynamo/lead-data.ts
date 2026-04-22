@@ -15,8 +15,16 @@ type LeadDataTables = {
   records: Table;
 };
 
+const DURABLE_LEAD_TABLE_BACKUP_PROPS = {
+  pointInTimeRecoverySpecification: {
+    pointInTimeRecoveryEnabled: true,
+    recoveryPeriodInDays: 35,
+  },
+} as const;
+
 function createLeadDataTables(stack: Stack): LeadDataTables {
   const contacts = new Table(stack, 'LeadContacts', {
+    ...DURABLE_LEAD_TABLE_BACKUP_PROPS,
     billingMode: BillingMode.PAY_PER_REQUEST,
     partitionKey: { name: 'contact_id', type: AttributeType.STRING },
     removalPolicy: RemovalPolicy.DESTROY,
@@ -38,6 +46,7 @@ function createLeadDataTables(stack: Stack): LeadDataTables {
   });
 
   const journeys = new Table(stack, 'LeadJourneys', {
+    ...DURABLE_LEAD_TABLE_BACKUP_PROPS,
     billingMode: BillingMode.PAY_PER_REQUEST,
     partitionKey: { name: 'journey_id', type: AttributeType.STRING },
     removalPolicy: RemovalPolicy.DESTROY,
@@ -50,6 +59,7 @@ function createLeadDataTables(stack: Stack): LeadDataTables {
   });
 
   const records = new Table(stack, 'LeadRecords', {
+    ...DURABLE_LEAD_TABLE_BACKUP_PROPS,
     billingMode: BillingMode.PAY_PER_REQUEST,
     partitionKey: { name: 'lead_record_id', type: AttributeType.STRING },
     removalPolicy: RemovalPolicy.DESTROY,
@@ -74,6 +84,7 @@ function createLeadDataTables(stack: Stack): LeadDataTables {
   });
 
   const journeyEvents = new Table(stack, 'LeadJourneyEvents', {
+    ...DURABLE_LEAD_TABLE_BACKUP_PROPS,
     billingMode: BillingMode.PAY_PER_REQUEST,
     partitionKey: { name: 'journey_id', type: AttributeType.STRING },
     sortKey: { name: 'event_sort_key', type: AttributeType.STRING },
@@ -100,6 +111,7 @@ function createLeadDataTables(stack: Stack): LeadDataTables {
   });
 
   const conversionDecisions = new Table(stack, 'LeadConversionDecisions', {
+    ...DURABLE_LEAD_TABLE_BACKUP_PROPS,
     billingMode: BillingMode.PAY_PER_REQUEST,
     partitionKey: { name: 'decision_id', type: AttributeType.STRING },
     removalPolicy: RemovalPolicy.DESTROY,
@@ -112,6 +124,7 @@ function createLeadDataTables(stack: Stack): LeadDataTables {
   });
 
   const conversionFeedbackOutbox = new Table(stack, 'LeadConversionFeedbackOutbox', {
+    ...DURABLE_LEAD_TABLE_BACKUP_PROPS,
     billingMode: BillingMode.PAY_PER_REQUEST,
     partitionKey: { name: 'outbox_id', type: AttributeType.STRING },
     removalPolicy: RemovalPolicy.DESTROY,
@@ -136,6 +149,7 @@ function createLeadDataTables(stack: Stack): LeadDataTables {
   });
 
   const conversionFeedbackOutcomes = new Table(stack, 'LeadConversionFeedbackOutcomes', {
+    ...DURABLE_LEAD_TABLE_BACKUP_PROPS,
     billingMode: BillingMode.PAY_PER_REQUEST,
     partitionKey: { name: 'outbox_id', type: AttributeType.STRING },
     sortKey: { name: 'outcome_sort_key', type: AttributeType.STRING },
@@ -149,6 +163,7 @@ function createLeadDataTables(stack: Stack): LeadDataTables {
   });
 
   const providerConversionDestinations = new Table(stack, 'ProviderConversionDestinations', {
+    ...DURABLE_LEAD_TABLE_BACKUP_PROPS,
     billingMode: BillingMode.PAY_PER_REQUEST,
     partitionKey: { name: 'destination_key', type: AttributeType.STRING },
     removalPolicy: RemovalPolicy.DESTROY,
