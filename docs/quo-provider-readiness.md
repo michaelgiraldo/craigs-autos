@@ -26,6 +26,23 @@ Required launch configuration:
 | `QUO_CONTACT_EXTERNAL_ID_PREFIX` | Stable prefix for QUO external ids. |
 | `QUO_LEAD_TAGS_FIELD_KEY` / `QUO_LEAD_TAGS_FIELD_NAME` | Contact custom field used for lead tags. |
 
+Current verified setup:
+
+| Value | Status |
+| --- | --- |
+| `(408) 379-3820` QUO phone number id | `PNkd7bfrir` |
+| `(408) 379-3820` QUO user id | `USwARwIZne` |
+| `(408) 379-3820` porting status | `scheduled` as of 2026-04-22 |
+| US/Canada messaging restriction | `unrestricted` as of 2026-04-22 |
+| `QUO_API_KEY` | Stored in Amplify Secret Management |
+| `QUO_ENABLED` | `false` until the approved live SMS smoke test |
+| Contact custom fields | None returned by QUO as of 2026-04-22 |
+
+Before enabling contact sync expectations, create a QUO multi-select contact
+custom field for lead tags in the QUO UI, then set `QUO_LEAD_TAGS_FIELD_KEY`.
+The QUO API can read contact custom fields, but the public docs state custom
+field definitions must be created or modified in QUO itself.
+
 Runtime rules:
 
 - SMS recipients must be explicit E.164 numbers or normal 10/11 digit US
