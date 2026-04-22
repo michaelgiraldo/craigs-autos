@@ -9,6 +9,7 @@ export const leadFollowupWorker = defineFunction({
   environment: {
     CHATKIT_OPENAI_API_KEY: secret('OPENAI_API_KEY'),
     QUO_ENABLED: 'false',
+    QUO_API_KEY: secret('QUO_API_KEY'),
     QUO_FROM_PHONE_NUMBER_ID: '',
     QUO_USER_ID: '',
     QUO_CONTACT_SOURCE: CRAIGS_LEAD_ENV_DEFAULTS.QUO_CONTACT_SOURCE,

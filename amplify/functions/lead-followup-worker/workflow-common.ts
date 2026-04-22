@@ -1,11 +1,12 @@
 import { buildReplySubject } from '../_shared/email-threading.ts';
 import { getErrorDetails } from '../_shared/safe.ts';
-import { isPlausibleEmail, phoneToE164 } from '../_shared/text-utils.ts';
+import { isPlausibleEmail } from '../_shared/text-utils.ts';
 import type {
   LeadFollowupOutreachResult,
   LeadFollowupSendStatus,
   LeadFollowupWorkItem,
 } from '../_lead-platform/domain/lead-followup-work.ts';
+import { normalizeSmsRecipientE164 } from '../_lead-platform/services/providers/sms-policy.ts';
 import type {
   LeadFollowupWorkerDeps,
   LeadFollowupWorkflowOutcome,
@@ -21,7 +22,7 @@ export function getUsableEmail(record: LeadFollowupWorkItem): string {
 }
 
 export function getOutreachResult(record: LeadFollowupWorkItem): LeadFollowupOutreachResult {
-  const hasPhone = Boolean(phoneToE164(record.phone));
+  const hasPhone = Boolean(normalizeSmsRecipientE164(record.phone));
   const hasEmail = isPlausibleEmail(record.email);
 
   if (record.customer_response_policy === 'manual_review') return 'manual_followup_required';
@@ -147,7 +148,7 @@ export async function attemptSmsOutreach(
   }
 
   if (usablePhone && record.sms_status !== 'sent') {
-    if (!deps.smsAutomationEnabled) {
+    if (!deps.smsProviderReadiness.ready) {
       record.sms_status = 'skipped';
       record.sms_error = 'manual_followup_required';
       record.outreach_channel = null;

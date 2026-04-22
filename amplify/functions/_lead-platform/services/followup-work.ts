@@ -5,6 +5,7 @@ import type { LeadRecord } from '../domain/lead-record.ts';
 import type { LeadFollowupWorkItem } from '../domain/lead-followup-work.ts';
 import type { LeadSummary } from '../domain/lead-summary.ts';
 import type { LeadPlatformRepos } from '../repos/dynamo.ts';
+import type { ProviderReadiness } from './providers/provider-contracts.ts';
 import {
   buildQuoteRequestOutreachEvents,
   deriveLeadRecordStatus,
@@ -48,6 +49,7 @@ export type QuoteLeadSyncConfig = {
   leadTagsFieldName: string | null;
   source: string | null;
   externalIdPrefix: string | null;
+  readiness?: ProviderReadiness | null;
 };
 
 type ResolvedLeadContext = {
@@ -173,6 +175,7 @@ export async function applyLeadFollowupWorkerToLeadRecord(args: {
       leadTagsFieldName: args.quoConfig.leadTagsFieldName,
       source: args.quoConfig.source,
       externalIdPrefix: args.quoConfig.externalIdPrefix,
+      readiness: args.quoConfig.readiness,
     },
   });
   if (quoSyncResult.error) {

@@ -2,6 +2,25 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createLeadFollowupWorkerHandler } from './handler.ts';
 import type { LeadFollowupWorkItem } from '../_lead-platform/domain/lead-followup-work.ts';
+import type { ProviderReadiness } from '../_lead-platform/services/providers/provider-contracts.ts';
+
+const SMS_PROVIDER_READY: ProviderReadiness = {
+  provider: 'quo',
+  capability: 'sms_delivery',
+  enabled: true,
+  ready: true,
+  issues: [],
+  message: 'QUO SMS provider is ready.',
+};
+
+const SMS_PROVIDER_DISABLED: ProviderReadiness = {
+  provider: 'quo',
+  capability: 'sms_delivery',
+  enabled: false,
+  ready: false,
+  issues: [{ code: 'provider_disabled', message: 'provider is disabled' }],
+  message: 'QUO SMS provider is disabled.',
+};
 
 function makeRecord(overrides: Partial<LeadFollowupWorkItem> = {}): LeadFollowupWorkItem {
   return {
@@ -57,7 +76,7 @@ test('lead-followup-worker sends SMS first and still sends the lead notification
 
   const handler = createLeadFollowupWorkerHandler({
     configValid: true,
-    smsAutomationEnabled: true,
+    smsProviderReadiness: SMS_PROVIDER_READY,
     nowEpochSeconds: () => 2_000,
     getFollowupWork: async () => current,
     acquireLease: async () => true,
@@ -106,7 +125,7 @@ test('lead-followup-worker skips customer outreach for manual-review leads', asy
 
   const handler = createLeadFollowupWorkerHandler({
     configValid: true,
-    smsAutomationEnabled: true,
+    smsProviderReadiness: SMS_PROVIDER_READY,
     nowEpochSeconds: () => 2_000,
     getFollowupWork: async () => current,
     acquireLease: async () => true,
@@ -154,7 +173,7 @@ test('lead-followup-worker stops before delivery when a workflow save loses its 
 
   const handler = createLeadFollowupWorkerHandler({
     configValid: true,
-    smsAutomationEnabled: true,
+    smsProviderReadiness: SMS_PROVIDER_READY,
     nowEpochSeconds: () => 2_100,
     getFollowupWork: async () => makeRecord(),
     acquireLease: async () => true,
@@ -206,7 +225,7 @@ test('lead-followup-worker records SMS delivery attempt before provider send', a
 
   const handler = createLeadFollowupWorkerHandler({
     configValid: true,
-    smsAutomationEnabled: true,
+    smsProviderReadiness: SMS_PROVIDER_READY,
     nowEpochSeconds: () => 2_100,
     getFollowupWork: async () => current,
     acquireLease: async () => true,
@@ -264,7 +283,7 @@ test('lead-followup-worker does not repeat a pending SMS delivery attempt', asyn
 
   const handler = createLeadFollowupWorkerHandler({
     configValid: true,
-    smsAutomationEnabled: true,
+    smsProviderReadiness: SMS_PROVIDER_READY,
     nowEpochSeconds: () => 2_200,
     getFollowupWork: async () =>
       makeRecord({
@@ -312,7 +331,7 @@ test('lead-followup-worker rejects missing idempotency keys before touching depe
   let touched = false;
   const handler = createLeadFollowupWorkerHandler({
     configValid: true,
-    smsAutomationEnabled: true,
+    smsProviderReadiness: SMS_PROVIDER_READY,
     nowEpochSeconds: () => 2_000,
     getFollowupWork: async () => {
       touched = true;
@@ -345,7 +364,7 @@ test('lead-followup-worker falls back to customer email when phone is missing', 
 
   const handler = createLeadFollowupWorkerHandler({
     configValid: true,
-    smsAutomationEnabled: true,
+    smsProviderReadiness: SMS_PROVIDER_READY,
     nowEpochSeconds: () => 3_000,
     getFollowupWork: async () => current,
     acquireLease: async () => true,
@@ -396,7 +415,7 @@ test('lead-followup-worker sends email first for inbound email leads and cleans 
 
   const handler = createLeadFollowupWorkerHandler({
     configValid: true,
-    smsAutomationEnabled: true,
+    smsProviderReadiness: SMS_PROVIDER_READY,
     nowEpochSeconds: () => 3_500,
     getFollowupWork: async () => current,
     acquireLease: async () => true,
@@ -448,7 +467,7 @@ test('lead-followup-worker preserves inbound email subject for generated email r
 
   const handler = createLeadFollowupWorkerHandler({
     configValid: true,
-    smsAutomationEnabled: true,
+    smsProviderReadiness: SMS_PROVIDER_READY,
     nowEpochSeconds: () => 3_600,
     getFollowupWork: async () => current,
     acquireLease: async () => true,
@@ -496,7 +515,7 @@ test('lead-followup-worker records SMS failure when no email fallback exists', a
 
   const handler = createLeadFollowupWorkerHandler({
     configValid: true,
-    smsAutomationEnabled: true,
+    smsProviderReadiness: SMS_PROVIDER_READY,
     nowEpochSeconds: () => 4_000,
     getFollowupWork: async () => current,
     acquireLease: async () => true,
@@ -532,7 +551,7 @@ test('lead-followup-worker records SMS failure when no email fallback exists', a
 test('lead-followup-worker skips duplicate sends when the follow-up work is already complete', async () => {
   const handler = createLeadFollowupWorkerHandler({
     configValid: true,
-    smsAutomationEnabled: true,
+    smsProviderReadiness: SMS_PROVIDER_READY,
     nowEpochSeconds: () => 5_000,
     getFollowupWork: async () => makeRecord({ status: 'completed' }),
     acquireLease: async () => true,
@@ -562,7 +581,7 @@ test('lead-followup-worker marks phone-only follow-up works for manual follow-up
 
   const handler = createLeadFollowupWorkerHandler({
     configValid: true,
-    smsAutomationEnabled: false,
+    smsProviderReadiness: SMS_PROVIDER_DISABLED,
     nowEpochSeconds: () => 6_000,
     getFollowupWork: async () => current,
     acquireLease: async () => true,

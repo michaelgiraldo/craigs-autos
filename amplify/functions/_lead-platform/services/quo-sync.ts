@@ -10,7 +10,8 @@ import {
   listQuoContactCustomFields,
   listQuoContacts,
   updateQuoContact,
-} from '../../_shared/quo-client.ts';
+} from './providers/quo/quo-client.ts';
+import type { ProviderReadiness } from './providers/provider-contracts.ts';
 import { mergeLeadContacts } from './contact-identity.ts';
 import { buildJourneyEvent } from './journey-events.ts';
 
@@ -87,6 +88,7 @@ export type QuoLeadSyncConfig = {
   source?: string | null;
   externalIdPrefix?: string | null;
   sourceUrl?: string | null;
+  readiness?: ProviderReadiness | null;
 };
 
 export type QuoLeadSyncResult = {
@@ -150,6 +152,9 @@ async function upsertQuoLeadContact(args: {
     typeof args.config.externalIdPrefix === 'string' && args.config.externalIdPrefix.trim()
       ? args.config.externalIdPrefix.trim()
       : '';
+  if (args.config.readiness && !args.config.readiness.ready) {
+    throw new Error(args.config.readiness.message);
+  }
   if (!source) throw new Error('QUO contact source is missing');
   if (!externalIdPrefix) throw new Error('QUO external id prefix is missing');
   const leadTagsFieldKey = await resolveLeadTagsFieldKey(args.config);

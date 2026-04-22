@@ -2,6 +2,7 @@ import type {
   LeadFollowupDrafts,
   LeadFollowupWorkItem,
 } from '../_lead-platform/domain/lead-followup-work.ts';
+import type { ProviderReadiness } from '../_lead-platform/services/providers/provider-contracts.ts';
 
 export type LeadFollowupWorkerEvent = {
   idempotency_key?: string | null;
@@ -26,7 +27,7 @@ export type LeasedLeadFollowupWorkItem = LeadFollowupWorkItem & {
 
 export type LeadFollowupWorkerDeps = {
   configValid: boolean;
-  smsAutomationEnabled: boolean;
+  smsProviderReadiness: ProviderReadiness;
   createLeaseId?: () => string;
   nowEpochSeconds: () => number;
   getFollowupWork: (idempotencyKey: string) => Promise<LeadFollowupWorkItem | null>;

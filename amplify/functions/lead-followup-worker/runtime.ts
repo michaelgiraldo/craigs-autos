@@ -11,7 +11,11 @@ import { createSesCustomerEmailSender } from './customer-email.ts';
 import { createLeadPhotoAttachmentLoader } from './lead-attachments.ts';
 import { createLeadFollowupWorkerLeadSync } from './lead-sync.ts';
 import { createSesLeadNotificationEmailSender } from './lead-notification-email.ts';
-import { createQuoSmsSender } from './quo-sms.ts';
+import {
+  createQuoDestinationSyncProvider,
+  createQuoMessagingProvider,
+  type QuoProviderConfig,
+} from '../_lead-platform/services/providers/quo/quo-provider.ts';
 import { createDynamoLeadFollowupWorkStore } from './followup-work-store.ts';
 import type { LeadFollowupWorkerDeps } from './types.ts';
 
@@ -53,7 +57,20 @@ export function createLeadFollowupWorkerRuntime(
     parsedEnv.success && parsedEnv.data.CHATKIT_OPENAI_API_KEY
       ? new OpenAI({ apiKey: parsedEnv.data.CHATKIT_OPENAI_API_KEY })
       : null;
-  const quoEnabled = parsedEnv.success && parsedEnv.data.QUO_ENABLED === 'true';
+  const quoConfig: QuoProviderConfig = {
+    apiKey: parsedEnv.success ? (parsedEnv.data.QUO_API_KEY ?? '') : '',
+    enabled: parsedEnv.success && parsedEnv.data.QUO_ENABLED === 'true',
+    fromPhoneNumberId: parsedEnv.success ? (parsedEnv.data.QUO_FROM_PHONE_NUMBER_ID ?? '') : '',
+    userId: parsedEnv.success ? (parsedEnv.data.QUO_USER_ID ?? null) : null,
+    contactSource: parsedEnv.success ? (parsedEnv.data.QUO_CONTACT_SOURCE ?? '') : null,
+    contactExternalIdPrefix: parsedEnv.success
+      ? (parsedEnv.data.QUO_CONTACT_EXTERNAL_ID_PREFIX ?? '')
+      : null,
+    leadTagsFieldKey: parsedEnv.success ? (parsedEnv.data.QUO_LEAD_TAGS_FIELD_KEY ?? '') : null,
+    leadTagsFieldName: parsedEnv.success ? (parsedEnv.data.QUO_LEAD_TAGS_FIELD_NAME ?? '') : null,
+  };
+  const quoMessagingProvider = createQuoMessagingProvider(quoConfig);
+  const quoDestinationSyncProvider = createQuoDestinationSyncProvider(quoConfig);
   const loadLeadPhotos = createLeadPhotoAttachmentLoader({ s3: runtimeS3 });
   const followupWorkStore = createDynamoLeadFollowupWorkStore({
     db: runtimeDb,
@@ -68,7 +85,7 @@ export function createLeadFollowupWorkerRuntime(
       Boolean(runtimeSes) &&
       leadPlatformRuntime.configValid,
     createLeaseId: () => randomUUID(),
-    smsAutomationEnabled: quoEnabled,
+    smsProviderReadiness: quoMessagingProvider.readiness,
     nowEpochSeconds: () => Math.floor(Date.now() / 1000),
     generateDrafts: async (record) =>
       generateLeadFollowupDrafts({
@@ -81,12 +98,7 @@ export function createLeadFollowupWorkerRuntime(
         shopPhoneDigits: parsedEnv.success ? parsedEnv.data.SHOP_PHONE_DIGITS : '',
         shopPhoneDisplay: parsedEnv.success ? parsedEnv.data.SHOP_PHONE_DISPLAY : '',
       }),
-    sendSms: createQuoSmsSender({
-      apiKey: parsedEnv.success ? (parsedEnv.data.QUO_API_KEY ?? '') : '',
-      enabled: quoEnabled,
-      fromPhoneNumberId: parsedEnv.success ? (parsedEnv.data.QUO_FROM_PHONE_NUMBER_ID ?? '') : '',
-      userId: parsedEnv.success ? (parsedEnv.data.QUO_USER_ID ?? null) : null,
-    }),
+    sendSms: quoMessagingProvider.sendText,
     sendCustomerEmail: createSesCustomerEmailSender({
       bccEmail: parsedEnv.success ? parsedEnv.data.QUOTE_CUSTOMER_BCC_EMAIL : '',
       emailIntakeFromEmail: parsedEnv.success ? parsedEnv.data.EMAIL_CUSTOMER_FROM_EMAIL : '',
@@ -100,7 +112,7 @@ export function createLeadFollowupWorkerRuntime(
     sendLeadNotificationEmail: createSesLeadNotificationEmailSender({
       fromEmail: parsedEnv.success ? parsedEnv.data.CONTACT_FROM_EMAIL : '',
       loadAttachments: loadLeadPhotos,
-      quoEnabled,
+      smsProviderReady: quoMessagingProvider.readiness.ready,
       ses: runtimeSes,
       toEmail: parsedEnv.success ? parsedEnv.data.CONTACT_TO_EMAIL : '',
     }),
@@ -141,6 +153,7 @@ export function createLeadFollowupWorkerRuntime(
         : null,
       leadTagsFieldKey: parsedEnv.success ? (parsedEnv.data.QUO_LEAD_TAGS_FIELD_KEY ?? '') : null,
       leadTagsFieldName: parsedEnv.success ? (parsedEnv.data.QUO_LEAD_TAGS_FIELD_NAME ?? '') : null,
+      readiness: quoDestinationSyncProvider.readiness,
       quoApiKey: parsedEnv.success ? (parsedEnv.data.QUO_API_KEY ?? '') : '',
       repos: leadPlatformRuntime.repos,
       source: parsedEnv.success ? (parsedEnv.data.QUO_CONTACT_SOURCE ?? '') : null,

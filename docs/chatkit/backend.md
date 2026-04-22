@@ -42,7 +42,7 @@ Related docs:
   - `amplify/functions/lead-followup-worker/workflow.ts`
   - `amplify/functions/lead-followup-worker/customer-email.ts`
   - `amplify/functions/lead-followup-worker/lead-notification-email.ts`
-  - `amplify/functions/lead-followup-worker/quo-sms.ts`
+  - `amplify/functions/_lead-platform/services/providers/quo/quo-provider.ts`
 
 - Message link resolver function:
   - `amplify/functions/lead-action-link-resolve/resource.ts`
@@ -166,13 +166,14 @@ Shared lead follow-up code:
 - Quote request HTTP response mapping lives in `amplify/functions/quote-request-submit/handler.ts`.
 - Quote request parsing, validation, submit orchestration, and AWS runtime wiring live in separate files under `amplify/functions/quote-request-submit/`.
 - The shared follow-up worker HTTP response mapping lives in `amplify/functions/lead-followup-worker/handler.ts`.
-- Follow-up orchestration, state transitions, DynamoDB storage, SES delivery, QUO SMS, lead sync, and AWS/OpenAI runtime wiring live in separate files under `amplify/functions/lead-followup-worker/`.
+- Follow-up orchestration, state transitions, DynamoDB storage, SES delivery, lead sync, and AWS/OpenAI runtime wiring live in separate files under `amplify/functions/lead-followup-worker/`.
+- QUO SMS delivery is exposed through provider contracts under `amplify/functions/_lead-platform/services/providers/`.
 - Public submit/intake/handoff handlers should reserve `LeadFollowupWork`; they should not send SES or QUO directly.
 
 Shared backend utilities:
 
 - Generic text/URL/email/phone helpers live in `amplify/functions/_shared/text-utils.ts`.
-- The QUO API client lives in `amplify/functions/_shared/quo-client.ts`.
+- The QUO API client and provider readiness live under `amplify/functions/_lead-platform/services/providers/quo/`.
 - Shared outreach draft assembly lives in `amplify/functions/_lead-platform/services/outreach-drafts.ts`.
 - Chat-specific transcript parsing and subject behavior stays under `amplify/functions/chat-handoff-promote/`.
 
@@ -380,7 +381,7 @@ Delivery code:
 - Customer follow-up template: `amplify/functions/lead-followup-worker/customer-followup-template.ts`
 - Lead notification email template: `amplify/functions/lead-followup-worker/lead-notification-template.ts`
 - Shared email rendering helpers: `amplify/functions/lead-followup-worker/email-rendering.ts`
-- QUO SMS: `amplify/functions/lead-followup-worker/quo-sms.ts`
+- QUO SMS provider: `amplify/functions/_lead-platform/services/providers/quo/quo-provider.ts`
 
 Delivery reliability:
 

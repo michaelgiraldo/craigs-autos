@@ -1,6 +1,7 @@
 import type { LeadFollowupWorkItem } from '../_lead-platform/domain/lead-followup-work.ts';
 import type { LeadPlatformRepos } from '../_lead-platform/repos/dynamo.ts';
 import { applyLeadFollowupWorkerToLeadRecord } from '../_lead-platform/services/followup-work.ts';
+import type { ProviderReadiness } from '../_lead-platform/services/providers/provider-contracts.ts';
 import type { LeadFollowupWorkerDeps } from './types.ts';
 
 export function createLeadFollowupWorkerLeadSync(args: {
@@ -8,6 +9,7 @@ export function createLeadFollowupWorkerLeadSync(args: {
   leadTagsFieldKey: string | null;
   leadTagsFieldName: string | null;
   quoApiKey: string;
+  readiness: ProviderReadiness;
   repos: LeadPlatformRepos | null;
   source: string | null;
 }): LeadFollowupWorkerDeps['syncLeadRecord'] {
@@ -22,6 +24,7 @@ export function createLeadFollowupWorkerLeadSync(args: {
         leadTagsFieldName: args.leadTagsFieldName,
         source: args.source,
         externalIdPrefix: args.externalIdPrefix,
+        readiness: args.readiness,
       },
     });
   };

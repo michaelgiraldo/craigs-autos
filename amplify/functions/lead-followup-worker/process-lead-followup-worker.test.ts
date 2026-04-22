@@ -1,8 +1,18 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import type { LeadFollowupWorkItem } from '../_lead-platform/domain/lead-followup-work.ts';
+import type { ProviderReadiness } from '../_lead-platform/services/providers/provider-contracts.ts';
 import { processLeadFollowupWorker } from './process-lead-followup-worker.ts';
 import type { LeadFollowupWorkerDeps } from './types.ts';
+
+const SMS_PROVIDER_READY: ProviderReadiness = {
+  provider: 'quo',
+  capability: 'sms_delivery',
+  enabled: true,
+  ready: true,
+  issues: [],
+  message: 'QUO SMS provider is ready.',
+};
 
 function makeRecord(overrides: Partial<LeadFollowupWorkItem> = {}): LeadFollowupWorkItem {
   return {
@@ -55,7 +65,7 @@ function makeRecord(overrides: Partial<LeadFollowupWorkItem> = {}): LeadFollowup
 function makeDeps(overrides: Partial<LeadFollowupWorkerDeps> = {}): LeadFollowupWorkerDeps {
   return {
     configValid: true,
-    smsAutomationEnabled: true,
+    smsProviderReadiness: SMS_PROVIDER_READY,
     createLeaseId: () => 'lease-1',
     nowEpochSeconds: () => 2_000,
     getFollowupWork: async () => makeRecord(),

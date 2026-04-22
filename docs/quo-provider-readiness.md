@@ -1,0 +1,50 @@
+# QUO Provider Readiness
+
+QUO is a first-class lead-platform provider capability, not a top-level lead
+concept. SMS is the customer response channel; QUO is Craig's current SMS
+provider and contact-sync destination.
+
+## Stage 1: launch-ready provider layer
+
+- Provider contracts live under `amplify/functions/_lead-platform/services/providers/`.
+- QUO implementation lives under `amplify/functions/_lead-platform/services/providers/quo/`.
+- `lead-followup-worker` still orchestrates the first response, but depends on
+  provider readiness and `MessagingProvider` behavior instead of worker-local
+  QUO helper code.
+- QUO remains disabled by default until the production sender and carrier
+  registration are verified.
+
+Required launch configuration:
+
+| Key | Purpose |
+| --- | --- |
+| `QUO_ENABLED` | Must be `true` only after live readiness is verified. |
+| `QUO_API_KEY` | Amplify secret used by the worker for QUO API calls. |
+| `QUO_FROM_PHONE_NUMBER_ID` | QUO sender id, expected to start with `PN`. |
+| `QUO_USER_ID` | Optional QUO user id, expected to start with `US` when present. |
+| `QUO_CONTACT_SOURCE` | Stable external contact source name. |
+| `QUO_CONTACT_EXTERNAL_ID_PREFIX` | Stable prefix for QUO external ids. |
+| `QUO_LEAD_TAGS_FIELD_KEY` / `QUO_LEAD_TAGS_FIELD_NAME` | Contact custom field used for lead tags. |
+
+Runtime rules:
+
+- SMS recipients must be explicit E.164 numbers or normal 10/11 digit US
+  phone numbers that can be normalized safely.
+- SMS content must be nonempty and 1,600 characters or fewer.
+- If QUO is disabled or not ready, form/chat leads fall back to customer email
+  when available or manual follow-up when phone-only.
+- Email intake remains email-first and does not attempt SMS.
+- QUO contact sync only runs after a successful QUO SMS outreach result.
+
+## Stage 2: durable provider outboxes
+
+After the live QUO path is proven stable, split provider side effects out of the
+follow-up worker:
+
+- `LeadDeliveryAttempts`: durable customer-message attempts by provider/channel.
+- `LeadProviderSyncAttempts`: durable provider sync attempts such as QUO contact
+  updates.
+- `lead-message-delivery-worker`: leases and sends message attempts.
+- `lead-provider-sync-worker`: leases and runs destination sync attempts.
+
+Do not add these tables or workers during the launch-hardening stage.

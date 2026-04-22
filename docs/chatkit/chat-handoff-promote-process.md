@@ -58,7 +58,7 @@ returning `status = "accepted"`. If the work item is `error`, it returns
 - Shared follow-up policy/workflow: `amplify/functions/lead-followup-worker/workflow.ts`
 - Customer email: `amplify/functions/lead-followup-worker/customer-email.ts`
 - Lead notification: `amplify/functions/lead-followup-worker/lead-notification-email.ts` and `lead-notification-template.ts`
-- QUO SMS: `amplify/functions/lead-followup-worker/quo-sms.ts`
+- QUO SMS provider: `amplify/functions/_lead-platform/services/providers/quo/quo-provider.ts`
 
 Do not add SES or QUO delivery back to `chat-handoff-promote`; that Lambda is an
 intake adapter, not a delivery worker.

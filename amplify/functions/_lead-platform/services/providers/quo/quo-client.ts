@@ -1,17 +1,11 @@
+import { isQuoPhoneNumberId, isQuoUserId } from './quo-identifiers.ts';
+
 function truncate(value: string, maxChars = 500): string {
   if (value.length <= maxChars) return value;
   return `${value.slice(0, maxChars)}...`;
 }
 
 const QUO_API_BASE_URL = 'https://api.openphone.com/v1';
-
-function isQuoPhoneNumberId(value: string): boolean {
-  return /^PN[\w-]+$/.test(value);
-}
-
-function isQuoUserId(value: string): boolean {
-  return /^US[\w-]+$/.test(value);
-}
 
 function safeJsonParse(text: string): unknown {
   if (!text) return null;
@@ -218,7 +212,7 @@ export async function listQuoContacts(args: {
     Number.isFinite(args.maxResults) &&
     args.maxResults > 0
   ) {
-    url.searchParams.set('maxResults', String(Math.min(Math.floor(args.maxResults), 100)));
+    url.searchParams.set('maxResults', String(Math.min(Math.floor(args.maxResults), 50)));
   }
 
   const response = await fetch(url.toString(), {

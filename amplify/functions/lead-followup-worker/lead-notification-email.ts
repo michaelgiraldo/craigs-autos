@@ -12,7 +12,7 @@ export function createSesLeadNotificationEmailSender(args: {
   loadAttachments?: (
     record: Parameters<LeadFollowupWorkerDeps['sendLeadNotificationEmail']>[0]['record'],
   ) => Promise<OutgoingEmailAttachment[]>;
-  quoEnabled: boolean;
+  smsProviderReady: boolean;
   ses: SESv2Client | null;
   toEmail: string;
 }): LeadFollowupWorkerDeps['sendLeadNotificationEmail'] {
@@ -22,7 +22,10 @@ export function createSesLeadNotificationEmailSender(args: {
     }
 
     const attachments = args.loadAttachments ? await args.loadAttachments(record) : [];
-    const resultLabel = buildLeadNotificationResultLabel(record.outreach_result, args.quoEnabled);
+    const resultLabel = buildLeadNotificationResultLabel(
+      record.outreach_result,
+      args.smsProviderReady,
+    );
     const message = buildLeadNotificationEmailContent({
       attachedPhotoCount: attachments.length,
       record,

@@ -3,7 +3,26 @@ import test from 'node:test';
 import { createQuoteRequestSubmitHandler } from '../quote-request-submit/handler.ts';
 import type { LeadFollowupWorkItem } from '../_lead-platform/domain/lead-followup-work.ts';
 import type { LeadPlatformRepos } from '../_lead-platform/repos/dynamo.ts';
+import type { ProviderReadiness } from '../_lead-platform/services/providers/provider-contracts.ts';
 import { createLeadFollowupWorkerHandler } from './handler.ts';
+
+const SMS_PROVIDER_READY: ProviderReadiness = {
+  provider: 'quo',
+  capability: 'sms_delivery',
+  enabled: true,
+  ready: true,
+  issues: [],
+  message: 'QUO SMS provider is ready.',
+};
+
+const SMS_PROVIDER_DISABLED: ProviderReadiness = {
+  provider: 'quo',
+  capability: 'sms_delivery',
+  enabled: false,
+  ready: false,
+  issues: [{ code: 'provider_disabled', message: 'provider is disabled' }],
+  message: 'QUO SMS provider is disabled.',
+};
 
 function makeStore() {
   return new Map<string, LeadFollowupWorkItem>();
@@ -36,7 +55,7 @@ test('async quote flow sends SMS first and sends the lead notification end-to-en
 
   const leadFollowupWorker = createLeadFollowupWorkerHandler({
     configValid: true,
-    smsAutomationEnabled: true,
+    smsProviderReadiness: SMS_PROVIDER_READY,
     nowEpochSeconds: () => 2_000,
     getFollowupWork: async (idempotencyKey) => quoteRequests.get(idempotencyKey) ?? null,
     acquireLease: async () => true,
@@ -114,7 +133,7 @@ test('async quote flow falls back to email when the stored follow-up work has no
 
   const leadFollowupWorker = createLeadFollowupWorkerHandler({
     configValid: true,
-    smsAutomationEnabled: true,
+    smsProviderReadiness: SMS_PROVIDER_READY,
     nowEpochSeconds: () => 2_000,
     getFollowupWork: async (idempotencyKey) => quoteRequests.get(idempotencyKey) ?? null,
     acquireLease: async () => true,
@@ -240,7 +259,7 @@ test('async quote flow marks phone-only follow-up works for manual follow-up whe
 
   const leadFollowupWorker = createLeadFollowupWorkerHandler({
     configValid: true,
-    smsAutomationEnabled: false,
+    smsProviderReadiness: SMS_PROVIDER_DISABLED,
     nowEpochSeconds: () => 2_500,
     getFollowupWork: async (idempotencyKey) => quoteRequests.get(idempotencyKey) ?? null,
     acquireLease: async () => true,

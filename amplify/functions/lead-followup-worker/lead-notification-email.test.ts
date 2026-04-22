@@ -82,7 +82,7 @@ test('internal lead notifications use the internal lead inbox identity', async (
   const sent: SendEmailCommandInput[] = [];
   const sendLeadNotificationEmail = createSesLeadNotificationEmailSender({
     fromEmail: INTERNAL_LEAD_INBOX_EMAIL,
-    quoEnabled: false,
+    smsProviderReady: false,
     ses: createFakeSes(sent),
     toEmail: INTERNAL_LEAD_INBOX_EMAIL,
   });
@@ -105,7 +105,7 @@ test('internal lead notifications with attachments keep the internal lead inbox 
         filename: 'seat.jpg',
       },
     ],
-    quoEnabled: false,
+    smsProviderReady: false,
     ses: createFakeSes(sent),
     toEmail: INTERNAL_LEAD_INBOX_EMAIL,
   });
