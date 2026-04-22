@@ -39,6 +39,7 @@ ChatKit docs are split for fast navigation:
 - `docs/chatkit/agent-builder.md` (Agent Builder playbook + common mistakes)
 - `docs/chatkit/runbook.md` (production debugging / triage)
 - `docs/email-intake.md` (Google Workspace routing + SES inbound email lead intake)
+- `docs/email-intake-google-group-routing.md` (Google Group header behavior for contact intake)
 
 Compatibility pointer:
 

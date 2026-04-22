@@ -200,6 +200,61 @@ test('email intake rejects existing email threads before OpenAI and deletes raw 
   });
 });
 
+test('email intake accepts the trusted contact Google Group route without X-Gm-Original-To', async () => {
+  const persistedInputs: PersistEmailLeadInput[] = [];
+  const queuedRecords: LeadFollowupWorkItem[] = [];
+  let invokedIdempotencyKey = '';
+  let deleted = false;
+
+  const deps = makeDeps({
+    deleteRawEmail: async () => {
+      deleted = true;
+    },
+    getRawEmail: async () =>
+      rawEmail(
+        {
+          From: 'Customer Example <customer@example.com>',
+          To: 'contact@craigs.autos',
+          Subject: 'Seat repair',
+          'Message-ID': '<message-group-route@example.com>',
+          'X-Craigs-Google-Route': 'contact-public-intake',
+          Sender: 'contact@craigs.autos',
+          'Return-Path': '<contact+bnc-test@craigs.autos>',
+          Precedence: 'list',
+          'Mailing-list': 'list contact@craigs.autos; contact contact+owners@craigs.autos',
+          'List-ID': '<contact.craigs.autos>',
+          'X-Original-Sender': 'customer@example.com',
+        },
+        'Can you fix the driver seat in my Toyota Camry?',
+      ),
+    invokeFollowup: async (idempotencyKey) => {
+      invokedIdempotencyKey = idempotencyKey;
+    },
+    persistEmailLead: async (input) => {
+      persistedInputs.push(input);
+      return {
+        contactId: 'contact-1',
+        journeyId: 'journey-1',
+        leadRecordId: 'lead-1',
+      };
+    },
+    repos: makeRepos(queuedRecords),
+  });
+
+  const result = await processEmailIntakeEvent(
+    s3Event({ bucket: 'email-bucket', key: 'raw/group-route' }),
+    deps,
+  );
+
+  assert.equal(result.ok, true);
+  assert.equal(deleted, false);
+  assert.equal(invokedIdempotencyKey.startsWith('email:'), true);
+  assert.equal(persistedInputs[0]?.customerEmail, 'customer@example.com');
+  assert.equal(queuedRecords[0]?.capture_channel, 'email');
+  assert.equal(queuedRecords[0]?.inbound_route_status, 'google_workspace_contact_group_route');
+  assert.equal(queuedRecords[1]?.lead_record_id, 'lead-1');
+});
+
 test('email intake rejects missing Google route header before OpenAI', async () => {
   let evaluated = false;
   let deleted = false;
@@ -240,7 +295,7 @@ test('email intake rejects missing Google route header before OpenAI', async () 
   });
 });
 
-test('email intake rejects missing original recipient header before OpenAI', async () => {
+test('email intake rejects missing original recipient header when the contact group route is absent', async () => {
   let evaluated = false;
   let deleted = false;
 
@@ -277,5 +332,49 @@ test('email intake rejects missing original recipient header before OpenAI', asy
     key: 'raw/4',
     rejected: true,
     reason: 'missing_expected_google_route',
+  });
+});
+
+test('email intake still rejects unrelated mailing list mail before OpenAI', async () => {
+  let evaluated = false;
+  let deleted = false;
+
+  const deps = makeDeps({
+    deleteRawEmail: async () => {
+      deleted = true;
+    },
+    evaluateLead: async () => {
+      evaluated = true;
+      throw new Error('should not evaluate unrelated lists');
+    },
+    getRawEmail: async () =>
+      rawEmail(
+        {
+          From: 'Newsletter <newsletter@example.com>',
+          To: 'contact-intake@email-intake.craigs.autos',
+          Subject: 'Vendor newsletter',
+          'Message-ID': '<message-list@example.com>',
+          'X-Craigs-Google-Route': 'contact-public-intake',
+          'X-Gm-Original-To': 'contact@craigs.autos',
+          Precedence: 'list',
+          'Mailing-list': 'list vendors@example.com',
+          'List-ID': '<vendors.example.com>',
+        },
+        'A vendor newsletter.',
+      ),
+  });
+
+  const result = await processEmailIntakeEvent(
+    s3Event({ bucket: 'email-bucket', key: 'raw/list' }),
+    deps,
+  );
+
+  assert.equal(result.ok, true);
+  assert.equal(evaluated, false);
+  assert.equal(deleted, true);
+  assert.deepEqual(result.results[0], {
+    key: 'raw/list',
+    rejected: true,
+    reason: 'bulk_or_list',
   });
 });
