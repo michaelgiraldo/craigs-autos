@@ -1,0 +1,123 @@
+.table-wrap {
+	margin-top: 1rem;
+	border-radius: var(--radius-lg);
+	overflow: auto;
+	box-shadow: var(--shadow-sm);
+	border: 1px solid rgba(17, 24, 39, 0.12);
+	background: var(--color-surface);
+}
+
+.review-embed-grid {
+	margin-top: 1.1rem;
+	display: grid;
+	gap: 1rem;
+}
+
+@media (min-width: 860px) {
+	.review-embed-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		align-items: start;
+	}
+}
+
+.review-embed {
+	border-radius: var(--radius-lg);
+	overflow: hidden;
+}
+
+.review-embed :where(iframe) {
+	max-width: 100%;
+}
+
+.map-embed {
+	margin-top: 1rem;
+	border-radius: var(--radius-lg);
+	overflow: hidden;
+	border: 1px solid rgba(17, 24, 39, 0.12);
+	background: var(--color-surface);
+	box-shadow: var(--shadow-sm);
+}
+
+.map-embed iframe {
+	display: block;
+	width: 100%;
+	height: 360px;
+	border: 0;
+}
+
+@media (min-width: 860px) {
+	.map-embed iframe {
+		height: 420px;
+	}
+}
+
+.page :where(table) {
+	width: 100%;
+	border-collapse: collapse;
+	min-width: 42rem;
+}
+
+.page :where(th, td) {
+	padding: 0.85rem 0.95rem;
+	vertical-align: top;
+	border-top: 1px solid rgba(17, 24, 39, 0.12);
+}
+
+.page :where(th) {
+	text-align: left;
+	background: rgba(17, 24, 39, 0.05);
+	color: var(--color-ink);
+	font-weight: 900;
+	letter-spacing: -0.01em;
+}
+
+.page :where(tr:first-child th, tr:first-child td) {
+	border-top: 0;
+}
+
+.page :where(tr:nth-child(even) td) {
+	background: rgba(250, 247, 242, 0.7);
+}
+
+.faq {
+	margin: 2.75rem 0;
+}
+
+.faq__list {
+	display: grid;
+	gap: 0.65rem;
+	margin-top: 0.9rem;
+}
+
+.faq__item {
+	border-radius: var(--radius-lg);
+	border: 1px solid rgba(17, 24, 39, 0.12);
+	background: rgba(255, 255, 255, 0.82);
+	box-shadow: var(--shadow-sm);
+	overflow: clip;
+}
+
+.faq__question {
+	cursor: pointer;
+	padding: 0.9rem 1rem;
+	font-weight: 900;
+	color: var(--color-ink);
+	letter-spacing: -0.02em;
+}
+
+.faq__question:hover {
+	background: rgba(180, 83, 9, 0.06);
+}
+
+.faq__answer {
+	padding: 0 1rem 1rem;
+	color: var(--color-text);
+}
+
+.faq__answer p {
+	margin: 0.5rem 0 0;
+}
+
+.faq__item[open] .faq__question {
+	background: rgba(180, 83, 9, 0.09);
+}

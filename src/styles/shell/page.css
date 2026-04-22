@@ -1,0 +1,24 @@
+.page {
+	display: grid;
+	grid-template-columns:
+		[full-start] minmax(var(--gutter-left), 1fr)
+		[content-start] minmax(0, var(--content-max))
+		[content-end] minmax(var(--gutter-right), 1fr)
+		[full-end];
+	padding-bottom: 5.25rem;
+}
+
+html[dir='rtl'] .page {
+	text-align: right;
+}
+
+@media (min-width: 900px) {
+	.page {
+		padding-bottom: 2.5rem;
+	}
+}
+
+.page > * {
+	grid-column: content;
+	min-width: 0;
+}

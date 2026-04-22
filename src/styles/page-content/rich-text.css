@@ -1,0 +1,98 @@
+.page > :where(h2, h3, h4, h5, h6) {
+	color: var(--color-ink);
+	line-height: 1.25;
+	letter-spacing: -0.02em;
+}
+
+.page > :where(h2) {
+	margin: 2.6rem 0 0.75rem;
+	font-size: clamp(1.45rem, 1.8vw, 1.85rem);
+}
+
+.page > :where(h3) {
+	margin: 1.75rem 0 0.55rem;
+	font-size: 1.12rem;
+}
+
+.page > :where(p) {
+	margin: 0.95rem 0 0;
+}
+
+.page > :where(ul, ol) {
+	margin: 0.95rem 0 0;
+	padding-left: 1.25rem;
+}
+
+.page > :where(ul, ol) > :where(li) {
+	margin: 0.35rem 0 0;
+}
+
+.page :where(strong) {
+	color: var(--color-ink);
+}
+
+.page > :where(hr) {
+	border: 0;
+	border-top: 1px solid rgba(17, 24, 39, 0.12);
+	margin: 2rem 0;
+}
+
+.contact-link__value {
+	direction: ltr;
+	unicode-bidi: isolate;
+	white-space: nowrap;
+}
+
+.contact-methods {
+	display: inline-flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 0.15rem 0.45rem;
+}
+
+.contact-methods--stack {
+	display: grid;
+	gap: 0.25rem;
+}
+
+.contact-methods--stack .contact-methods__separator {
+	display: none;
+}
+
+.toc {
+	margin: 1.25rem 0 0;
+	padding: 1rem 1rem 1.05rem;
+	border-radius: var(--radius-lg);
+	border: 1px solid rgba(17, 24, 39, 0.12);
+	background: var(--color-surface);
+	box-shadow: var(--shadow-sm);
+}
+
+.details-card .toc {
+	margin: 0.85rem 0 0;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	box-shadow: none;
+}
+
+.toc :where(ul, ol) {
+	margin: 0;
+	padding-left: 1.25rem;
+}
+
+.toc :where(li) {
+	margin: 0.35rem 0 0;
+	break-inside: avoid;
+}
+
+.toc :where(ul ul, ul ol, ol ul, ol ol) {
+	margin-top: 0.35rem;
+}
+
+@media (min-width: 860px) {
+	.toc > :where(ul, ol) {
+		columns: 2;
+		column-gap: 2rem;
+	}
+}

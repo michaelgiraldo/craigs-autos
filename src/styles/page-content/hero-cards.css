@@ -1,0 +1,117 @@
+.hero {
+	padding: 2.25rem 0 1.25rem;
+	background:
+		radial-gradient(900px 260px at 20% 10%, rgba(180, 83, 9, 0.14), transparent 60%),
+		radial-gradient(900px 260px at 80% 0%, rgba(17, 17, 17, 0.06), transparent 55%);
+	border-bottom: 1px solid rgba(17, 24, 39, 0.08);
+}
+
+.hero__inner {
+	display: grid;
+	gap: 0.9rem;
+}
+
+.hero__kicker {
+	margin: 0;
+	color: var(--color-muted);
+	font-weight: 700;
+	letter-spacing: -0.01em;
+}
+
+.hero h1 {
+	margin: 0;
+	color: var(--color-ink);
+	font-size: clamp(2rem, 3vw, 2.85rem);
+	line-height: 1.12;
+	letter-spacing: -0.03em;
+}
+
+.hero__lead {
+	margin: 0;
+	font-size: clamp(1.05rem, 1.25vw, 1.2rem);
+	color: var(--color-text);
+	max-width: 52rem;
+}
+
+.hero__cta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75rem;
+}
+
+.hero__helper {
+	margin: -0.15rem 0 0;
+	color: var(--color-muted);
+	font-weight: 650;
+	font-size: 0.95rem;
+	max-width: 46rem;
+}
+
+.hero__meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.65rem 0.9rem;
+	color: var(--color-muted);
+	font-weight: 600;
+	font-size: 0.95rem;
+}
+
+.service-cards {
+	padding: 1.25rem 0 0.25rem;
+}
+
+.service-cards__grid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 0.9rem;
+}
+
+@media (min-width: 620px) {
+	.service-cards__grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+@media (min-width: 980px) {
+	.service-cards__grid {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+}
+
+.card {
+	display: block;
+	padding: 1rem 1rem 1.05rem;
+	border-radius: var(--radius-lg);
+	border: 1px solid rgba(17, 24, 39, 0.12);
+	background: var(--color-surface);
+	box-shadow: var(--shadow-sm);
+	text-decoration: none;
+	color: inherit;
+	transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+}
+
+.card:hover {
+	border-color: rgba(180, 83, 9, 0.35);
+	box-shadow: var(--shadow-md);
+	transform: translateY(-1px);
+}
+
+.card[aria-current="page"] {
+	border-color: rgba(180, 83, 9, 0.6);
+	box-shadow: 0 0 0 3px rgba(180, 83, 9, 0.18);
+}
+
+.card__title {
+	margin: 0;
+	color: var(--color-ink);
+	font-weight: 900;
+	letter-spacing: -0.02em;
+}
+
+.card__desc {
+	margin: 0.35rem 0 0;
+	color: var(--color-muted);
+	font-weight: 600;
+	font-size: 0.96rem;
+	line-height: 1.45;
+}
