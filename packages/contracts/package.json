@@ -8,6 +8,10 @@
       "types": "./src/public-api-contract.d.ts",
       "default": "./src/public-api-contract.js"
     },
+    "./lead-attachment-contract": {
+      "types": "./src/lead-attachment-contract.d.ts",
+      "default": "./src/lead-attachment-contract.js"
+    },
     "./lead-event-contract": {
       "types": "./src/lead-event-contract.d.ts",
       "default": "./src/lead-event-contract.js"

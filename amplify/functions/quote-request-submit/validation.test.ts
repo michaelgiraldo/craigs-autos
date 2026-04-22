@@ -8,6 +8,7 @@ function makeRequest(
 ): QuoteRequestSubmitRequest {
   return {
     attribution: null,
+    attachments: [],
     clientEventId: 'form-event-1',
     company: '',
     effectivePageUrl: 'https://craigs.autos/en/request-a-quote',
@@ -21,6 +22,7 @@ function makeRequest(
     pageUrl: 'https://craigs.autos/en/request-a-quote',
     phone: '(408) 555-0101',
     service: 'seat-repair',
+    unsupportedAttachmentCount: 0,
     userId: 'anon-user',
     vehicle: '1969 Camaro',
     ...overrides,

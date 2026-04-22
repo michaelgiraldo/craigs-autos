@@ -1,6 +1,9 @@
 import type { ChangeEvent, RefObject } from 'react';
+import { LEAD_PHOTO_CONTENT_TYPES } from '@craigs/contracts/lead-attachment-contract';
 import type { QuoteFormCopy } from '../../content/form';
 import type { QuotePhotoDraft, QuoteRequestFormData, QuoteSubmitState } from './types';
+
+const PHOTO_INPUT_ACCEPT = LEAD_PHOTO_CONTENT_TYPES.join(',');
 
 type QuoteRequestFormFieldsProps = {
   copy: QuoteFormCopy;
@@ -115,7 +118,7 @@ export function QuoteRequestFormFields({
       <div className="quote-request-form-field quote-request-form-field--full quote-photo-tray">
         <span>{copy.photosLabel}</span>
         <input
-          accept="image/jpeg,image/png,image/webp"
+          accept={PHOTO_INPUT_ACCEPT}
           className="quote-photo-tray__input"
           multiple
           name="photos"

@@ -1,3 +1,8 @@
+import {
+  LEAD_PHOTO_ACCEPT_EXTENSIONS,
+  LEAD_PHOTO_LIMITS,
+} from '@craigs/contracts/lead-attachment-contract';
+
 export const DEFAULT_CHATKIT_RUNTIME_URLS = [
   // The ChatKit React bindings wrap the <openai-chatkit> web component, but do not ship its runtime.
   // Load the official runtime from the ChatKit docs.
@@ -50,13 +55,6 @@ export const FIRST_MESSAGE_SENT_KEY_PREFIX = 'chatkit-first-message-sent:';
 // a lead summary. Shorter windows can generate incomplete leads too early.
 export const LEAD_QUIET_SEND_MS = 300_000;
 
-// Allow up to 12 MB per attachment in the composer.
-export const CHATKIT_MAX_ATTACHMENT_BYTES = 12 * 1024 * 1024;
-export const CHATKIT_MAX_ATTACHMENTS = 7;
-export const CHATKIT_ATTACHMENT_ACCEPT = {
-  'image/jpeg': ['.jpg', '.jpeg'],
-  'image/png': ['.png'],
-  'image/webp': ['.webp'],
-  'image/heic': ['.heic'],
-  'image/heif': ['.heif'],
-};
+export const CHATKIT_MAX_ATTACHMENT_BYTES = LEAD_PHOTO_LIMITS.maxBytesPerPhoto;
+export const CHATKIT_MAX_ATTACHMENTS = LEAD_PHOTO_LIMITS.maxCount;
+export const CHATKIT_ATTACHMENT_ACCEPT = LEAD_PHOTO_ACCEPT_EXTENSIONS;

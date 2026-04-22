@@ -132,3 +132,41 @@ test('processLeadFollowupWorker syncs the mutated completed record after workflo
   assert.equal(syncedRecord.sms_status, 'sent');
   assert.equal(syncedRecord.owner_email_status, 'sent');
 });
+
+test('processLeadFollowupWorker cleans transient lead attachments after completion', async () => {
+  let cleanupRecord: LeadFollowupWorkItem | null = null;
+  const result = await processLeadFollowupWorker({
+    deps: makeDeps({
+      getFollowupWork: async () =>
+        makeRecord({
+          attachments: [
+            {
+              attachment_id: 'photo-1',
+              source: 'form',
+              filename: 'seat.jpg',
+              content_type: 'image/jpeg',
+              byte_size: 128,
+              disposition: 'customer_photo',
+              status: 'supported',
+              storage: {
+                kind: 's3',
+                bucket: 'lead-attachments',
+                key: 'form/client-event/photo-1/seat.jpg',
+              },
+            },
+          ],
+          attachment_count: 1,
+          photo_attachment_count: 1,
+        }),
+      cleanupLeadAttachments: async (record) => {
+        cleanupRecord = { ...record };
+      },
+    }),
+    idempotencyKey: 'form:followup-work-1',
+  });
+
+  assert.equal(result.statusCode, 200);
+  assert.ok(cleanupRecord);
+  assert.equal((cleanupRecord as LeadFollowupWorkItem).status, 'completed');
+  assert.equal((cleanupRecord as LeadFollowupWorkItem).attachments?.[0]?.storage.kind, 's3');
+});

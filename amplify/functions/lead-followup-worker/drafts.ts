@@ -5,6 +5,7 @@ import type {
   LeadFollowupWorkItem,
 } from '../_lead-platform/domain/lead-followup-work.ts';
 import { buildOutreachDrafts } from '../_lead-platform/services/outreach-drafts.ts';
+import type { LoadedLeadPhotoAttachment } from './lead-attachments.ts';
 
 type LeadFollowupDraftGenerationResult = {
   aiError: string;
@@ -77,6 +78,7 @@ function sanitizeDraftOutput(input: unknown): LeadFollowupDrafts | null {
 export async function generateLeadFollowupDrafts(args: {
   openai: OpenAI | null;
   model: string;
+  photos?: LoadedLeadPhotoAttachment[];
   record: LeadFollowupWorkItem;
   shopAddress: string;
   shopName: string;
@@ -96,6 +98,16 @@ export async function generateLeadFollowupDrafts(args: {
   }
 
   try {
+    const textInput = [
+      `Name: ${args.record.name || 'unknown'}`,
+      `Email: ${args.record.email || 'not provided'}`,
+      `Phone: ${args.record.phone || 'not provided'}`,
+      `Vehicle: ${args.record.vehicle || 'not provided'}`,
+      `Service: ${args.record.service || 'not provided'}`,
+      `Message: ${args.record.message || 'not provided'}`,
+      `Photo attachments accepted: ${args.photos?.length ?? 0}`,
+      `Unsupported attachments ignored: ${args.record.unsupported_attachment_count ?? 0}`,
+    ].join('\n');
     const response = await args.openai.responses.parse({
       model,
       instructions: [
@@ -105,6 +117,7 @@ export async function generateLeadFollowupDrafts(args: {
         'Rules:',
         'Acknowledge the customer by name when available.',
         'Reference the submitted vehicle, requested service, or message when available.',
+        'Use attached customer photos only to understand visible project details. Do not invent details that are not visible or stated.',
         'Ask for 2-4 photos when helpful.',
         'Ask for any missing details needed to move the request forward.',
         'Do not include the shop name, phone number, address, or signature; the system appends the canonical business signature.',
@@ -114,14 +127,24 @@ export async function generateLeadFollowupDrafts(args: {
         'Keep email_body polite, clear, and slightly fuller than the SMS.',
         'missing_info should contain short labels for important gaps only.',
       ].join('\n'),
-      input: [
-        `Name: ${args.record.name || 'unknown'}`,
-        `Email: ${args.record.email || 'not provided'}`,
-        `Phone: ${args.record.phone || 'not provided'}`,
-        `Vehicle: ${args.record.vehicle || 'not provided'}`,
-        `Service: ${args.record.service || 'not provided'}`,
-        `Message: ${args.record.message || 'not provided'}`,
-      ].join('\n'),
+      input: args.photos?.length
+        ? [
+            {
+              role: 'user',
+              content: [
+                {
+                  type: 'input_text',
+                  text: textInput,
+                },
+                ...args.photos.map((photo) => ({
+                  type: 'input_image' as const,
+                  detail: 'low' as const,
+                  image_url: photo.dataUrl,
+                })),
+              ],
+            },
+          ]
+        : textInput,
       text: {
         format: {
           type: 'json_schema',

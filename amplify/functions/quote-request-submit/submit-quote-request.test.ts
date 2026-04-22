@@ -11,6 +11,7 @@ function makeRequest(
   overrides: Partial<QuoteRequestSubmitRequest> = {},
 ): QuoteRequestSubmitRequest {
   return {
+    attachments: [],
     attribution: null,
     clientEventId: 'client-event-1',
     company: '',
@@ -25,6 +26,7 @@ function makeRequest(
     pageUrl: 'https://craigs.autos/en/request-a-quote',
     phone: '(408) 555-0101',
     service: 'seat-repair',
+    unsupportedAttachmentCount: 0,
     userId: 'anon-user',
     vehicle: '1969 Camaro',
     ...overrides,
@@ -147,4 +149,65 @@ test('submitQuoteRequest marks queued follow-up work as error when follow-up dis
   assert.equal(writes[0]?.status, 'queued');
   assert.equal(writes[2]?.status, 'error');
   assert.equal(writes[2]?.followup_work_id, expectedFollowupWorkId);
+});
+
+test('submitQuoteRequest stores resolved form attachment manifests', async () => {
+  const writes: LeadFollowupWorkItem[] = [];
+  const persistedInputs: QuoteRequestLeadIntake[] = [];
+
+  const result = await submitQuoteRequest(
+    makeRequest({
+      attachments: [
+        {
+          attachmentId: 'attachment-1',
+          byteSize: 1024,
+          contentType: 'image/jpeg',
+          filename: 'seat.jpg',
+          key: 'form/client-event-1/attachment-1/seat.jpg',
+        },
+      ],
+      unsupportedAttachmentCount: 1,
+    }),
+    {
+      configValid: true,
+      nowEpochSeconds: () => 4_000,
+      repos: makeRepos(writes),
+      siteLabel: 'craigs.autos',
+      persistQuoteRequest: async (input) => {
+        persistedInputs.push(input);
+        return {
+          contactId: 'contact-1',
+          journeyId: 'journey-1',
+          leadRecordId: 'lead-1',
+        };
+      },
+      resolveFormAttachments: async ({ unsupportedAttachmentCount }) => ({
+        attachments: [
+          {
+            attachment_id: 'attachment-1',
+            byte_size: 1024,
+            content_type: 'image/jpeg',
+            disposition: 'customer_photo',
+            filename: 'seat.jpg',
+            source: 'form',
+            status: 'supported',
+            storage: {
+              kind: 's3',
+              bucket: 'photo-bucket',
+              key: 'form/client-event-1/attachment-1/seat.jpg',
+            },
+          },
+        ],
+        unsupportedAttachmentCount,
+      }),
+      invokeFollowup: async () => undefined,
+    },
+  );
+
+  assert.equal(result.kind, 'submitted');
+  assert.equal(writes[0]?.photo_attachment_count, 1);
+  assert.equal(writes[0]?.unsupported_attachment_count, 1);
+  assert.equal(writes[0]?.attachments?.[0]?.storage.kind, 's3');
+  assert.equal(persistedInputs[0]?.photoAttachmentCount, 1);
+  assert.equal(persistedInputs[0]?.unsupportedAttachmentCount, 1);
 });

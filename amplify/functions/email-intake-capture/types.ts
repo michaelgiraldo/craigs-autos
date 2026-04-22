@@ -1,4 +1,5 @@
 import type { LeadPlatformRepos } from '../_lead-platform/repos/dynamo.ts';
+import type { LeadPhotoContentType } from '../_lead-platform/domain/lead-attachment.ts';
 
 export type S3EmailIntakeEvent = {
   Records?: Array<{
@@ -79,7 +80,7 @@ export type ParsedAddress = {
 
 export type ParsedPhotoAttachment = {
   content: Buffer;
-  contentType: string;
+  contentType: LeadPhotoContentType;
   filename: string;
 };
 

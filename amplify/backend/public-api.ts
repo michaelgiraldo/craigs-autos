@@ -1,6 +1,7 @@
 import { CorsHttpMethod, HttpApi, HttpMethod } from 'aws-cdk-lib/aws-apigatewayv2';
 import { HttpLambdaIntegration } from 'aws-cdk-lib/aws-apigatewayv2-integrations';
 import type { Construct } from 'constructs';
+import { PUBLIC_ALLOWED_ORIGINS } from './cors';
 
 import {
   PUBLIC_API_CONTRACT,
@@ -21,20 +22,13 @@ type RouteConfig = {
   lambda: LambdaWithEnvironment;
 };
 
-const ALLOWED_ORIGINS = [
-  'https://chat.craigs.autos',
-  'https://craigs.autos',
-  'http://localhost:4321',
-  'http://127.0.0.1:4321',
-];
-
 export function createPublicHttpApi(scope: Construct, backend: CraigsBackend): HttpApi {
   const httpApi = new HttpApi(scope, 'PublicHttpApi', {
     apiName: 'craigs-autos-public',
     corsPreflight: {
       allowHeaders: ['authorization', 'content-type'],
       allowMethods: [CorsHttpMethod.GET, CorsHttpMethod.POST],
-      allowOrigins: ALLOWED_ORIGINS,
+      allowOrigins: PUBLIC_ALLOWED_ORIGINS,
     },
     createDefaultStage: true,
   });
@@ -45,6 +39,12 @@ export function createPublicHttpApi(scope: Construct, backend: CraigsBackend): H
       methods: [HttpMethod.POST],
       integrationId: 'QuoteRequestSubmitIntegration',
       lambda: getLambda(backend.quoteRequestSubmit),
+    },
+    {
+      path: publicApiPath(PUBLIC_API_ROUTES.leadAttachmentUploadTargets),
+      methods: [HttpMethod.POST],
+      integrationId: 'LeadAttachmentUploadStartIntegration',
+      lambda: getLambda(backend.leadAttachmentUploadStart),
     },
     {
       path: publicApiPath(PUBLIC_API_ROUTES.chatSessions),

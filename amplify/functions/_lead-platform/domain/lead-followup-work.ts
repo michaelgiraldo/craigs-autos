@@ -1,4 +1,5 @@
 import type { AttributionSnapshot } from './attribution.ts';
+import type { LeadAttachment } from './lead-attachment.ts';
 import type { CaptureChannel } from './lead-actions.ts';
 
 export const LEAD_FOLLOWUP_WORK_TTL_DAYS = 180;
@@ -75,6 +76,9 @@ export type LeadFollowupWorkItem = {
   operator_resolved_at?: number;
   source_message_id?: string;
   source_references?: string;
+  attachments?: LeadAttachment[];
+  attachment_count?: number;
+  photo_attachment_count?: number;
   email_thread_key?: string;
   inbound_email_subject?: string;
   inbound_email_s3_bucket?: string;
@@ -110,6 +114,9 @@ export type LeadFollowupWorkItemInput = {
   siteLabel: string | null | undefined;
   sourceMessageId?: string;
   sourceReferences?: string;
+  attachments?: LeadAttachment[];
+  attachmentCount?: number;
+  photoAttachmentCount?: number;
   inboundEmailSubject?: string;
   inboundEmailS3Bucket?: string;
   inboundEmailS3Key?: string;
@@ -178,6 +185,9 @@ export function createLeadFollowupWorkItem(input: LeadFollowupWorkItemInput): Le
     owner_email_error: '',
     source_message_id: normalizeWorkString(input.sourceMessageId),
     source_references: normalizeWorkString(input.sourceReferences),
+    attachments: input.attachments ?? [],
+    attachment_count: input.attachmentCount ?? input.attachments?.length ?? 0,
+    photo_attachment_count: input.photoAttachmentCount ?? input.attachments?.length ?? 0,
     email_thread_key: normalizeWorkString(input.emailThreadKey),
     inbound_email_subject: normalizeWorkString(input.inboundEmailSubject),
     inbound_email_s3_bucket: normalizeWorkString(input.inboundEmailS3Bucket),

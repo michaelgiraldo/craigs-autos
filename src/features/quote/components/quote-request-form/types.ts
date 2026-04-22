@@ -18,10 +18,12 @@ export type QuoteRequestFormData = {
 };
 
 export type QuotePhotoDraft = {
+  file: File;
   id: string;
   name: string;
   previewUrl: string;
   size: number;
+  type: string;
 };
 
 export type QuoteSubmitState = 'idle' | 'submitting' | 'success' | 'error';

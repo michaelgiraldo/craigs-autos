@@ -82,3 +82,7 @@ export function resetPublicApiOutputsCache() {
 export function resolveQuoteRequestSubmitUrl() {
   return resolvePublicApiUrl(PUBLIC_API_ROUTES.quoteRequests);
 }
+
+export function resolveLeadAttachmentUploadTargetsUrl() {
+  return resolvePublicApiUrl(PUBLIC_API_ROUTES.leadAttachmentUploadTargets);
+}

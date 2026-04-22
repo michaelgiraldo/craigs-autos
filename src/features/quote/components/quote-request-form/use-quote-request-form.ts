@@ -1,8 +1,15 @@
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
-import { resolveQuoteRequestSubmitUrl } from '../../../../lib/backend/public-api-client';
+import {
+  LEAD_PHOTO_CONTENT_TYPES,
+  LEAD_PHOTO_LIMITS,
+} from '@craigs/contracts/lead-attachment-contract';
+import {
+  resolveLeadAttachmentUploadTargetsUrl,
+  resolveQuoteRequestSubmitUrl,
+} from '../../../../lib/backend/public-api-client';
 import type { LocaleKey } from '../../../../types/site';
 import type { QuoteFormCopy } from '../../content/form';
-import { postQuoteRequest } from './api';
+import { postQuoteRequest, uploadQuotePhotos } from './api';
 import {
   getContactValidityMessages,
   getDefaultService,
@@ -23,8 +30,8 @@ type UseQuoteRequestFormArgs = {
   serviceKey: string;
 };
 
-const ACCEPTED_PHOTO_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
-const MAX_PHOTO_DRAFTS = 6;
+const ACCEPTED_PHOTO_TYPES = new Set<string>(LEAD_PHOTO_CONTENT_TYPES);
+const MAX_PHOTO_DRAFTS = LEAD_PHOTO_LIMITS.maxCount;
 
 function createPhotoDraft(file: File): QuotePhotoDraft {
   const fallbackId = `${file.name}-${file.lastModified}-${Date.now()}-${Math.random()}`;
@@ -35,9 +42,11 @@ function createPhotoDraft(file: File): QuotePhotoDraft {
 
   return {
     id,
+    file,
     name: file.name,
     previewUrl: URL.createObjectURL(file),
     size: file.size,
+    type: file.type,
   };
 }
 
@@ -57,6 +66,7 @@ export function useQuoteRequestForm({ copy, locale, serviceKey }: UseQuoteReques
   const emailInputRef = useRef<HTMLInputElement>(null);
   const photoInputRef = useRef<HTMLInputElement>(null);
   const photoDraftsRef = useRef<QuotePhotoDraft[]>([]);
+  const unsupportedPhotoCountRef = useRef(0);
   const [photos, setPhotos] = useState<QuotePhotoDraft[]>([]);
   const canSubmit = isQuoteFormSubmittable(form);
 
@@ -81,6 +91,7 @@ export function useQuoteRequestForm({ copy, locale, serviceKey }: UseQuoteReques
       }
       return [];
     });
+    unsupportedPhotoCountRef.current = 0;
   };
 
   const onChange = (
@@ -97,16 +108,18 @@ export function useQuoteRequestForm({ copy, locale, serviceKey }: UseQuoteReques
   };
 
   const onPhotoChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = Array.from(event.currentTarget.files ?? []).filter((file) =>
-      ACCEPTED_PHOTO_TYPES.has(file.type),
-    );
+    const files = Array.from(event.currentTarget.files ?? []);
+    const selectedFiles = files.filter((file) => ACCEPTED_PHOTO_TYPES.has(file.type));
+    unsupportedPhotoCountRef.current += files.length - selectedFiles.length;
     event.currentTarget.value = '';
     if (!selectedFiles.length) return;
 
     setPhotos((current) => {
       const availableSlots = Math.max(0, MAX_PHOTO_DRAFTS - current.length);
-      if (!availableSlots) return current;
-      return [...current, ...selectedFiles.slice(0, availableSlots).map(createPhotoDraft)];
+      const acceptedFiles = selectedFiles.slice(0, availableSlots);
+      unsupportedPhotoCountRef.current += selectedFiles.length - acceptedFiles.length;
+      if (!acceptedFiles.length) return current;
+      return [...current, ...acceptedFiles.map(createPhotoDraft)];
     });
   };
 
@@ -138,7 +151,10 @@ export function useQuoteRequestForm({ copy, locale, serviceKey }: UseQuoteReques
       return;
     }
 
-    const endpoint = await resolveQuoteRequestSubmitUrl();
+    const [endpoint, uploadEndpoint] = await Promise.all([
+      resolveQuoteRequestSubmitUrl(),
+      resolveLeadAttachmentUploadTargetsUrl(),
+    ]);
     if (!endpoint) {
       setSubmitState('error');
       setErrorMessage(copy.validationMissingEndpoint);
@@ -150,14 +166,22 @@ export function useQuoteRequestForm({ copy, locale, serviceKey }: UseQuoteReques
     setErrorMessage('');
 
     try {
+      const uploadedPhotos = await uploadQuotePhotos({
+        clientEventId: trackingContext.clientEventId,
+        endpoint: uploadEndpoint,
+        photos,
+        unsupportedPhotoCount: unsupportedPhotoCountRef.current,
+      });
       const responseData = await postQuoteRequest({
         endpoint,
         form,
+        attachments: uploadedPhotos.attachments,
         attribution: trackingContext.attributionPayload,
         clientEventId: trackingContext.clientEventId,
         journeyId: trackingContext.journeyId,
         locale,
         pageUrl: trackingContext.pageUrl,
+        unsupportedAttachmentCount: uploadedPhotos.unsupportedAttachmentCount,
         userId: trackingContext.userId,
       });
 

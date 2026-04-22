@@ -3,6 +3,7 @@ import {
   createLeadFollowupWorkItem,
   type LeadFollowupWorkItem,
 } from '../_lead-platform/domain/lead-followup-work.ts';
+import { createEmailLeadPhotoAttachments } from '../_lead-platform/domain/lead-attachment.ts';
 import { createStableLeadFollowupWorkId } from '../_lead-platform/domain/ids.ts';
 import { createLeadSourceEvent } from '../_lead-platform/domain/lead-source-event.ts';
 import { captureLeadSource } from '../_lead-platform/services/capture-lead-source.ts';
@@ -193,6 +194,15 @@ function createFollowupWork(args: {
     args.evaluation.projectSummary || args.email.text || args.email.subject || 'Inbound email lead',
   ).slice(0, 4_000);
   const sourceMessageId = normalizeEmailMessageId(args.email.messageId);
+  const attachments = createEmailLeadPhotoAttachments({
+    bucket: args.source.bucket,
+    key: args.source.key,
+    photos: args.email.photoAttachments.map((photo) => ({
+      byteSize: photo.content.length,
+      contentType: photo.contentType,
+      filename: photo.filename,
+    })),
+  });
   const sourceEvent = createLeadSourceEvent({
     attribution: null,
     contactId: args.leadContext.contactId,
@@ -227,6 +237,9 @@ function createFollowupWork(args: {
     contactId: sourceEvent.contact_id,
     email: sourceEvent.email,
     emailThreadKey: args.threadKey,
+    attachments,
+    attachmentCount: args.email.attachmentCount,
+    photoAttachmentCount: attachments.length,
     inboundAttachmentCount: args.email.attachmentCount,
     inboundEmailS3Bucket: args.source.bucket,
     inboundEmailS3Key: args.source.key,

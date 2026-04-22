@@ -1,11 +1,14 @@
 import { LambdaClient, InvokeCommand } from '@aws-sdk/client-lambda';
+import { S3Client } from '@aws-sdk/client-s3';
 import { z } from 'zod';
 import { createLeadPlatformRuntime } from '../_lead-platform/runtime.ts';
 import { persistQuoteRequestLeadIntake } from '../_lead-platform/services/followup-work.ts';
+import { createS3FormAttachmentResolver } from './attachments.ts';
 import type { SubmitQuoteRequestDeps } from './submit-quote-request.ts';
 
 const envSchema = z.object({
   CONTACT_SITE_LABEL: z.string().trim().min(1),
+  LEAD_ATTACHMENT_BUCKET_NAME: z.string().trim().optional(),
   LEAD_FOLLOWUP_WORKER_FUNCTION_NAME: z.string().trim().min(1),
 });
 
@@ -14,11 +17,17 @@ export function createQuoteRequestSubmitRuntime(
 ): SubmitQuoteRequestDeps {
   const parsedEnv = envSchema.safeParse(env);
   const lambda = parsedEnv.success ? new LambdaClient({}) : null;
+  const s3 =
+    parsedEnv.success && parsedEnv.data.LEAD_ATTACHMENT_BUCKET_NAME ? new S3Client({}) : null;
   const leadPlatformRuntime = createLeadPlatformRuntime(env);
 
   return {
     configValid: parsedEnv.success && Boolean(lambda) && leadPlatformRuntime.configValid,
     nowEpochSeconds: () => Math.floor(Date.now() / 1000),
+    resolveFormAttachments: createS3FormAttachmentResolver({
+      bucketName: parsedEnv.success ? (parsedEnv.data.LEAD_ATTACHMENT_BUCKET_NAME ?? '') : '',
+      s3,
+    }),
     repos: leadPlatformRuntime.repos,
     siteLabel: parsedEnv.success ? parsedEnv.data.CONTACT_SITE_LABEL : '',
     persistQuoteRequest: async (input) => {

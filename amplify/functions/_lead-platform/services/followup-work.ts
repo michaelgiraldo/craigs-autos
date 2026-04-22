@@ -25,9 +25,11 @@ export type QuoteRequestLeadIntake = {
   origin: string;
   pageUrl: string;
   phone: string;
+  photoAttachmentCount?: number;
   service: string;
   siteLabel: string;
   followupWorkId: string;
+  unsupportedAttachmentCount?: number;
   userId: string;
   vehicle: string;
 };
@@ -69,8 +71,10 @@ export async function persistQuoteRequestLeadIntake(args: {
     origin: args.input.origin,
     pageUrl: args.input.pageUrl,
     phone: args.input.phone,
+    photoAttachmentCount: args.input.photoAttachmentCount,
     service: args.input.service,
     siteLabel: args.input.siteLabel,
+    unsupportedAttachmentCount: args.input.unsupportedAttachmentCount,
     userId: args.input.userId,
     vehicle: args.input.vehicle,
   });

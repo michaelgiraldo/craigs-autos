@@ -50,6 +50,7 @@ export type LeadFollowupWorkerDeps = {
   }) => Promise<{ messageId: string }>;
   sendOwnerEmail: (args: { record: LeadFollowupWorkItem }) => Promise<{ messageId: string }>;
   cleanupInboundEmailSource?: (record: LeadFollowupWorkItem) => Promise<void>;
+  cleanupLeadAttachments?: (record: LeadFollowupWorkItem) => Promise<void>;
   syncLeadRecord?: (record: LeadFollowupWorkItem) => Promise<void>;
 };
 

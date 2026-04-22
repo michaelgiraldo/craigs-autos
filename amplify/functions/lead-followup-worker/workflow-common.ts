@@ -253,6 +253,18 @@ async function cleanupInboundEmailSource(
   }
 }
 
+async function cleanupLeadAttachments(deps: LeadFollowupWorkerDeps, record: LeadFollowupWorkItem) {
+  if (!deps.cleanupLeadAttachments || !(record.attachments ?? []).length) {
+    return;
+  }
+
+  try {
+    await deps.cleanupLeadAttachments(record);
+  } catch (error: unknown) {
+    console.error('Failed to clean up lead attachment objects.', error);
+  }
+}
+
 async function sendOwnerNotification(
   deps: LeadFollowupWorkerDeps,
   record: LeadFollowupWorkItem,
@@ -306,6 +318,7 @@ export async function completeWorkflow(args: {
   record.status = 'completed';
   record.lock_expires_at = undefined;
   await persistRecord(deps, record);
+  await cleanupLeadAttachments(deps, record);
   await cleanupInboundEmailSource(deps, record);
 
   return {

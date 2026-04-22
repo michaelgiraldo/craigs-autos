@@ -5,6 +5,7 @@ import {
   createLeadFollowupWorkItem,
   type LeadFollowupWorkItem,
 } from '../_lead-platform/domain/lead-followup-work.ts';
+import { createChatLeadPhotoAttachments } from '../_lead-platform/domain/lead-attachment.ts';
 import { createLeadSourceEvent } from '../_lead-platform/domain/lead-source-event.ts';
 import {
   createStableJourneyId,
@@ -238,8 +239,16 @@ export const handler = async (
         scheduled_for: scheduledFor,
       } satisfies ChatHandoffResponse);
     }
-    const { threadTitle, threadUser, lines, leadSummary, customerPhone, customerEmail } =
-      evaluation;
+    const {
+      attachments,
+      threadTitle,
+      threadUser,
+      lines,
+      leadSummary,
+      customerPhone,
+      customerEmail,
+    } = evaluation;
+    const chatPhotoManifest = createChatLeadPhotoAttachments(attachments);
 
     const idempotencyKey = `chat:${threadId}`;
     const followupWorkId = createStableLeadFollowupWorkId({ idempotencyKey, prefix: 'chat' });
@@ -253,8 +262,11 @@ export const handler = async (
       locale,
       message: formatChatLeadMessage({ leadSummary, lines }),
       metadata: {
+        attachment_count: attachments.length,
+        photo_attachment_count: chatPhotoManifest.attachments.length,
         reason,
         thread_title: threadTitle,
+        unsupported_attachment_count: chatPhotoManifest.unsupportedCount,
       },
       name: leadSummary.customer_name,
       occurredAtMs: nowEpochSeconds() * 1000,
@@ -289,6 +301,10 @@ export const handler = async (
       service: sourceEvent.service,
       siteLabel: sourceEvent.site_label,
       sourceEventId: sourceEvent.source_event_id,
+      attachments: chatPhotoManifest.attachments,
+      attachmentCount: attachments.length,
+      photoAttachmentCount: chatPhotoManifest.attachments.length,
+      unsupportedAttachmentCount: chatPhotoManifest.unsupportedCount,
       chatThreadId: threadId,
       chatThreadTitle: threadTitle,
       userId: sourceEvent.user_id,

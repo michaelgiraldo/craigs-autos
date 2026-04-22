@@ -12,6 +12,7 @@ If you are new here, start with:
 - `docs/chatkit/overview.md`
 - `docs/amplify-deploy-validation-runtime.md`
 - `docs/amplify-backend-pattern-modernization-follow-up.md`
+- `docs/lead-photo-attachments.md`
 
 ## Repo overview
 
@@ -39,6 +40,7 @@ ChatKit docs are split for fast navigation:
 - `docs/chatkit/agent-builder.md` (Agent Builder playbook + common mistakes)
 - `docs/chatkit/runbook.md` (production debugging / triage)
 - `docs/email-intake.md` (Google Workspace routing + SES inbound email lead intake)
+- `docs/lead-photo-attachments.md` (shared form/email/chat photo attachment policy and lifecycle)
 - `docs/email-intake-google-group-routing.md` (Google Group header behavior for contact intake)
 
 Compatibility pointer:
@@ -256,12 +258,15 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
   - Accepted emails reserve `LeadFollowupWork`; they do not create legacy quote queue records
   - Email-first follow-up behavior lives in `amplify/functions/lead-followup-worker/workflow.ts`
   - Threaded customer email lives in `amplify/functions/lead-followup-worker/customer-email.ts`
-  - Owner photo attachment loading lives in `amplify/functions/lead-followup-worker/inbound-email-attachments.ts`
+  - Owner/OpenAI photo attachment loading lives in
+    `amplify/functions/lead-followup-worker/lead-attachments.ts`
   - Do not store extracted photos separately unless a future requirement needs it. The raw S3 MIME object exists only so OpenAI and the owner notification can process photos, then it should be deleted.
   - Do not accept PDFs, documents, ZIPs, or HEIC in v1. Keep attachment processing limited to JPEG, PNG, and WebP.
 
 - Contact form intake / async follow-up:
   - Public intake endpoint: `amplify/functions/quote-request-submit/handler.ts`
+  - Form photo upload target endpoint:
+    `amplify/functions/lead-attachment-upload-start/handler.ts`
   - Async worker: `amplify/functions/lead-followup-worker/handler.ts`
   - Frontend form island: `src/features/quote/components/QuoteRequestForm.tsx`
   - Contact page injection: `src/components/LocalizedPageContent.astro`

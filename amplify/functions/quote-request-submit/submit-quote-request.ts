@@ -14,6 +14,7 @@ import type {
   QuoteRequestLeadIntake,
 } from '../_lead-platform/services/followup-work.ts';
 import type { QuoteRequestSubmitRequest } from './request.ts';
+import type { ResolveFormAttachments } from './attachments.ts';
 
 export type SubmitQuoteRequestDeps = {
   configValid: boolean;
@@ -23,6 +24,7 @@ export type SubmitQuoteRequestDeps = {
     input: QuoteRequestLeadIntake,
   ) => Promise<PersistedQuoteRequestLead | null>;
   repos: LeadPlatformRepos | null;
+  resolveFormAttachments?: ResolveFormAttachments;
   siteLabel: string;
 };
 
@@ -84,6 +86,16 @@ export async function submitQuoteRequest(
   const now = deps.nowEpochSeconds();
   const idempotencyKey = buildFormIdempotencyKey(request);
   const followupWorkId = createStableLeadFollowupWorkId({ idempotencyKey, prefix: 'form' });
+  const resolvedAttachments = deps.resolveFormAttachments
+    ? await deps.resolveFormAttachments({
+        attachments: request.attachments,
+        clientEventId: request.clientEventId,
+        unsupportedAttachmentCount: request.unsupportedAttachmentCount,
+      })
+    : {
+        attachments: [],
+        unsupportedAttachmentCount: request.unsupportedAttachmentCount + request.attachments.length,
+      };
 
   const persistLead = () =>
     deps.persistQuoteRequest
@@ -94,6 +106,8 @@ export async function submitQuoteRequest(
           journeyId: request.journeyId,
           locale: request.locale,
           message: request.message,
+          photoAttachmentCount: resolvedAttachments.attachments.length,
+          unsupportedAttachmentCount: resolvedAttachments.unsupportedAttachmentCount,
           name: request.name,
           occurredAtMs: now * 1000,
           origin: request.origin,
@@ -130,7 +144,10 @@ export async function submitQuoteRequest(
     locale: request.locale,
     message: request.message,
     metadata: {
+      attachment_count: request.attachments.length + request.unsupportedAttachmentCount,
       client_event_id: request.clientEventId,
+      photo_attachment_count: resolvedAttachments.attachments.length,
+      unsupported_attachment_count: resolvedAttachments.unsupportedAttachmentCount,
     },
     name: request.name,
     occurredAtMs: now * 1000,
@@ -164,6 +181,10 @@ export async function submitQuoteRequest(
     service: sourceEvent.service,
     siteLabel: sourceEvent.site_label,
     sourceEventId: sourceEvent.source_event_id,
+    attachments: resolvedAttachments.attachments,
+    attachmentCount: request.attachments.length + request.unsupportedAttachmentCount,
+    photoAttachmentCount: resolvedAttachments.attachments.length,
+    unsupportedAttachmentCount: resolvedAttachments.unsupportedAttachmentCount,
     userId: sourceEvent.user_id,
     vehicle: sourceEvent.vehicle,
   });

@@ -5,6 +5,14 @@ import { decodeBody } from '../_shared/http.ts';
 
 export type LambdaHeaders = Record<string, string | undefined>;
 
+export type QuoteRequestSubmittedAttachment = {
+  attachmentId: string;
+  byteSize: number;
+  contentType: string;
+  filename: string;
+  key: string;
+};
+
 export type QuoteRequestSubmitEvent = {
   headers?: LambdaHeaders | null;
   requestContext?: { http?: { method?: string } } | null;
@@ -15,6 +23,7 @@ export type QuoteRequestSubmitEvent = {
 
 export type QuoteRequestSubmitRequest = {
   attribution: ReturnType<typeof sanitizeAttributionSnapshot>;
+  attachments: QuoteRequestSubmittedAttachment[];
   clientEventId: string | null;
   company: string;
   effectivePageUrl: string;
@@ -28,6 +37,7 @@ export type QuoteRequestSubmitRequest = {
   pageUrl: string;
   phone: string;
   service: string;
+  unsupportedAttachmentCount: number;
   userId: string;
   vehicle: string;
 };
@@ -50,7 +60,19 @@ const payloadSchema = z.looseObject({
   journey_id: z.string().optional(),
   client_event_id: z.string().optional(),
   attribution: z.unknown().optional(),
+  attachments: z
+    .array(
+      z.looseObject({
+        attachment_id: z.string().optional(),
+        byte_size: z.number().optional(),
+        content_type: z.string().optional(),
+        filename: z.string().optional(),
+        key: z.string().optional(),
+      }),
+    )
+    .optional(),
   __smoke_test: z.boolean().optional(),
+  unsupported_attachment_count: z.number().optional(),
 });
 
 function readOrigin(headers: LambdaHeaders | null | undefined): string {
@@ -88,6 +110,18 @@ export function parseQuoteRequestSubmitRequest(
     ok: true,
     request: {
       attribution: sanitizeAttributionSnapshot(payload.attribution),
+      attachments: (payload.attachments ?? [])
+        .map((attachment) => ({
+          attachmentId: normalizeWorkString(attachment.attachment_id),
+          byteSize:
+            typeof attachment.byte_size === 'number' && Number.isFinite(attachment.byte_size)
+              ? Math.max(0, Math.trunc(attachment.byte_size))
+              : 0,
+          contentType: normalizeWorkString(attachment.content_type).toLowerCase(),
+          filename: normalizeWorkString(attachment.filename),
+          key: normalizeWorkString(attachment.key),
+        }))
+        .filter((attachment) => attachment.attachmentId && attachment.key),
       clientEventId: normalizeWorkString(payload.client_event_id) || null,
       company: normalizeWorkString(payload.company),
       effectivePageUrl: pageUrl || origin,
@@ -101,6 +135,11 @@ export function parseQuoteRequestSubmitRequest(
       pageUrl,
       phone: normalizeWorkString(payload.phone),
       service: normalizeWorkString(payload.service),
+      unsupportedAttachmentCount:
+        typeof payload.unsupported_attachment_count === 'number' &&
+        Number.isFinite(payload.unsupported_attachment_count)
+          ? Math.max(0, Math.trunc(payload.unsupported_attachment_count))
+          : 0,
       userId: normalizeWorkString(payload.user),
       vehicle: normalizeWorkString(payload.vehicle),
     },

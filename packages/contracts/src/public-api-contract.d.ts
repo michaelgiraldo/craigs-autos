@@ -2,6 +2,7 @@ export declare const PUBLIC_API_CONTRACT: 'craigs-lead-api-v2';
 
 export declare const PUBLIC_API_ROUTES: {
   readonly quoteRequests: 'quote-requests';
+  readonly leadAttachmentUploadTargets: 'lead-attachments/upload-targets';
   readonly leadInteractions: 'lead-interactions';
   readonly chatSessions: 'chat-sessions';
   readonly chatHandoffs: 'chat-handoffs';

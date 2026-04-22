@@ -2,6 +2,7 @@ export const PUBLIC_API_CONTRACT = 'craigs-lead-api-v2';
 
 export const PUBLIC_API_ROUTES = {
   quoteRequests: 'quote-requests',
+  leadAttachmentUploadTargets: 'lead-attachments/upload-targets',
   leadInteractions: 'lead-interactions',
   chatSessions: 'chat-sessions',
   chatHandoffs: 'chat-handoffs',

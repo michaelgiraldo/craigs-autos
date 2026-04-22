@@ -34,9 +34,11 @@ export type FormLeadIntakeInput = {
   pageUrl?: string | null;
   locale?: string | null;
   userId?: string | null;
+  photoAttachmentCount?: number;
   attribution?: AttributionSnapshot | null;
   origin?: string | null;
   siteLabel?: string | null;
+  unsupportedAttachmentCount?: number;
   latestOutreach?: LeadOutreachSnapshot;
   qualification?: Partial<LeadQualificationSnapshot>;
   missingInfo?: string[];
@@ -160,6 +162,8 @@ export function buildFormLeadBundle(input: FormLeadIntakeInput): JourneyBundle {
         vehicle,
         service,
         message,
+        photo_attachment_count: input.photoAttachmentCount ?? 0,
+        unsupported_attachment_count: input.unsupportedAttachmentCount ?? 0,
         missing_info: normalizeStringList(input.missingInfo),
       },
     }),

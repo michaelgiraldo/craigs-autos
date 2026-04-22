@@ -1,10 +1,6 @@
 import PostalMime, { type Address, type Attachment, type Email, type Mailbox } from 'postal-mime';
+import { classifyLeadPhotoCandidates } from '../_lead-platform/domain/lead-attachment.ts';
 import type { ParsedAddress, ParsedInboundEmail, ParsedPhotoAttachment } from './types.ts';
-
-const ACCEPTED_PHOTO_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
-const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
-const MAX_PHOTO_TOTAL_BYTES = 12 * 1024 * 1024;
-const MAX_PHOTO_COUNT = 4;
 
 function stripHtml(value: string): string {
   return value
@@ -60,56 +56,27 @@ function attachmentContentBuffer(content: Attachment['content']): Buffer {
   return Buffer.from(content);
 }
 
-function extensionForMime(mimeType: string): string {
-  switch (mimeType) {
-    case 'image/jpeg':
-      return 'jpg';
-    case 'image/png':
-      return 'png';
-    case 'image/webp':
-      return 'webp';
-    default:
-      return 'bin';
-  }
-}
-
 function parsePhotoAttachments(attachments: Attachment[]): {
   photos: ParsedPhotoAttachment[];
   unsupportedAttachmentCount: number;
 } {
-  const photos: ParsedPhotoAttachment[] = [];
-  let unsupportedAttachmentCount = 0;
-  let totalBytes = 0;
-
-  for (const attachment of attachments) {
-    const mimeType = attachment.mimeType.toLowerCase();
-    if (!ACCEPTED_PHOTO_TYPES.has(mimeType)) {
-      unsupportedAttachmentCount += 1;
-      continue;
-    }
-
+  const candidates = attachments.map((attachment) => {
     const content = attachmentContentBuffer(attachment.content);
-    if (!content.length || content.length > MAX_PHOTO_BYTES) {
-      unsupportedAttachmentCount += 1;
-      continue;
-    }
+    return {
+      contentType: attachment.mimeType,
+      filename: attachment.filename,
+      item: content,
+      size: content.length,
+    };
+  });
+  const classified = classifyLeadPhotoCandidates(candidates);
+  const photos = classified.accepted.map((candidate, index) => ({
+    content: candidate.item,
+    contentType: candidate.contentType,
+    filename: candidate.filename || `photo-${index + 1}.jpg`,
+  }));
 
-    if (photos.length >= MAX_PHOTO_COUNT || totalBytes + content.length > MAX_PHOTO_TOTAL_BYTES) {
-      unsupportedAttachmentCount += 1;
-      continue;
-    }
-
-    photos.push({
-      content,
-      contentType: mimeType,
-      filename:
-        attachment.filename?.trim() ||
-        `photo-${photos.length + 1}.${extensionForMime(attachment.mimeType.toLowerCase())}`,
-    });
-    totalBytes += content.length;
-  }
-
-  return { photos, unsupportedAttachmentCount };
+  return { photos, unsupportedAttachmentCount: classified.unsupportedCount };
 }
 
 export async function parseInboundEmail(raw: Buffer): Promise<ParsedInboundEmail> {

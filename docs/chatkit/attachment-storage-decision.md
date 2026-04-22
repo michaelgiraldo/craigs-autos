@@ -1,8 +1,18 @@
 # ChatKit attachment storage decision
 
-Status: current decision
+Status: superseded for shared lead-intake transport by
+`docs/lead-photo-attachments.md`; still current for avoiding permanent photo
+archives and for not copying ChatKit attachments into Craig-owned S3 in v1.
 
 Date: 2026-04-18
+
+Update: 2026-04-21
+
+Form photos now use transient Craig-owned S3 storage so the quote form can have
+the same practical photo capability as email and chat. This is transport only:
+successful workflows delete form S3 objects, abandoned uploads expire after one
+day, and chat attachments remain ChatKit references in v1. See
+`docs/lead-photo-attachments.md` for the current cross-source policy.
 
 ## Decision
 

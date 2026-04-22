@@ -8,7 +8,7 @@ import { z } from 'zod';
 import { createLeadPlatformRuntime } from '../_lead-platform/runtime.ts';
 import { generateLeadFollowupDrafts } from './drafts.ts';
 import { createSesCustomerEmailSender } from './customer-email.ts';
-import { createInboundEmailPhotoAttachmentLoader } from './inbound-email-attachments.ts';
+import { createLeadPhotoAttachmentLoader } from './lead-attachments.ts';
 import { createLeadFollowupWorkerLeadSync } from './lead-sync.ts';
 import { createSesOwnerEmailSender } from './owner-email.ts';
 import { createQuoSmsSender } from './quo-sms.ts';
@@ -54,6 +54,7 @@ export function createLeadFollowupWorkerRuntime(
       ? new OpenAI({ apiKey: parsedEnv.data.CHATKIT_OPENAI_API_KEY })
       : null;
   const quoEnabled = parsedEnv.success && parsedEnv.data.QUO_ENABLED === 'true';
+  const loadLeadPhotos = createLeadPhotoAttachmentLoader({ s3: runtimeS3 });
   const followupWorkStore = createDynamoLeadFollowupWorkStore({
     db: runtimeDb,
     tableName: parsedEnv.success ? parsedEnv.data.LEAD_FOLLOWUP_WORK_TABLE_NAME : '',
@@ -69,10 +70,11 @@ export function createLeadFollowupWorkerRuntime(
     createLeaseId: () => randomUUID(),
     smsAutomationEnabled: quoEnabled,
     nowEpochSeconds: () => Math.floor(Date.now() / 1000),
-    generateDrafts: (record) =>
+    generateDrafts: async (record) =>
       generateLeadFollowupDrafts({
         openai: runtimeOpenAi,
         model: parsedEnv.success ? parsedEnv.data.QUOTE_OUTREACH_MODEL : '',
+        photos: await loadLeadPhotos(record),
         record,
         shopAddress: parsedEnv.success ? parsedEnv.data.SHOP_ADDRESS : '',
         shopName: parsedEnv.success ? parsedEnv.data.SHOP_NAME : '',
@@ -97,7 +99,7 @@ export function createLeadFollowupWorkerRuntime(
     }),
     sendOwnerEmail: createSesOwnerEmailSender({
       fromEmail: parsedEnv.success ? parsedEnv.data.CONTACT_FROM_EMAIL : '',
-      loadAttachments: createInboundEmailPhotoAttachmentLoader({ s3: runtimeS3 }),
+      loadAttachments: loadLeadPhotos,
       quoEnabled,
       ses: runtimeSes,
       toEmail: parsedEnv.success ? parsedEnv.data.CONTACT_TO_EMAIL : '',
@@ -109,6 +111,28 @@ export function createLeadFollowupWorkerRuntime(
           Bucket: record.inbound_email_s3_bucket,
           Key: record.inbound_email_s3_key,
         }),
+      );
+    },
+    cleanupLeadAttachments: async (record) => {
+      if (!runtimeS3) return;
+      const formAttachmentKeys: Array<{ bucket: string; key: string }> = [];
+      for (const attachment of record.attachments ?? []) {
+        if (attachment.storage.kind === 's3') {
+          formAttachmentKeys.push({
+            bucket: attachment.storage.bucket,
+            key: attachment.storage.key,
+          });
+        }
+      }
+      await Promise.all(
+        formAttachmentKeys.map((attachment) =>
+          runtimeS3.send(
+            new DeleteObjectCommand({
+              Bucket: attachment.bucket,
+              Key: attachment.key,
+            }),
+          ),
+        ),
       );
     },
     syncLeadRecord: createLeadFollowupWorkerLeadSync({

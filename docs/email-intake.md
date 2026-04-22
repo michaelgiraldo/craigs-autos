@@ -59,7 +59,7 @@ SES only has one active receipt rule set per region. This backend activates `cra
 - Shared follow-up work repo: `amplify/functions/_lead-platform/repos/dynamo/followup-work.ts`
 - Email-first follow-up branch: `amplify/functions/lead-followup-worker/workflow.ts`
 - Threaded customer email: `amplify/functions/lead-followup-worker/customer-email.ts`
-- Owner photo attachment loading: `amplify/functions/lead-followup-worker/inbound-email-attachments.ts`
+- Owner/OpenAI photo attachment loading: `amplify/functions/lead-followup-worker/lead-attachments.ts`
 
 ## Guardrails
 
