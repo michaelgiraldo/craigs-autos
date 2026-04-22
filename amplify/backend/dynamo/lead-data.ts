@@ -1,5 +1,6 @@
 import { RemovalPolicy, Stack } from 'aws-cdk-lib';
 import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
+import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import type { CraigsBackend, LambdaWithEnvironment } from '../types';
 import { getLambda } from '../types';
 
@@ -24,6 +25,19 @@ const DURABLE_LEAD_TABLE_BACKUP_PROPS = {
     recoveryPeriodInDays: 35,
   },
 } as const;
+
+const DYNAMODB_READ_WRITE_ACTIONS = [
+  'dynamodb:BatchGetItem',
+  'dynamodb:BatchWriteItem',
+  'dynamodb:ConditionCheckItem',
+  'dynamodb:DeleteItem',
+  'dynamodb:DescribeTable',
+  'dynamodb:GetItem',
+  'dynamodb:PutItem',
+  'dynamodb:Query',
+  'dynamodb:Scan',
+  'dynamodb:UpdateItem',
+] as const;
 
 function createLeadDataTables(stack: Stack): LeadDataTables {
   const contacts = new Table(stack, 'LeadContacts', {
@@ -266,42 +280,57 @@ function addLeadDataEnvironment(lambda: LambdaWithEnvironment, tables: LeadDataT
   lambda.addEnvironment('LEAD_RECORDS_TABLE_NAME', tables.records.tableName);
 }
 
+function grantLeadTableReadWriteAccess(lambda: LambdaWithEnvironment, tables: Table[]): void {
+  lambda.addToRolePolicy(
+    new PolicyStatement({
+      actions: [...DYNAMODB_READ_WRITE_ACTIONS],
+      resources: tables.flatMap((table) => [table.tableArn, `${table.tableArn}/index/*`]),
+    }),
+  );
+}
+
 function grantLeadCaptureAccess(lambda: LambdaWithEnvironment, tables: LeadDataTables): void {
-  tables.contactObservations.grantReadWriteData(lambda);
-  tables.contactPoints.grantReadWriteData(lambda);
-  tables.contacts.grantReadWriteData(lambda);
-  tables.followupWork.grantReadWriteData(lambda);
-  tables.journeys.grantReadWriteData(lambda);
-  tables.journeyEvents.grantReadWriteData(lambda);
-  tables.records.grantReadWriteData(lambda);
-  tables.providerContactProjections.grantReadWriteData(lambda);
+  grantLeadTableReadWriteAccess(lambda, [
+    tables.contactObservations,
+    tables.contactPoints,
+    tables.contacts,
+    tables.followupWork,
+    tables.journeys,
+    tables.journeyEvents,
+    tables.records,
+    tables.providerContactProjections,
+  ]);
 }
 
 function grantManagedConversionAccess(lambda: LambdaWithEnvironment, tables: LeadDataTables): void {
-  tables.contactObservations.grantReadWriteData(lambda);
-  tables.contactPoints.grantReadWriteData(lambda);
-  tables.contacts.grantReadWriteData(lambda);
-  tables.conversionDecisions.grantReadWriteData(lambda);
-  tables.conversionFeedbackOutbox.grantReadWriteData(lambda);
-  tables.conversionFeedbackOutcomes.grantReadWriteData(lambda);
-  tables.providerConversionDestinations.grantReadWriteData(lambda);
-  tables.providerContactProjections.grantReadWriteData(lambda);
-  tables.records.grantReadWriteData(lambda);
+  grantLeadTableReadWriteAccess(lambda, [
+    tables.contactObservations,
+    tables.contactPoints,
+    tables.contacts,
+    tables.conversionDecisions,
+    tables.conversionFeedbackOutbox,
+    tables.conversionFeedbackOutcomes,
+    tables.providerConversionDestinations,
+    tables.providerContactProjections,
+    tables.records,
+  ]);
 }
 
 function grantLeadAdminAccess(lambda: LambdaWithEnvironment, tables: LeadDataTables): void {
-  tables.contactObservations.grantReadWriteData(lambda);
-  tables.contactPoints.grantReadWriteData(lambda);
-  tables.contacts.grantReadWriteData(lambda);
-  tables.conversionDecisions.grantReadWriteData(lambda);
-  tables.conversionFeedbackOutbox.grantReadWriteData(lambda);
-  tables.conversionFeedbackOutcomes.grantReadWriteData(lambda);
-  tables.followupWork.grantReadWriteData(lambda);
-  tables.journeys.grantReadWriteData(lambda);
-  tables.journeyEvents.grantReadWriteData(lambda);
-  tables.providerConversionDestinations.grantReadWriteData(lambda);
-  tables.providerContactProjections.grantReadWriteData(lambda);
-  tables.records.grantReadWriteData(lambda);
+  grantLeadTableReadWriteAccess(lambda, [
+    tables.contactObservations,
+    tables.contactPoints,
+    tables.contacts,
+    tables.conversionDecisions,
+    tables.conversionFeedbackOutbox,
+    tables.conversionFeedbackOutcomes,
+    tables.followupWork,
+    tables.journeys,
+    tables.journeyEvents,
+    tables.providerConversionDestinations,
+    tables.providerContactProjections,
+    tables.records,
+  ]);
 }
 
 export function configureLeadDataTables(backend: CraigsBackend): void {
