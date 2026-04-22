@@ -13,7 +13,7 @@ import type { JourneyBundle } from '../domain/lead-bundle.ts';
 import { createLeadSummary, type LeadSummary } from '../domain/lead-summary.ts';
 import type { Journey, JourneyMetadata } from '../domain/journey.ts';
 import type { LeadOutreachSnapshot, LeadQualificationSnapshot } from '../domain/lead-record.ts';
-import { buildLeadContact } from './contact-identity.ts';
+import { buildLeadContactIdentity } from './contact-identity.ts';
 import { buildJourneyEvent } from './journey-events.ts';
 import { createDefaultOutreachSnapshot, deriveLeadRecordStatus } from './outreach.ts';
 import { buildDefaultQualificationSnapshot } from './qualification.ts';
@@ -44,6 +44,8 @@ export type EmailLeadIntakeInput = {
   qualification?: Partial<LeadQualificationSnapshot>;
   missingInfo?: string[];
   leadSummary?: LeadSummary | null;
+  nameConfidence?: 'high' | 'medium' | 'low';
+  nameSourceMethod?: 'ai_extracted' | 'email_header';
 };
 
 function createStableEmailIntakeClientEventId(input: EmailLeadIntakeInput): string {
@@ -80,13 +82,19 @@ export function buildEmailLeadBundle(input: EmailLeadIntakeInput): JourneyBundle
     attribution: input.attribution ?? null,
   };
 
-  const contact = buildLeadContact({
+  const contactIdentity = buildLeadContactIdentity({
     name: input.name,
     phone: input.phone,
     email: input.email,
-    quoTags: ['Email Lead'],
-    createdAtMs: occurredAtMs,
+    sourceChannel: 'email',
+    sourceMethod: input.nameSourceMethod ?? 'ai_extracted',
+    sourceEventId: input.messageId || input.emailIntakeId,
+    nameConfidence: input.nameConfidence ?? 'medium',
+    nameSourceMethod: input.nameSourceMethod ?? 'ai_extracted',
+    contactPointConfidence: 'medium',
+    occurredAtMs,
   });
+  const contact = contactIdentity.contact;
 
   const latestOutreach = input.latestOutreach ?? createDefaultOutreachSnapshot();
   const qualification = buildDefaultQualificationSnapshot(input.qualification);
@@ -206,6 +214,8 @@ export function buildEmailLeadBundle(input: EmailLeadIntakeInput): JourneyBundle
 
   return {
     contact,
+    contactObservations: contactIdentity.contactObservations,
+    contactPoints: contactIdentity.contactPoints,
     journey,
     leadRecord,
     events,

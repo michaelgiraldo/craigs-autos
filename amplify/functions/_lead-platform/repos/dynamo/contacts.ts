@@ -6,11 +6,7 @@ import {
 } from '@aws-sdk/lib-dynamodb';
 import type { LeadContact } from '../../domain/contact.ts';
 import type { LeadContactsRepo } from '../contacts-repo.ts';
-import {
-  CONTACTS_NORMALIZED_EMAIL_INDEX,
-  CONTACTS_NORMALIZED_PHONE_INDEX,
-  CONTACTS_QUO_CONTACT_ID_INDEX,
-} from './constants.ts';
+import { CONTACTS_NORMALIZED_EMAIL_INDEX, CONTACTS_NORMALIZED_PHONE_INDEX } from './constants.ts';
 import { firstItem, removeNullKeys } from './helpers.ts';
 
 export class DynamoLeadContactsRepo implements LeadContactsRepo {
@@ -62,26 +58,16 @@ export class DynamoLeadContactsRepo implements LeadContactsRepo {
     return firstItem(result.Items as LeadContact[] | undefined);
   }
 
-  async findByQuoContactId(quoContactId: string): Promise<LeadContact | null> {
-    const result = await this.db.send(
-      new QueryCommand({
-        TableName: this.tableName,
-        IndexName: CONTACTS_QUO_CONTACT_ID_INDEX,
-        KeyConditionExpression: 'quo_contact_id = :quoContactId',
-        ExpressionAttributeValues: {
-          ':quoContactId': quoContactId,
-        },
-        Limit: 1,
-      }),
-    );
-    return firstItem(result.Items as LeadContact[] | undefined);
-  }
-
   async put(contact: LeadContact): Promise<void> {
     await this.db.send(
       new PutCommand({
         TableName: this.tableName,
-        Item: removeNullKeys(contact, ['normalized_phone', 'normalized_email', 'quo_contact_id']),
+        Item: removeNullKeys(contact, [
+          'normalized_phone',
+          'normalized_email',
+          'primary_phone_contact_point_id',
+          'primary_email_contact_point_id',
+        ]),
       }),
     );
   }

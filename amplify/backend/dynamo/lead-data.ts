@@ -5,6 +5,8 @@ import { getLambda } from '../types';
 
 type LeadDataTables = {
   contacts: Table;
+  contactObservations: Table;
+  contactPoints: Table;
   conversionDecisions: Table;
   conversionFeedbackOutbox: Table;
   conversionFeedbackOutcomes: Table;
@@ -12,6 +14,7 @@ type LeadDataTables = {
   journeys: Table;
   journeyEvents: Table;
   providerConversionDestinations: Table;
+  providerContactProjections: Table;
   records: Table;
 };
 
@@ -40,9 +43,51 @@ function createLeadDataTables(stack: Stack): LeadDataTables {
     partitionKey: { name: 'normalized_email', type: AttributeType.STRING },
   });
 
-  contacts.addGlobalSecondaryIndex({
-    indexName: 'quo_contact_id-index',
-    partitionKey: { name: 'quo_contact_id', type: AttributeType.STRING },
+  const contactPoints = new Table(stack, 'LeadContactPoints', {
+    ...DURABLE_LEAD_TABLE_BACKUP_PROPS,
+    billingMode: BillingMode.PAY_PER_REQUEST,
+    partitionKey: { name: 'contact_point_id', type: AttributeType.STRING },
+    removalPolicy: RemovalPolicy.DESTROY,
+  });
+
+  contactPoints.addGlobalSecondaryIndex({
+    indexName: 'normalized_value-index',
+    partitionKey: { name: 'normalized_value', type: AttributeType.STRING },
+  });
+
+  contactPoints.addGlobalSecondaryIndex({
+    indexName: 'contact_id-index',
+    partitionKey: { name: 'contact_id', type: AttributeType.STRING },
+  });
+
+  const contactObservations = new Table(stack, 'LeadContactObservations', {
+    ...DURABLE_LEAD_TABLE_BACKUP_PROPS,
+    billingMode: BillingMode.PAY_PER_REQUEST,
+    partitionKey: { name: 'contact_id', type: AttributeType.STRING },
+    sortKey: { name: 'observation_sort_key', type: AttributeType.STRING },
+    removalPolicy: RemovalPolicy.DESTROY,
+  });
+
+  contactObservations.addGlobalSecondaryIndex({
+    indexName: 'source_event_id-index',
+    partitionKey: { name: 'source_event_id', type: AttributeType.STRING },
+  });
+
+  const providerContactProjections = new Table(stack, 'LeadProviderContactProjections', {
+    ...DURABLE_LEAD_TABLE_BACKUP_PROPS,
+    billingMode: BillingMode.PAY_PER_REQUEST,
+    partitionKey: { name: 'projection_id', type: AttributeType.STRING },
+    removalPolicy: RemovalPolicy.DESTROY,
+  });
+
+  providerContactProjections.addGlobalSecondaryIndex({
+    indexName: 'contact_id-index',
+    partitionKey: { name: 'contact_id', type: AttributeType.STRING },
+  });
+
+  providerContactProjections.addGlobalSecondaryIndex({
+    indexName: 'provider_external_id-index',
+    partitionKey: { name: 'provider_external_id', type: AttributeType.STRING },
   });
 
   const journeys = new Table(stack, 'LeadJourneys', {
@@ -177,6 +222,8 @@ function createLeadDataTables(stack: Stack): LeadDataTables {
 
   return {
     contacts,
+    contactObservations,
+    contactPoints,
     conversionDecisions,
     conversionFeedbackOutbox,
     conversionFeedbackOutcomes,
@@ -184,11 +231,14 @@ function createLeadDataTables(stack: Stack): LeadDataTables {
     journeys,
     journeyEvents,
     providerConversionDestinations,
+    providerContactProjections,
     records,
   };
 }
 
 function addLeadDataEnvironment(lambda: LambdaWithEnvironment, tables: LeadDataTables): void {
+  lambda.addEnvironment('LEAD_CONTACT_OBSERVATIONS_TABLE_NAME', tables.contactObservations.tableName);
+  lambda.addEnvironment('LEAD_CONTACT_POINTS_TABLE_NAME', tables.contactPoints.tableName);
   lambda.addEnvironment('LEAD_CONTACTS_TABLE_NAME', tables.contacts.tableName);
   lambda.addEnvironment(
     'LEAD_CONVERSION_DECISIONS_TABLE_NAME',
@@ -206,6 +256,10 @@ function addLeadDataEnvironment(lambda: LambdaWithEnvironment, tables: LeadDataT
   lambda.addEnvironment('LEAD_JOURNEYS_TABLE_NAME', tables.journeys.tableName);
   lambda.addEnvironment('LEAD_JOURNEY_EVENTS_TABLE_NAME', tables.journeyEvents.tableName);
   lambda.addEnvironment(
+    'LEAD_PROVIDER_CONTACT_PROJECTIONS_TABLE_NAME',
+    tables.providerContactProjections.tableName,
+  );
+  lambda.addEnvironment(
     'PROVIDER_CONVERSION_DESTINATIONS_TABLE_NAME',
     tables.providerConversionDestinations.tableName,
   );
@@ -213,23 +267,31 @@ function addLeadDataEnvironment(lambda: LambdaWithEnvironment, tables: LeadDataT
 }
 
 function grantLeadCaptureAccess(lambda: LambdaWithEnvironment, tables: LeadDataTables): void {
+  tables.contactObservations.grantReadWriteData(lambda);
+  tables.contactPoints.grantReadWriteData(lambda);
   tables.contacts.grantReadWriteData(lambda);
   tables.followupWork.grantReadWriteData(lambda);
   tables.journeys.grantReadWriteData(lambda);
   tables.journeyEvents.grantReadWriteData(lambda);
   tables.records.grantReadWriteData(lambda);
+  tables.providerContactProjections.grantReadWriteData(lambda);
 }
 
 function grantManagedConversionAccess(lambda: LambdaWithEnvironment, tables: LeadDataTables): void {
+  tables.contactObservations.grantReadWriteData(lambda);
+  tables.contactPoints.grantReadWriteData(lambda);
   tables.contacts.grantReadWriteData(lambda);
   tables.conversionDecisions.grantReadWriteData(lambda);
   tables.conversionFeedbackOutbox.grantReadWriteData(lambda);
   tables.conversionFeedbackOutcomes.grantReadWriteData(lambda);
   tables.providerConversionDestinations.grantReadWriteData(lambda);
+  tables.providerContactProjections.grantReadWriteData(lambda);
   tables.records.grantReadWriteData(lambda);
 }
 
 function grantLeadAdminAccess(lambda: LambdaWithEnvironment, tables: LeadDataTables): void {
+  tables.contactObservations.grantReadWriteData(lambda);
+  tables.contactPoints.grantReadWriteData(lambda);
   tables.contacts.grantReadWriteData(lambda);
   tables.conversionDecisions.grantReadWriteData(lambda);
   tables.conversionFeedbackOutbox.grantReadWriteData(lambda);
@@ -238,6 +300,7 @@ function grantLeadAdminAccess(lambda: LambdaWithEnvironment, tables: LeadDataTab
   tables.journeys.grantReadWriteData(lambda);
   tables.journeyEvents.grantReadWriteData(lambda);
   tables.providerConversionDestinations.grantReadWriteData(lambda);
+  tables.providerContactProjections.grantReadWriteData(lambda);
   tables.records.grantReadWriteData(lambda);
 }
 

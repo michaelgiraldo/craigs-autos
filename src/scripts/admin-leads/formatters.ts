@@ -17,8 +17,16 @@ export function formatDate(ms: number | undefined): string {
 }
 
 export function formatLeadContact(item: LeadRecordItem): string {
+  const nameSource = [
+    optionalString(item.display_name_source_channel),
+    optionalString(item.display_name_confidence),
+  ]
+    .filter((value): value is string => Boolean(value))
+    .join('/');
   const contactParts = [
-    optionalString(item.display_name),
+    optionalString(item.display_name)
+      ? `${optionalString(item.display_name)}${nameSource ? ` (${nameSource})` : ''}`
+      : null,
     optionalString(item.normalized_phone),
     optionalString(item.normalized_email),
   ].filter((value): value is string => Boolean(value));

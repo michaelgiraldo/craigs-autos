@@ -224,6 +224,8 @@ export async function processEmailIntakeEvent(event: S3EmailIntakeEvent, deps: E
         threadKey,
       });
 
+      const customerName = evaluation.customerName ?? email.from?.name ?? null;
+      const customerNameFromAi = Boolean(evaluation.customerName);
       const receipt = await captureLeadSource({
         invokeFollowup: deps.invokeFollowup,
         nowEpochSeconds: deps.nowEpochSeconds,
@@ -232,7 +234,9 @@ export async function processEmailIntakeEvent(event: S3EmailIntakeEvent, deps: E
             customerEmail,
             customerLanguage: evaluation.customerLanguage,
             customerMessage: evaluation.projectSummary || email.text,
-            customerName: evaluation.customerName ?? email.from?.name ?? null,
+            customerName,
+            customerNameConfidence: customerNameFromAi ? 'medium' : 'low',
+            customerNameSourceMethod: customerNameFromAi ? 'ai_extracted' : 'email_header',
             customerPhone: evaluation.customerPhone,
             emailIntakeId: followupWorkId,
             messageId: normalizeEmailMessageId(email.messageId),

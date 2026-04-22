@@ -114,6 +114,8 @@ export type PersistEmailLeadInput = {
   customerLanguage: string | null;
   customerMessage: string;
   customerName: string | null;
+  customerNameConfidence: 'high' | 'medium' | 'low';
+  customerNameSourceMethod: 'ai_extracted' | 'email_header';
   customerPhone: string | null;
   emailIntakeId: string;
   messageId: string;

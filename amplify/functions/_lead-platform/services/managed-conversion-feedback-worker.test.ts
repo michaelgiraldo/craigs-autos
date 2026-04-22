@@ -164,10 +164,26 @@ function createRepos(args: {
       getById: async (contactId) => contacts.get(contactId) ?? null,
       findByNormalizedPhone: async () => null,
       findByNormalizedEmail: async () => null,
-      findByQuoContactId: async () => null,
       put: async (contact) => {
         contacts.set(contact.contact_id, contact);
       },
+    },
+    contactObservations: {
+      append: async () => undefined,
+      appendMany: async () => undefined,
+      listByContactId: async () => [],
+    },
+    contactPoints: {
+      findByNormalizedValue: async () => null,
+      getById: async () => null,
+      listByContactId: async () => [],
+      put: async () => undefined,
+    },
+    providerContactProjections: {
+      findByProviderExternalId: async () => null,
+      getById: async () => null,
+      listByContactId: async () => [],
+      put: async () => undefined,
     },
     journeys: {
       getById: async () => null,

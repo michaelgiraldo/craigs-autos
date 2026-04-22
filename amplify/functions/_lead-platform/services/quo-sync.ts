@@ -4,6 +4,11 @@ import { dedupeStrings } from '../domain/normalize.ts';
 import type { LeadContact } from '../domain/contact.ts';
 import type { CaptureChannel } from '../domain/lead-actions.ts';
 import type { LeadRecord } from '../domain/lead-record.ts';
+import type { ProviderContactProjection } from '../domain/provider-contact-projection.ts';
+import {
+  createProviderExternalId,
+  createStableProviderContactProjectionId,
+} from '../domain/ids.ts';
 import { getErrorDetails } from '../../_shared/safe.ts';
 import {
   createQuoContact,
@@ -12,7 +17,6 @@ import {
   updateQuoContact,
 } from './providers/quo/quo-client.ts';
 import type { ProviderReadiness } from './providers/provider-contracts.ts';
-import { mergeLeadContacts } from './contact-identity.ts';
 import { buildJourneyEvent } from './journey-events.ts';
 
 export type QuoLeadTag = 'Chat Lead' | 'Form Lead';
@@ -49,7 +53,7 @@ export function buildQuoContactUpsert(args: {
   contact: LeadContact;
   leadRecord: LeadRecord;
   leadTagsFieldKey: string;
-  existingTags?: string[];
+  existingTags: string[];
   source?: string;
   externalIdPrefix: string;
   sourceUrl?: string | null;
@@ -57,10 +61,7 @@ export function buildQuoContactUpsert(args: {
   const externalId = buildQuoExternalId(args.contact, args.externalIdPrefix);
   if (!externalId) return null;
 
-  const mergedTags = mergeQuoTags(
-    args.existingTags ?? args.contact.quo_tags,
-    args.leadRecord.capture_channel,
-  );
+  const mergedTags = mergeQuoTags(args.existingTags, args.leadRecord.capture_channel);
   const defaultFields: QuoContactUpsertPayload['defaultFields'] = {};
 
   if (args.contact.first_name) defaultFields.firstName = args.contact.first_name;
@@ -142,6 +143,7 @@ async function resolveLeadTagsFieldKey(args: QuoLeadSyncConfig): Promise<string>
 async function upsertQuoLeadContact(args: {
   config: QuoLeadSyncConfig;
   contact: LeadContact;
+  existingProjection: ProviderContactProjection | null;
   leadRecord: LeadRecord;
 }): Promise<{ quoContactId: string; quoTags: string[]; leadTagsFieldKey: string }> {
   const source =
@@ -162,6 +164,7 @@ async function upsertQuoLeadContact(args: {
     contact: args.contact,
     leadRecord: args.leadRecord,
     leadTagsFieldKey,
+    existingTags: args.existingProjection?.tags ?? [],
     source,
     externalIdPrefix,
     sourceUrl: args.config.sourceUrl ?? null,
@@ -184,7 +187,7 @@ async function upsertQuoLeadContact(args: {
     null;
   const existingTags = existingContact
     ? findCustomFieldValue(existingContact.customFields, leadTagsFieldKey)
-    : args.contact.quo_tags;
+    : (args.existingProjection?.tags ?? []);
   const payload = buildQuoContactUpsert({
     contact: args.contact,
     leadRecord: args.leadRecord,
@@ -232,6 +235,20 @@ function shouldSyncQuoLead(args: {
   );
 }
 
+function projectionIdForContact(contact: LeadContact): string {
+  return createStableProviderContactProjectionId({
+    contactId: contact.contact_id,
+    provider: 'quo',
+  });
+}
+
+async function getQuoProjection(
+  repos: LeadPlatformRepos,
+  contact: LeadContact | null,
+): Promise<ProviderContactProjection | null> {
+  return contact ? repos.providerContactProjections.getById(projectionIdForContact(contact)) : null;
+}
+
 export async function syncQuoLeadContact(args: {
   repos: LeadPlatformRepos;
   contact: LeadContact | null;
@@ -239,11 +256,12 @@ export async function syncQuoLeadContact(args: {
   occurredAtMs: number;
   config: QuoLeadSyncConfig;
 }): Promise<QuoLeadSyncResult> {
+  const existingProjection = await getQuoProjection(args.repos, args.contact);
   if (!shouldSyncQuoLead(args)) {
     return {
       synced: false,
-      quoContactId: args.contact?.quo_contact_id ?? null,
-      quoTags: args.contact?.quo_tags ?? [],
+      quoContactId: existingProjection?.provider_contact_id ?? null,
+      quoTags: existingProjection?.tags ?? [],
       leadTagsFieldKey:
         typeof args.config.leadTagsFieldKey === 'string' && args.config.leadTagsFieldKey.trim()
           ? args.config.leadTagsFieldKey.trim()
@@ -267,19 +285,30 @@ export async function syncQuoLeadContact(args: {
     const synced = await upsertQuoLeadContact({
       config: args.config,
       contact,
+      existingProjection,
       leadRecord: args.leadRecord,
     });
-    const existingContact = await args.repos.contacts.getById(contact.contact_id);
-    const nextContact = mergeLeadContacts(existingContact ?? contact, {
-      ...contact,
-      quo_contact_id: synced.quoContactId,
-      quo_tags: synced.quoTags,
-      updated_at_ms: Math.max(
-        existingContact?.updated_at_ms ?? contact.updated_at_ms,
-        args.occurredAtMs,
-      ),
+    const externalId = args.config.externalIdPrefix
+      ? buildQuoExternalId(contact, args.config.externalIdPrefix)
+      : null;
+    await args.repos.providerContactProjections.put({
+      projection_id: projectionIdForContact(contact),
+      contact_id: contact.contact_id,
+      provider: 'quo',
+      provider_contact_id: synced.quoContactId,
+      provider_external_id: createProviderExternalId({
+        provider: 'quo',
+        providerContactId: synced.quoContactId,
+      }),
+      source: args.config.source ?? null,
+      external_id: externalId,
+      tags: synced.quoTags,
+      metadata: {
+        lead_tags_field_key: synced.leadTagsFieldKey,
+      },
+      created_at_ms: existingProjection?.created_at_ms ?? args.occurredAtMs,
+      updated_at_ms: args.occurredAtMs,
     });
-    await args.repos.contacts.put(nextContact);
     await args.repos.journeyEvents.append(
       buildJourneyEvent({
         journeyId: args.leadRecord.journey_id,
@@ -290,13 +319,11 @@ export async function syncQuoLeadContact(args: {
         actor: 'system',
         discriminator: `${args.leadRecord.lead_record_id}:${synced.quoContactId}:${args.leadRecord.latest_outreach.external_id ?? ''}`,
         payload: {
-          quo_contact_id: synced.quoContactId,
-          quo_tags: synced.quoTags,
+          provider_contact_id: synced.quoContactId,
+          provider_tags: synced.quoTags,
           lead_tags_field_key: synced.leadTagsFieldKey,
           source: args.config.source ?? null,
-          external_id: args.config.externalIdPrefix
-            ? buildQuoExternalId(contact, args.config.externalIdPrefix)
-            : null,
+          external_id: externalId,
         },
       }),
     );
@@ -333,8 +360,8 @@ export async function syncQuoLeadContact(args: {
     }
     return {
       synced: false,
-      quoContactId: contact.quo_contact_id,
-      quoTags: contact.quo_tags,
+      quoContactId: existingProjection?.provider_contact_id ?? null,
+      quoTags: existingProjection?.tags ?? [],
       leadTagsFieldKey:
         typeof args.config.leadTagsFieldKey === 'string' && args.config.leadTagsFieldKey.trim()
           ? args.config.leadTagsFieldKey.trim()

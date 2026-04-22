@@ -16,7 +16,7 @@ import type { JourneyBundle } from '../domain/lead-bundle.ts';
 import { createLeadSummary, type LeadSummary } from '../domain/lead-summary.ts';
 import type { Journey, JourneyMetadata } from '../domain/journey.ts';
 import type { LeadOutreachSnapshot, LeadQualificationSnapshot } from '../domain/lead-record.ts';
-import { buildLeadContact } from './contact-identity.ts';
+import { buildLeadContactIdentity } from './contact-identity.ts';
 import { buildJourneyEvent } from './journey-events.ts';
 import { createDefaultOutreachSnapshot, deriveLeadRecordStatus } from './outreach.ts';
 import { buildDefaultQualificationSnapshot } from './qualification.ts';
@@ -80,13 +80,18 @@ export function buildFormLeadBundle(input: FormLeadIntakeInput): JourneyBundle {
     attribution: input.attribution ?? null,
   };
 
-  const contact = buildLeadContact({
+  const contactIdentity = buildLeadContactIdentity({
     name: input.name,
     phone: input.phone,
     email: input.email,
-    quoTags: ['Form Lead'],
-    createdAtMs: occurredAtMs,
+    sourceChannel: 'form',
+    sourceMethod: 'typed',
+    sourceEventId: input.quoteRequestId,
+    nameConfidence: 'high',
+    contactPointConfidence: 'high',
+    occurredAtMs,
   });
+  const contact = contactIdentity.contact;
 
   const latestOutreach = input.latestOutreach ?? createDefaultOutreachSnapshot();
   const qualification = buildDefaultQualificationSnapshot(input.qualification);
@@ -197,6 +202,8 @@ export function buildFormLeadBundle(input: FormLeadIntakeInput): JourneyBundle {
 
   return {
     contact,
+    contactObservations: contactIdentity.contactObservations,
+    contactPoints: contactIdentity.contactPoints,
     journey,
     leadRecord,
     events,

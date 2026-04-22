@@ -33,10 +33,13 @@ function makeContact(): LeadContact {
     first_name: 'Alex',
     last_name: 'Customer',
     display_name: 'Alex Customer',
+    display_name_confidence: 'medium',
+    display_name_source_channel: 'form',
+    display_name_source_method: 'typed',
+    primary_phone_contact_point_id: null,
+    primary_email_contact_point_id: null,
     raw_phone: '(408) 555-0100',
     raw_email: 'person@example.com',
-    quo_contact_id: null,
-    quo_tags: [],
     created_at_ms: 1_000,
     updated_at_ms: 1_000,
   };
@@ -120,10 +123,26 @@ function createRepos() {
       getById: async (contactId) => contacts.get(contactId) ?? null,
       findByNormalizedPhone: async () => null,
       findByNormalizedEmail: async () => null,
-      findByQuoContactId: async () => null,
       put: async (contact) => {
         contacts.set(contact.contact_id, contact);
       },
+    },
+    contactObservations: {
+      append: async () => undefined,
+      appendMany: async () => undefined,
+      listByContactId: async () => [],
+    },
+    contactPoints: {
+      findByNormalizedValue: async () => null,
+      getById: async () => null,
+      listByContactId: async () => [],
+      put: async () => undefined,
+    },
+    providerContactProjections: {
+      findByProviderExternalId: async () => null,
+      getById: async () => null,
+      listByContactId: async () => [],
+      put: async () => undefined,
     },
     journeys: {
       getById: async () => null,

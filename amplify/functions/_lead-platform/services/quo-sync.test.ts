@@ -5,6 +5,7 @@ import type { LeadPlatformRepos } from '../repos/dynamo.ts';
 import type { LeadContact } from '../domain/contact.ts';
 import type { JourneyEvent } from '../domain/journey-event.ts';
 import type { LeadRecord } from '../domain/lead-record.ts';
+import type { ProviderContactProjection } from '../domain/provider-contact-projection.ts';
 import { syncQuoLeadContact } from './quo-sync.ts';
 
 function makeContact(overrides: Partial<LeadContact> = {}): LeadContact {
@@ -15,10 +16,13 @@ function makeContact(overrides: Partial<LeadContact> = {}): LeadContact {
     first_name: 'Michael',
     last_name: 'Giraldo',
     display_name: 'Michael Giraldo',
+    display_name_confidence: 'high',
+    display_name_source_channel: 'form',
+    display_name_source_method: 'typed',
+    primary_phone_contact_point_id: null,
+    primary_email_contact_point_id: null,
     raw_phone: '(617) 306-2716',
     raw_email: null,
-    quo_contact_id: null,
-    quo_tags: ['Form Lead'],
     created_at_ms: 1_000,
     updated_at_ms: 1_000,
     ...overrides,
@@ -63,7 +67,7 @@ function makeLeadRecord(overrides: Partial<LeadRecord> = {}): LeadRecord {
 
 test('syncQuoLeadContact upserts Quo contacts and persists remote tags', async () => {
   const originalFetch = globalThis.fetch;
-  const savedContacts: LeadContact[] = [];
+  const savedProjections: ProviderContactProjection[] = [];
   const appendedEvents: JourneyEvent[] = [];
   const requests: string[] = [];
 
@@ -135,9 +139,25 @@ test('syncQuoLeadContact upserts Quo contacts and persists remote tags', async (
       getById: async () => makeContact(),
       findByNormalizedPhone: async () => null,
       findByNormalizedEmail: async () => null,
-      findByQuoContactId: async () => null,
-      put: async (contact) => {
-        savedContacts.push(contact);
+      put: async () => undefined,
+    },
+    contactObservations: {
+      append: async () => undefined,
+      appendMany: async () => undefined,
+      listByContactId: async () => [],
+    },
+    contactPoints: {
+      findByNormalizedValue: async () => null,
+      getById: async () => null,
+      listByContactId: async () => [],
+      put: async () => undefined,
+    },
+    providerContactProjections: {
+      findByProviderExternalId: async () => null,
+      getById: async () => null,
+      listByContactId: async () => [],
+      put: async (projection) => {
+        savedProjections.push(projection);
       },
     },
     journeys: {
@@ -194,9 +214,10 @@ test('syncQuoLeadContact upserts Quo contacts and persists remote tags', async (
     assert.equal(result.synced, true);
     assert.equal(result.quoContactId, 'CT_123');
     assert.deepEqual(result.quoTags, ['Form Lead', 'Chat Lead']);
-    assert.equal(savedContacts.length, 1);
-    assert.equal(savedContacts[0]?.quo_contact_id, 'CT_123');
-    assert.deepEqual(savedContacts[0]?.quo_tags, ['Form Lead', 'Chat Lead']);
+    assert.equal(savedProjections.length, 1);
+    assert.equal(savedProjections[0]?.provider, 'quo');
+    assert.equal(savedProjections[0]?.provider_contact_id, 'CT_123');
+    assert.deepEqual(savedProjections[0]?.tags, ['Form Lead', 'Chat Lead']);
     assert.equal(
       appendedEvents.some((event) => event.event_name === LEAD_EVENTS.quoContactSynced),
       true,

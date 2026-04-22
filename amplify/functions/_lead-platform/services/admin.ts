@@ -24,6 +24,9 @@ export type LeadAdminRecordSummary = {
   capture_channel: LeadRecord['capture_channel'];
   title: string;
   display_name: string | null;
+  display_name_confidence: LeadContact['display_name_confidence'] | null;
+  display_name_source_channel: LeadContact['display_name_source_channel'] | null;
+  display_name_source_method: LeadContact['display_name_source_method'] | null;
   normalized_phone: string | null;
   normalized_email: string | null;
   device_type: DeviceType | null;
@@ -103,6 +106,9 @@ export function toLeadAdminRecordSummary(args: {
     capture_channel: args.leadRecord.capture_channel,
     title: args.leadRecord.title,
     display_name: args.contact?.display_name ?? null,
+    display_name_confidence: args.contact?.display_name_confidence ?? null,
+    display_name_source_channel: args.contact?.display_name_source_channel ?? null,
+    display_name_source_method: args.contact?.display_name_source_method ?? null,
     normalized_phone: args.contact?.normalized_phone ?? null,
     normalized_email: args.contact?.normalized_email ?? null,
     device_type: args.leadRecord.attribution?.device_type ?? null,

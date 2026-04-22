@@ -56,6 +56,9 @@ export type LeadRecordItem = {
   action_count?: number;
   title?: string;
   display_name?: string | null;
+  display_name_confidence?: string | null;
+  display_name_source_channel?: string | null;
+  display_name_source_method?: string | null;
   normalized_phone?: string | null;
   normalized_email?: string | null;
   device_type?: string;

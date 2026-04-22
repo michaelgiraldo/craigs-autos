@@ -6,7 +6,7 @@ import type { JourneyBundle } from '../domain/lead-bundle.ts';
 import type { LeadSummary } from '../domain/lead-summary.ts';
 import type { Journey, JourneyMetadata } from '../domain/journey.ts';
 import type { LeadOutreachSnapshot, LeadQualificationSnapshot } from '../domain/lead-record.ts';
-import { buildLeadContact } from './contact-identity.ts';
+import { buildLeadContactIdentity } from './contact-identity.ts';
 import { buildJourneyEvent } from './journey-events.ts';
 import { createDefaultOutreachSnapshot, deriveLeadRecordStatus } from './outreach.ts';
 import { buildDefaultQualificationSnapshot } from './qualification.ts';
@@ -75,13 +75,18 @@ export function buildChatLeadBundle(input: ChatLeadIntakeInput): JourneyBundle {
     attribution: input.attribution ?? null,
   };
 
-  const contact = buildLeadContact({
+  const contactIdentity = buildLeadContactIdentity({
     name: input.name,
     phone: input.phone,
     email: input.email,
-    quoTags: ['Chat Lead'],
-    createdAtMs: occurredAtMs,
+    sourceChannel: 'chat',
+    sourceMethod: 'ai_extracted',
+    sourceEventId: input.threadId,
+    nameConfidence: 'medium',
+    contactPointConfidence: 'medium',
+    occurredAtMs,
   });
+  const contact = contactIdentity.contact;
 
   const latestOutreach = input.latestOutreach ?? createDefaultOutreachSnapshot();
   const qualification = buildDefaultQualificationSnapshot(input.qualification);
@@ -177,6 +182,8 @@ export function buildChatLeadBundle(input: ChatLeadIntakeInput): JourneyBundle {
 
   return {
     contact,
+    contactObservations: contactIdentity.contactObservations,
+    contactPoints: contactIdentity.contactPoints,
     journey,
     leadRecord,
     events,

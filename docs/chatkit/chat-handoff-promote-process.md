@@ -9,7 +9,7 @@ follow-up outbox migration.
 - `amplify/functions/chat-handoff-promote`: evaluates a ChatKit thread, reserves `LeadFollowupWork`, persists the captured lead, and invokes the worker.
 - `amplify/functions/lead-followup-worker`: owns first-response delivery, lead notification, QUO SMS, SES customer email, and lead outreach sync.
 - `DynamoDB LeadFollowupWork`: durable first-response outbox keyed by `idempotency_key`, with `followup_work_id`, status, lease fields, provider results, and TTL.
-- `DynamoDB LeadJourneys/LeadRecords/LeadContacts/LeadJourneyEvents`: journey-first operational lead storage.
+- `DynamoDB LeadJourneys/LeadRecords/LeadContacts/LeadContactPoints/LeadContactObservations/LeadJourneyEvents`: journey-first operational lead and contact-identity storage.
 - `OpenAI ChatKit`: canonical thread, transcript history, and hosted attachment context.
 
 ## Current Flow

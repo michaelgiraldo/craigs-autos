@@ -277,6 +277,10 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
   - Canonical event names and lifecycle metadata live in `/contracts/lead-event-contract`
   - Domain record types are split by ownership:
     - contact identity: `amplify/functions/_lead-platform/domain/contact.ts`
+    - contact points, contact evidence, and provider contact projections:
+      `amplify/functions/_lead-platform/domain/contact-point.ts`,
+      `amplify/functions/_lead-platform/domain/contact-observation.ts`,
+      `amplify/functions/_lead-platform/domain/provider-contact-projection.ts`
     - journeys: `amplify/functions/_lead-platform/domain/journey.ts`
     - journey events: `amplify/functions/_lead-platform/domain/journey-event.ts`
     - lead records: `amplify/functions/_lead-platform/domain/lead-record.ts`
@@ -296,6 +300,8 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
   - Admin AWS/repository wiring: `amplify/functions/lead-admin-api/runtime.ts`
   - Admin conversion-feedback visibility is built from durable decisions, outbox
     items, and outcomes; do not collapse it back to one provider upload flag.
+  - Canonical contact identity belongs to the lead platform. Provider contact ids
+    such as QUO live in provider contact projections, not on `LeadContact`.
   - Managed conversion feedback contract: `packages/contracts/src/managed-conversion-contract.js`
   - Managed conversion destination bootstrap:
     `amplify/functions/_lead-platform/services/managed-conversion-destinations.ts`

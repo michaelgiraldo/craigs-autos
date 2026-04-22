@@ -18,6 +18,55 @@ export function createStableLeadContactId(args: {
   return createStableId('contact', ['lead-contact', args.normalizedPhone, args.normalizedEmail]);
 }
 
+export function createStableLeadContactPointId(args: {
+  type: string;
+  normalizedValue: string;
+}): string {
+  return createStableId('contact_point', ['lead-contact-point', args.type, args.normalizedValue]);
+}
+
+export function createLeadContactObservationId(args: {
+  contactId: string;
+  kind: string;
+  normalizedValue?: string | null;
+  sourceEventId?: string | null;
+  occurredAtMs: number;
+}): string {
+  return createStableId('contact_observation', [
+    'lead-contact-observation',
+    args.contactId,
+    args.kind,
+    args.normalizedValue,
+    args.sourceEventId,
+    args.occurredAtMs,
+  ]);
+}
+
+export function createLeadContactObservationSortKey(
+  occurredAtMs: number,
+  observationId: string,
+): string {
+  return `${String(occurredAtMs).padStart(16, '0')}#${observationId}`;
+}
+
+export function createStableProviderContactProjectionId(args: {
+  contactId: string;
+  provider: string;
+}): string {
+  return createStableId('provider_contact_projection', [
+    'provider-contact-projection',
+    args.contactId,
+    args.provider,
+  ]);
+}
+
+export function createProviderExternalId(args: {
+  provider: string;
+  providerContactId: string;
+}): string {
+  return `${args.provider}:${args.providerContactId}`;
+}
+
 export function createStableJourneyId(args: {
   providedJourneyId?: string | null;
   fallbackKind?: string | null;

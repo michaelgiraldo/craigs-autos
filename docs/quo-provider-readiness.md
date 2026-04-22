@@ -35,6 +35,8 @@ Runtime rules:
   when available or manual follow-up when phone-only.
 - Email intake remains email-first and does not attempt SMS.
 - QUO contact sync only runs after a successful QUO SMS outreach result.
+- QUO contact ids and synced tags are stored as provider contact projections; the
+  canonical `LeadContact` remains provider-neutral.
 
 ## Stage 2: durable provider outboxes
 

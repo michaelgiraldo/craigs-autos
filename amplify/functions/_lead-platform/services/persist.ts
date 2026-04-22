@@ -3,10 +3,14 @@ import type { Journey } from '../domain/journey.ts';
 import type { JourneyEvent } from '../domain/journey-event.ts';
 import type { LeadRecord } from '../domain/lead-record.ts';
 import type { LeadPlatformRepos } from '../repos/dynamo.ts';
-import { findExistingContact } from './contact-resolver.ts';
+import { resolveLeadContactIdentity } from './contact-resolver.ts';
 import { mergeLeadContacts } from './contact-identity.ts';
 import { mergeJourneys } from './merge-journey.ts';
 import { mergeLeadRecords } from './merge-lead-record.ts';
+
+function contactEvidenceChannel(channel: string): 'form' | 'email' | 'chat' | 'admin' | 'provider' {
+  return channel === 'form' || channel === 'email' || channel === 'chat' ? channel : 'provider';
+}
 
 export async function upsertLeadBundle(
   repos: LeadPlatformRepos,
@@ -14,12 +18,47 @@ export async function upsertLeadBundle(
 ): Promise<JourneyBundle> {
   let persistedContact = bundle.contact;
   if (bundle.contact) {
-    const existingContact = await findExistingContact(repos, bundle.contact);
+    const sourceEvent = bundle.events[0] ?? null;
+    const resolved = await resolveLeadContactIdentity({
+      repos,
+      identity: {
+        contact: bundle.contact,
+        contactObservations: bundle.contactObservations ?? [],
+        contactPoints: bundle.contactPoints ?? [],
+      },
+      sourceChannel: contactEvidenceChannel(
+        bundle.leadRecord?.capture_channel ?? bundle.journey.capture_channel ?? 'provider',
+      ),
+      sourceMethod: 'system',
+      sourceEventId: sourceEvent?.journey_event_id ?? sourceEvent?.client_event_id ?? null,
+      occurredAtMs: bundle.journey.created_at_ms,
+    });
+    const existingContact = resolved.selectedContact;
     persistedContact = existingContact
-      ? mergeLeadContacts(existingContact, bundle.contact)
-      : bundle.contact;
+      ? mergeLeadContacts(existingContact, resolved.identity.contact ?? bundle.contact)
+      : (resolved.identity.contact ?? bundle.contact);
     await repos.contacts.put(persistedContact);
+    await Promise.all(
+      resolved.identity.contactPoints.map((point) =>
+        repos.contactPoints.put({
+          ...point,
+          contact_id: persistedContact?.contact_id ?? point.contact_id,
+        }),
+      ),
+    );
+    await repos.contactObservations.appendMany(
+      resolved.identity.contactObservations.map((observation) => ({
+        ...observation,
+        contact_id: persistedContact?.contact_id ?? observation.contact_id,
+      })),
+    );
   }
+
+  await Promise.all(
+    (bundle.providerContactProjections ?? []).map((projection) =>
+      repos.providerContactProjections.put(projection),
+    ),
+  );
 
   let persistedLeadRecord = bundle.leadRecord;
   if (bundle.leadRecord) {
