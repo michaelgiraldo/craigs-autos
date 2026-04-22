@@ -2,7 +2,8 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import type { SendEmailCommandInput, SESv2Client } from '@aws-sdk/client-sesv2';
 import type { LeadFollowupWorkItem } from '../_lead-platform/domain/lead-followup-work.ts';
-import { createSesCustomerEmailSender } from './customer-email.ts';
+import { createSesEmailProvider } from '../_lead-platform/services/providers/ses/ses-provider.ts';
+import { createCustomerEmailSender } from './customer-email.ts';
 
 const PUBLIC_CONVERSATION_EMAIL = 'contact@craigs.autos';
 const INTERNAL_LEAD_INBOX_EMAIL = 'leads@craigs.autos';
@@ -17,13 +18,13 @@ function createFakeSes(sent: SendEmailCommandInput[]): SESv2Client {
 }
 
 function createSender(sent: SendEmailCommandInput[]) {
-  return createSesCustomerEmailSender({
+  return createCustomerEmailSender({
     bccEmail: INTERNAL_LEAD_INBOX_EMAIL,
+    emailProvider: createSesEmailProvider({ ses: createFakeSes(sent) }),
     emailIntakeFromEmail: PUBLIC_CONVERSATION_EMAIL,
     emailIntakeReplyToEmail: PUBLIC_CONVERSATION_EMAIL,
     fromEmail: PUBLIC_CONVERSATION_EMAIL,
     replyToEmail: PUBLIC_CONVERSATION_EMAIL,
-    ses: createFakeSes(sent),
   });
 }
 

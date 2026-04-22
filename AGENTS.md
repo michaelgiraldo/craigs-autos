@@ -240,8 +240,11 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
   - Async follow-up orchestration lives in `amplify/functions/lead-followup-worker/process-lead-followup-worker.ts`
   - Follow-up state transitions live in `amplify/functions/lead-followup-worker/workflow.ts`
   - DynamoDB follow-up storage lives in `amplify/functions/lead-followup-worker/followup-work-store.ts`
-  - SES delivery adapters live in `amplify/functions/lead-followup-worker/customer-email.ts` and `lead-notification-email.ts`
-  - SMS provider contracts and QUO readiness/delivery live under `amplify/functions/_lead-platform/services/providers/`
+  - Customer and lead-notification email use cases live in
+    `amplify/functions/lead-followup-worker/customer-email.ts` and
+    `lead-notification-email.ts`
+  - Messaging provider contracts, QUO SMS readiness/delivery, and SES email delivery live under
+    `amplify/functions/_lead-platform/services/providers/`
   - AWS/OpenAI/env wiring lives in `amplify/functions/lead-followup-worker/runtime.ts`
   - Do not put quote-submit business logic back into `handler.ts`; keep the handler as transport/response mapping
   - Do not put async follow-up business logic back into `lead-followup-worker/handler.ts`; keep the handler as transport/response mapping
@@ -385,7 +388,7 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
   - Lambda response mapping only: `amplify/functions/quote-request-submit/handler.ts`
   - customer/lead-notification follow-up orchestration: `amplify/functions/lead-followup-worker/process-lead-followup-worker.ts`
   - customer/lead-notification follow-up workflow transitions: `amplify/functions/lead-followup-worker/workflow.ts`
-  - follow-up delivery adapters: `amplify/functions/lead-followup-worker/customer-email.ts`, `lead-notification-email.ts`, and provider modules under `amplify/functions/_lead-platform/services/providers/`
+  - follow-up delivery use cases: `amplify/functions/lead-followup-worker/customer-email.ts`, `lead-notification-email.ts`, and provider modules under `amplify/functions/_lead-platform/services/providers/`
   - frontend fields / quote request UX: `src/features/quote/components/quote-request-form/*`
 - Run:
   - `npm run typecheck:backend`

@@ -43,6 +43,7 @@ Related docs:
   - `amplify/functions/lead-followup-worker/customer-email.ts`
   - `amplify/functions/lead-followup-worker/lead-notification-email.ts`
   - `amplify/functions/_lead-platform/services/providers/quo/quo-provider.ts`
+  - `amplify/functions/_lead-platform/services/providers/ses/ses-provider.ts`
 
 - Message link resolver function:
   - `amplify/functions/lead-action-link-resolve/resource.ts`
@@ -378,6 +379,7 @@ Delivery code:
 
 - Customer email: `amplify/functions/lead-followup-worker/customer-email.ts`
 - Lead notification email: `amplify/functions/lead-followup-worker/lead-notification-email.ts`
+- SES email provider: `amplify/functions/_lead-platform/services/providers/ses/ses-provider.ts`
 - Customer follow-up template: `amplify/functions/lead-followup-worker/customer-followup-template.ts`
 - Lead notification email template: `amplify/functions/lead-followup-worker/lead-notification-template.ts`
 - Shared email rendering helpers: `amplify/functions/lead-followup-worker/email-rendering.ts`

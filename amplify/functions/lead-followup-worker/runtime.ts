@@ -7,15 +7,16 @@ import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { createLeadPlatformRuntime } from '../_lead-platform/runtime.ts';
 import { generateLeadFollowupDrafts } from './drafts.ts';
-import { createSesCustomerEmailSender } from './customer-email.ts';
+import { createCustomerEmailSender } from './customer-email.ts';
 import { createLeadPhotoAttachmentLoader } from './lead-attachments.ts';
 import { createLeadFollowupWorkerLeadSync } from './lead-sync.ts';
-import { createSesLeadNotificationEmailSender } from './lead-notification-email.ts';
+import { createLeadNotificationEmailSender } from './lead-notification-email.ts';
 import {
   createQuoDestinationSyncProvider,
   createQuoMessagingProvider,
   type QuoProviderConfig,
 } from '../_lead-platform/services/providers/quo/quo-provider.ts';
+import { createSesEmailProvider } from '../_lead-platform/services/providers/ses/ses-provider.ts';
 import { createDynamoLeadFollowupWorkStore } from './followup-work-store.ts';
 import type { LeadFollowupWorkerDeps } from './types.ts';
 
@@ -71,6 +72,7 @@ export function createLeadFollowupWorkerRuntime(
   };
   const quoMessagingProvider = createQuoMessagingProvider(quoConfig);
   const quoDestinationSyncProvider = createQuoDestinationSyncProvider(quoConfig);
+  const sesEmailProvider = createSesEmailProvider({ ses: runtimeSes });
   const loadLeadPhotos = createLeadPhotoAttachmentLoader({ s3: runtimeS3 });
   const followupWorkStore = createDynamoLeadFollowupWorkStore({
     db: runtimeDb,
@@ -82,7 +84,7 @@ export function createLeadFollowupWorkerRuntime(
     configValid:
       parsedEnv.success &&
       Boolean(runtimeDb) &&
-      Boolean(runtimeSes) &&
+      sesEmailProvider.readiness.ready &&
       leadPlatformRuntime.configValid,
     createLeaseId: () => randomUUID(),
     smsProviderReadiness: quoMessagingProvider.readiness,
@@ -99,21 +101,21 @@ export function createLeadFollowupWorkerRuntime(
         shopPhoneDisplay: parsedEnv.success ? parsedEnv.data.SHOP_PHONE_DISPLAY : '',
       }),
     sendSms: quoMessagingProvider.sendText,
-    sendCustomerEmail: createSesCustomerEmailSender({
+    sendCustomerEmail: createCustomerEmailSender({
       bccEmail: parsedEnv.success ? parsedEnv.data.QUOTE_CUSTOMER_BCC_EMAIL : '',
+      emailProvider: sesEmailProvider,
       emailIntakeFromEmail: parsedEnv.success ? parsedEnv.data.EMAIL_CUSTOMER_FROM_EMAIL : '',
       emailIntakeReplyToEmail: parsedEnv.success
         ? parsedEnv.data.EMAIL_CUSTOMER_REPLY_TO_EMAIL
         : '',
       fromEmail: parsedEnv.success ? parsedEnv.data.QUOTE_CUSTOMER_FROM_EMAIL : '',
       replyToEmail: parsedEnv.success ? parsedEnv.data.QUOTE_CUSTOMER_REPLY_TO_EMAIL : '',
-      ses: runtimeSes,
     }),
-    sendLeadNotificationEmail: createSesLeadNotificationEmailSender({
+    sendLeadNotificationEmail: createLeadNotificationEmailSender({
+      emailProvider: sesEmailProvider,
       fromEmail: parsedEnv.success ? parsedEnv.data.CONTACT_FROM_EMAIL : '',
       loadAttachments: loadLeadPhotos,
       smsProviderReady: quoMessagingProvider.readiness.ready,
-      ses: runtimeSes,
       toEmail: parsedEnv.success ? parsedEnv.data.CONTACT_TO_EMAIL : '',
     }),
     cleanupInboundEmailSource: async (record) => {

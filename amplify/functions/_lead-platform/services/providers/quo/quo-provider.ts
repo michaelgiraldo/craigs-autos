@@ -1,9 +1,9 @@
 import { SMS_CONTENT_MAX_LENGTH, validateSmsContent } from '../sms-policy.ts';
 import type {
   DestinationSyncProvider,
-  MessagingProvider,
   ProviderReadiness,
   ProviderReadinessIssue,
+  SmsMessagingProvider,
 } from '../provider-contracts.ts';
 import { sendQuoTextMessage } from './quo-client.ts';
 import { isQuoPhoneNumberId, isQuoUserId } from './quo-identifiers.ts';
@@ -117,7 +117,7 @@ export function getQuoDestinationSyncReadiness(config: QuoProviderConfig): Provi
   });
 }
 
-export function createQuoMessagingProvider(config: QuoProviderConfig): MessagingProvider {
+export function createQuoMessagingProvider(config: QuoProviderConfig): SmsMessagingProvider {
   const readiness = getQuoMessagingReadiness(config);
 
   return {

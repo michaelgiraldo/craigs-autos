@@ -2,7 +2,8 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import type { SendEmailCommandInput, SESv2Client } from '@aws-sdk/client-sesv2';
 import type { LeadFollowupWorkItem } from '../_lead-platform/domain/lead-followup-work.ts';
-import { createSesLeadNotificationEmailSender } from './lead-notification-email.ts';
+import { createSesEmailProvider } from '../_lead-platform/services/providers/ses/ses-provider.ts';
+import { createLeadNotificationEmailSender } from './lead-notification-email.ts';
 
 const INTERNAL_LEAD_INBOX_EMAIL = 'leads@craigs.autos';
 
@@ -80,10 +81,10 @@ function makeRecord(overrides: Partial<LeadFollowupWorkItem> = {}): LeadFollowup
 
 test('internal lead notifications use the internal lead inbox identity', async () => {
   const sent: SendEmailCommandInput[] = [];
-  const sendLeadNotificationEmail = createSesLeadNotificationEmailSender({
+  const sendLeadNotificationEmail = createLeadNotificationEmailSender({
+    emailProvider: createSesEmailProvider({ ses: createFakeSes(sent) }),
     fromEmail: INTERNAL_LEAD_INBOX_EMAIL,
     smsProviderReady: false,
-    ses: createFakeSes(sent),
     toEmail: INTERNAL_LEAD_INBOX_EMAIL,
   });
 
@@ -96,7 +97,8 @@ test('internal lead notifications use the internal lead inbox identity', async (
 
 test('internal lead notifications with attachments keep the internal lead inbox raw headers', async () => {
   const sent: SendEmailCommandInput[] = [];
-  const sendLeadNotificationEmail = createSesLeadNotificationEmailSender({
+  const sendLeadNotificationEmail = createLeadNotificationEmailSender({
+    emailProvider: createSesEmailProvider({ ses: createFakeSes(sent) }),
     fromEmail: INTERNAL_LEAD_INBOX_EMAIL,
     loadAttachments: async () => [
       {
@@ -106,7 +108,6 @@ test('internal lead notifications with attachments keep the internal lead inbox 
       },
     ],
     smsProviderReady: false,
-    ses: createFakeSes(sent),
     toEmail: INTERNAL_LEAD_INBOX_EMAIL,
   });
 

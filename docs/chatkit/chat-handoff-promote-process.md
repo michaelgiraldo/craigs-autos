@@ -59,6 +59,7 @@ returning `status = "accepted"`. If the work item is `error`, it returns
 - Customer email: `amplify/functions/lead-followup-worker/customer-email.ts`
 - Lead notification: `amplify/functions/lead-followup-worker/lead-notification-email.ts` and `lead-notification-template.ts`
 - QUO SMS provider: `amplify/functions/_lead-platform/services/providers/quo/quo-provider.ts`
+- SES email provider: `amplify/functions/_lead-platform/services/providers/ses/ses-provider.ts`
 
 Do not add SES or QUO delivery back to `chat-handoff-promote`; that Lambda is an
 intake adapter, not a delivery worker.

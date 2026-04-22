@@ -4,13 +4,18 @@ export type LeadProviderCapability = 'sms_delivery' | 'email_delivery' | 'destin
 
 export type ProviderReadinessIssueCode =
   | 'provider_disabled'
+  | 'missing_client'
   | 'missing_api_key'
   | 'missing_sender_id'
   | 'invalid_sender_id'
   | 'invalid_user_id'
   | 'missing_contact_source'
   | 'missing_external_id_prefix'
-  | 'missing_lead_tags_config';
+  | 'missing_lead_tags_config'
+  | 'missing_sender_email'
+  | 'missing_recipient_email'
+  | 'missing_reply_to_email'
+  | 'missing_bcc_email';
 
 export type ProviderReadinessIssue = {
   code: ProviderReadinessIssueCode;
@@ -31,12 +36,51 @@ export type SmsDeliveryResult = {
   status: string | null;
 };
 
-export type MessagingProvider = {
+export type SmsMessagingProvider = {
   provider: LeadProviderKey;
   capability: 'sms_delivery';
   readiness: ProviderReadiness;
   sendText(args: { body: string; toE164: string }): Promise<SmsDeliveryResult>;
 };
+
+export type EmailDeliveryAttachment = {
+  content: Buffer;
+  contentId?: string;
+  contentType: string;
+  filename: string;
+  inline?: boolean;
+};
+
+export type EmailDeliveryResult = {
+  messageId: string;
+};
+
+export type EmailDeliveryRequiredFields = {
+  bcc?: boolean;
+  replyTo?: boolean;
+};
+
+export type EmailDeliveryInput = {
+  attachments?: EmailDeliveryAttachment[];
+  bcc?: string[];
+  from: string;
+  headers?: Record<string, string | null | undefined>;
+  html: string;
+  replyTo?: string | null;
+  required?: EmailDeliveryRequiredFields;
+  subject: string;
+  text: string;
+  to: string[];
+};
+
+export type EmailMessagingProvider = {
+  provider: LeadProviderKey;
+  capability: 'email_delivery';
+  readiness: ProviderReadiness;
+  sendEmail(args: EmailDeliveryInput): Promise<EmailDeliveryResult>;
+};
+
+export type MessagingProvider = SmsMessagingProvider | EmailMessagingProvider;
 
 export type DestinationSyncProvider = {
   provider: LeadProviderKey;
