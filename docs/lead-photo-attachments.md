@@ -37,7 +37,7 @@ flowchart LR
   Chat["ChatKit file references"] --> Manifest
   Manifest --> Worker["lead-followup-worker"]
   Worker --> OpenAI["OpenAI draft generation"]
-  Worker --> Owner["Owner email attachments"]
+  Worker --> LeadNotice["Lead notification email attachments"]
   Worker --> Cleanup["Transient cleanup after completed workflow"]
 ```
 
@@ -54,9 +54,9 @@ Generic counts are stored on follow-up work for all sources:
 
 | Source | Storage | Worker behavior | Cleanup |
 | --- | --- | --- | --- |
-| Form | Private transient S3 object under `form/{client_event_id}/` | Loads supported S3 photos into OpenAI as image data URLs and attaches them to owner email | Deletes form S3 objects after the workflow completes |
-| Email | Raw SES MIME object | Reparses raw MIME, applies the same JPEG/PNG/WebP limits, and passes supported photos to OpenAI and owner email | Deletes raw MIME after the workflow completes |
-| Chat | ChatKit attachment references | Records supported references/counts for owner context; v1 does not copy ChatKit files into S3 | No local object cleanup |
+| Form | Private transient S3 object under `form/{client_event_id}/` | Loads supported S3 photos into OpenAI as image data URLs and attaches them to lead notification email | Deletes form S3 objects after the workflow completes |
+| Email | Raw SES MIME object | Reparses raw MIME, applies the same JPEG/PNG/WebP limits, and passes supported photos to OpenAI and lead notification email | Deletes raw MIME after the workflow completes |
+| Chat | ChatKit attachment references | Records supported references/counts for lead-recipient context; v1 does not copy ChatKit files into S3 | No local object cleanup |
 
 ## Form Upload Sequence
 
@@ -75,7 +75,7 @@ sequenceDiagram
   QuoteAPI->>S3: HEAD each submitted object
   QuoteAPI->>Worker: LeadFollowupWorkItem with attachment manifest
   Worker->>S3: GET supported photos
-  Worker->>Worker: Send OpenAI draft request + owner email
+  Worker->>Worker: Send OpenAI draft request + lead notification email
   Worker->>S3: DELETE transient form photos after completion
 ```
 

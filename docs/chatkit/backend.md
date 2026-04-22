@@ -41,7 +41,7 @@ Related docs:
   - `amplify/functions/lead-followup-worker/process-lead-followup-worker.ts`
   - `amplify/functions/lead-followup-worker/workflow.ts`
   - `amplify/functions/lead-followup-worker/customer-email.ts`
-  - `amplify/functions/lead-followup-worker/owner-email.ts`
+  - `amplify/functions/lead-followup-worker/lead-notification-email.ts`
   - `amplify/functions/lead-followup-worker/quo-sms.ts`
 
 - Message link resolver function:
@@ -374,13 +374,15 @@ are granted to the worker in backend wiring.
 Delivery code:
 
 - Customer email: `amplify/functions/lead-followup-worker/customer-email.ts`
-- Owner email: `amplify/functions/lead-followup-worker/owner-email.ts`
-- Owner email content: `amplify/functions/lead-followup-worker/email-content.ts`
+- Lead notification email: `amplify/functions/lead-followup-worker/lead-notification-email.ts`
+- Customer follow-up template: `amplify/functions/lead-followup-worker/customer-followup-template.ts`
+- Lead notification email template: `amplify/functions/lead-followup-worker/lead-notification-template.ts`
+- Shared email rendering helpers: `amplify/functions/lead-followup-worker/email-rendering.ts`
 - QUO SMS: `amplify/functions/lead-followup-worker/quo-sms.ts`
 
 Delivery reliability:
 
-- Before each external SMS/customer-email/owner-email provider call, the worker
+- Before each external SMS/customer-email/lead-notification-email provider call, the worker
   saves that channel as `sending` under the active lease.
 - If the provider call returns, the worker updates the channel to `sent` or
   `failed` with the provider message id or error.
@@ -463,8 +465,10 @@ current branch environment.
 
 1) Update the worker email adapters/content:
    - `amplify/functions/lead-followup-worker/customer-email.ts`
-   - `amplify/functions/lead-followup-worker/owner-email.ts`
-   - `amplify/functions/lead-followup-worker/email-content.ts`
+   - `amplify/functions/lead-followup-worker/lead-notification-email.ts`
+   - `amplify/functions/lead-followup-worker/customer-followup-template.ts`
+   - `amplify/functions/lead-followup-worker/lead-notification-template.ts`
+   - `amplify/functions/lead-followup-worker/email-rendering.ts`
 2) Keep HTML + text versions usable (shop staff may read either).
 3) Deploy and test with a new lead source event (completed follow-up work blocks re-sends).
 

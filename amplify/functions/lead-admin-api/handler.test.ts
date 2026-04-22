@@ -252,7 +252,7 @@ test('lead-admin handler returns admin pages in repository order for authorized 
             page_url: 'https://craigs.autos/en/request-a-quote',
             sms_status: 'failed',
             email_status: null,
-            owner_email_status: null,
+            lead_notification_status: null,
             outreach_result: 'customer_outreach_failed',
             error: 'worker unavailable',
             lock_expires_at: null,

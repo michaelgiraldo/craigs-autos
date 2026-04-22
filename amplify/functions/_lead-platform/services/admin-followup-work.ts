@@ -22,7 +22,7 @@ export type LeadAdminFollowupWorkSummary = {
   page_url: string;
   sms_status: LeadFollowupSendStatus;
   email_status: LeadFollowupSendStatus;
-  owner_email_status: LeadFollowupSendStatus;
+  lead_notification_status: LeadFollowupSendStatus;
   outreach_result: LeadFollowupWorkItem['outreach_result'];
   error: string | null;
   lock_expires_at: number | null;
@@ -44,7 +44,7 @@ function hasUnconfirmedDeliveryAttempt(record: LeadFollowupWorkItem): boolean {
   return (
     record.sms_status === 'sending' ||
     record.email_status === 'sending' ||
-    record.owner_email_status === 'sending'
+    record.lead_notification_status === 'sending'
   );
 }
 
@@ -52,7 +52,7 @@ function summarizeFollowupError(record: LeadFollowupWorkItem): string | null {
   return (
     record.customer_email_error ||
     record.sms_error ||
-    record.owner_email_error ||
+    record.lead_notification_error ||
     record.ai_error ||
     null
   );
@@ -111,7 +111,7 @@ export function toLeadAdminFollowupWorkSummary(args: {
     page_url: args.record.page_url,
     sms_status: args.record.sms_status,
     email_status: args.record.email_status,
-    owner_email_status: args.record.owner_email_status,
+    lead_notification_status: args.record.lead_notification_status,
     outreach_result: args.record.outreach_result,
     error: summarizeFollowupError(args.record),
     lock_expires_at: args.record.lock_expires_at ?? null,

@@ -304,7 +304,7 @@ Quote request flow:
 3. browser submits typed quote payload to `quote-request-submit`
 4. backend persists journey, journey event, lead record, contact, and quote request
 5. backend enqueues async follow-up work
-6. worker handles owner notification and customer follow-up
+6. worker handles lead notification and customer follow-up
 7. admin reads the same canonical lead/journey model
 
 Chat flow:
@@ -345,7 +345,7 @@ If that decision changes, implement a shared lead asset pipeline:
 - upload intent endpoint returns a scoped upload target
 - browser uploads image(s)
 - uploaded asset references are stored on the quote request
-- owner notifications include the asset list
+- lead notifications include the asset list
 - admin surfaces asset previews/links
 
 Minimum supported behavior:
@@ -417,7 +417,7 @@ Admin actions:
 - qualify / disqualify
 - add internal note
 - mark customer contacted
-- resend owner notification
+- resend lead notification
 - resend customer follow-up
 
 ## Files And Systems To Delete Or Replace

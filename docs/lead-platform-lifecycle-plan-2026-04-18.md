@@ -32,7 +32,7 @@ flowchart TD
   E --> F["Contact"]
   E --> G["Quote/project request"]
   E --> H["Follow-up workflow"]
-  H --> I["Owner notification"]
+  H --> I["Lead notification"]
   H --> J["Customer SMS/email"]
   E --> K["Admin qualification"]
   K --> L["Ads/reporting export"]
@@ -127,7 +127,7 @@ Why:
 Implementation:
 
 - Keep public submit Lambdas thin: validate, persist, enqueue.
-- Keep async workers responsible for owner/customer notification and provider calls.
+- Keep async workers responsible for customer outreach, lead notification, and provider calls.
 - Move provider-neutral follow-up state transitions into shared lead-core services.
 - Treat QUO and SES as adapters.
 - Store failed/skipped/sent outcomes as workflow events and latest outreach snapshots.
@@ -187,8 +187,8 @@ Why:
 | Worker invocation failure | Mark quote request error and return a submit failure. | quote flow tests |
 | QUO disabled | Mark manual follow-up required, not SMS failure. | lead-followup-worker tests |
 | SMS failure with email fallback | Send email fallback and persist outcome. | lead-followup-worker tests |
-| SMS failure with no email | Persist failure and notify owner. | lead-followup-worker tests |
-| Owner email failure | Mark follow-up error and preserve diagnostic detail. | lead-followup-worker tests |
+| SMS failure with no email | Persist failure and send the lead notification. | lead-followup-worker tests |
+| Lead notification email failure | Mark follow-up error and preserve diagnostic detail. | lead-followup-worker tests |
 | Admin qualifies lead | Update lead record and append verification event. | lead-admin tests |
 | Ads upload later succeeds/fails | Update upload state separately from qualification. | future export tests |
 | Contact submits phone then later email | Merge contact identity by normalized phone/email. | contact repo tests |

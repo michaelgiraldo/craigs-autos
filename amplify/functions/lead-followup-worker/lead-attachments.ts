@@ -118,7 +118,9 @@ async function loadEmailPhotos(args: {
   }
 }
 
-function applyOwnerEmailLimits(photos: LoadedLeadPhotoAttachment[]): LoadedLeadPhotoAttachment[] {
+function applyLeadNotificationEmailLimits(
+  photos: LoadedLeadPhotoAttachment[],
+): LoadedLeadPhotoAttachment[] {
   const limited: LoadedLeadPhotoAttachment[] = [];
   let totalBytes = 0;
   for (const photo of photos) {
@@ -141,6 +143,6 @@ export function createLeadPhotoAttachmentLoader(args: {
       loadEmailPhotos({ record, s3: args.s3 }),
     ]);
 
-    return applyOwnerEmailLimits([...formPhotos, ...emailPhotos]);
+    return applyLeadNotificationEmailLimits([...formPhotos, ...emailPhotos]);
   };
 }

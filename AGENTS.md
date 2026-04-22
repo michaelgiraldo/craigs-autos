@@ -23,7 +23,7 @@ If you are new here, start with:
 - Lead delivery:
   - form, email, and chat all reserve `LeadFollowupWork`, persist a lead bundle,
     and hand the work to `lead-followup-worker`
-  - `lead-followup-worker` owns the first customer response, owner notification,
+  - `lead-followup-worker` owns the first customer response, lead notification,
     QUO SMS, SES customer email, and lead outreach sync
 - Reliability:
   - source-specific intake ledgers prevent duplicate source capture
@@ -240,7 +240,7 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
   - Async follow-up orchestration lives in `amplify/functions/lead-followup-worker/process-lead-followup-worker.ts`
   - Follow-up state transitions live in `amplify/functions/lead-followup-worker/workflow.ts`
   - DynamoDB follow-up storage lives in `amplify/functions/lead-followup-worker/followup-work-store.ts`
-  - SES/QUO adapters live in `amplify/functions/lead-followup-worker/customer-email.ts`, `owner-email.ts`, and `quo-sms.ts`
+  - SES/QUO adapters live in `amplify/functions/lead-followup-worker/customer-email.ts`, `lead-notification-email.ts`, and `quo-sms.ts`
   - AWS/OpenAI/env wiring lives in `amplify/functions/lead-followup-worker/runtime.ts`
   - Do not put quote-submit business logic back into `handler.ts`; keep the handler as transport/response mapping
   - Do not put async follow-up business logic back into `lead-followup-worker/handler.ts`; keep the handler as transport/response mapping
@@ -258,9 +258,9 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
   - Accepted emails reserve `LeadFollowupWork`; they do not create legacy quote queue records
   - Email-first follow-up behavior lives in `amplify/functions/lead-followup-worker/workflow.ts`
   - Threaded customer email lives in `amplify/functions/lead-followup-worker/customer-email.ts`
-  - Owner/OpenAI photo attachment loading lives in
+  - Lead notification/OpenAI photo attachment loading lives in
     `amplify/functions/lead-followup-worker/lead-attachments.ts`
-  - Do not store extracted photos separately unless a future requirement needs it. The raw S3 MIME object exists only so OpenAI and the owner notification can process photos, then it should be deleted.
+  - Do not store extracted photos separately unless a future requirement needs it. The raw S3 MIME object exists only so OpenAI and the lead notification can process photos, then it should be deleted.
   - Do not accept PDFs, documents, ZIPs, or HEIC in v1. Keep attachment processing limited to JPEG, PNG, and WebP.
 
 - Contact form intake / async follow-up:
@@ -362,8 +362,10 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
 ### Update follow-up email templates
 
 - Customer email: `amplify/functions/lead-followup-worker/customer-email.ts`
-- Owner email: `amplify/functions/lead-followup-worker/owner-email.ts`
-- Shared owner content: `amplify/functions/lead-followup-worker/email-content.ts`
+- Lead notification email: `amplify/functions/lead-followup-worker/lead-notification-email.ts`
+- Customer follow-up template: `amplify/functions/lead-followup-worker/customer-followup-template.ts`
+- Lead notification template: `amplify/functions/lead-followup-worker/lead-notification-template.ts`
+- Shared email rendering helpers: `amplify/functions/lead-followup-worker/email-rendering.ts`
 - Keep both HTML and text paths readable in Gmail desktop + mobile.
 - Test with a new `idempotency_key`; completed work is intentionally idempotent.
 
@@ -376,7 +378,7 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
   - Lambda response mapping only: `amplify/functions/quote-request-submit/handler.ts`
   - customer/shop follow-up orchestration: `amplify/functions/lead-followup-worker/process-lead-followup-worker.ts`
   - customer/shop follow-up workflow transitions: `amplify/functions/lead-followup-worker/workflow.ts`
-  - follow-up delivery adapters: `amplify/functions/lead-followup-worker/customer-email.ts`, `owner-email.ts`, `quo-sms.ts`
+  - follow-up delivery adapters: `amplify/functions/lead-followup-worker/customer-email.ts`, `lead-notification-email.ts`, `quo-sms.ts`
   - frontend fields / quote request UX: `src/features/quote/components/quote-request-form/*`
 - Run:
   - `npm run typecheck:backend`
@@ -387,7 +389,7 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
 - Validate:
   - form submit creates a `LeadFollowupWork` item keyed by `idempotency_key`
   - `LeadFollowupWork` moves `queued -> processing -> completed|error`
-  - owner email is sent
+  - lead notification email is sent
   - journey / lead record updates appear in admin
 
 ### Change follow-up idempotency timing (lease/ttl)

@@ -93,14 +93,14 @@ Interpretation:
 
 - `status = completed`:
   - The worker completed first-response handling.
-  - Look at `sms_status`, `email_status`, `owner_email_status`, provider ids, and errors.
+  - Look at `sms_status`, `email_status`, `lead_notification_status`, provider ids, and errors.
 
 - `status = processing` and `lock_expires_at` in the future:
   - The worker is processing the item.
   - Wait for the worker lease to expire or inspect CloudWatch.
 
 - `status = error`:
-  - Delivery or owner notification failed.
+  - Delivery or lead notification failed.
   - Check CloudWatch logs for the error.
 
 ### 5) Check CloudWatch logs for the Lambda functions
@@ -249,7 +249,7 @@ If you see duplicates, check:
 
 2) DynamoDB `LeadFollowupWork`:
    - Verify only one item exists for `idempotency_key = chat:<cthr_...>`.
-   - Verify `status`, `sms_status`, `email_status`, and `owner_email_status`.
+   - Verify `status`, `sms_status`, `email_status`, and `lead_notification_status`.
 
 3) Multiple environments:
    - Are two different backends completing handoff (ex: staging + prod)?

@@ -72,7 +72,7 @@ Revisit S3 if we need any of these:
 
 - Quote form photo uploads outside ChatKit.
 - Admin lead pages that browse customer photos.
-- Owner emails that must embed photos without depending on ChatKit/OpenAI
+- Lead notification emails that must embed photos without depending on ChatKit/OpenAI
   attachment availability.
 - A formal lead attachment record linked to `journey_id`, `thread_id`, or
   `lead_record_id`.

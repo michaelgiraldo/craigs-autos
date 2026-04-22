@@ -246,7 +246,7 @@ test('getLeadFollowupRetryBlockReason blocks unconfirmed delivery attempts', () 
       record: makeFollowupWork({
         status: 'error',
         sms_status: 'sending',
-        owner_email_error: 'delivery_attempt_unconfirmed',
+        lead_notification_error: 'delivery_attempt_unconfirmed',
       }),
     }),
     'delivery_attempt_unconfirmed',

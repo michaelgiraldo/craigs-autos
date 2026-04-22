@@ -28,11 +28,11 @@ function makeRepos(store: Map<string, LeadFollowupWorkItem>): LeadPlatformRepos 
   } as unknown as LeadPlatformRepos;
 }
 
-test('async quote flow sends SMS first and notifies the owner end-to-end', async () => {
+test('async quote flow sends SMS first and sends the lead notification end-to-end', async () => {
   const quoteRequests = makeStore();
   const smsSends: Array<{ toE164: string; body: string }> = [];
   const customerEmails: string[] = [];
-  const ownerEmails: string[] = [];
+  const leadNotificationEmails: string[] = [];
 
   const leadFollowupWorker = createLeadFollowupWorkerHandler({
     configValid: true,
@@ -62,9 +62,9 @@ test('async quote flow sends SMS first and notifies the owner end-to-end', async
       customerEmails.push(to);
       return { messageId: 'email-123' };
     },
-    sendOwnerEmail: async ({ record }) => {
-      ownerEmails.push(record.followup_work_id);
-      return { messageId: 'owner-123' };
+    sendLeadNotificationEmail: async ({ record }) => {
+      leadNotificationEmails.push(record.followup_work_id);
+      return { messageId: 'lead-notification-123' };
     },
   });
 
@@ -96,13 +96,13 @@ test('async quote flow sends SMS first and notifies the owner end-to-end', async
   assert.equal(result.statusCode, 200);
   assert.equal(smsSends.length, 1);
   assert.equal(customerEmails.length, 0);
-  assert.equal(ownerEmails.length, 1);
+  assert.equal(leadNotificationEmails.length, 1);
 
   const stored = quoteRequests.get('form:flow-1');
   assert.equal(stored?.status, 'completed');
   assert.equal(stored?.sms_status, 'sent');
   assert.equal(stored?.email_status, 'skipped');
-  assert.equal(stored?.owner_email_status, 'sent');
+  assert.equal(stored?.lead_notification_status, 'sent');
   assert.equal(stored?.outreach_result, 'sms_sent');
 });
 
@@ -110,7 +110,7 @@ test('async quote flow falls back to email when the stored follow-up work has no
   const quoteRequests = makeStore();
   const smsSends: Array<{ toE164: string; body: string }> = [];
   const customerEmails: string[] = [];
-  const ownerEmails: string[] = [];
+  const leadNotificationEmails: string[] = [];
 
   const leadFollowupWorker = createLeadFollowupWorkerHandler({
     configValid: true,
@@ -140,9 +140,9 @@ test('async quote flow falls back to email when the stored follow-up work has no
       customerEmails.push(to);
       return { messageId: 'email-123' };
     },
-    sendOwnerEmail: async ({ record }) => {
-      ownerEmails.push(record.followup_work_id);
-      return { messageId: 'owner-123' };
+    sendLeadNotificationEmail: async ({ record }) => {
+      leadNotificationEmails.push(record.followup_work_id);
+      return { messageId: 'lead-notification-123' };
     },
   });
 
@@ -185,9 +185,9 @@ test('async quote flow falls back to email when the stored follow-up work has no
     customer_email_error: '',
     outreach_channel: null,
     outreach_result: null,
-    owner_email_status: null,
-    owner_email_message_id: '',
-    owner_email_error: '',
+    lead_notification_status: null,
+    lead_notification_message_id: '',
+    lead_notification_error: '',
   });
 
   const result = await leadFollowupWorker({ idempotency_key: 'form:followup-work-2' });
@@ -195,7 +195,7 @@ test('async quote flow falls back to email when the stored follow-up work has no
   assert.equal(result.statusCode, 200);
   assert.equal(smsSends.length, 0);
   assert.deepEqual(customerEmails, ['customer@example.com']);
-  assert.equal(ownerEmails.length, 1);
+  assert.equal(leadNotificationEmails.length, 1);
 
   const stored = quoteRequests.get('form:followup-work-2');
   assert.equal(stored?.status, 'completed');
@@ -235,7 +235,7 @@ test('async quote flow marks phone-only follow-up works for manual follow-up whe
   const quoteRequests = makeStore();
   const smsSends: Array<{ toE164: string; body: string }> = [];
   const customerEmails: string[] = [];
-  const ownerEmails: string[] = [];
+  const leadNotificationEmails: string[] = [];
 
   const leadFollowupWorker = createLeadFollowupWorkerHandler({
     configValid: true,
@@ -265,9 +265,9 @@ test('async quote flow marks phone-only follow-up works for manual follow-up whe
       customerEmails.push(to);
       return { messageId: 'email-should-not-send' };
     },
-    sendOwnerEmail: async ({ record }) => {
-      ownerEmails.push(record.followup_work_id);
-      return { messageId: 'owner-456' };
+    sendLeadNotificationEmail: async ({ record }) => {
+      leadNotificationEmails.push(record.followup_work_id);
+      return { messageId: 'lead-notification-456' };
     },
   });
 
@@ -299,7 +299,7 @@ test('async quote flow marks phone-only follow-up works for manual follow-up whe
   assert.equal(result.statusCode, 200);
   assert.equal(smsSends.length, 0);
   assert.equal(customerEmails.length, 0);
-  assert.equal(ownerEmails.length, 1);
+  assert.equal(leadNotificationEmails.length, 1);
 
   const stored = quoteRequests.get('form:flow-4');
   assert.equal(stored?.status, 'completed');

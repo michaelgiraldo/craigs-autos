@@ -11,7 +11,7 @@ Inbound email lead intake is backend-only. It does not add a public website rout
 5. The Lambda parses MIME, validates the Google route headers, rejects replies/auto-responses/non-leads, and sends only email text plus JPEG/PNG/WebP photo attachments to OpenAI.
 6. Accepted leads reserve `LeadFollowupWork`, persist into the journey-first lead tables, and hand the work to `lead-followup-worker`.
 7. The worker sends the first customer response by email, using `victor@craigs.autos` for `From` and `Reply-To`, not `contact@craigs.autos`.
-8. The worker sends the shop notification and attaches accepted inbound photos when they still fit the owner email budget.
+8. The worker sends the shop notification and attaches accepted inbound photos when they still fit the lead notification email budget.
 9. Raw S3 mail is explicitly deleted after completed processing. Rejected/skipped messages are deleted by the intake Lambda. A 1-day S3 lifecycle rule is only a safety net.
 
 ## Google Workspace Requirements
@@ -59,7 +59,7 @@ SES only has one active receipt rule set per region. This backend activates `cra
 - Shared follow-up work repo: `amplify/functions/_lead-platform/repos/dynamo/followup-work.ts`
 - Email-first follow-up branch: `amplify/functions/lead-followup-worker/workflow.ts`
 - Threaded customer email: `amplify/functions/lead-followup-worker/customer-email.ts`
-- Owner/OpenAI photo attachment loading: `amplify/functions/lead-followup-worker/lead-attachments.ts`
+- Lead notification/OpenAI photo attachment loading: `amplify/functions/lead-followup-worker/lead-attachments.ts`
 
 ## Guardrails
 

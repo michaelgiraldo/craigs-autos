@@ -32,7 +32,7 @@ test('createLeadFollowupWorkItem creates a queued request with canonical lead li
   assert.equal(record.ttl, 1_000 + LEAD_FOLLOWUP_WORK_TTL_DAYS * 24 * 60 * 60);
   assert.equal(record.sms_status, null);
   assert.equal(record.email_status, null);
-  assert.equal(record.owner_email_status, null);
+  assert.equal(record.lead_notification_status, null);
   assert.deepEqual(record.attachments, []);
   assert.equal(record.attachment_count, 0);
   assert.equal(record.photo_attachment_count, 0);

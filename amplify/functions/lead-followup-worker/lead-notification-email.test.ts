@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import type { SendEmailCommandInput, SESv2Client } from '@aws-sdk/client-sesv2';
 import type { LeadFollowupWorkItem } from '../_lead-platform/domain/lead-followup-work.ts';
-import { createSesOwnerEmailSender } from './owner-email.ts';
+import { createSesLeadNotificationEmailSender } from './lead-notification-email.ts';
 
 const INTERNAL_LEAD_INBOX_EMAIL = 'leads@craigs.autos';
 
@@ -52,9 +52,9 @@ function makeRecord(overrides: Partial<LeadFollowupWorkItem> = {}): LeadFollowup
     origin: 'chat',
     outreach_channel: 'email',
     outreach_result: 'email_sent_fallback',
-    owner_email_error: '',
-    owner_email_message_id: '',
-    owner_email_status: null,
+    lead_notification_error: '',
+    lead_notification_message_id: '',
+    lead_notification_status: null,
     page_url: 'https://craigs.autos/en/request-a-quote/',
     phone: '',
     photo_attachment_count: 0,
@@ -79,14 +79,14 @@ function makeRecord(overrides: Partial<LeadFollowupWorkItem> = {}): LeadFollowup
 
 test('internal lead notifications use the internal lead inbox identity', async () => {
   const sent: SendEmailCommandInput[] = [];
-  const sendOwnerEmail = createSesOwnerEmailSender({
+  const sendLeadNotificationEmail = createSesLeadNotificationEmailSender({
     fromEmail: INTERNAL_LEAD_INBOX_EMAIL,
     quoEnabled: false,
     ses: createFakeSes(sent),
     toEmail: INTERNAL_LEAD_INBOX_EMAIL,
   });
 
-  await sendOwnerEmail({ record: makeRecord() });
+  await sendLeadNotificationEmail({ record: makeRecord() });
 
   assert.equal(sent.length, 1);
   assert.equal(sent[0]?.FromEmailAddress, INTERNAL_LEAD_INBOX_EMAIL);
@@ -95,7 +95,7 @@ test('internal lead notifications use the internal lead inbox identity', async (
 
 test('internal lead notifications with attachments keep the internal lead inbox raw headers', async () => {
   const sent: SendEmailCommandInput[] = [];
-  const sendOwnerEmail = createSesOwnerEmailSender({
+  const sendLeadNotificationEmail = createSesLeadNotificationEmailSender({
     fromEmail: INTERNAL_LEAD_INBOX_EMAIL,
     loadAttachments: async () => [
       {
@@ -109,7 +109,7 @@ test('internal lead notifications with attachments keep the internal lead inbox 
     toEmail: INTERNAL_LEAD_INBOX_EMAIL,
   });
 
-  await sendOwnerEmail({ record: makeRecord({ photo_attachment_count: 1 }) });
+  await sendLeadNotificationEmail({ record: makeRecord({ photo_attachment_count: 1 }) });
 
   assert.equal(sent.length, 1);
   assert.equal(sent[0]?.FromEmailAddress, INTERNAL_LEAD_INBOX_EMAIL);
@@ -118,5 +118,6 @@ test('internal lead notifications with attachments keep the internal lead inbox 
   const raw = Buffer.from(sent[0]?.Content?.Raw?.Data ?? '').toString('utf8');
   assert.match(raw, /^From: leads@craigs\.autos$/m);
   assert.match(raw, /^To: leads@craigs\.autos$/m);
+  assert.match(raw, /^X-Craigs-Email-Intake: owner-notification-v1$/m);
   assert.match(raw, /^Content-Type: image\/jpeg; name="seat\.jpg"$/m);
 });

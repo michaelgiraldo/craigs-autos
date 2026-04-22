@@ -32,7 +32,7 @@ test('buildRawEmail keeps attachment transfer encoding in the attachment header 
   const raw = buildRawEmail({
     from: 'victor@craigs.autos',
     to: ['shop@example.com'],
-    subject: 'Owner notification',
+    subject: 'Lead notification',
     text: 'Text',
     html: '<p>Text</p>',
     attachments: [

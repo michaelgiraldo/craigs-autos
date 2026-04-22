@@ -119,7 +119,7 @@ export type FollowupWorkItem = {
   page_url?: string;
   sms_status?: string | null;
   email_status?: string | null;
-  owner_email_status?: string | null;
+  lead_notification_status?: string | null;
   outreach_result?: string | null;
   error?: string | null;
   lock_expires_at?: number | null;

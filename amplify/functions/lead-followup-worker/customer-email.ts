@@ -2,7 +2,7 @@ import type { SESv2Client } from '@aws-sdk/client-sesv2';
 import { SendEmailCommand } from '@aws-sdk/client-sesv2';
 import { buildEmailThreadingHeaders } from '../_shared/email-threading.ts';
 import { buildRawEmail } from '../_shared/outgoing-email.ts';
-import { buildCustomerEmailHtml } from './email-content.ts';
+import { buildCustomerFollowupEmailHtml } from './customer-followup-template.ts';
 import type { LeadFollowupWorkerDeps } from './types.ts';
 
 export function createSesCustomerEmailSender(args: {
@@ -36,7 +36,7 @@ export function createSesCustomerEmailSender(args: {
                 replyTo: replyToEmail,
                 subject,
                 text: body,
-                html: buildCustomerEmailHtml(body),
+                html: buildCustomerFollowupEmailHtml(body),
                 headers: {
                   ...buildEmailThreadingHeaders({
                     sourceMessageId: record.source_message_id,
@@ -70,7 +70,7 @@ export function createSesCustomerEmailSender(args: {
             Body: {
               Html: {
                 Charset: 'UTF-8',
-                Data: buildCustomerEmailHtml(body),
+                Data: buildCustomerFollowupEmailHtml(body),
               },
               Text: {
                 Charset: 'UTF-8',

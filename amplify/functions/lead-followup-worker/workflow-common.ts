@@ -66,7 +66,7 @@ function hasPendingDeliveryAttempt(record: LeadFollowupWorkItem): boolean {
   return (
     isDeliveryAttemptInProgress(record.sms_status) ||
     isDeliveryAttemptInProgress(record.email_status) ||
-    isDeliveryAttemptInProgress(record.owner_email_status)
+    isDeliveryAttemptInProgress(record.lead_notification_status)
   );
 }
 
@@ -76,7 +76,7 @@ async function pendingDeliveryAttemptOutcome(
 ): Promise<LeadFollowupWorkflowOutcome> {
   record.status = 'error';
   record.lock_expires_at = undefined;
-  record.owner_email_error = record.owner_email_error || 'delivery_attempt_unconfirmed';
+  record.lead_notification_error = record.lead_notification_error || 'delivery_attempt_unconfirmed';
   await persistRecord(deps, record);
   return {
     statusCode: 502,
@@ -265,34 +265,34 @@ async function cleanupLeadAttachments(deps: LeadFollowupWorkerDeps, record: Lead
   }
 }
 
-async function sendOwnerNotification(
+async function sendLeadNotification(
   deps: LeadFollowupWorkerDeps,
   record: LeadFollowupWorkItem,
 ): Promise<LeadFollowupWorkflowOutcome | null> {
-  if (record.owner_email_status === 'sent' || record.owner_email_status === 'sending') {
+  if (record.lead_notification_status === 'sent' || record.lead_notification_status === 'sending') {
     return null;
   }
 
-  record.owner_email_status = 'sending';
-  record.owner_email_error = '';
+  record.lead_notification_status = 'sending';
+  record.lead_notification_error = '';
   await persistRecord(deps, record);
 
   try {
-    const ownerEmailResult = await deps.sendOwnerEmail({ record });
-    record.owner_email_status = 'sent';
-    record.owner_email_message_id = ownerEmailResult.messageId;
-    record.owner_email_error = '';
+    const leadNotificationResult = await deps.sendLeadNotificationEmail({ record });
+    record.lead_notification_status = 'sent';
+    record.lead_notification_message_id = leadNotificationResult.messageId;
+    record.lead_notification_error = '';
     return null;
   } catch (error: unknown) {
     const { message } = getErrorDetails(error);
-    record.owner_email_status = 'failed';
-    record.owner_email_error = message ?? 'Internal owner email send failed';
+    record.lead_notification_status = 'failed';
+    record.lead_notification_error = message ?? 'Internal lead notification email send failed';
     record.status = 'error';
     record.lock_expires_at = undefined;
     await persistRecord(deps, record);
     return {
       statusCode: 502,
-      body: { error: 'Owner notification failed' },
+      body: { error: 'Lead notification failed' },
     };
   }
 }
@@ -310,9 +310,9 @@ export async function completeWorkflow(args: {
     return pendingDeliveryAttemptOutcome(deps, record);
   }
 
-  const ownerFailure = await sendOwnerNotification(deps, record);
-  if (ownerFailure) {
-    return ownerFailure;
+  const leadNotificationFailure = await sendLeadNotification(deps, record);
+  if (leadNotificationFailure) {
+    return leadNotificationFailure;
   }
 
   record.status = 'completed';
@@ -343,8 +343,8 @@ export async function failWorkflow(args: {
   const { message } = getErrorDetails(args.error);
   args.record.status = 'error';
   args.record.lock_expires_at = undefined;
-  args.record.owner_email_error =
-    args.record.owner_email_error || message || 'Quote follow-up failed';
+  args.record.lead_notification_error =
+    args.record.lead_notification_error || message || 'Quote follow-up failed';
   await persistRecord(args.deps, args.record);
   return {
     statusCode: 502,

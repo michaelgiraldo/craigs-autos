@@ -125,7 +125,7 @@ flowchart TD
   Channel -->|"form/chat with phone"| SmsFirst["QUO SMS if enabled"]
   SmsFirst -->|"QUO disabled or failed with email"| EmailFallback["SES customer fallback email"]
   SmsFirst -->|"QUO disabled and no email"| Manual["Manual follow-up required"]
-  EmailFirst --> Owner["SES owner notification"]
+  EmailFirst --> Owner["SES lead notification"]
   EmailFallback --> Owner
   Manual --> Owner
   Owner --> Complete["Mark LeadFollowupWork completed"]
@@ -181,7 +181,7 @@ flowchart TD
   Lease -->|"no"| Skip["Skip as in-progress"]
   Lease -->|"yes"| Providers["OpenAI / SES / QUO"]
   Providers -->|"success"| Complete["completed"]
-  Providers -->|"owner notification fails or fatal error"| Error["error"]
+  Providers -->|"lead notification fails or fatal error"| Error["error"]
   Error --> Gap["Current gap: no alarm or automatic re-drive verified"]
   Complete --> Sync["LeadRecord sync"]
 ```
@@ -236,7 +236,7 @@ What happens:
 2. `quote-request-submit` validates request shape and contact method.
 3. It persists lead context, creates `LeadSourceEvent` in code, creates `LeadFollowupWork`, enqueues it, and async invokes `lead-followup-worker`.
 4. Worker drafts response, tries SMS first if phone exists and SMS automation is enabled, otherwise uses email fallback or manual follow-up.
-5. Worker sends owner notification and updates lead outreach state.
+5. Worker sends lead notification and updates lead outreach state.
 
 Evidence:
 
@@ -284,7 +284,7 @@ What happens:
 3. SES stores raw MIME in private S3 under `raw/`.
 4. S3 object creation invokes `email-intake-capture`.
 5. Lambda validates Google route headers, rejects replies/auto-responses/lists/non-leads, parses text and photos, uses OpenAI classification, persists accepted lead, enqueues `LeadFollowupWork`, and invokes worker.
-6. Worker sends threaded customer email from `victor@craigs.autos`, sends owner email with accepted photos, then deletes the raw S3 object.
+6. Worker sends threaded customer email from `victor@craigs.autos`, sends lead notification email with accepted photos, then deletes the raw S3 object.
 
 Evidence:
 
@@ -314,13 +314,13 @@ Business risk:
 
 | SES operation | Current behavior | Risk |
 | --- | --- | --- |
-| Customer email send fails | `email_status='failed'`, worker may still send owner notification depending path | Customer may not get first response |
-| Owner notification fails | Work item becomes `error`; workflow returns 502 | Shop may not know unless someone checks logs/table |
+| Customer email send fails | `email_status='failed'`, worker may still send lead notification depending path | Customer may not get first response |
+| Lead notification fails | Work item becomes `error`; workflow returns 502 | Shop may not know unless someone checks logs/table |
 | Bounce/complaint after send | Not verified | Could harm deliverability or hide customer non-delivery |
 
 ### What Happens When QUO/SMS Is Disabled?
 
-Current behavior: this is handled intentionally. `attemptSmsOutreach` marks SMS skipped with `manual_followup_required` when automation is disabled. Completed production follow-up work shows `sms_status=skipped`, `email_status=sent`, `owner_email_status=sent` for form/chat/email examples.
+Current behavior: this is handled intentionally. `attemptSmsOutreach` marks SMS skipped with `manual_followup_required` when automation is disabled. Completed production follow-up work shows `sms_status=skipped`, `email_status=sent`, `lead_notification_status=sent` for form/chat/email examples.
 
 Business meaning: SMS disabled is not a system failure. It means the platform should either send email fallback when possible or tell the operator manual follow-up is required.
 
@@ -346,7 +346,7 @@ Business meaning: this is good. It prevents the AI from responding again when Vi
 
 | Attachment scenario | Current behavior | Business impact |
 | --- | --- | --- |
-| JPEG/PNG/WebP under limits | Accepted for AI classification; owner notification can attach photos | Good v1 scope |
+| JPEG/PNG/WebP under limits | Accepted for AI classification; lead notification can attach photos | Good v1 scope |
 | PDF/document/ZIP/HEIC | Counted unsupported and ignored | Customer may expect file reviewed, but system ignores it |
 | Photo over 5 MB | Ignored | Potentially misses useful evidence |
 | More than 4 accepted photos for AI | Extra photos ignored | AI may not see all damage |
@@ -419,7 +419,7 @@ Risk:
 
 | Data | Safe deletion timing |
 | --- | --- |
-| Raw S3 email object | After email classification, owner notification attachment loading, and customer response completion/rejection |
+| Raw S3 email object | After email classification, lead notification attachment loading, and customer response completion/rejection |
 | Failed/old `LeadFollowupWork` | Only after an operator has resolved it or retention policy expires |
 | Email ledger rows | After dedupe window expires, currently 180 days |
 | ChatKit threads | After business retention period and if no longer needed for audit/support |
@@ -430,7 +430,7 @@ Risk:
 | --- | --- | --- |
 | Lead captured | Good through journey/lead events | `LeadSourceEvent` itself not stored separately |
 | First customer response sent | Good in `LeadFollowupWork` and `LeadRecord.latest_outreach` | Admin lacks detailed follow-up queue view |
-| Owner notification sent | Good in `LeadFollowupWork` | Alerting missing |
+| Lead notification sent | Good in `LeadFollowupWork` | Alerting missing |
 | AI generated fallback vs generated draft | Good in work fields | No aggregate monitoring |
 | Admin qualification | Present through conversion feedback decisions/outbox | Need per-user admin identity for enterprise |
 
@@ -514,7 +514,7 @@ Good:
 
 Gap:
 
-- No local image malware scan, no EXIF stripping before owner email, and no explicit PII redaction. For the current small-business workflow this is acceptable; for enterprise it is not enough.
+- No local image malware scan, no EXIF stripping before lead notification email, and no explicit PII redaction. For the current small-business workflow this is acceptable; for enterprise it is not enough.
 
 ### PII Logging
 
@@ -575,11 +575,11 @@ Recommendation:
 | Duplicate email delivery | Usually no duplicate response | Extra processing | Message/thread ledger blocks duplicates and deletes raw duplicate | Email ledger | None needed | Keep Google route docs current | Low |
 | Duplicate ChatKit handoff | Usually no duplicate response | Duplicate risk reduced | `chat:<threadId>` idempotency and completed/in-progress checks | `LeadFollowupWork` GSI | None needed | Add alarm on duplicate conflict count if measured | Low |
 | OpenAI outage | Chat/email AI may fail; drafts fallback for worker | Lead capture or response quality degraded | Draft worker falls back; email classification throws; chat session/handoff can fail | Lambda errors/logs | Retry manually or wait | Add alarms and fallback manual queue for email classification | High |
-| SES outage | Customer/owner email not sent | Lead may not be answered or shop not notified | Work marked failed/error depending path | Lambda errors/work status | Retry work item | Add SES alarms, bounce/complaint event destination, retry UI | High |
+| SES outage | Customer/lead notification email not sent | Lead may not be answered or shop not notified | Work marked failed/error depending path | Lambda errors/work status | Retry work item | Add SES alarms, bounce/complaint event destination, retry UI | High |
 | DynamoDB throttling | Intake/worker errors | Lead capture/follow-up delayed | SDK throws; no explicit DLQ | Lambda errors | Retry/manual | Add alarms on DynamoDB throttles and Lambda errors | High |
 | Lambda timeout | Work may remain processing until lease expires | Delayed or lost first response | Lease expires after 5 minutes; no alarm | Lambda timeout metrics | Re-invoke worker | Add timeout alarm and re-drive scheduled worker | High |
 | S3 delete failure | Raw email remains until lifecycle | PII retained up to 1 day | Cleanup error logged, lifecycle expires | Logs/S3 age | Lifecycle handles | Add S3 age alarm for raw objects older than 2 hours | Medium |
-| Provider partial success | Customer may get message but owner notification fails | Confusing state | Work can be error after partial result | Work status/logs | Manual inspection | Store clearer partial-success state and admin view | Medium |
+| Provider partial success | Customer may get message but lead notification fails | Confusing state | Work can be error after partial result | Work status/logs | Manual inspection | Store clearer partial-success state and admin view | Medium |
 | Build/deploy failure | New changes not live | Slower release | Amplify job fails; recent job 155 failed then 156 succeeded | Amplify jobs | Fix and redeploy | Add deploy failure notifications | Medium |
 | Bad environment variable | Function returns 500 or disabled provider | Feature unavailable | Zod config validation exists in handlers/runtime | Lambda errors | Fix Amplify secret/env and redeploy | Add config smoke checks after deploy | High |
 | Google Workspace routing mistake | Email automation stops or duplicates | Leads may not auto-respond | Route header validation rejects bad route; normal group may still deliver | SES no-message metric is not configured | Fix Google route | Add synthetic email intake smoke and alert | High |
@@ -616,7 +616,7 @@ Evidence:
 | Deploy confidence | Every deploy posts pass/fail with build, backend tests, ChatKit smoke, admin smoke, and synthetic email route smoke |
 | Rollback | Documented "revert commit and redeploy" plus "disable auto-response" emergency switch |
 | Runtime monitoring | CloudWatch dashboard for Lambda errors, duration, throttles, follow-up backlog, SES sends/failures, S3 raw object age |
-| Incident response | Runbook with severity levels, owner notification, customer manual follow-up procedure |
+| Incident response | Runbook with severity levels, lead notification, customer manual follow-up procedure |
 | Secrets | Rotation guide and least-privilege access |
 | Dependency security | Scheduled audit, policy for prod vs dev vulnerabilities, Renovate/Dependabot policy |
 | Environments | Clear dev/staging/prod or explicit statement that `main` is production |
@@ -658,7 +658,7 @@ Evidence:
 
 ### Is `AGENTS.md` Accurate?
 
-Mostly yes. It now says form, email, and chat enqueue `LeadFollowupWork`; it says `lead-followup-worker` owns first customer response and owner notification; it says accepted email does not create legacy quote queue records. This matches the current code and tests.
+Mostly yes. It now says form, email, and chat enqueue `LeadFollowupWork`; it says `lead-followup-worker` owns first customer response and lead notification; it says accepted email does not create legacy quote queue records. This matches the current code and tests.
 
 ### Local Development
 
@@ -683,7 +683,7 @@ This does not mean the system is bad. It means enterprise readiness requires con
 | Capability | Current fit |
 | --- | --- |
 | Auto first response | Good |
-| Owner notification | Good |
+| Lead notification | Good |
 | Basic lead visibility | Usable |
 | Email photo intake | Good v1 scope |
 | Manual fallback when SMS disabled | Good |
@@ -783,7 +783,7 @@ Acceptable risk today:
 - Using this for Craig's current lead intake with owner awareness that the system is still early.
 - Keeping raw email/photos temporary and limited to image attachments.
 - Auto-sending cautious first responses that ask for next-step details rather than quoting prices.
-- Running with QUO disabled as long as manual follow-up is visible and owner notification works.
+- Running with QUO disabled as long as manual follow-up is visible and lead notification works.
 
 Unacceptable risk before relying on it more heavily:
 

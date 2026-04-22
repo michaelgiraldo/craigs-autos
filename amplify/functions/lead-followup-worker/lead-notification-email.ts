@@ -1,25 +1,28 @@
 import type { SESv2Client } from '@aws-sdk/client-sesv2';
 import { SendEmailCommand } from '@aws-sdk/client-sesv2';
 import { buildRawEmail, type OutgoingEmailAttachment } from '../_shared/outgoing-email.ts';
-import { buildOwnerEmailContent, buildResultLabel } from './email-content.ts';
+import {
+  buildLeadNotificationEmailContent,
+  buildLeadNotificationResultLabel,
+} from './lead-notification-template.ts';
 import type { LeadFollowupWorkerDeps } from './types.ts';
 
-export function createSesOwnerEmailSender(args: {
+export function createSesLeadNotificationEmailSender(args: {
   fromEmail: string;
   loadAttachments?: (
-    record: Parameters<LeadFollowupWorkerDeps['sendOwnerEmail']>[0]['record'],
+    record: Parameters<LeadFollowupWorkerDeps['sendLeadNotificationEmail']>[0]['record'],
   ) => Promise<OutgoingEmailAttachment[]>;
   quoEnabled: boolean;
   ses: SESv2Client | null;
   toEmail: string;
-}): LeadFollowupWorkerDeps['sendOwnerEmail'] {
+}): LeadFollowupWorkerDeps['sendLeadNotificationEmail'] {
   return async ({ record }) => {
     if (!args.ses || !args.fromEmail || !args.toEmail) {
       throw new Error('SES is not configured');
     }
 
-    const resultLabel = buildResultLabel(record.outreach_result, args.quoEnabled);
-    const message = buildOwnerEmailContent({ record, resultLabel });
+    const resultLabel = buildLeadNotificationResultLabel(record.outreach_result, args.quoEnabled);
+    const message = buildLeadNotificationEmailContent({ record, resultLabel });
     const attachments = args.loadAttachments ? await args.loadAttachments(record) : [];
 
     if (attachments.length) {

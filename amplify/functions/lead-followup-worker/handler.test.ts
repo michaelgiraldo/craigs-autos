@@ -43,14 +43,14 @@ function makeRecord(overrides: Partial<LeadFollowupWorkItem> = {}): LeadFollowup
     customer_email_error: '',
     outreach_channel: null,
     outreach_result: null,
-    owner_email_status: null,
-    owner_email_message_id: '',
-    owner_email_error: '',
+    lead_notification_status: null,
+    lead_notification_message_id: '',
+    lead_notification_error: '',
     ...overrides,
   };
 }
 
-test('lead-followup-worker sends SMS first and still notifies the owner', async () => {
+test('lead-followup-worker sends SMS first and still sends the lead notification', async () => {
   const saved: LeadFollowupWorkItem[] = [];
   let current = makeRecord();
 
@@ -77,7 +77,7 @@ test('lead-followup-worker sends SMS first and still notifies the owner', async 
     }),
     sendSms: async () => ({ id: 'sms-123', status: 'sent' }),
     sendCustomerEmail: async () => ({ messageId: 'email-123' }),
-    sendOwnerEmail: async () => ({ messageId: 'owner-123' }),
+    sendLeadNotificationEmail: async () => ({ messageId: 'lead-notification-123' }),
   });
 
   const result = await handler({ idempotency_key: 'form:followup-work-1' });
@@ -85,7 +85,7 @@ test('lead-followup-worker sends SMS first and still notifies the owner', async 
   assert.equal(result.statusCode, 200);
   assert.equal(current.sms_status, 'sent');
   assert.equal(current.email_status, 'skipped');
-  assert.equal(current.owner_email_status, 'sent');
+  assert.equal(current.lead_notification_status, 'sent');
   assert.equal(current.outreach_result, 'sms_sent');
   assert.equal(
     saved.some((record) => record.sms_message_id === 'sms-123'),
@@ -96,7 +96,7 @@ test('lead-followup-worker sends SMS first and still notifies the owner', async 
 test('lead-followup-worker stops before delivery when a workflow save loses its lease', async () => {
   let smsTouched = false;
   let customerEmailTouched = false;
-  let ownerEmailTouched = false;
+  let leadNotificationEmailTouched = false;
   const staleLeaseError = new Error('stale_followup_work_lease');
   staleLeaseError.name = 'StaleFollowupWorkLeaseError';
 
@@ -128,9 +128,9 @@ test('lead-followup-worker stops before delivery when a workflow save loses its 
       customerEmailTouched = true;
       return { messageId: 'email-123' };
     },
-    sendOwnerEmail: async () => {
-      ownerEmailTouched = true;
-      return { messageId: 'owner-123' };
+    sendLeadNotificationEmail: async () => {
+      leadNotificationEmailTouched = true;
+      return { messageId: 'lead-notification-123' };
     },
   });
 
@@ -140,7 +140,7 @@ test('lead-followup-worker stops before delivery when a workflow save loses its 
   assert.match(result.body, /stale_lease/);
   assert.equal(smsTouched, false);
   assert.equal(customerEmailTouched, false);
-  assert.equal(ownerEmailTouched, false);
+  assert.equal(leadNotificationEmailTouched, false);
 });
 
 test('lead-followup-worker records SMS delivery attempt before provider send', async () => {
@@ -148,7 +148,7 @@ test('lead-followup-worker records SMS delivery attempt before provider send', a
   let current = makeRecord();
   let smsTouched = false;
   let customerEmailTouched = false;
-  let ownerEmailTouched = false;
+  let leadNotificationEmailTouched = false;
   const staleLeaseError = new Error('stale_followup_work_lease');
   staleLeaseError.name = 'StaleFollowupWorkLeaseError';
 
@@ -185,9 +185,9 @@ test('lead-followup-worker records SMS delivery attempt before provider send', a
       customerEmailTouched = true;
       return { messageId: 'email-123' };
     },
-    sendOwnerEmail: async () => {
-      ownerEmailTouched = true;
-      return { messageId: 'owner-123' };
+    sendLeadNotificationEmail: async () => {
+      leadNotificationEmailTouched = true;
+      return { messageId: 'lead-notification-123' };
     },
   });
 
@@ -197,7 +197,7 @@ test('lead-followup-worker records SMS delivery attempt before provider send', a
   assert.match(result.body, /stale_lease/);
   assert.equal(smsTouched, true);
   assert.equal(customerEmailTouched, false);
-  assert.equal(ownerEmailTouched, false);
+  assert.equal(leadNotificationEmailTouched, false);
   assert.equal(
     saved.some((record) => record.sms_status === 'sending'),
     true,
@@ -208,7 +208,7 @@ test('lead-followup-worker does not repeat a pending SMS delivery attempt', asyn
   const saved: LeadFollowupWorkItem[] = [];
   let smsTouched = false;
   let customerEmailTouched = false;
-  let ownerEmailTouched = false;
+  let leadNotificationEmailTouched = false;
 
   const handler = createLeadFollowupWorkerHandler({
     configValid: true,
@@ -237,9 +237,9 @@ test('lead-followup-worker does not repeat a pending SMS delivery attempt', asyn
       customerEmailTouched = true;
       return { messageId: 'email-123' };
     },
-    sendOwnerEmail: async () => {
-      ownerEmailTouched = true;
-      return { messageId: 'owner-123' };
+    sendLeadNotificationEmail: async () => {
+      leadNotificationEmailTouched = true;
+      return { messageId: 'lead-notification-123' };
     },
   });
 
@@ -250,10 +250,10 @@ test('lead-followup-worker does not repeat a pending SMS delivery attempt', asyn
   assert.equal(body.reason, 'delivery_attempt_unconfirmed');
   assert.equal(smsTouched, false);
   assert.equal(customerEmailTouched, false);
-  assert.equal(ownerEmailTouched, false);
+  assert.equal(leadNotificationEmailTouched, false);
   assert.equal(saved[0]?.status, 'error');
   assert.equal(saved[0]?.sms_status, 'sending');
-  assert.equal(saved[0]?.owner_email_error, 'delivery_attempt_unconfirmed');
+  assert.equal(saved[0]?.lead_notification_error, 'delivery_attempt_unconfirmed');
 });
 
 test('lead-followup-worker rejects missing idempotency keys before touching dependencies', async () => {
@@ -277,7 +277,7 @@ test('lead-followup-worker rejects missing idempotency keys before touching depe
     sendCustomerEmail: async () => {
       throw new Error('should not run');
     },
-    sendOwnerEmail: async () => {
+    sendLeadNotificationEmail: async () => {
       throw new Error('should not run');
     },
   });
@@ -313,7 +313,7 @@ test('lead-followup-worker falls back to customer email when phone is missing', 
     }),
     sendSms: async () => ({ id: 'sms-should-not-send', status: 'sent' }),
     sendCustomerEmail: async () => ({ messageId: 'customer-email-123' }),
-    sendOwnerEmail: async () => ({ messageId: 'owner-email-123' }),
+    sendLeadNotificationEmail: async () => ({ messageId: 'lead-notification-email-123' }),
   });
 
   const result = await handler({ idempotency_key: 'form:followup-work-1' });
@@ -363,7 +363,7 @@ test('lead-followup-worker sends email first for inbound email leads and cleans 
       emailedSubjects.push(subject);
       return { messageId: 'customer-email-123' };
     },
-    sendOwnerEmail: async () => ({ messageId: 'owner-email-123' }),
+    sendLeadNotificationEmail: async () => ({ messageId: 'lead-notification-email-123' }),
     cleanupInboundEmailSource: async (record) => {
       cleanedRecords.push(record);
     },
@@ -423,7 +423,7 @@ test('lead-followup-worker preserves inbound email subject for generated email r
       );
       return { messageId: 'customer-email-123' };
     },
-    sendOwnerEmail: async () => ({ messageId: 'owner-email-123' }),
+    sendLeadNotificationEmail: async () => ({ messageId: 'lead-notification-email-123' }),
   });
 
   const result = await handler({ idempotency_key: 'form:followup-work-1' });
@@ -466,7 +466,7 @@ test('lead-followup-worker records SMS failure when no email fallback exists', a
       throw new Error('QUO failed');
     },
     sendCustomerEmail: async () => ({ messageId: 'unused' }),
-    sendOwnerEmail: async () => ({ messageId: 'owner-email-123' }),
+    sendLeadNotificationEmail: async () => ({ messageId: 'lead-notification-email-123' }),
   });
 
   const result = await handler({ idempotency_key: 'form:followup-work-1' });
@@ -494,7 +494,7 @@ test('lead-followup-worker skips duplicate sends when the follow-up work is alre
     sendCustomerEmail: async () => {
       throw new Error('should not run');
     },
-    sendOwnerEmail: async () => {
+    sendLeadNotificationEmail: async () => {
       throw new Error('should not run');
     },
   });
@@ -530,7 +530,7 @@ test('lead-followup-worker marks phone-only follow-up works for manual follow-up
     }),
     sendSms: async () => ({ id: 'sms-should-not-send', status: 'sent' }),
     sendCustomerEmail: async () => ({ messageId: 'unused-email' }),
-    sendOwnerEmail: async () => ({ messageId: 'owner-email-123' }),
+    sendLeadNotificationEmail: async () => ({ messageId: 'lead-notification-email-123' }),
   });
 
   const result = await handler({ idempotency_key: 'form:followup-work-1' });

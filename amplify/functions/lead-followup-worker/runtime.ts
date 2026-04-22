@@ -10,7 +10,7 @@ import { generateLeadFollowupDrafts } from './drafts.ts';
 import { createSesCustomerEmailSender } from './customer-email.ts';
 import { createLeadPhotoAttachmentLoader } from './lead-attachments.ts';
 import { createLeadFollowupWorkerLeadSync } from './lead-sync.ts';
-import { createSesOwnerEmailSender } from './owner-email.ts';
+import { createSesLeadNotificationEmailSender } from './lead-notification-email.ts';
 import { createQuoSmsSender } from './quo-sms.ts';
 import { createDynamoLeadFollowupWorkStore } from './followup-work-store.ts';
 import type { LeadFollowupWorkerDeps } from './types.ts';
@@ -97,7 +97,7 @@ export function createLeadFollowupWorkerRuntime(
       replyToEmail: parsedEnv.success ? parsedEnv.data.QUOTE_CUSTOMER_REPLY_TO_EMAIL : '',
       ses: runtimeSes,
     }),
-    sendOwnerEmail: createSesOwnerEmailSender({
+    sendLeadNotificationEmail: createSesLeadNotificationEmailSender({
       fromEmail: parsedEnv.success ? parsedEnv.data.CONTACT_FROM_EMAIL : '',
       loadAttachments: loadLeadPhotos,
       quoEnabled,

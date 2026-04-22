@@ -54,7 +54,7 @@ function resolveFollowupWorkManually(args: {
     updated_at: args.nowEpochSeconds,
     sms_status: resolveManualSendStatus(args.work.sms_status),
     email_status: resolveManualSendStatus(args.work.email_status),
-    owner_email_status: resolveManualSendStatus(args.work.owner_email_status),
+    lead_notification_status: resolveManualSendStatus(args.work.lead_notification_status),
     outreach_result: args.work.outreach_result ?? 'manual_followup_required',
     operator_resolution: 'manual_followup',
     operator_resolution_reason: args.reason,

@@ -47,9 +47,9 @@ function makeRecord(overrides: Partial<LeadFollowupWorkItem> = {}): LeadFollowup
     customer_email_error: '',
     outreach_channel: 'sms',
     outreach_result: 'sms_sent',
-    owner_email_status: 'sent',
-    owner_email_message_id: 'owner-email-1',
-    owner_email_error: '',
+    lead_notification_status: 'sent',
+    lead_notification_message_id: 'lead-notification-email-1',
+    lead_notification_error: '',
     ...overrides,
   };
 }

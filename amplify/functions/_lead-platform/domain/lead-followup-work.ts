@@ -68,9 +68,9 @@ export type LeadFollowupWorkItem = {
   customer_email_error: string;
   outreach_channel: LeadFollowupOutreachChannel;
   outreach_result: LeadFollowupOutreachResult;
-  owner_email_status: LeadFollowupSendStatus;
-  owner_email_message_id: string;
-  owner_email_error: string;
+  lead_notification_status: LeadFollowupSendStatus;
+  lead_notification_message_id: string;
+  lead_notification_error: string;
   operator_resolution?: 'manual_followup';
   operator_resolution_reason?: string;
   operator_resolved_at?: number;
@@ -180,9 +180,9 @@ export function createLeadFollowupWorkItem(input: LeadFollowupWorkItemInput): Le
     customer_email_error: '',
     outreach_channel: null,
     outreach_result: null,
-    owner_email_status: null,
-    owner_email_message_id: '',
-    owner_email_error: '',
+    lead_notification_status: null,
+    lead_notification_message_id: '',
+    lead_notification_error: '',
     source_message_id: normalizeWorkString(input.sourceMessageId),
     source_references: normalizeWorkString(input.sourceReferences),
     attachments: input.attachments ?? [],

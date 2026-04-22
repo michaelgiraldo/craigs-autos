@@ -48,9 +48,9 @@ function makeQuoteRecord(overrides: Partial<LeadFollowupWorkItem> = {}): LeadFol
     customer_email_error: '',
     outreach_channel: 'sms',
     outreach_result: 'sms_sent',
-    owner_email_status: 'sent',
-    owner_email_message_id: 'owner-123',
-    owner_email_error: '',
+    lead_notification_status: 'sent',
+    lead_notification_message_id: 'lead-notification-123',
+    lead_notification_error: '',
     ...overrides,
   };
 }

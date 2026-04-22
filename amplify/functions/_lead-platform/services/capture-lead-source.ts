@@ -69,7 +69,7 @@ async function markWorkError(args: {
     ...args.workItem,
     status: 'error',
     lock_expires_at: undefined,
-    owner_email_error: message ?? 'Lead capture failed',
+    lead_notification_error: message ?? 'Lead capture failed',
     updated_at: args.nowEpochSeconds(),
   });
 }

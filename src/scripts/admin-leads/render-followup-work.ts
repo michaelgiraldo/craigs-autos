@@ -31,7 +31,7 @@ function formatFollowupDelivery(item: FollowupWorkItem): string {
   return [
     `SMS ${stringOrDash(item.sms_status)}`,
     `Email ${stringOrDash(item.email_status)}`,
-    `Owner ${stringOrDash(item.owner_email_status)}`,
+    `Lead notification ${stringOrDash(item.lead_notification_status)}`,
   ].join(' • ');
 }
 

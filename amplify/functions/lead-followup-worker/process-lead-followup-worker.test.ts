@@ -44,9 +44,9 @@ function makeRecord(overrides: Partial<LeadFollowupWorkItem> = {}): LeadFollowup
     customer_email_error: '',
     outreach_channel: null,
     outreach_result: null,
-    owner_email_status: null,
-    owner_email_message_id: '',
-    owner_email_error: '',
+    lead_notification_status: null,
+    lead_notification_message_id: '',
+    lead_notification_error: '',
     ...overrides,
   };
 }
@@ -73,7 +73,7 @@ function makeDeps(overrides: Partial<LeadFollowupWorkerDeps> = {}): LeadFollowup
     }),
     sendSms: async () => ({ id: 'sms-1', status: 'sent' }),
     sendCustomerEmail: async () => ({ messageId: 'email-1' }),
-    sendOwnerEmail: async () => ({ messageId: 'owner-1' }),
+    sendLeadNotificationEmail: async () => ({ messageId: 'lead-notification-1' }),
     ...overrides,
   };
 }
@@ -130,7 +130,7 @@ test('processLeadFollowupWorker syncs the mutated completed record after workflo
   const syncedRecord = synced as LeadFollowupWorkItem;
   assert.equal(syncedRecord.status, 'completed');
   assert.equal(syncedRecord.sms_status, 'sent');
-  assert.equal(syncedRecord.owner_email_status, 'sent');
+  assert.equal(syncedRecord.lead_notification_status, 'sent');
 });
 
 test('processLeadFollowupWorker cleans transient lead attachments after completion', async () => {
