@@ -1,5 +1,5 @@
+import type { LeadAdminFollowupWorkSummary } from '../_lead-platform/services/admin-followup-work.ts';
 import type {
-  LeadAdminFollowupWorkSummary,
   LeadAdminJourneySummary,
   LeadAdminRecordSummary,
 } from '../_lead-platform/services/admin.ts';

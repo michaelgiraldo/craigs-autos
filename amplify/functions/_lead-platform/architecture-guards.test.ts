@@ -59,6 +59,7 @@ test('form and email intake enqueue shared follow-up work instead of quote queue
   const emailIntake = readRepoFile(
     'amplify/functions/email-intake-capture/process-email-intake.ts',
   );
+  const emailFollowupWork = readRepoFile('amplify/functions/email-intake-capture/followup-work.ts');
   const emailRuntime = readRepoFile('amplify/functions/email-intake-capture/runtime.ts');
   const captureService = readRepoFile(
     'amplify/functions/_lead-platform/services/capture-lead-source.ts',
@@ -74,7 +75,8 @@ test('form and email intake enqueue shared follow-up work instead of quote queue
   assert.match(formSubmit, /captureLeadSource/);
   assert.match(formSubmit, /createStableLeadFollowupWorkId\(\{\s*idempotencyKey,\s*prefix: 'form'/);
   assert.doesNotMatch(formSubmit, /form_\$\{clientEventId\}/);
-  assert.match(emailIntake, /createLeadFollowupWorkItem/);
+  assert.match(emailIntake, /createEmailFollowupWork/);
+  assert.match(emailFollowupWork, /createLeadFollowupWorkItem/);
   assert.match(emailIntake, /captureLeadSource/);
   assert.match(
     emailIntake,

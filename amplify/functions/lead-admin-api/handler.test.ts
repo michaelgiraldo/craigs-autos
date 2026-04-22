@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createLeadAdminHandler } from './handler.ts';
+import type { LeadAdminFollowupWorkSummary } from '../_lead-platform/services/admin-followup-work.ts';
 import type {
-  LeadAdminFollowupWorkSummary,
   LeadAdminJourneySummary,
   LeadAdminRecordSummary,
 } from '../_lead-platform/services/admin.ts';

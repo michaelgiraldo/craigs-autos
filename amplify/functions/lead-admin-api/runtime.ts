@@ -19,11 +19,13 @@ import { resolveProviderConversionDestinations } from '../_lead-platform/service
 import { buildDefaultQualificationSnapshot } from '../_lead-platform/services/qualification.ts';
 import { deriveLeadRecordStatus } from '../_lead-platform/services/outreach.ts';
 import {
-  getLeadFollowupRetryBlockReason,
   toLeadAdminJourneySummary,
-  toLeadAdminFollowupWorkSummary,
   toLeadAdminRecordSummary,
 } from '../_lead-platform/services/admin.ts';
+import {
+  getLeadFollowupRetryBlockReason,
+  toLeadAdminFollowupWorkSummary,
+} from '../_lead-platform/services/admin-followup-work.ts';
 import { createLeadPlatformRuntime } from '../_lead-platform/runtime.ts';
 import type { LeadAdminDeps } from './types.ts';
 

@@ -11,11 +11,11 @@ import {
   type LeadFollowupWorkItem,
 } from '../domain/lead-followup-work.ts';
 import type { LeadRecord } from '../domain/lead-record.ts';
+import { toLeadAdminRecordSummary } from './admin.ts';
 import {
   getLeadFollowupRetryBlockReason,
   toLeadAdminFollowupWorkSummary,
-  toLeadAdminRecordSummary,
-} from './admin.ts';
+} from './admin-followup-work.ts';
 
 function makeLeadRecord(): LeadRecord {
   return {
