@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import { resolveQuoteRequestSubmitUrl } from '../../../../lib/backend/public-api-client';
 import type { LocaleKey } from '../../../../types/site';
-import type { QuoteFormCopy } from '../../content/quote-form-copy';
+import type { QuoteFormCopy } from '../../content/form';
 import { postQuoteRequest } from './api';
 import {
   getContactValidityMessages,

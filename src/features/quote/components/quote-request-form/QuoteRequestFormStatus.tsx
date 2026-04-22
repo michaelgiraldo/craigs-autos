@@ -1,4 +1,4 @@
-import type { QuoteFormCopy } from '../../content/quote-form-copy';
+import type { QuoteFormCopy } from '../../content/form';
 import type { QuoteSubmitState } from './types';
 
 type QuoteRequestFormStatusProps = {

@@ -27,4 +27,8 @@ export const quoteFormCopyTa = {
   validationFallbackError:
     'உங்கள் மதிப்பீட்டு கோரிக்கையை அனுப்ப முடியவில்லை. மீண்டும் முயற்சிக்கவும் அல்லது கடைக்கு அழைக்கவும்.',
   otherServiceLabel: 'மற்றவை / இன்னும் உறுதியாக தெரியவில்லை',
+  photosLabel: 'புகைப்படங்கள்',
+  photosHelper: 'விருப்பத்தேர்வு. உங்களிடம் தெளிவான புகைப்படங்கள் இருந்தால் சிலவற்றைச் சேர்க்கவும்.',
+  addPhotosLabel: 'புகைப்படங்களைச் சேர்க்கவும்',
+  removePhotoLabel: 'புகைப்படத்தை அகற்றவும்',
 } satisfies QuoteFormLocaleCopy;

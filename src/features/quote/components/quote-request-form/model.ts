@@ -1,4 +1,4 @@
-import type { QuoteFormCopy } from '../../content/quote-form-copy';
+import type { QuoteFormCopy } from '../../content/form';
 import type { QuoteRequestFormData } from './types';
 
 export const INITIAL_QUOTE_FORM: QuoteRequestFormData = {

@@ -28,4 +28,8 @@ export const quoteFormCopyEs = {
   validationFallbackError:
     'No pudimos enviar tu solicitud de cotización. Inténtalo de nuevo o llama al taller.',
   otherServiceLabel: 'Otro / Aún no estoy seguro',
+  photosLabel: 'Fotos',
+  photosHelper: 'Opcional. Agrega algunas fotos claras si las tienes.',
+  addPhotosLabel: 'Agregar fotos',
+  removePhotoLabel: 'Quitar foto',
 } satisfies QuoteFormLocaleCopy;

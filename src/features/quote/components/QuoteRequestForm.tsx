@@ -1,4 +1,4 @@
-import { getQuoteFormCopy } from '../content/quote-form-copy.ts';
+import { getQuoteFormCopy } from '../content/form';
 import { QuoteRequestFormFields } from './quote-request-form/QuoteRequestFormFields.tsx';
 import { QuoteRequestFormStatus } from './quote-request-form/QuoteRequestFormStatus.tsx';
 import type { QuoteRequestFormProps } from './quote-request-form/types.ts';

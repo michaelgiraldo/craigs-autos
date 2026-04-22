@@ -26,4 +26,8 @@ export const quoteFormCopyVi = {
   validationMissingEndpoint: 'Biểu mẫu báo giá chưa được cấu hình. Vui lòng thử lại sau.',
   validationFallbackError: 'Không thể gửi yêu cầu báo giá. Vui lòng thử lại hoặc gọi cho cửa hàng.',
   otherServiceLabel: 'Khác / Chưa chắc',
+  photosLabel: 'Ảnh',
+  photosHelper: 'Không bắt buộc. Thêm vài ảnh rõ nếu bạn có.',
+  addPhotosLabel: 'Thêm ảnh',
+  removePhotoLabel: 'Xóa ảnh',
 } satisfies QuoteFormLocaleCopy;

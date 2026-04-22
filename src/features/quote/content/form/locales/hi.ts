@@ -26,4 +26,8 @@ export const quoteFormCopyHi = {
   validationMissingEndpoint: 'कोट फ़ॉर्म अभी कॉन्फ़िगर नहीं हुआ है। कृपया बाद में फिर कोशिश करें।',
   validationFallbackError: 'हम आपका कोट अनुरोध जमा नहीं कर सके। कृपया फिर कोशिश करें या दुकान पर कॉल करें।',
   otherServiceLabel: 'अन्य / अभी निश्चित नहीं',
+  photosLabel: 'फ़ोटो',
+  photosHelper: 'वैकल्पिक। अगर आपके पास कुछ साफ़ फ़ोटो हैं, तो जोड़ें।',
+  addPhotosLabel: 'फ़ोटो जोड़ें',
+  removePhotoLabel: 'फ़ोटो हटाएँ',
 } satisfies QuoteFormLocaleCopy;

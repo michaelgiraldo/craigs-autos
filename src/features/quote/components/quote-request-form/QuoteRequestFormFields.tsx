@@ -1,5 +1,5 @@
 import type { ChangeEvent, RefObject } from 'react';
-import type { QuoteFormCopy } from '../../content/quote-form-copy';
+import type { QuoteFormCopy } from '../../content/form';
 import type { QuotePhotoDraft, QuoteRequestFormData, QuoteSubmitState } from './types';
 
 type QuoteRequestFormFieldsProps = {

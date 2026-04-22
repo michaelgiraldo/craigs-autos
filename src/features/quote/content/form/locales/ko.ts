@@ -27,4 +27,8 @@ export const quoteFormCopyKo = {
   validationFallbackError:
     '견적 요청을 제출할 수 없습니다. 다시 시도하거나 매장으로 전화해 주세요.',
   otherServiceLabel: '기타 / 아직 잘 모르겠어요',
+  photosLabel: '사진',
+  photosHelper: '선택 사항입니다. 선명한 사진이 있으면 몇 장 추가해 주세요.',
+  addPhotosLabel: '사진 추가',
+  removePhotoLabel: '사진 삭제',
 } satisfies QuoteFormLocaleCopy;

@@ -24,4 +24,8 @@ export const quoteFormCopyZhHans = {
   validationMissingEndpoint: '报价表单尚未配置。请稍后再试。',
   validationFallbackError: '我们无法提交您的报价请求。请重试或致电门店。',
   otherServiceLabel: '其他 / 还不确定',
+  photosLabel: '照片',
+  photosHelper: '可选。如果有清晰照片，可以添加几张。',
+  addPhotosLabel: '添加照片',
+  removePhotoLabel: '删除照片',
 } satisfies QuoteFormLocaleCopy;

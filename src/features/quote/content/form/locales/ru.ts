@@ -27,4 +27,8 @@ export const quoteFormCopyRu = {
   validationFallbackError:
     'Мы не смогли отправить ваш запрос на оценку. Попробуйте снова или позвоните в мастерскую.',
   otherServiceLabel: 'Другое / Пока не уверен',
+  photosLabel: 'Фотографии',
+  photosHelper: 'Необязательно. Добавьте несколько четких фотографий, если они есть.',
+  addPhotosLabel: 'Добавить фотографии',
+  removePhotoLabel: 'Удалить фотографию',
 } satisfies QuoteFormLocaleCopy;

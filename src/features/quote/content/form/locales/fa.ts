@@ -27,4 +27,8 @@ export const quoteFormCopyFa = {
   validationFallbackError:
     'نتوانستیم درخواست برآورد شما را ارسال کنیم. دوباره تلاش کنید یا با کارگاه تماس بگیرید.',
   otherServiceLabel: 'سایر / هنوز مطمئن نیستم',
+  photosLabel: 'عکس‌ها',
+  photosHelper: 'اختیاری است. اگر چند عکس واضح دارید، اضافه کنید.',
+  addPhotosLabel: 'افزودن عکس‌ها',
+  removePhotoLabel: 'حذف عکس',
 } satisfies QuoteFormLocaleCopy;

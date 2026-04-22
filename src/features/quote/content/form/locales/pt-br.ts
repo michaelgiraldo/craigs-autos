@@ -28,4 +28,8 @@ export const quoteFormCopyPtBr = {
   validationFallbackError:
     'Não conseguimos enviar sua solicitação de orçamento. Tente novamente ou ligue para a oficina.',
   otherServiceLabel: 'Outro / Ainda não tenho certeza',
+  photosLabel: 'Fotos',
+  photosHelper: 'Opcional. Adicione algumas fotos nítidas se tiver.',
+  addPhotosLabel: 'Adicionar fotos',
+  removePhotoLabel: 'Remover foto',
 } satisfies QuoteFormLocaleCopy;

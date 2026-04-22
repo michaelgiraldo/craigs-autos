@@ -26,4 +26,8 @@ export const quoteFormCopyPa = {
   validationMissingEndpoint: 'ਕੋਟ ਫਾਰਮ ਹਾਲੇ ਸੰਰਚਿਤ ਨਹੀਂ ਹੈ। ਕਿਰਪਾ ਕਰਕੇ ਕੁਝ ਸਮੇਂ ਬਾਅਦ ਮੁੜ ਕੋਸ਼ਿਸ਼ ਕਰੋ.',
   validationFallbackError: 'ਅਸੀਂ ਤੁਹਾਡੀ ਕੋਟ ਬੇਨਤੀ ਜਮ੍ਹਾਂ ਨਹੀਂ ਕਰ ਸਕੇ। ਮੁੜ ਕੋਸ਼ਿਸ਼ ਕਰੋ ਜਾਂ ਸ਼ਾਪ ਨੂੰ ਕਾਲ ਕਰੋ.',
   otherServiceLabel: 'ਹੋਰ / ਹਾਲੇ ਪੱਕਾ ਨਹੀਂ',
+  photosLabel: 'ਫੋਟੋਆਂ',
+  photosHelper: 'ਵਿਕਲਪਿਕ। ਜੇ ਤੁਹਾਡੇ ਕੋਲ ਕੁਝ ਸਾਫ਼ ਫੋਟੋਆਂ ਹਨ, ਤਾਂ ਸ਼ਾਮਲ ਕਰੋ.',
+  addPhotosLabel: 'ਫੋਟੋਆਂ ਸ਼ਾਮਲ ਕਰੋ',
+  removePhotoLabel: 'ਫੋਟੋ ਹਟਾਓ',
 } satisfies QuoteFormLocaleCopy;

@@ -24,10 +24,10 @@ export type QuoteFormLocaleCopy = {
   validationMissingEndpoint: string;
   validationFallbackError: string;
   otherServiceLabel: string;
-  photosLabel?: string;
-  photosHelper?: string;
-  addPhotosLabel?: string;
-  removePhotoLabel?: string;
+  photosLabel: string;
+  photosHelper: string;
+  addPhotosLabel: string;
+  removePhotoLabel: string;
 };
 
 export type QuoteServiceOption = {

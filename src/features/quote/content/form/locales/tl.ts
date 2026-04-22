@@ -29,4 +29,8 @@ export const quoteFormCopyTl = {
   validationFallbackError:
     'Hindi namin maisumite ang quote request mo. Subukang muli o tumawag sa shop.',
   otherServiceLabel: 'Iba pa / Hindi pa sigurado',
+  photosLabel: 'Mga larawan',
+  photosHelper: 'Opsyonal. Magdagdag ng ilang malinaw na larawan kung meron ka.',
+  addPhotosLabel: 'Magdagdag ng larawan',
+  removePhotoLabel: 'Alisin ang larawan',
 } satisfies QuoteFormLocaleCopy;

@@ -28,4 +28,8 @@ export const quoteFormCopyJa = {
   validationFallbackError:
     '見積もり依頼を送信できませんでした。もう一度お試しいただくか、店舗までお電話ください。',
   otherServiceLabel: 'その他 / まだわからない',
+  photosLabel: '写真',
+  photosHelper: '任意です。鮮明な写真があれば数枚追加してください。',
+  addPhotosLabel: '写真を追加',
+  removePhotoLabel: '写真を削除',
 } satisfies QuoteFormLocaleCopy;

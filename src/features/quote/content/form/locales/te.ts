@@ -25,4 +25,8 @@ export const quoteFormCopyTe = {
   validationMissingEndpoint: 'కోట్ ఫారం ఇంకా కాన్ఫిగర్ కాలేదు. దయచేసి కొద్దిసేపటికి మళ్లీ ప్రయత్నించండి.',
   validationFallbackError: 'మీ కోట్ అభ్యర్థనను పంపలేకపోయాము. దయచేసి మళ్లీ ప్రయత్నించండి లేదా షాప్‌కు కాల్ చేయండి.',
   otherServiceLabel: 'ఇతర / ఇంకా ఖచ్చితంగా తెలియదు',
+  photosLabel: 'ఫోటోలు',
+  photosHelper: 'ఐచ్చికం. మీ వద్ద స్పష్టమైన ఫోటోలు ఉంటే కొన్ని జోడించండి.',
+  addPhotosLabel: 'ఫోటోలు జోడించండి',
+  removePhotoLabel: 'ఫోటోను తీసివేయండి',
 } satisfies QuoteFormLocaleCopy;

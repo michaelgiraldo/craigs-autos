@@ -24,4 +24,8 @@ export const quoteFormCopyZhHant = {
   validationMissingEndpoint: '報價表單尚未設定。請稍後再試。',
   validationFallbackError: '我們無法提交您的報價請求。請重試或致電店家。',
   otherServiceLabel: '其他 / 還不確定',
+  photosLabel: '照片',
+  photosHelper: '選填。如果有清楚照片，可以加入幾張。',
+  addPhotosLabel: '加入照片',
+  removePhotoLabel: '移除照片',
 } satisfies QuoteFormLocaleCopy;

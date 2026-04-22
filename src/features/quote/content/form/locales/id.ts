@@ -27,4 +27,8 @@ export const quoteFormCopyId = {
   validationFallbackError:
     'Kami tidak dapat mengirim permintaan estimasi Anda. Coba lagi atau hubungi bengkel.',
   otherServiceLabel: 'Lainnya / Belum yakin',
+  photosLabel: 'Foto',
+  photosHelper: 'Opsional. Tambahkan beberapa foto yang jelas jika ada.',
+  addPhotosLabel: 'Tambah foto',
+  removePhotoLabel: 'Hapus foto',
 } satisfies QuoteFormLocaleCopy;

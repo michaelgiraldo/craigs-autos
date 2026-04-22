@@ -26,4 +26,8 @@ export const quoteFormCopyAr = {
   validationMissingEndpoint: 'نموذج عرض السعر غير مُعد بعد. يرجى المحاولة مرة أخرى لاحقًا.',
   validationFallbackError: 'تعذر إرسال طلب عرض السعر. حاول مرة أخرى أو اتصل بالورشة.',
   otherServiceLabel: 'أخرى / لست متأكدًا بعد',
+  photosLabel: 'الصور',
+  photosHelper: 'اختياري. أضف بضع صور واضحة إذا كانت لديك.',
+  addPhotosLabel: 'إضافة صور',
+  removePhotoLabel: 'إزالة الصورة',
 } satisfies QuoteFormLocaleCopy;
