@@ -6,7 +6,7 @@ import type { LeadContact } from '../domain/contact.ts';
 import type { JourneyEvent } from '../domain/journey-event.ts';
 import type { LeadRecord } from '../domain/lead-record.ts';
 import type { ProviderContactProjection } from '../domain/provider-contact-projection.ts';
-import { syncQuoLeadContact } from './quo-sync.ts';
+import { buildQuoLeadTag, syncQuoLeadContact } from './quo-sync.ts';
 
 function makeContact(overrides: Partial<LeadContact> = {}): LeadContact {
   return {
@@ -64,6 +64,12 @@ function makeLeadRecord(overrides: Partial<LeadRecord> = {}): LeadRecord {
     ...overrides,
   };
 }
+
+test('buildQuoLeadTag maps every first-class intake channel', () => {
+  assert.equal(buildQuoLeadTag('form'), 'Form Lead');
+  assert.equal(buildQuoLeadTag('chat'), 'Chat Lead');
+  assert.equal(buildQuoLeadTag('email'), 'Email Lead');
+});
 
 test('syncQuoLeadContact upserts Quo contacts and persists remote tags', async () => {
   const originalFetch = globalThis.fetch;

@@ -36,12 +36,11 @@ Current verified setup:
 | US/Canada messaging restriction | `unrestricted` as of 2026-04-22 |
 | `QUO_API_KEY` | Stored in Amplify Secret Management |
 | `QUO_ENABLED` | `false` until the approved live SMS smoke test |
-| Contact custom fields | None returned by QUO as of 2026-04-22 |
+| Contact custom field | `Tags`, key `69e95720a08b1f74fc5e6313` |
 
-Before enabling contact sync expectations, create a QUO multi-select contact
-custom field for lead tags in the QUO UI, then set `QUO_LEAD_TAGS_FIELD_KEY`.
-The QUO API can read contact custom fields, but the public docs state custom
-field definitions must be created or modified in QUO itself.
+The QUO `Tags` multi-select field should include `Form Lead`, `Chat Lead`, and
+`Email Lead`. The QUO API can read contact custom fields, but the public docs
+state custom field definitions must be created or modified in QUO itself.
 
 Runtime rules:
 

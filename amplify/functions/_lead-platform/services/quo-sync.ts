@@ -19,7 +19,7 @@ import {
 import type { ProviderReadiness } from './providers/provider-contracts.ts';
 import { buildJourneyEvent } from './journey-events.ts';
 
-export type QuoLeadTag = 'Chat Lead' | 'Form Lead';
+export type QuoLeadTag = 'Chat Lead' | 'Email Lead' | 'Form Lead';
 
 export type QuoContactUpsertPayload = {
   source: string;
@@ -35,7 +35,16 @@ export type QuoContactUpsertPayload = {
 };
 
 export function buildQuoLeadTag(channel: CaptureChannel): QuoLeadTag {
-  return channel === 'chat' ? 'Chat Lead' : 'Form Lead';
+  switch (channel) {
+    case 'chat':
+      return 'Chat Lead';
+    case 'email':
+      return 'Email Lead';
+    case 'form':
+      return 'Form Lead';
+    default:
+      throw new Error(`Unsupported QUO lead tag channel: ${channel}`);
+  }
 }
 
 export function buildQuoExternalId(contact: LeadContact, sourcePrefix: string): string | null {
