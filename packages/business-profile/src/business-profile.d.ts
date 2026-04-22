@@ -14,8 +14,16 @@ export type BusinessProfile = {
   };
   readonly email: {
     readonly publicContact: string;
+    readonly publicConversation: string;
     readonly emailIntakeRecipient: string;
     readonly emailIntakeRouteHeader: string;
+    readonly internalLeadInbox: string;
+    readonly humanOperator: string;
+    readonly customerOutboundFrom: string;
+    readonly customerOutboundReplyTo: string;
+    readonly customerOutboundBcc: string;
+    readonly leadNotificationTo: string;
+    readonly leadNotificationFrom: string;
     readonly leadTo: string;
     readonly leadFrom: string;
     readonly emailCustomerFrom: string;
