@@ -60,6 +60,7 @@ export function mergeLeadRecords(current: LeadRecord, incoming: LeadRecord): Lea
     project_summary: chooseLonger(current.project_summary, incoming.project_summary),
     customer_message: chooseLonger(current.customer_message, incoming.customer_message),
     customer_language: current.customer_language ?? incoming.customer_language,
+    lead_summary: incoming.lead_summary ?? current.lead_summary ?? null,
     attribution: current.attribution ?? incoming.attribution,
     latest_outreach:
       scoreOutreach(incoming.latest_outreach) > scoreOutreach(current.latest_outreach)

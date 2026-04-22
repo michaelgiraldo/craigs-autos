@@ -1,6 +1,6 @@
 import type OpenAI from 'openai';
 import { buildEmailSignature, buildSmsSignature } from '@craigs/business-profile/business-profile';
-import { LEAD_AI_REASONING } from '@craigs/contracts/lead-ai-policy';
+import { LEAD_AI_TASK_POLICY } from '@craigs/contracts/lead-ai-policy';
 import { getErrorDetails } from '../_shared/safe.ts';
 import type {
   LeadFollowupDrafts,
@@ -94,6 +94,29 @@ function sourceContextForRecord(record: LeadFollowupWorkItem): string {
   ].join('\n');
 }
 
+function channelOverlayForRecord(record: LeadFollowupWorkItem): string {
+  if (record.capture_channel === 'email') {
+    return [
+      'Channel overlay: inbound email',
+      'Reply as a direct threaded email response. Be specific to the customer email and do not sound like a generic form receipt.',
+      'Do not ask questions already answered in the original email.',
+    ].join('\n');
+  }
+
+  if (record.capture_channel === 'chat') {
+    return [
+      'Channel overlay: website chat handoff',
+      'Continue naturally from the chat. The customer already had a conversation, so avoid repeating solved setup questions.',
+      'Use the lead summary and already asked questions to keep the response efficient.',
+    ].join('\n');
+  }
+
+  return [
+    'Channel overlay: public quote form',
+    'This is the first business response to a form submission. Acknowledge the request and move directly to the next useful step.',
+  ].join('\n');
+}
+
 export function buildLeadFollowupDraftContext(args: {
   loadedPhotoCount: number;
   record: LeadFollowupWorkItem;
@@ -134,8 +157,19 @@ export function buildLeadFollowupDraftTextInput(args: {
     `Photos loaded for OpenAI: ${context.loadedPhotoCount}`,
     `Unsupported attachments ignored: ${context.unsupportedAttachmentCount}`,
     '',
+    channelOverlayForRecord(args.record),
+    '',
     'Source context:',
     context.sourceContext,
+    '',
+    'Lead summary:',
+    `Project summary: ${args.record.lead_summary?.project_summary || args.record.message || 'not provided'}`,
+    `Known facts: ${(args.record.lead_summary?.known_facts ?? []).join('; ') || 'none'}`,
+    `Missing info: ${(args.record.lead_summary?.missing_info ?? []).join('; ') || 'none'}`,
+    `Recommended next steps: ${(args.record.lead_summary?.recommended_next_steps ?? []).join('; ') || 'none'}`,
+    `Already asked questions: ${(args.record.lead_summary?.already_asked_questions ?? []).join('; ') || 'none'}`,
+    `Customer response policy: ${args.record.customer_response_policy ?? 'automatic'}`,
+    `Customer response policy reason: ${args.record.customer_response_policy_reason || 'not provided'}`,
     '',
     `Name: ${args.record.name || 'unknown'}`,
     `Email: ${args.record.email || 'not provided'}`,
@@ -147,6 +181,7 @@ export function buildLeadFollowupDraftTextInput(args: {
 }
 
 function missingInfoForQuoteRequest(record: LeadFollowupWorkItem): string[] {
+  if (record.lead_summary?.missing_info?.length) return record.lead_summary.missing_info;
   const missing: string[] = [];
   if (!record.vehicle) missing.push('vehicle details');
   if (!record.service) missing.push('service needed');
@@ -164,10 +199,10 @@ export function buildFallbackLeadFollowupDrafts(args: {
 }): LeadFollowupDrafts {
   const drafts = buildOutreachDrafts({
     leadSummary: {
-      customer_name: args.record.name || null,
-      vehicle: args.record.vehicle || null,
-      project: args.record.service || null,
-      outreach_message: null,
+      customer_name: args.record.lead_summary?.customer_name ?? args.record.name ?? null,
+      vehicle: args.record.lead_summary?.vehicle ?? args.record.vehicle ?? null,
+      service: args.record.lead_summary?.service ?? args.record.service ?? null,
+      project_summary: args.record.lead_summary?.project_summary ?? args.record.message ?? null,
     },
     shopName: args.shopName,
     shopPhoneDisplay: args.shopPhoneDisplay,
@@ -264,17 +299,21 @@ export async function generateLeadFollowupDrafts(args: {
     });
     const response = await args.openai.responses.parse({
       model,
-      reasoning: LEAD_AI_REASONING,
+      reasoning: LEAD_AI_TASK_POLICY.customerFollowupDraft.reasoning,
       instructions: [
-        'You draft the first customer follow-up for an auto upholstery follow-up work.',
+        'You draft the first customer follow-up for an auto upholstery lead.',
         'This is not a price quote. It is an acknowledgment and next-step message.',
         '',
         'Rules:',
         'Write sms_body and email_body in the Reply language provided in the user context.',
         'Acknowledge the customer by name when available.',
         'Reference the submitted vehicle, requested service, or message when available.',
+        'Use the normalized lead summary as the source of truth for facts, missing info, and next steps.',
         'Use loaded customer photos only to understand visible project details. Do not invent details that are not visible or stated.',
         'If photos are referenced but not loaded, do not claim to have reviewed those photos.',
+        'For chat leads, do not repeat questions that the chat already asked unless the answer is still missing.',
+        'For email leads, write as a direct reply to the original email.',
+        'For form leads, write as the first response to a quote request.',
         'Ask for 2-4 photos when helpful.',
         'Ask for any missing details needed to move the request forward.',
         'Do not include the shop name, phone number, address, or signature; the system appends the canonical business signature.',
@@ -320,7 +359,7 @@ export async function generateLeadFollowupDrafts(args: {
           },
         },
       },
-      max_output_tokens: 500,
+      max_output_tokens: LEAD_AI_TASK_POLICY.customerFollowupDraft.maxOutputTokens,
     });
 
     const parsed = sanitizeDraftOutput(response.output_parsed);

@@ -3,6 +3,7 @@ import type {
   LeadFollowupWorkItem,
   LeadFollowupWorkStatus,
 } from '../domain/lead-followup-work.ts';
+import type { CustomerResponsePolicy, LeadSummary } from '../domain/lead-summary.ts';
 
 export type LeadAdminFollowupWorkSummary = {
   idempotency_key: string;
@@ -18,6 +19,9 @@ export type LeadAdminFollowupWorkSummary = {
   phone: string;
   vehicle: string;
   service: string;
+  lead_summary: LeadSummary | null;
+  customer_response_policy: CustomerResponsePolicy;
+  customer_response_policy_reason: string;
   origin: string;
   page_url: string;
   sms_status: LeadFollowupSendStatus;
@@ -107,6 +111,9 @@ export function toLeadAdminFollowupWorkSummary(args: {
     phone: args.record.phone,
     vehicle: args.record.vehicle,
     service: args.record.service,
+    lead_summary: args.record.lead_summary ?? null,
+    customer_response_policy: args.record.customer_response_policy ?? 'automatic',
+    customer_response_policy_reason: args.record.customer_response_policy_reason ?? '',
     origin: args.record.origin,
     page_url: args.record.page_url,
     sms_status: args.record.sms_status,

@@ -17,8 +17,8 @@ test('buildOutreachDrafts creates fallback outreach with canonical signature and
     leadSummary: {
       customer_name: 'Michael',
       vehicle: '2021 Tesla Model Y',
-      project: 'Full interior reupholstery in real leather',
-      outreach_message: null,
+      service: 'Full interior reupholstery in real leather',
+      project_summary: null,
     },
     shopName: SHOP_NAME,
     shopPhoneDisplay: SHOP_PHONE_DISPLAY,
@@ -44,8 +44,8 @@ test('buildOutreachDrafts appends business identity instead of relying on model 
     leadSummary: {
       customer_name: 'Michael',
       vehicle: '2021 Tesla Model Y',
-      project: null,
-      outreach_message: 'Hi Michael - please send photos when you can.',
+      service: null,
+      project_summary: null,
     },
     shopName: SHOP_NAME,
     shopPhoneDisplay: SHOP_PHONE_DISPLAY,
@@ -53,7 +53,10 @@ test('buildOutreachDrafts appends business identity instead of relying on model 
     shopAddress: SHOP_ADDRESS,
   });
 
-  assert.match(drafts.smsDraft, /^Hi Michael - please send photos when you can\./);
+  assert.match(
+    drafts.smsDraft,
+    /^Hi Michael - thanks for reaching out about your 2021 Tesla Model Y\./,
+  );
   assert.match(drafts.smsDraft, literalPattern(SHOP_NAME));
   assert.match(drafts.smsDraft, literalPattern(SHOP_PHONE_DISPLAY));
   assert.match(drafts.emailDraftBody, literalPattern(SHOP_ADDRESS));
@@ -64,8 +67,8 @@ test('buildOutreachDrafts works for a second shop without hidden client assumpti
     leadSummary: {
       customer_name: 'Jordan',
       vehicle: null,
-      project: 'Boat cushion repair',
-      outreach_message: null,
+      service: 'Boat cushion repair',
+      project_summary: null,
     },
     shopName: 'Example Upholstery',
     shopPhoneDisplay: '(555) 010-1234',

@@ -13,6 +13,7 @@ import {
 import type { AttributionSnapshot } from '../domain/attribution.ts';
 import type { CustomerAction } from '../domain/lead-actions.ts';
 import type { JourneyBundle } from '../domain/lead-bundle.ts';
+import { createLeadSummary, type LeadSummary } from '../domain/lead-summary.ts';
 import type { Journey, JourneyMetadata } from '../domain/journey.ts';
 import type { LeadOutreachSnapshot, LeadQualificationSnapshot } from '../domain/lead-record.ts';
 import { buildLeadContact } from './contact-identity.ts';
@@ -39,6 +40,7 @@ export type FormLeadIntakeInput = {
   origin?: string | null;
   siteLabel?: string | null;
   unsupportedAttachmentCount?: number;
+  leadSummary?: LeadSummary | null;
   latestOutreach?: LeadOutreachSnapshot;
   qualification?: Partial<LeadQualificationSnapshot>;
   missingInfo?: string[];
@@ -91,6 +93,28 @@ export function buildFormLeadBundle(input: FormLeadIntakeInput): JourneyBundle {
   const vehicle = trimToNull(input.vehicle, 160);
   const service = trimToNull(input.service, 120);
   const message = trimToNull(input.message, 4_000);
+  const leadSummary =
+    input.leadSummary ??
+    createLeadSummary({
+      captureChannel: 'form',
+      customerName: input.name,
+      customerEmail: input.email,
+      customerPhone: input.phone,
+      customerLanguage: metadata.locale,
+      vehicle,
+      service,
+      projectSummary: message,
+      customerMessage: message,
+      knownFacts: [vehicle, service].filter(Boolean),
+      missingInfo: input.missingInfo,
+      recommendedNextSteps: ['Respond to the quote request and ask for missing project details.'],
+      alreadyAskedQuestions: [],
+      photoReferenceCount: input.photoAttachmentCount ?? 0,
+      loadedPhotoCount: 0,
+      unsupportedAttachmentCount: input.unsupportedAttachmentCount ?? 0,
+      customerResponsePolicy: 'automatic',
+      customerResponsePolicyReason: 'form_submission_valid',
+    });
   const actionTypes: CustomerAction[] = ['form_submit'];
 
   const journey: Journey = {
@@ -134,6 +158,7 @@ export function buildFormLeadBundle(input: FormLeadIntakeInput): JourneyBundle {
     project_summary: message,
     customer_message: message,
     customer_language: metadata.locale,
+    lead_summary: leadSummary,
     attribution: input.attribution ?? null,
     latest_outreach: latestOutreach,
     qualification,
@@ -164,6 +189,7 @@ export function buildFormLeadBundle(input: FormLeadIntakeInput): JourneyBundle {
         message,
         photo_attachment_count: input.photoAttachmentCount ?? 0,
         unsupported_attachment_count: input.unsupportedAttachmentCount ?? 0,
+        lead_summary: leadSummary,
         missing_info: normalizeStringList(input.missingInfo),
       },
     }),

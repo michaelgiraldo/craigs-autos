@@ -63,7 +63,8 @@ function formatChatLeadMessage(args: {
   leadSummary: LeadSummary;
   lines: TranscriptLine[];
 }): string {
-  const summary = args.leadSummary.summary?.trim() || 'Chat lead captured from website chat.';
+  const summary =
+    args.leadSummary.project_summary?.trim() || 'Chat lead captured from website chat.';
   const transcript = args.lines
     .map((line) => `${line.speaker}: ${line.text}`.trim())
     .filter(Boolean)
@@ -249,18 +250,24 @@ export const handler = async (
       customerEmail,
     } = evaluation;
     const chatPhotoManifest = createChatLeadPhotoAttachments(attachments);
+    const leadSummaryWithPhotos: LeadSummary = {
+      ...leadSummary,
+      photo_reference_count: chatPhotoManifest.attachments.length,
+      loaded_photo_count: 0,
+      unsupported_attachment_count: chatPhotoManifest.unsupportedCount,
+    };
 
     const idempotencyKey = `chat:${threadId}`;
     const followupWorkId = createStableLeadFollowupWorkId({ idempotencyKey, prefix: 'chat' });
     const sourceEvent = createLeadSourceEvent({
       attribution,
       contactId: null,
-      email: customerEmail ?? leadSummary.customer_email ?? '',
+      email: customerEmail ?? leadSummaryWithPhotos.customer_email ?? '',
       idempotencyKey,
       journeyId,
       leadRecordId: null,
       locale,
-      message: formatChatLeadMessage({ leadSummary, lines }),
+      message: formatChatLeadMessage({ leadSummary: leadSummaryWithPhotos, lines }),
       metadata: {
         attachment_count: attachments.length,
         photo_attachment_count: chatPhotoManifest.attachments.length,
@@ -268,17 +275,17 @@ export const handler = async (
         thread_title: threadTitle,
         unsupported_attachment_count: chatPhotoManifest.unsupportedCount,
       },
-      name: leadSummary.customer_name,
+      name: leadSummaryWithPhotos.customer_name,
       occurredAtMs: nowEpochSeconds() * 1000,
       origin: `chat:${reason}`,
       pageUrl,
-      phone: customerPhone ?? leadSummary.customer_phone ?? '',
-      service: leadSummary.project ?? '',
+      phone: customerPhone ?? leadSummaryWithPhotos.customer_phone ?? '',
+      service: leadSummaryWithPhotos.service ?? '',
       siteLabel: SHOP_NAME,
       source: 'chat',
       sourceEventId: threadId,
       userId: threadUser ?? chatUser,
-      vehicle: leadSummary.vehicle ?? '',
+      vehicle: leadSummaryWithPhotos.vehicle ?? '',
     });
 
     const workItem: LeadFollowupWorkItem = createLeadFollowupWorkItem({
@@ -292,7 +299,10 @@ export const handler = async (
       leadRecordId: sourceEvent.lead_record_id,
       locale: sourceEvent.locale,
       message: sourceEvent.message,
-      customerLanguage: leadSummary.customer_language ?? locale,
+      customerLanguage: leadSummaryWithPhotos.customer_language ?? locale,
+      leadSummary: leadSummaryWithPhotos,
+      customerResponsePolicy: leadSummaryWithPhotos.customer_response_policy,
+      customerResponsePolicyReason: leadSummaryWithPhotos.customer_response_policy_reason,
       name: sourceEvent.name,
       nowEpochSeconds: nowEpochSeconds(),
       origin: sourceEvent.origin,
@@ -327,7 +337,7 @@ export const handler = async (
             pageUrl,
             userId: threadUser ?? chatUser,
             attribution,
-            leadSummary,
+            leadSummary: leadSummaryWithPhotos,
             customerPhone,
             customerEmail,
             nowEpochSeconds,

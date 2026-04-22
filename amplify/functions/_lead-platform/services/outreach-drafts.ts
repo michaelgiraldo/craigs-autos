@@ -4,8 +4,8 @@ import { normalizeWhitespace } from '../../_shared/text-utils.ts';
 export type LeadSummaryDraftFields = {
   customer_name: string | null;
   vehicle: string | null;
-  project: string | null;
-  outreach_message: string | null;
+  service: string | null;
+  project_summary: string | null;
 };
 
 type BuildOutreachDraftsArgs = {
@@ -65,16 +65,15 @@ export function buildOutreachDrafts(args: BuildOutreachDraftsArgs): {
   const contactName = pickTrimmedOrNull(args.leadSummary?.customer_name);
   const greetingName = contactName ?? 'there';
   const vehicleOrProject = joinNonEmpty(
-    [args.leadSummary?.vehicle, args.leadSummary?.project],
+    [args.leadSummary?.vehicle, args.leadSummary?.service ?? args.leadSummary?.project_summary],
     ' - ',
   );
   const contextSnippet = vehicleOrProject ? ` about your ${vehicleOrProject}` : '';
 
-  const outreachMessage = pickTrimmedOrNull(args.leadSummary?.outreach_message);
   const fallbackOutreach = normalizeWhitespace(
     `Hi ${greetingName} - thanks for reaching out${contextSnippet}. If you can text 2-4 photos (1 wide + 1-2 close-ups), we can take a proper look and follow up with next steps.`,
   );
-  const body = normalizeWhitespace(outreachMessage ?? fallbackOutreach);
+  const body = normalizeWhitespace(fallbackOutreach);
   const smsSignature = buildSmsSignature({
     shopName: args.shopName,
     shopPhoneDisplay: args.shopPhoneDisplay,

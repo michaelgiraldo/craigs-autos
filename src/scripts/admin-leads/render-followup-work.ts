@@ -27,6 +27,10 @@ function formatFollowupLead(item: FollowupWorkItem): string {
   return parts.length ? parts.join(' • ') : stringOrDash(item.lead_record_id);
 }
 
+function formatLeadSummary(item: FollowupWorkItem): string {
+  return optionalString(item.lead_summary?.project_summary) || stringOrDash(item.lead_record_id);
+}
+
 function formatFollowupDelivery(item: FollowupWorkItem): string {
   return [
     `SMS ${stringOrDash(item.sms_status)}`,
@@ -53,12 +57,16 @@ function renderFollowupWorkRow(
   }
   row.appendChild(statusCell);
   appendStackedTextCell(row, stringOrDash(item.capture_channel), stringOrDash(item.origin));
-  appendStackedTextCell(row, formatFollowupLead(item), stringOrDash(idempotencyKey));
+  appendStackedTextCell(row, formatFollowupLead(item), formatLeadSummary(item));
   appendTextCell(row, formatFollowupDelivery(item));
   appendStackedTextCell(
     row,
-    stringOrDash(item.error ?? item.action_block_reason),
-    item.operator_resolution_reason ?? undefined,
+    stringOrDash(
+      item.customer_response_policy === 'manual_review'
+        ? 'Manual review required'
+        : (item.error ?? item.action_block_reason),
+    ),
+    item.customer_response_policy_reason ?? item.operator_resolution_reason ?? undefined,
   );
 
   const actionCell = document.createElement('td');

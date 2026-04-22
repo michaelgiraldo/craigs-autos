@@ -1,4 +1,5 @@
 import { createStableLeadFollowupWorkId } from '../_lead-platform/domain/ids.ts';
+import { createFallbackLeadSummary } from '../_lead-platform/domain/lead-summary.ts';
 import { captureLeadSource } from '../_lead-platform/services/capture-lead-source.ts';
 import { normalizeEmailMessageId } from '../_shared/email-threading.ts';
 import { isPlausibleEmail } from '../_shared/text-utils.ts';
@@ -13,6 +14,7 @@ import { getEmailPreAiSkipReason, validateEmailRoute } from './routing.ts';
 import type {
   EmailIntakeDeps,
   EmailIntakeLedgerStatus,
+  EmailLeadEvaluation,
   S3EmailIntakeEvent,
   S3EmailSource,
 } from './types.ts';
@@ -52,6 +54,40 @@ async function markBoth(
       status: args.status,
     }),
   ]);
+}
+
+function createManualReviewEvaluationFromEmail(args: {
+  email: Awaited<ReturnType<typeof parseInboundEmail>>;
+  reason: string;
+}): EmailLeadEvaluation {
+  const customerEmail = args.email.from?.address ?? null;
+  const projectSummary = args.email.text || args.email.subject || 'Inbound email needs review.';
+
+  return {
+    aiError: args.reason,
+    customerEmail,
+    customerLanguage: null,
+    customerName: args.email.from?.name ?? null,
+    customerPhone: null,
+    isLead: true,
+    leadReason: args.reason,
+    triageDecision: 'review',
+    customerResponsePolicy: 'manual_review',
+    customerResponsePolicyReason: args.reason,
+    leadSummary: createFallbackLeadSummary({
+      captureChannel: 'email',
+      customerEmail,
+      customerName: args.email.from?.name ?? null,
+      customerMessage: projectSummary,
+      missingInfo: ['AI email triage failed'],
+      customerResponsePolicy: 'manual_review',
+      customerResponsePolicyReason: args.reason,
+    }),
+    missingInfo: ['AI email triage failed'],
+    projectSummary,
+    service: null,
+    vehicle: null,
+  };
 }
 
 export async function processEmailIntakeEvent(event: S3EmailIntakeEvent, deps: EmailIntakeDeps) {
@@ -126,13 +162,29 @@ export async function processEmailIntakeEvent(event: S3EmailIntakeEvent, deps: E
         continue;
       }
 
-      const evaluation = await deps.evaluateLead({
-        email,
-        photos: email.photoAttachments,
-      });
+      let evaluation: EmailLeadEvaluation;
+      try {
+        evaluation = await deps.evaluateLead({
+          email,
+          photos: email.photoAttachments,
+        });
+      } catch (error: unknown) {
+        const reason = error instanceof Error ? error.message : 'email_triage_failed';
+        evaluation = createManualReviewEvaluationFromEmail({ email, reason });
+      }
+      const leadSummary = {
+        ...evaluation.leadSummary,
+        photo_reference_count: email.photoAttachments.length,
+        loaded_photo_count: email.photoAttachments.length,
+        unsupported_attachment_count: email.unsupportedAttachmentCount,
+      };
 
       const customerEmail = evaluation.customerEmail ?? email.from?.address ?? '';
-      if (!evaluation.isLead || !isPlausibleEmail(customerEmail)) {
+      if (
+        evaluation.triageDecision === 'reject' ||
+        !evaluation.isLead ||
+        !isPlausibleEmail(customerEmail)
+      ) {
         const reason = evaluation.leadReason || 'not_a_lead';
         await markBoth(deps, {
           messageLedgerKey,
@@ -159,6 +211,7 @@ export async function processEmailIntakeEvent(event: S3EmailIntakeEvent, deps: E
         evaluation: {
           ...evaluation,
           customerEmail,
+          leadSummary,
         },
         leadContext: {
           contactId: null,
@@ -184,6 +237,7 @@ export async function processEmailIntakeEvent(event: S3EmailIntakeEvent, deps: E
             emailIntakeId: followupWorkId,
             messageId: normalizeEmailMessageId(email.messageId),
             missingInfo: evaluation.missingInfo,
+            leadSummary,
             originalRecipient: deps.config.originalRecipient,
             photoAttachmentCount: email.photoAttachments.length,
             projectSummary: evaluation.projectSummary,

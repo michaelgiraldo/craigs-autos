@@ -24,6 +24,7 @@ export function getOutreachResult(record: LeadFollowupWorkItem): LeadFollowupOut
   const hasPhone = Boolean(phoneToE164(record.phone));
   const hasEmail = isPlausibleEmail(record.email);
 
+  if (record.customer_response_policy === 'manual_review') return 'manual_followup_required';
   if (record.sms_status === 'sent') return 'sms_sent';
   if (record.email_status === 'sent') {
     return isEmailFirst(record) ? 'email_sent' : 'email_sent_fallback';
@@ -42,6 +43,10 @@ export function getOutreachResult(record: LeadFollowupWorkItem): LeadFollowupOut
     return 'customer_outreach_failed';
   }
   return null;
+}
+
+export function requiresManualCustomerResponseReview(record: LeadFollowupWorkItem): boolean {
+  return record.customer_response_policy === 'manual_review';
 }
 
 export function isStaleFollowupWorkLeaseError(error: unknown): boolean {
@@ -180,6 +185,33 @@ export async function skipSmsForEmailFirst(
 ) {
   if (!record.sms_status) {
     record.sms_status = 'skipped';
+    await persistRecord(deps, record);
+  }
+}
+
+export async function skipCustomerOutreachForManualReview(
+  deps: LeadFollowupWorkerDeps,
+  record: LeadFollowupWorkItem,
+) {
+  let changed = false;
+  const reason = record.customer_response_policy_reason || 'manual_review_required';
+
+  if (!record.sms_status) {
+    record.sms_status = 'skipped';
+    record.sms_error = 'manual_followup_required';
+    changed = true;
+  }
+
+  if (!record.email_status) {
+    record.email_status = 'skipped';
+    record.customer_email_error = reason;
+    changed = true;
+  }
+
+  record.outreach_channel = null;
+  record.outreach_result = 'manual_followup_required';
+
+  if (changed) {
     await persistRecord(deps, record);
   }
 }

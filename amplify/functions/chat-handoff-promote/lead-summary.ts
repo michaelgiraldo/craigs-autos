@@ -1,8 +1,9 @@
 import type OpenAI from 'openai';
-import { LEAD_AI_REASONING } from '@craigs/contracts/lead-ai-policy';
+import { LEAD_AI_TASK_POLICY } from '@craigs/contracts/lead-ai-policy';
 import { asObject, getErrorDetails } from '../_shared/safe.ts';
+import { createLeadSummary } from '../_lead-platform/domain/lead-summary.ts';
 import type { LeadSummary, TranscriptLine } from './lead-types';
-import { isPlausibleEmail, isPlausiblePhone, trimTranscriptForModel } from './text-utils';
+import { isPlausibleEmail, isPlausiblePhone, trimTranscriptForModel } from './text-utils.ts';
 
 function sanitizeLeadSummary(input: unknown): LeadSummary | null {
   const data = asObject(input);
@@ -18,32 +19,37 @@ function sanitizeLeadSummary(input: unknown): LeadSummary | null {
           .filter((item): item is string => Boolean(item))
       : [];
 
-  const summaryText = typeof data.summary === 'string' ? data.summary.trim() : '';
-  if (!summaryText) return null;
+  const projectSummary =
+    pickStringOrNull(data.project_summary) ??
+    pickStringOrNull(data.customer_message) ??
+    pickStringOrNull(data.summary);
+  if (!projectSummary) return null;
 
   const customerEmail = pickStringOrNull(data.customer_email);
   const customerPhone = pickStringOrNull(data.customer_phone);
-  const handoffReady = typeof data.handoff_ready === 'boolean' ? data.handoff_ready : false;
-  const handoffReason = typeof data.handoff_reason === 'string' ? data.handoff_reason.trim() : '';
+  const automationReady =
+    typeof data.automation_ready === 'boolean' ? data.automation_ready : false;
+  const automationReason =
+    typeof data.automation_reason === 'string' ? data.automation_reason.trim() : '';
 
-  return {
-    customer_name: pickStringOrNull(data.customer_name),
-    customer_phone: customerPhone && isPlausiblePhone(customerPhone) ? customerPhone : null,
-    customer_email: customerEmail && isPlausibleEmail(customerEmail) ? customerEmail : null,
-    customer_location: pickStringOrNull(data.customer_location),
-    customer_language: pickStringOrNull(data.customer_language),
+  return createLeadSummary({
+    captureChannel: 'chat',
+    customerName: pickStringOrNull(data.customer_name),
+    customerPhone: customerPhone && isPlausiblePhone(customerPhone) ? customerPhone : null,
+    customerEmail: customerEmail && isPlausibleEmail(customerEmail) ? customerEmail : null,
+    customerLanguage: pickStringOrNull(data.customer_language),
     vehicle: pickStringOrNull(data.vehicle),
-    project: pickStringOrNull(data.project),
-    timeline: pickStringOrNull(data.timeline),
-    handoff_ready: handoffReady,
-    handoff_reason: handoffReason || (handoffReady ? 'handoff_ready' : 'not_ready'),
-    summary: summaryText,
-    next_steps: pickStringArray(data.next_steps).slice(0, 6),
-    follow_up_questions: pickStringArray(data.follow_up_questions).slice(0, 6),
-    call_script_prompts: pickStringArray(data.call_script_prompts).slice(0, 3),
-    outreach_message: pickStringOrNull(data.outreach_message),
-    missing_info: pickStringArray(data.missing_info).slice(0, 8),
-  };
+    service: pickStringOrNull(data.service) ?? pickStringOrNull(data.project_type),
+    projectSummary,
+    customerMessage: pickStringOrNull(data.customer_message) ?? projectSummary,
+    knownFacts: pickStringArray(data.known_facts),
+    missingInfo: pickStringArray(data.missing_info),
+    recommendedNextSteps: pickStringArray(data.recommended_next_steps),
+    alreadyAskedQuestions: pickStringArray(data.already_asked_questions),
+    customerResponsePolicy: automationReady ? 'automatic' : 'manual_review',
+    customerResponsePolicyReason:
+      automationReason || (automationReady ? 'ready_for_follow_up' : 'not_ready_for_automation'),
+  });
 }
 
 export async function generateLeadSummary(args: {
@@ -73,15 +79,14 @@ export async function generateLeadSummary(args: {
       customer_location: { type: ['string', 'null'] },
       customer_language: { type: ['string', 'null'] },
       vehicle: { type: ['string', 'null'] },
-      project: { type: ['string', 'null'] },
-      timeline: { type: ['string', 'null'] },
-      handoff_ready: { type: 'boolean' },
-      handoff_reason: { type: 'string' },
-      summary: { type: 'string' },
-      next_steps: { type: 'array', items: { type: 'string' }, maxItems: 6 },
-      follow_up_questions: { type: 'array', items: { type: 'string' }, maxItems: 6 },
-      call_script_prompts: { type: 'array', items: { type: 'string' }, maxItems: 3 },
-      outreach_message: { type: ['string', 'null'] },
+      service: { type: ['string', 'null'] },
+      project_summary: { type: 'string' },
+      customer_message: { type: ['string', 'null'] },
+      automation_ready: { type: 'boolean' },
+      automation_reason: { type: 'string' },
+      known_facts: { type: 'array', items: { type: 'string' }, maxItems: 12 },
+      recommended_next_steps: { type: 'array', items: { type: 'string' }, maxItems: 8 },
+      already_asked_questions: { type: 'array', items: { type: 'string' }, maxItems: 8 },
       missing_info: { type: 'array', items: { type: 'string' }, maxItems: 8 },
     },
     required: [
@@ -91,15 +96,14 @@ export async function generateLeadSummary(args: {
       'customer_location',
       'customer_language',
       'vehicle',
-      'project',
-      'timeline',
-      'handoff_ready',
-      'handoff_reason',
-      'summary',
-      'next_steps',
-      'follow_up_questions',
-      'call_script_prompts',
-      'outreach_message',
+      'service',
+      'project_summary',
+      'customer_message',
+      'automation_ready',
+      'automation_reason',
+      'known_facts',
+      'recommended_next_steps',
+      'already_asked_questions',
       'missing_info',
     ],
   };
@@ -107,27 +111,28 @@ export async function generateLeadSummary(args: {
   try {
     const response = await args.openai.responses.parse({
       model: args.leadSummaryModel,
-      reasoning: LEAD_AI_REASONING,
+      reasoning: LEAD_AI_TASK_POLICY.chatTranscriptLeadSummary.reasoning,
       instructions: [
-        "You format internal lead emails for an auto upholstery shop. Extract details from the customer's chat transcript.",
+        "You extract a source-neutral internal lead summary from an auto upholstery customer's chat transcript.",
         '',
         'Rules:',
         'Only use information that is explicitly present in the transcript. If something is missing, use null (or empty lists). Do not guess.',
-        'handoff_ready should be true only when the conversation has reached minimum lead quality:',
+        'automation_ready should be true only when the conversation has reached minimum lead quality for an automated customer response:',
         '- At least one contact method is present (customer_phone or customer_email).',
         '- The customer has described what they need for their vehicle/item (project is present or explicit request is present).',
         '- There is enough context for follow-up (vehicle make/model/item type is present, OR this is explicitly identified elsewhere in transcript).',
-        'If any of these are missing, set handoff_ready to false.',
-        'handoff_reason should be a short reason explaining why it is or is not ready, from one of:',
+        'If any of these are missing, set automation_ready to false.',
+        'automation_reason should be a short reason explaining why it is or is not ready, from one of:',
         '"missing_contact", "missing_project_details", "missing_vehicle_context", "ready_for_follow_up".',
-        'If handoff_ready is false, include any missing items in missing_info using short labels.',
-        'Write the summary and next steps in English.',
+        'If automation_ready is false, include any missing items in missing_info using short labels.',
+        'project_summary is the internal lead summary in English. It should be factual, compact, and useful to a human reviewing the lead.',
+        'known_facts should include short factual bullets already established in the chat.',
+        'recommended_next_steps should tell the business what to do next, not what to send verbatim to the customer.',
+        'already_asked_questions should list customer-facing questions that were already asked in the chat, so outreach does not repeat them.',
         'customer_language should reflect the language the customer is using. If unclear, use the provided locale.',
-        'call_script_prompts must be exactly 3 short questions the shop can ask to move the lead forward (prioritize missing info). Do not repeat questions already answered in the transcript.',
-        'follow_up_questions must only include questions that are NOT already answered in the transcript.',
-        `outreach_message should be one short paragraph in customer_language that the shop can send (text or email). Keep it friendly, no prices, and ask for photos when helpful. Do not include the shop name, phone, address, or signature; the system appends the canonical business signature.`,
+        'Do not draft customer SMS or email copy. Customer outreach is generated later from this summary.',
         'Do not mention prices or quotes. Do not invent shop hours or policies.',
-        'Keep next_steps and follow_up_questions short and actionable (one sentence each).',
+        'Keep all list items short and actionable.',
       ].join('\n'),
       input: [
         `Locale: ${args.locale || 'unknown'}`,
@@ -146,7 +151,7 @@ export async function generateLeadSummary(args: {
           schema,
         },
       },
-      max_output_tokens: 700,
+      max_output_tokens: LEAD_AI_TASK_POLICY.chatTranscriptLeadSummary.maxOutputTokens,
     });
 
     return sanitizeLeadSummary(response.output_parsed);

@@ -3,6 +3,7 @@ import type { AttributionSnapshot } from '../domain/attribution.ts';
 import type { Journey } from '../domain/journey.ts';
 import type { LeadRecord } from '../domain/lead-record.ts';
 import type { LeadFollowupWorkItem } from '../domain/lead-followup-work.ts';
+import type { LeadSummary } from '../domain/lead-summary.ts';
 import type { LeadPlatformRepos } from '../repos/dynamo.ts';
 import {
   buildQuoteRequestOutreachEvents,
@@ -30,6 +31,7 @@ export type QuoteRequestLeadIntake = {
   siteLabel: string;
   followupWorkId: string;
   unsupportedAttachmentCount?: number;
+  leadSummary?: LeadSummary | null;
   userId: string;
   vehicle: string;
 };
@@ -72,6 +74,7 @@ export async function persistQuoteRequestLeadIntake(args: {
     pageUrl: args.input.pageUrl,
     phone: args.input.phone,
     photoAttachmentCount: args.input.photoAttachmentCount,
+    leadSummary: args.input.leadSummary,
     service: args.input.service,
     siteLabel: args.input.siteLabel,
     unsupportedAttachmentCount: args.input.unsupportedAttachmentCount,
@@ -137,6 +140,11 @@ export async function applyLeadFollowupWorkerToLeadRecord(args: {
         latestOutreach,
       }),
       latest_outreach: latestOutreach,
+      lead_summary: args.record.lead_summary ?? resolved.leadRecord.lead_summary ?? null,
+      project_summary:
+        args.record.lead_summary?.project_summary || resolved.leadRecord.project_summary,
+      customer_message:
+        args.record.lead_summary?.customer_message || resolved.leadRecord.customer_message,
       updated_at_ms: Math.max(resolved.leadRecord.updated_at_ms, occurredAtMs),
     },
     events: [],

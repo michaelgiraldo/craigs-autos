@@ -1,5 +1,10 @@
 import type { LeadPlatformRepos } from '../_lead-platform/repos/dynamo.ts';
 import type { LeadPhotoContentType } from '../_lead-platform/domain/lead-attachment.ts';
+import type {
+  CustomerResponsePolicy,
+  LeadSummary,
+  LeadTriageDecision,
+} from '../_lead-platform/domain/lead-summary.ts';
 
 export type S3EmailIntakeEvent = {
   Records?: Array<{
@@ -45,6 +50,10 @@ export type EmailLeadEvaluation = {
   customerPhone: string | null;
   isLead: boolean;
   leadReason: string;
+  triageDecision: LeadTriageDecision;
+  customerResponsePolicy: CustomerResponsePolicy;
+  customerResponsePolicyReason: string;
+  leadSummary: LeadSummary;
   missingInfo: string[];
   projectSummary: string | null;
   service: string | null;
@@ -109,6 +118,7 @@ export type PersistEmailLeadInput = {
   emailIntakeId: string;
   messageId: string;
   missingInfo: string[];
+  leadSummary: LeadSummary;
   originalRecipient: string;
   photoAttachmentCount: number;
   projectSummary: string | null;

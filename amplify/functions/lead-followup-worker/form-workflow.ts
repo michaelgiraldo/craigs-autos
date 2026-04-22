@@ -7,6 +7,8 @@ import {
   ensureDrafts,
   failWorkflow,
   getUsableEmail,
+  requiresManualCustomerResponseReview,
+  skipCustomerOutreachForManualReview,
 } from './workflow-common.ts';
 import type { LeadFollowupWorkItem } from '../_lead-platform/domain/lead-followup-work.ts';
 
@@ -18,6 +20,11 @@ export async function runFormFollowupWorkflow(args: {
   const { deps, record, followupWorkId } = args;
 
   try {
+    if (requiresManualCustomerResponseReview(record)) {
+      await skipCustomerOutreachForManualReview(deps, record);
+      return await completeWorkflow({ deps, followupWorkId, record });
+    }
+
     await ensureDrafts(deps, record);
 
     const usablePhone = phoneToE164(record.phone);

@@ -228,12 +228,13 @@ Common causes:
 - Contact info was never captured (backend requires phone or email in CUSTOMER messages).
 - The handoff completed before the customer provided later details (snapshot timing).
 - SES sender not verified, or SES sandbox restrictions.
-- Lambda errors (OpenAI API failures, parsing failures).
+- Lambda errors before capture, route validation failures, or missing contact.
 
-Notes on "handoff_ready":
+Notes on chat lead summaries:
 
-- `handoff_ready` is produced by the summary model as a convenience field.
 - Current handoff triggers are `idle`, `pagehide`, and `chat_closed` (once contact exists).
+- Summary uncertainty should become `customer_response_policy = "manual_review"`, which captures
+  the lead, sends the internal notification, and skips automated customer outreach.
 - If you see `last_reason = "auto"` in DynamoDB, you're likely looking at an older deployment
   (see `docs/chatkit/chat-handoff-promote-before-after.md`).
 

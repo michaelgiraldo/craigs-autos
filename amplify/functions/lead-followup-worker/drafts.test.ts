@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import type OpenAI from 'openai';
-import { LEAD_AI_REASONING } from '@craigs/contracts/lead-ai-policy';
+import { LEAD_AI_TASK_POLICY } from '@craigs/contracts/lead-ai-policy';
 import type { LeadFollowupWorkItem } from '../_lead-platform/domain/lead-followup-work.ts';
 import {
   buildFallbackLeadFollowupDrafts,
@@ -122,8 +122,16 @@ test('generated drafts use GPT-5.4 defaults, channel context, photos, and one de
   assert.match(result.drafts.smsBody, /\(408\) 379-3820$/);
   assert.match(result.drafts.emailBody, /271 Bestor St, San Jose, CA 95112$/);
 
-  const request = requests[0] as { input?: unknown; reasoning?: unknown };
-  assert.deepEqual(request.reasoning, LEAD_AI_REASONING);
+  const request = requests[0] as {
+    input?: unknown;
+    max_output_tokens?: number;
+    reasoning?: unknown;
+  };
+  assert.deepEqual(request.reasoning, LEAD_AI_TASK_POLICY.customerFollowupDraft.reasoning);
+  assert.equal(
+    request.max_output_tokens,
+    LEAD_AI_TASK_POLICY.customerFollowupDraft.maxOutputTokens,
+  );
   const textInput = textFromOpenAiInput(request.input);
   assert.match(textInput, /Reply language: Spanish/);
   assert.match(textInput, /Capture channel: form/);

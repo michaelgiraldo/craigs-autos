@@ -94,6 +94,57 @@ test('lead-followup-worker sends SMS first and still sends the lead notification
   );
 });
 
+test('lead-followup-worker skips customer outreach for manual-review leads', async () => {
+  let current = makeRecord({
+    customer_response_policy: 'manual_review',
+    customer_response_policy_reason: 'uncertain_chat_lead',
+  });
+  let draftsTouched = false;
+  let smsTouched = false;
+  let customerEmailTouched = false;
+  let leadNotificationTouched = false;
+
+  const handler = createLeadFollowupWorkerHandler({
+    configValid: true,
+    smsAutomationEnabled: true,
+    nowEpochSeconds: () => 2_000,
+    getFollowupWork: async () => current,
+    acquireLease: async () => true,
+    saveFollowupWork: async (record) => {
+      current = { ...record };
+    },
+    generateDrafts: async () => {
+      draftsTouched = true;
+      throw new Error('manual-review leads should not generate customer drafts');
+    },
+    sendSms: async () => {
+      smsTouched = true;
+      return { id: 'sms-123', status: 'sent' };
+    },
+    sendCustomerEmail: async () => {
+      customerEmailTouched = true;
+      return { messageId: 'email-123' };
+    },
+    sendLeadNotificationEmail: async () => {
+      leadNotificationTouched = true;
+      return { messageId: 'lead-notification-123' };
+    },
+  });
+
+  const result = await handler({ idempotency_key: 'form:followup-work-1' });
+
+  assert.equal(result.statusCode, 200);
+  assert.equal(draftsTouched, false);
+  assert.equal(smsTouched, false);
+  assert.equal(customerEmailTouched, false);
+  assert.equal(leadNotificationTouched, true);
+  assert.equal(current.sms_status, 'skipped');
+  assert.equal(current.email_status, 'skipped');
+  assert.equal(current.outreach_result, 'manual_followup_required');
+  assert.equal(current.customer_email_error, 'uncertain_chat_lead');
+  assert.equal(current.lead_notification_status, 'sent');
+});
+
 test('lead-followup-worker stops before delivery when a workflow save loses its lease', async () => {
   let smsTouched = false;
   let customerEmailTouched = false;

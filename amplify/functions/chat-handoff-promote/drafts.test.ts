@@ -7,7 +7,8 @@ test('buildLeadEmailSubject prefers vehicle and project context', () => {
   const subject = buildLeadEmailSubject({
     leadSummary: {
       vehicle: '2021 Tesla Model Y',
-      project: 'Full interior reupholstery in real leather',
+      service: 'Full interior reupholstery in real leather',
+      project_summary: null,
     },
     threadTitle: 'Ignored title',
   });
@@ -22,7 +23,8 @@ test('buildLeadEmailSubject falls back to thread title', () => {
   const subject = buildLeadEmailSubject({
     leadSummary: {
       vehicle: null,
-      project: null,
+      service: null,
+      project_summary: null,
     },
     threadTitle: 'Seat repair question',
   });

@@ -307,15 +307,17 @@ Implementation:
    - OpenAI Responses API: `openai.responses.parse(...)`
    - Strict JSON schema (Structured Outputs)
    - Output includes:
-     - readiness: `handoff_ready` + `handoff_reason`
-     - summary and lists
-     - call script prompts (3)
-     - customer language + outreach message in that language
+     - normalized `LeadSummary` facts, missing info, and recommended next steps
+     - customer language
+     - customer response policy: `automatic` or `manual_review`
+   - Customer SMS/email copy is generated later by `lead-followup-worker`; the chat
+     summary does not own outreach copy.
 7) Decide whether to complete the handoff now:
    - Current triggers (`idle`, `pagehide`, `chat_closed`) attempt handoff once contact exists.
    - We intentionally avoid "handoff after every assistant response" because it can
      snapshot the thread mid-conversation (see `docs/chatkit/chat-handoff-promote-before-after.md`).
-   - Final completion gate is `handoff_ready` from the summary model.
+   - Missing contact and not-idle still block/defer. Ambiguous transcript summaries are
+     captured as `manual_review` leads instead of being dropped.
 8) Reserve `LeadFollowupWork` with `idempotency_key = chat:<threadId>`.
 9) Persist the journey-first lead bundle.
 10) Update the reserved work item with contact/journey/lead ids.
@@ -482,16 +484,17 @@ current branch environment.
    - duplicates do not occur
    - errors do not cause a retry storm
 
-### Change what "handoff_ready" means
+### Change chat lead-summary readiness
 
-This is mostly controlled by the summary prompt + schema rules.
+This is mostly controlled by the summary prompt + customer response policy rules.
 
 1) Update the instructions inside `generateLeadSummary(...)` in `amplify/functions/chat-handoff-promote/lead-summary.ts`.
 2) Deploy.
 3) Test:
-   - The summary should only mark `handoff_ready = true` when contact + project is present.
-   - If you later add a server-side "idle readiness gate", use `handoff_ready` (or a
-     stricter checklist) to avoid emailing incomplete leads.
+   - Contact is still required before capture.
+   - Ready leads use `customer_response_policy = "automatic"`.
+   - Ambiguous or incomplete-but-contactable leads use `customer_response_policy = "manual_review"`
+     and send only the internal lead notification.
 
 ## Security and privacy notes (backend)
 

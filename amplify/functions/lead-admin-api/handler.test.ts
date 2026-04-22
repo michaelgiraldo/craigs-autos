@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createLeadAdminHandler } from './handler.ts';
+import { createLeadSummary } from '../_lead-platform/domain/lead-summary.ts';
 import type { LeadAdminFollowupWorkSummary } from '../_lead-platform/services/admin-followup-work.ts';
 import type {
   LeadAdminJourneySummary,
@@ -248,6 +249,18 @@ test('lead-admin handler returns admin pages in repository order for authorized 
             phone: '+14085550100',
             vehicle: 'Camry',
             service: 'seat repair',
+            lead_summary: createLeadSummary({
+              captureChannel: 'form',
+              customerName: 'Alex',
+              customerPhone: '+14085550100',
+              vehicle: 'Camry',
+              service: 'seat repair',
+              projectSummary: 'Seat repair',
+              customerResponsePolicy: 'automatic',
+              customerResponsePolicyReason: 'form_submission_valid',
+            }),
+            customer_response_policy: 'automatic',
+            customer_response_policy_reason: 'form_submission_valid',
             origin: 'form:submit',
             page_url: 'https://craigs.autos/en/request-a-quote',
             sms_status: 'failed',

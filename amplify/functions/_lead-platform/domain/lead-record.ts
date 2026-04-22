@@ -1,5 +1,6 @@
 import type { AttributionSnapshot } from './attribution.ts';
 import type { CaptureChannel, CustomerAction } from './lead-actions.ts';
+import type { LeadSummary } from './lead-summary.ts';
 
 export type LeadRecordStatus =
   | 'new'
@@ -42,6 +43,7 @@ export type LeadRecord = {
   project_summary: string | null;
   customer_message: string | null;
   customer_language: string | null;
+  lead_summary?: LeadSummary | null;
   attribution: AttributionSnapshot | null;
   latest_outreach: LeadOutreachSnapshot;
   qualification: LeadQualificationSnapshot;

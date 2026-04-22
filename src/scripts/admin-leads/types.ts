@@ -115,6 +115,12 @@ export type FollowupWorkItem = {
   phone?: string;
   vehicle?: string;
   service?: string;
+  lead_summary?: {
+    project_summary?: string;
+    missing_info?: string[];
+  } | null;
+  customer_response_policy?: string;
+  customer_response_policy_reason?: string;
   origin?: string;
   page_url?: string;
   sms_status?: string | null;

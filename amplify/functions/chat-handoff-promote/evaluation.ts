@@ -1,5 +1,6 @@
 import type OpenAI from 'openai';
 import { generateLeadSummary } from './lead-summary';
+import { createFallbackLeadSummary } from '../_lead-platform/domain/lead-summary.ts';
 import type { LeadAttachment, LeadSummary, TranscriptLine } from './lead-types';
 import { phoneToE164, extractCustomerContact } from './text-utils';
 import { buildTranscript } from './transcript';
@@ -74,6 +75,30 @@ function hydrateLeadSummary(
   };
 }
 
+function fallbackManualReviewLeadSummary(args: {
+  detectedContact: ContactDetection;
+  locale: string;
+  lines: TranscriptLine[];
+  reason: string;
+}): LeadSummary {
+  const transcriptSummary = args.lines
+    .filter((line) => line.speaker === 'Customer')
+    .map((line) => line.text)
+    .join(' ')
+    .slice(0, 4_000);
+
+  return createFallbackLeadSummary({
+    captureChannel: 'chat',
+    customerEmail: args.detectedContact.email,
+    customerPhone: args.detectedContact.phone,
+    customerLanguage: args.locale,
+    customerMessage: transcriptSummary || 'Chat lead captured for manual review.',
+    missingInfo: ['AI lead summary unavailable'],
+    customerResponsePolicy: 'manual_review',
+    customerResponsePolicyReason: args.reason,
+  });
+}
+
 export async function evaluateChatLead(args: EvaluateChatLeadArgs): Promise<ChatLeadEvaluation> {
   const { threadTitle, threadUser, attachments, lines } = await buildTranscript({
     openai: args.openai,
@@ -129,18 +154,14 @@ export async function evaluateChatLead(args: EvaluateChatLeadArgs): Promise<Chat
     shopPhoneDisplay: args.shopPhoneDisplay,
   });
 
-  if (leadSummary?.handoff_ready !== true) {
-    return {
-      attachments,
-      outcome: 'blocked',
-      reason: leadSummary?.handoff_reason || 'not_ready',
-      threadTitle,
-      threadUser,
+  const hydratedLeadSummary =
+    hydrateLeadSummary(leadSummary, detectedContact) ??
+    fallbackManualReviewLeadSummary({
+      detectedContact,
+      locale: args.locale,
       lines,
-    };
-  }
-
-  const hydratedLeadSummary = hydrateLeadSummary(leadSummary, detectedContact);
+      reason: 'lead_summary_generation_failed',
+    });
   const customerPhone = hydratedLeadSummary?.customer_phone ?? detectedContact.phone ?? null;
   const customerEmail = hydratedLeadSummary?.customer_email ?? detectedContact.email ?? null;
   const customerPhoneE164 = customerPhone ? phoneToE164(customerPhone) : null;
@@ -151,7 +172,7 @@ export async function evaluateChatLead(args: EvaluateChatLeadArgs): Promise<Chat
     threadTitle,
     threadUser,
     lines,
-    leadSummary: hydratedLeadSummary ?? leadSummary,
+    leadSummary: hydratedLeadSummary,
     customerPhone,
     customerEmail,
     customerPhoneE164,

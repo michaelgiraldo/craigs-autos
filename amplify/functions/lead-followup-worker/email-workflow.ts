@@ -6,6 +6,8 @@ import {
   ensureDrafts,
   failWorkflow,
   getUsableEmail,
+  requiresManualCustomerResponseReview,
+  skipCustomerOutreachForManualReview,
   skipSmsForEmailFirst,
 } from './workflow-common.ts';
 
@@ -17,6 +19,11 @@ export async function runEmailFollowupWorkflow(args: {
   const { deps, record, followupWorkId } = args;
 
   try {
+    if (requiresManualCustomerResponseReview(record)) {
+      await skipCustomerOutreachForManualReview(deps, record);
+      return await completeWorkflow({ deps, followupWorkId, record });
+    }
+
     await ensureDrafts(deps, record);
     await skipSmsForEmailFirst(deps, record);
     await attemptEmailOutreach(deps, record, null, getUsableEmail(record));

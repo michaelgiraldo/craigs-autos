@@ -1,4 +1,5 @@
 import type { AttributionSnapshot } from '../_lead-platform/domain/attribution.ts';
+export type { LeadSummary } from '../_lead-platform/domain/lead-summary.ts';
 
 export type LambdaHeaders = Record<string, string | undefined>;
 
@@ -59,25 +60,6 @@ export type LeadAttachment = {
   name: string;
   mime: string | null;
   url: string;
-};
-
-export type LeadSummary = {
-  customer_name: string | null;
-  customer_phone: string | null;
-  customer_email: string | null;
-  customer_location: string | null;
-  customer_language: string | null;
-  vehicle: string | null;
-  project: string | null;
-  timeline: string | null;
-  handoff_ready: boolean;
-  handoff_reason: string;
-  summary: string;
-  next_steps: string[];
-  follow_up_questions: string[];
-  call_script_prompts: string[];
-  outreach_message: string | null;
-  missing_info: string[];
 };
 
 export type LeadAttributionPayload = AttributionSnapshot | null;

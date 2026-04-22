@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { createLeadSummary } from '../_lead-platform/domain/lead-summary.ts';
 import type { LeadFollowupWorkItem } from '../_lead-platform/domain/lead-followup-work.ts';
 import type { LeadPlatformRepos } from '../_lead-platform/repos/dynamo.ts';
 import { processEmailIntakeEvent } from './process-email-intake.ts';
@@ -69,6 +70,22 @@ function makeDeps(overrides: Partial<EmailIntakeDeps> = {}): EmailIntakeDeps {
       customerPhone: null,
       isLead: true,
       leadReason: 'seat_repair_request',
+      triageDecision: 'accept',
+      customerResponsePolicy: 'automatic',
+      customerResponsePolicyReason: 'email_triage_accepted',
+      leadSummary: createLeadSummary({
+        captureChannel: 'email',
+        customerEmail: email.from?.address ?? null,
+        customerLanguage: 'en',
+        customerName: email.from?.name ?? null,
+        projectSummary: 'Customer needs a seat repair.',
+        customerMessage: 'Customer needs a seat repair.',
+        service: 'seat repair',
+        vehicle: 'Toyota Camry',
+        missingInfo: ['photos'],
+        customerResponsePolicy: 'automatic',
+        customerResponsePolicyReason: 'email_triage_accepted',
+      }),
       missingInfo: ['photos'],
       projectSummary: 'Customer needs a seat repair.',
       service: 'seat repair',
@@ -160,6 +177,34 @@ test('email intake queues an accepted Google-routed lead for email-first follow-
   assert.equal(queuedRecords[1]?.email_body, '');
   assert.equal(queuedRecords[1]?.sms_body, '');
   assert.equal(queuedRecords[1]?.source_message_id, '<message-1@example.com>');
+});
+
+test('email intake captures AI triage failures for manual review instead of missing the lead', async () => {
+  const persistedInputs: PersistEmailLeadInput[] = [];
+  const queuedRecords: LeadFollowupWorkItem[] = [];
+
+  const deps = makeDeps({
+    evaluateLead: async () => {
+      throw new Error('OpenAI unavailable');
+    },
+    persistEmailLead: async (input) => {
+      persistedInputs.push(input);
+      return {
+        contactId: 'contact-1',
+        journeyId: 'journey-1',
+        leadRecordId: 'lead-1',
+      };
+    },
+    repos: makeRepos(queuedRecords),
+  });
+
+  const result = await processEmailIntakeEvent(s3Event(), deps);
+
+  assert.equal(result.ok, true);
+  assert.equal(persistedInputs[0]?.leadSummary.customer_response_policy, 'manual_review');
+  assert.equal(queuedRecords[1]?.customer_response_policy, 'manual_review');
+  assert.equal(queuedRecords[1]?.customer_response_policy_reason, 'OpenAI unavailable');
+  assert.equal(queuedRecords[1]?.lead_summary?.project_summary.includes('Toyota Camry'), true);
 });
 
 test('email intake rejects existing email threads before OpenAI and deletes raw mail', async () => {

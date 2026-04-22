@@ -2,6 +2,7 @@ import {
   createLeadFollowupWorkItem,
   normalizeWorkString,
 } from '../_lead-platform/domain/lead-followup-work.ts';
+import { createLeadSummary } from '../_lead-platform/domain/lead-summary.ts';
 import { createStableLeadFollowupWorkId } from '../_lead-platform/domain/ids.ts';
 import { createLeadSourceEvent } from '../_lead-platform/domain/lead-source-event.ts';
 import type { LeadPlatformRepos } from '../_lead-platform/repos/dynamo.ts';
@@ -96,6 +97,26 @@ export async function submitQuoteRequest(
         attachments: [],
         unsupportedAttachmentCount: request.unsupportedAttachmentCount + request.attachments.length,
       };
+  const leadSummary = createLeadSummary({
+    captureChannel: 'form',
+    customerName: request.name,
+    customerEmail: request.email,
+    customerPhone: request.phone,
+    customerLanguage: request.locale,
+    vehicle: request.vehicle,
+    service: request.service,
+    projectSummary: request.message,
+    customerMessage: request.message,
+    knownFacts: [request.vehicle, request.service].filter(Boolean),
+    missingInfo: [],
+    recommendedNextSteps: ['Respond to the quote request and ask for any missing project details.'],
+    alreadyAskedQuestions: [],
+    photoReferenceCount: resolvedAttachments.attachments.length,
+    loadedPhotoCount: 0,
+    unsupportedAttachmentCount: resolvedAttachments.unsupportedAttachmentCount,
+    customerResponsePolicy: 'automatic',
+    customerResponsePolicyReason: 'form_submission_valid',
+  });
 
   const persistLead = () =>
     deps.persistQuoteRequest
@@ -108,6 +129,7 @@ export async function submitQuoteRequest(
           message: request.message,
           photoAttachmentCount: resolvedAttachments.attachments.length,
           unsupportedAttachmentCount: resolvedAttachments.unsupportedAttachmentCount,
+          leadSummary,
           name: request.name,
           occurredAtMs: now * 1000,
           origin: request.origin,
@@ -174,6 +196,9 @@ export async function submitQuoteRequest(
     locale: sourceEvent.locale,
     message: sourceEvent.message,
     customerLanguage: sourceEvent.locale,
+    leadSummary,
+    customerResponsePolicy: leadSummary.customer_response_policy,
+    customerResponsePolicyReason: leadSummary.customer_response_policy_reason,
     name: sourceEvent.name,
     nowEpochSeconds: now,
     origin: sourceEvent.origin,

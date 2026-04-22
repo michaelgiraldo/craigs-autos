@@ -52,6 +52,7 @@ function createPersistEmailLead(args: {
       emailIntakeId: input.emailIntakeId,
       messageId: input.messageId,
       missingInfo: input.missingInfo,
+      leadSummary: input.leadSummary,
       name: input.customerName,
       occurredAt: Date.now(),
       originalRecipient: input.originalRecipient,

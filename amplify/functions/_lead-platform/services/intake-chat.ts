@@ -3,6 +3,7 @@ import { LEAD_EVENTS } from '@craigs/contracts/lead-event-contract';
 import { buildLeadTitle, normalizeLocale, trimToNull } from '../domain/normalize.ts';
 import type { AttributionSnapshot } from '../domain/attribution.ts';
 import type { JourneyBundle } from '../domain/lead-bundle.ts';
+import type { LeadSummary } from '../domain/lead-summary.ts';
 import type { Journey, JourneyMetadata } from '../domain/journey.ts';
 import type { LeadOutreachSnapshot, LeadQualificationSnapshot } from '../domain/lead-record.ts';
 import { buildLeadContact } from './contact-identity.ts';
@@ -19,9 +20,14 @@ export type ChatLeadIntakeInput = {
   name?: string | null;
   phone?: string | null;
   email?: string | null;
+  vehicle?: string | null;
+  service?: string | null;
   project?: string | null;
   summary?: string | null;
+  projectSummary?: string | null;
+  customerMessage?: string | null;
   customerLanguage?: string | null;
+  leadSummary?: LeadSummary | null;
   pageUrl?: string | null;
   locale?: string | null;
   userId?: string | null;
@@ -79,8 +85,16 @@ export function buildChatLeadBundle(input: ChatLeadIntakeInput): JourneyBundle {
 
   const latestOutreach = input.latestOutreach ?? createDefaultOutreachSnapshot();
   const qualification = buildDefaultQualificationSnapshot(input.qualification);
-  const project = trimToNull(input.project, 160);
-  const summary = trimToNull(input.summary, 4_000);
+  const vehicle = trimToNull(input.vehicle ?? input.leadSummary?.vehicle, 160);
+  const service = trimToNull(input.service ?? input.leadSummary?.service ?? input.project, 160);
+  const projectSummary = trimToNull(
+    input.projectSummary ?? input.leadSummary?.project_summary ?? input.summary,
+    4_000,
+  );
+  const customerMessage = trimToNull(
+    input.customerMessage ?? input.leadSummary?.customer_message ?? input.summary,
+    4_000,
+  );
   const actionTypes = ['chat_first_message_sent' as const];
 
   const journey: Journey = {
@@ -114,15 +128,18 @@ export function buildChatLeadBundle(input: ChatLeadIntakeInput): JourneyBundle {
     capture_channel: 'chat' as const,
     title: buildLeadTitle({
       channel: 'chat',
-      project,
-      message: summary,
+      vehicle,
+      service,
+      project: projectSummary,
+      message: customerMessage,
       displayName: contact?.display_name ?? null,
     }),
-    vehicle: null,
-    service: null,
-    project_summary: project ?? summary,
-    customer_message: summary,
+    vehicle,
+    service,
+    project_summary: projectSummary ?? customerMessage,
+    customer_message: customerMessage,
     customer_language: trimToNull(input.customerLanguage, 64),
+    lead_summary: input.leadSummary ?? null,
     attribution: input.attribution ?? null,
     latest_outreach: latestOutreach,
     qualification,
@@ -149,8 +166,11 @@ export function buildChatLeadBundle(input: ChatLeadIntakeInput): JourneyBundle {
         reason: trimToNull(input.reason, 120),
         normalized_phone: contact?.normalized_phone ?? null,
         normalized_email: contact?.normalized_email ?? null,
-        project,
-        summary,
+        vehicle,
+        service,
+        project_summary: projectSummary,
+        customer_message: customerMessage,
+        lead_summary: input.leadSummary ?? null,
       },
     }),
   ];

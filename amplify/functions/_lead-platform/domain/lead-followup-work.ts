@@ -1,6 +1,11 @@
 import type { AttributionSnapshot } from './attribution.ts';
 import type { LeadAttachment } from './lead-attachment.ts';
 import type { CaptureChannel } from './lead-actions.ts';
+import {
+  createFallbackLeadSummary,
+  type CustomerResponsePolicy,
+  type LeadSummary,
+} from './lead-summary.ts';
 
 export const LEAD_FOLLOWUP_WORK_TTL_DAYS = 180;
 
@@ -44,6 +49,9 @@ export type LeadFollowupWorkItem = {
   message: string;
   customer_language: string;
   capture_channel: CaptureChannel;
+  lead_summary?: LeadSummary;
+  customer_response_policy?: CustomerResponsePolicy;
+  customer_response_policy_reason?: string;
   preferred_outreach_channel?: LeadFollowupPreferredOutreachChannel;
   origin: string;
   site_label: string;
@@ -106,6 +114,9 @@ export type LeadFollowupWorkItemInput = {
   locale: string | null | undefined;
   message: string | null | undefined;
   customerLanguage?: string | null;
+  leadSummary?: LeadSummary | null;
+  customerResponsePolicy?: CustomerResponsePolicy | null;
+  customerResponsePolicyReason?: string | null;
   name: string | null | undefined;
   nowEpochSeconds: number;
   origin: string | null | undefined;
@@ -140,6 +151,30 @@ export function normalizeWorkString(value: string | null | undefined): string {
 export function createLeadFollowupWorkItem(input: LeadFollowupWorkItemInput): LeadFollowupWorkItem {
   const ttlDays = input.ttlDays ?? LEAD_FOLLOWUP_WORK_TTL_DAYS;
   const sourceEventId = normalizeWorkString(input.sourceEventId) || input.followupWorkId;
+  const leadSummary =
+    input.leadSummary ??
+    createFallbackLeadSummary({
+      captureChannel: input.captureChannel,
+      customerEmail: input.email,
+      customerLanguage: input.customerLanguage ?? input.locale,
+      customerMessage: input.message,
+      customerName: input.name,
+      customerPhone: input.phone,
+      vehicle: input.vehicle,
+      service: input.service,
+      missingInfo: [],
+      photoReferenceCount:
+        input.photoAttachmentCount ??
+        input.inboundPhotoAttachmentCount ??
+        input.attachments?.length ??
+        0,
+      loadedPhotoCount: 0,
+      unsupportedAttachmentCount: input.unsupportedAttachmentCount,
+      customerResponsePolicy: input.customerResponsePolicy,
+      customerResponsePolicyReason: input.customerResponsePolicyReason,
+    });
+  const customerResponsePolicy =
+    input.customerResponsePolicy ?? leadSummary.customer_response_policy;
 
   return {
     followup_work_id: input.followupWorkId,
@@ -156,8 +191,15 @@ export function createLeadFollowupWorkItem(input: LeadFollowupWorkItemInput): Le
     vehicle: normalizeWorkString(input.vehicle),
     service: normalizeWorkString(input.service),
     message: normalizeWorkString(input.message),
-    customer_language: normalizeWorkString(input.customerLanguage),
+    customer_language:
+      normalizeWorkString(input.customerLanguage) ||
+      normalizeWorkString(leadSummary.customer_language),
     capture_channel: input.captureChannel,
+    lead_summary: leadSummary,
+    customer_response_policy: customerResponsePolicy,
+    customer_response_policy_reason:
+      normalizeWorkString(input.customerResponsePolicyReason) ||
+      leadSummary.customer_response_policy_reason,
     preferred_outreach_channel: input.preferredOutreachChannel ?? null,
     origin: normalizeWorkString(input.origin),
     site_label: normalizeWorkString(input.siteLabel),

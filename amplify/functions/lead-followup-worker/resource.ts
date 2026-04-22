@@ -1,11 +1,11 @@
 import { defineFunction, secret } from '@aws-amplify/backend';
 import { CRAIGS_LEAD_ENV_DEFAULTS } from '@craigs/business-profile/business-profile';
-import { LEAD_AI_MODELS } from '@craigs/contracts/lead-ai-policy';
+import { LEAD_AI_TASK_POLICY } from '@craigs/contracts/lead-ai-policy';
 
 export const leadFollowupWorker = defineFunction({
   name: 'lead-followup-worker',
   runtime: 24,
-  timeoutSeconds: 30,
+  timeoutSeconds: 60,
   environment: {
     CHATKIT_OPENAI_API_KEY: secret('OPENAI_API_KEY'),
     QUO_ENABLED: 'false',
@@ -15,7 +15,7 @@ export const leadFollowupWorker = defineFunction({
     QUO_CONTACT_EXTERNAL_ID_PREFIX: CRAIGS_LEAD_ENV_DEFAULTS.QUO_CONTACT_EXTERNAL_ID_PREFIX,
     QUO_LEAD_TAGS_FIELD_KEY: '',
     QUO_LEAD_TAGS_FIELD_NAME: CRAIGS_LEAD_ENV_DEFAULTS.QUO_LEAD_TAGS_FIELD_NAME,
-    QUOTE_OUTREACH_MODEL: LEAD_AI_MODELS.customerFollowupDraft,
+    QUOTE_OUTREACH_MODEL: LEAD_AI_TASK_POLICY.customerFollowupDraft.model,
     CONTACT_FROM_EMAIL: CRAIGS_LEAD_ENV_DEFAULTS.CONTACT_FROM_EMAIL,
     CONTACT_TO_EMAIL: CRAIGS_LEAD_ENV_DEFAULTS.CONTACT_TO_EMAIL,
     CONTACT_SITE_LABEL: CRAIGS_LEAD_ENV_DEFAULTS.CONTACT_SITE_LABEL,
