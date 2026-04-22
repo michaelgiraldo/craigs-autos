@@ -16,11 +16,6 @@ import type {
   ManagedConversionFeedbackAdapter,
   ManagedConversionFeedbackDeliveryResult,
 } from './conversion-feedback/adapter-types.ts';
-export type {
-  ManagedConversionFeedbackAdapter,
-  ManagedConversionFeedbackDeliveryResult,
-} from './conversion-feedback/adapter-types.ts';
-export { createManualConversionFeedbackAdapter } from './conversion-feedback/providers/manual/adapter.ts';
 
 export const DEFAULT_CONVERSION_FEEDBACK_BATCH_SIZE = 10;
 export const DEFAULT_CONVERSION_FEEDBACK_LEASE_MS = 5 * 60 * 1000;

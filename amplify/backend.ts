@@ -1,6 +1,7 @@
 import { defineBackend } from '@aws-amplify/backend';
 
-import { configureDynamoTables } from './backend/dynamo';
+import { configureLeadActionLinksTable } from './backend/dynamo/lead-action-links';
+import { configureLeadDataTables } from './backend/dynamo/lead-data';
 import { configureEmailIntake } from './backend/email-intake';
 import { configureLeadAttachments } from './backend/lead-attachments';
 import { applyLambdaDescriptions } from './backend/lambda-descriptions';
@@ -34,7 +35,8 @@ const backend = defineBackend({
 
 applyLambdaDescriptions(backend);
 configureLambdaPermissions(backend);
-configureDynamoTables(backend);
+configureLeadActionLinksTable(backend);
+configureLeadDataTables(backend);
 configureLeadAttachments(backend);
 configureEmailIntake(backend);
 configureMonitoring(backend);

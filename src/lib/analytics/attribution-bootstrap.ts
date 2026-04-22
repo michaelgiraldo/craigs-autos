@@ -1,4 +1,4 @@
-import { CLICK_KEYS, STORAGE_KEY, UTM_KEYS } from '../attribution-core';
+import { CLICK_KEYS, STORAGE_KEY, UTM_KEYS } from '../attribution-core/constants';
 
 const ATTRIBUTION_QUERY_KEYS = [...CLICK_KEYS, ...UTM_KEYS];
 const COOKIE_ATTRIBUTION_KEYS = ['gclid', 'gbraid', 'wbraid'] as const;

@@ -1,13 +1,13 @@
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { createLeadPlatformRuntime } from '../_lead-platform/runtime.ts';
+import type { ManagedConversionFeedbackAdapter } from '../_lead-platform/services/conversion-feedback/adapter-types.ts';
 import { createManagedConversionAdapterRegistry } from '../_lead-platform/services/conversion-feedback/adapter-registry.ts';
 import { MANAGED_CONVERSION_PROVIDER_ENV_KEYS } from '../_lead-platform/services/conversion-feedback/provider-config-manifest.ts';
 import {
   DEFAULT_CONVERSION_FEEDBACK_BATCH_SIZE,
   DEFAULT_CONVERSION_FEEDBACK_LEASE_MS,
   DEFAULT_CONVERSION_FEEDBACK_MAX_ATTEMPTS,
-  type ManagedConversionFeedbackAdapter,
 } from '../_lead-platform/services/managed-conversion-feedback-worker.ts';
 
 const providerEnvSchema = Object.fromEntries(

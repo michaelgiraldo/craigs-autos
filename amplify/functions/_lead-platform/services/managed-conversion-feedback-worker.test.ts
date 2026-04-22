@@ -11,11 +11,9 @@ import type { Journey } from '../domain/journey.ts';
 import type { JourneyEvent } from '../domain/journey-event.ts';
 import type { LeadRecord } from '../domain/lead-record.ts';
 import type { LeadPlatformRepos } from '../repos/dynamo.ts';
-import {
-  createManualConversionFeedbackAdapter,
-  processManagedConversionFeedbackBatch,
-  type ManagedConversionFeedbackAdapter,
-} from './managed-conversion-feedback-worker.ts';
+import { processManagedConversionFeedbackBatch } from './managed-conversion-feedback-worker.ts';
+import type { ManagedConversionFeedbackAdapter } from './conversion-feedback/adapter-types.ts';
+import { createManualConversionFeedbackAdapter } from './conversion-feedback/providers/manual/adapter.ts';
 
 function mapValues<T>(map: Map<string, T>): T[] {
   const values: T[] = [];

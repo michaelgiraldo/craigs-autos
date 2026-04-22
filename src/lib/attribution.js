@@ -1,9 +1,13 @@
 import {
   attributionPayloadToDataLayer,
   getAttributionPayloadFromBrowser,
+} from './attribution-core/payload.ts';
+import {
   getLeadJourneyId as getStoredLeadJourneyId,
+} from './attribution-core/journey.ts';
+import {
   getStoredLeadUserId,
-} from './attribution-core.ts';
+} from './attribution-core/storage.ts';
 
 export function getAttributionPayload() {
   return getAttributionPayloadFromBrowser();

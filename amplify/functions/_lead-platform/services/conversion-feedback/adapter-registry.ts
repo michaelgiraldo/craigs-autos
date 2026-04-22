@@ -1,14 +1,10 @@
 import type { ManagedConversionFeedbackAdapter } from './adapter-types.ts';
 import type { ProviderHttpClient } from './provider-http.ts';
-import {
-  createGoogleAdsManagedConversionAdapter,
-  googleAdsProviderDefinition,
-} from './providers/google-ads/index.ts';
+import { createGoogleAdsManagedConversionAdapter } from './providers/google-ads/adapter.ts';
+import { googleAdsProviderDefinition } from './providers/google-ads/definition.ts';
 import { createManualConversionFeedbackAdapter } from './providers/manual/adapter.ts';
-import {
-  createYelpManagedConversionAdapter,
-  yelpProviderDefinition,
-} from './providers/yelp/index.ts';
+import { createYelpManagedConversionAdapter } from './providers/yelp/adapter.ts';
+import { yelpProviderDefinition } from './providers/yelp/definition.ts';
 export {
   MANAGED_CONVERSION_PROVIDER_CONFIG_FIELDS,
   MANAGED_CONVERSION_PROVIDER_ENV_DEFAULTS,

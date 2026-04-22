@@ -1,10 +1,10 @@
 import {
   attributionPayloadToDataLayer,
   getAttributionPayloadFromBrowser,
-  getLeadJourneyId,
-  getStoredLeadUserId,
-  type AttributionPayload,
-} from '../../lib/attribution-core';
+} from '../../lib/attribution-core/payload';
+import { getLeadJourneyId } from '../../lib/attribution-core/journey';
+import { getStoredLeadUserId } from '../../lib/attribution-core/storage';
+import type { AttributionPayload } from '../../lib/attribution-core/types';
 
 export const getAttribution = (): AttributionPayload | null => getAttributionPayloadFromBrowser();
 
