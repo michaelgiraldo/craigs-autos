@@ -26,7 +26,34 @@ function joinNonEmpty(parts: Array<string | null | undefined>, separator: string
     .join(separator);
 }
 
-function appendSignature(body: string, signature: string): string {
+export function stripCanonicalBusinessSignature(body: string, signatures: string[] = []): string {
+  let output = normalizeWhitespace(body);
+  const normalizedSignatures = signatures
+    .map((signature) => normalizeWhitespace(signature))
+    .filter(Boolean)
+    .sort((left, right) => right.length - left.length);
+
+  for (const signature of normalizedSignatures) {
+    if (output === signature) return '';
+    if (output.endsWith(`\n\n${signature}`)) {
+      output = output.slice(0, -signature.length).trim();
+      continue;
+    }
+    if (output.endsWith(`\n${signature}`)) {
+      output = output.slice(0, -signature.length).trim();
+    }
+  }
+
+  return normalizeWhitespace(output);
+}
+
+export function appendCanonicalBusinessSignature(args: {
+  body: string;
+  signature: string;
+  stripSignatures?: string[];
+}): string {
+  const signature = normalizeWhitespace(args.signature);
+  const body = stripCanonicalBusinessSignature(args.body, args.stripSignatures ?? [signature]);
   return normalizeWhitespace([body, signature].filter(Boolean).join('\n\n'));
 }
 
@@ -48,27 +75,32 @@ export function buildOutreachDrafts(args: BuildOutreachDraftsArgs): {
     `Hi ${greetingName} - thanks for reaching out${contextSnippet}. If you can text 2-4 photos (1 wide + 1-2 close-ups), we can take a proper look and follow up with next steps.`,
   );
   const body = normalizeWhitespace(outreachMessage ?? fallbackOutreach);
+  const smsSignature = buildSmsSignature({
+    shopName: args.shopName,
+    shopPhoneDisplay: args.shopPhoneDisplay,
+  });
+  const emailSignature = buildEmailSignature({
+    shopName: args.shopName,
+    shopPhoneDisplay: args.shopPhoneDisplay,
+    shopAddress: args.shopAddress,
+  });
+  const canonicalSignatures = [emailSignature, smsSignature];
 
   const emailDraftSubject = vehicleOrProject
     ? `${args.shopName} - next steps for ${vehicleOrProject}`
     : `${args.shopName} - next steps`;
 
   return {
-    smsDraft: appendSignature(
+    smsDraft: appendCanonicalBusinessSignature({
       body,
-      buildSmsSignature({
-        shopName: args.shopName,
-        shopPhoneDisplay: args.shopPhoneDisplay,
-      }),
-    ),
+      signature: smsSignature,
+      stripSignatures: canonicalSignatures,
+    }),
     emailDraftSubject,
-    emailDraftBody: appendSignature(
+    emailDraftBody: appendCanonicalBusinessSignature({
       body,
-      buildEmailSignature({
-        shopName: args.shopName,
-        shopPhoneDisplay: args.shopPhoneDisplay,
-        shopAddress: args.shopAddress,
-      }),
-    ),
+      signature: emailSignature,
+      stripSignatures: canonicalSignatures,
+    }),
   };
 }

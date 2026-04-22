@@ -10,7 +10,7 @@ Inbound email lead intake is backend-only. It does not add a public website rout
 4. S3 object creation invokes `email-intake-capture`.
 5. The Lambda parses MIME, validates the Google route headers, rejects replies/auto-responses/non-leads, and sends only email text plus JPEG/PNG/WebP photo attachments to OpenAI.
 6. Accepted leads reserve `LeadFollowupWork`, persist into the journey-first lead tables, and hand the work to `lead-followup-worker`.
-7. The worker sends the first customer response by email, using `victor@craigs.autos` for `From` and `Reply-To`, not `contact@craigs.autos`.
+7. The worker sends the first customer response by email, using `contact@craigs.autos` for customer-visible `From` and `Reply-To`.
 8. The worker sends the shop notification and attaches accepted inbound photos when they still fit the lead notification email budget.
 9. Raw S3 mail is explicitly deleted after completed processing. Rejected/skipped messages are deleted by the intake Lambda. A 1-day S3 lifecycle rule is only a safety net.
 

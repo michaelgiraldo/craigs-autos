@@ -1,14 +1,13 @@
 import { GetObjectCommand, type S3Client } from '@aws-sdk/client-s3';
 import PostalMime, { type Attachment } from 'postal-mime';
 import {
+  LEAD_NOTIFICATION_EMAIL_ATTACHMENT_LIMITS,
   LEAD_PHOTO_LIMITS,
   classifyLeadPhotoCandidates,
   isSupportedLeadPhotoContentType,
 } from '../_lead-platform/domain/lead-attachment.ts';
 import type { LeadFollowupWorkItem } from '../_lead-platform/domain/lead-followup-work.ts';
 import type { OutgoingEmailAttachment } from '../_shared/outgoing-email.ts';
-
-const MAX_OWNER_ATTACHMENT_BYTES = 8 * 1024 * 1024;
 
 export type LoadedLeadPhotoAttachment = OutgoingEmailAttachment & {
   dataUrl: string;
@@ -125,7 +124,8 @@ function applyLeadNotificationEmailLimits(
   let totalBytes = 0;
   for (const photo of photos) {
     if (photo.content.length > LEAD_PHOTO_LIMITS.maxBytesPerPhoto) continue;
-    if (totalBytes + photo.content.length > MAX_OWNER_ATTACHMENT_BYTES) break;
+    if (totalBytes + photo.content.length > LEAD_NOTIFICATION_EMAIL_ATTACHMENT_LIMITS.maxTotalBytes)
+      break;
     limited.push(photo);
     totalBytes += photo.content.length;
   }

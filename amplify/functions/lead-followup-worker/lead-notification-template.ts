@@ -34,6 +34,7 @@ export function buildLeadNotificationResultLabel(
 }
 
 export function buildLeadNotificationEmailContent(args: {
+  attachedPhotoCount?: number;
   record: LeadFollowupWorkItem;
   resultLabel: string;
 }): {
@@ -48,8 +49,13 @@ export function buildLeadNotificationEmailContent(args: {
   const supportedPhotoCount =
     record.photo_attachment_count ?? record.inbound_photo_attachment_count ?? 0;
   const unsupportedPhotoCount = record.unsupported_attachment_count ?? 0;
+  const photoCountLabel =
+    record.capture_channel === 'chat'
+      ? `${supportedPhotoCount} referenced, ${unsupportedPhotoCount} unsupported`
+      : `${supportedPhotoCount} accepted, ${unsupportedPhotoCount} unsupported`;
   const rows: EmailTableRow[] = [
     ['Customer', record.name || 'Unknown'],
+    ['Customer language', record.customer_language || record.locale || 'Unknown'],
     ['Locale', record.locale || 'Unknown'],
     ['Phone', record.phone || 'Not provided'],
     ['Email', record.email || 'Not provided'],
@@ -60,7 +66,8 @@ export function buildLeadNotificationEmailContent(args: {
     ['Site', record.site_label || 'Unknown'],
     ['Inbound subject', record.inbound_email_subject || 'Not applicable'],
     ['Inbound message id', record.source_message_id || 'Not applicable'],
-    ['Photos', `${supportedPhotoCount} accepted, ${unsupportedPhotoCount} unsupported`],
+    ['Photos received', photoCountLabel],
+    ['Photos attached to notification', String(args.attachedPhotoCount ?? 0)],
     ['Outreach result', resultLabel],
     ['AI drafting', aiLabel],
     ['Missing info', missingInfo],

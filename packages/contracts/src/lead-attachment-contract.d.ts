@@ -13,3 +13,7 @@ export declare const LEAD_PHOTO_LIMITS: {
   readonly maxBytesPerPhoto: number;
   readonly maxTotalBytes: number;
 };
+
+export declare const LEAD_NOTIFICATION_EMAIL_ATTACHMENT_LIMITS: {
+  readonly maxTotalBytes: number;
+};

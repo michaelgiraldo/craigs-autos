@@ -133,7 +133,7 @@ export function buildFormLeadBundle(input: FormLeadIntakeInput): JourneyBundle {
     service,
     project_summary: message,
     customer_message: message,
-    customer_language: null,
+    customer_language: metadata.locale,
     attribution: input.attribution ?? null,
     latest_outreach: latestOutreach,
     qualification,

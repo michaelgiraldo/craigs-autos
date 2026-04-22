@@ -1,5 +1,6 @@
 import type OpenAI from 'openai';
 import type { ResponseInputItem } from 'openai/resources/responses/responses';
+import { LEAD_AI_REASONING } from '@craigs/contracts/lead-ai-policy';
 import { asObject, getErrorDetails } from '../_shared/safe.ts';
 import { isPlausibleEmail, normalizeWhitespace } from '../_shared/text-utils.ts';
 import type {
@@ -136,6 +137,7 @@ export function createOpenAiEmailLeadEvaluator(args: {
     try {
       const response = await args.openai.responses.parse({
         model: args.config.model,
+        reasoning: LEAD_AI_REASONING,
         instructions: [
           "You classify inbound emails to Craig's Auto Upholstery and extract lead facts.",
           '',

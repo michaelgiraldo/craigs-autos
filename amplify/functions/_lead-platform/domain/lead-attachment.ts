@@ -1,11 +1,12 @@
 import { createHash } from 'node:crypto';
 import {
+  LEAD_NOTIFICATION_EMAIL_ATTACHMENT_LIMITS,
   LEAD_PHOTO_CONTENT_TYPES,
   LEAD_PHOTO_LIMITS,
   type LeadPhotoContentType,
 } from '@craigs/contracts/lead-attachment-contract';
 
-export { LEAD_PHOTO_CONTENT_TYPES, LEAD_PHOTO_LIMITS };
+export { LEAD_NOTIFICATION_EMAIL_ATTACHMENT_LIMITS, LEAD_PHOTO_CONTENT_TYPES, LEAD_PHOTO_LIMITS };
 export type { LeadPhotoContentType };
 
 export type LeadAttachmentSource = 'form' | 'email' | 'chat';

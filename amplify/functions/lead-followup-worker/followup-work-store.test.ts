@@ -22,6 +22,7 @@ function makeRecord(overrides: Partial<LeadFollowupWorkItem> = {}): LeadFollowup
     vehicle: '2018 Toyota Camry',
     service: 'seat-repair',
     message: 'Driver seat tear',
+    customer_language: 'en',
     capture_channel: 'form',
     origin: 'https://example.test/contact',
     site_label: 'example.test',

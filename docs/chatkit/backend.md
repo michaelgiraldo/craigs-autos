@@ -73,7 +73,7 @@ Craig's business identity and lead-delivery defaults are sourced from
 `CRAIGS_LEAD_ENV_DEFAULTS` instead of duplicating shop name, phone, address,
 email, domain, map URL, QUO source, or QUO external-id strings.
 
-- `LEAD_SUMMARY_MODEL` (default: `gpt-5.2-2025-12-11`)
+- `LEAD_SUMMARY_MODEL` (default from `@craigs/contracts/lead-ai-policy`)
 - `MANAGED_CONVERSION_DESTINATIONS` (legacy/env bootstrap only; prefer the config-as-code CLI below)
 
 Journey-first lead wiring (injected by `amplify/backend.ts`):
@@ -426,7 +426,7 @@ Key properties:
 
 Model:
 
-- Default `LEAD_SUMMARY_MODEL = gpt-5.2-2025-12-11`
+- Default `LEAD_SUMMARY_MODEL = gpt-5.4-2026-03-05`
 
 You can change this via the function environment (deploy required).
 

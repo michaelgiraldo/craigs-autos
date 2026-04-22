@@ -42,6 +42,7 @@ export type LeadFollowupWorkItem = {
   vehicle: string;
   service: string;
   message: string;
+  customer_language: string;
   capture_channel: CaptureChannel;
   preferred_outreach_channel?: LeadFollowupPreferredOutreachChannel;
   origin: string;
@@ -104,6 +105,7 @@ export type LeadFollowupWorkItemInput = {
   leadRecordId?: string | null;
   locale: string | null | undefined;
   message: string | null | undefined;
+  customerLanguage?: string | null;
   name: string | null | undefined;
   nowEpochSeconds: number;
   origin: string | null | undefined;
@@ -154,6 +156,7 @@ export function createLeadFollowupWorkItem(input: LeadFollowupWorkItemInput): Le
     vehicle: normalizeWorkString(input.vehicle),
     service: normalizeWorkString(input.service),
     message: normalizeWorkString(input.message),
+    customer_language: normalizeWorkString(input.customerLanguage),
     capture_channel: input.captureChannel,
     preferred_outreach_channel: input.preferredOutreachChannel ?? null,
     origin: normalizeWorkString(input.origin),

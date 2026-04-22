@@ -95,6 +95,7 @@ test('submitQuoteRequest reserves follow-up work before persisting the lead', as
   assert.deepEqual(steps, ['reserve', 'persist', 'put', 'invoke']);
   assert.equal(writes[0]?.followup_work_id, expectedFollowupWorkId);
   assert.equal(writes[0]?.idempotency_key, 'form:client-event-1');
+  assert.equal(writes[0]?.customer_language, 'en');
   assert.equal(writes[0]?.lead_record_id, null);
   assert.equal(writes[1]?.lead_record_id, 'lead-1');
   assert.equal(writes[1]?.contact_id, 'contact-1');

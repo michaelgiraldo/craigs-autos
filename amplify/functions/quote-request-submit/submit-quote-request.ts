@@ -173,6 +173,7 @@ export async function submitQuoteRequest(
     leadRecordId: sourceEvent.lead_record_id,
     locale: sourceEvent.locale,
     message: sourceEvent.message,
+    customerLanguage: sourceEvent.locale,
     name: sourceEvent.name,
     nowEpochSeconds: now,
     origin: sourceEvent.origin,

@@ -37,16 +37,17 @@ These names are for humans; the system uses the workflow id (`wf_...`).
 
 Current approach:
 
-- Use `gpt-5.2-chat-latest` for the ChatKit agent.
+- Use the current GPT-5.4-class ChatKit-capable model for the ChatKit agent.
 
 Why:
 
-- You get improvements automatically without reconfiguring the workflow.
+- Quality is more important than cost for this client, and the chat agent is the
+  first human-facing intake experience.
 
 Tradeoff:
 
-- Behavior can drift over time. For higher stability, pin a dated model if/when
-  OpenAI publishes date-pinned ids for this family.
+- If Agent Builder offers both alias and dated model choices, prefer a dated
+  GPT-5.4 snapshot for production stability and update it intentionally.
 
 ## Create or edit the workflow (high level)
 
@@ -235,4 +236,3 @@ Markdown examples (these images may not exist yet):
 ![Start block variables](./images/start-block-state-variables.png)
 ![Workflow id](./images/workflow-settings-id.png)
 ```
-

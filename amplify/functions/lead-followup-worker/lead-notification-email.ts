@@ -21,9 +21,13 @@ export function createSesLeadNotificationEmailSender(args: {
       throw new Error('SES is not configured');
     }
 
-    const resultLabel = buildLeadNotificationResultLabel(record.outreach_result, args.quoEnabled);
-    const message = buildLeadNotificationEmailContent({ record, resultLabel });
     const attachments = args.loadAttachments ? await args.loadAttachments(record) : [];
+    const resultLabel = buildLeadNotificationResultLabel(record.outreach_result, args.quoEnabled);
+    const message = buildLeadNotificationEmailContent({
+      attachedPhotoCount: attachments.length,
+      record,
+      resultLabel,
+    });
 
     if (attachments.length) {
       const result = await args.ses.send(
@@ -42,7 +46,7 @@ export function createSesLeadNotificationEmailSender(args: {
                 html: message.html,
                 attachments,
                 headers: {
-                  'X-Craigs-Email-Intake': 'owner-notification-v1',
+                  'X-Craigs-Email-Intake': 'lead-notification-v1',
                 },
               }),
             },

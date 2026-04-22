@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import type { S3Client } from '@aws-sdk/client-s3';
+import {
+  LEAD_NOTIFICATION_EMAIL_ATTACHMENT_LIMITS,
+  type LeadAttachment,
+} from '../_lead-platform/domain/lead-attachment.ts';
 import type { LeadFollowupWorkItem } from '../_lead-platform/domain/lead-followup-work.ts';
 import { createLeadPhotoAttachmentLoader } from './lead-attachments.ts';
 
@@ -106,4 +110,81 @@ test('lead photo loader parses email raw MIME through shared image limits', asyn
   assert.equal(photos[0]?.filename, 'seat.webp');
   assert.equal(photos[0]?.contentType, 'image/webp');
   assert.equal(photos[0]?.dataUrl, 'data:image/webp;base64,BQYHCA==');
+});
+
+test('lead photo loader does not load ChatKit references in v1', async () => {
+  const loader = createLeadPhotoAttachmentLoader({
+    s3: makeS3({}),
+  });
+
+  const chatAttachment: LeadAttachment = {
+    attachment_id: 'chat-photo-1',
+    byte_size: 0,
+    content_type: 'image/jpeg',
+    disposition: 'customer_photo',
+    filename: 'chat-photo.jpg',
+    source: 'chat',
+    status: 'supported',
+    storage: {
+      kind: 'chatkit',
+      id: 'file-1',
+      url: 'https://example.test/photo.jpg',
+    },
+  };
+
+  const photos = await loader({
+    attachments: [chatAttachment],
+    photo_attachment_count: 1,
+  } as LeadFollowupWorkItem);
+
+  assert.equal(photos.length, 0);
+});
+
+test('lead notification attachment limit comes from the shared attachment contract', async () => {
+  const belowPerPhotoLimit = Buffer.alloc(4_500_000, 1);
+  const loader = createLeadPhotoAttachmentLoader({
+    s3: makeS3({
+      'form/client-event/photo-1/large-1.jpg': belowPerPhotoLimit,
+      'form/client-event/photo-2/large-2.jpg': belowPerPhotoLimit,
+    }),
+  });
+
+  const photos = await loader({
+    attachments: [
+      {
+        attachment_id: 'photo-1',
+        byte_size: belowPerPhotoLimit.length,
+        content_type: 'image/jpeg',
+        disposition: 'customer_photo',
+        filename: 'large-1.jpg',
+        source: 'form',
+        status: 'supported',
+        storage: {
+          kind: 's3',
+          bucket: 'lead-attachments',
+          key: 'form/client-event/photo-1/large-1.jpg',
+        },
+      },
+      {
+        attachment_id: 'photo-2',
+        byte_size: belowPerPhotoLimit.length,
+        content_type: 'image/jpeg',
+        disposition: 'customer_photo',
+        filename: 'large-2.jpg',
+        source: 'form',
+        status: 'supported',
+        storage: {
+          kind: 's3',
+          bucket: 'lead-attachments',
+          key: 'form/client-event/photo-2/large-2.jpg',
+        },
+      },
+    ],
+  } as LeadFollowupWorkItem);
+
+  assert.equal(photos.length, 1);
+  assert.equal(
+    belowPerPhotoLimit.length * 2 > LEAD_NOTIFICATION_EMAIL_ATTACHMENT_LIMITS.maxTotalBytes,
+    true,
+  );
 });

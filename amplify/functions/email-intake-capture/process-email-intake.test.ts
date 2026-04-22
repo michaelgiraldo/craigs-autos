@@ -152,6 +152,7 @@ test('email intake queues an accepted Google-routed lead for email-first follow-
   assert.equal(invokedIdempotencyKey.startsWith('email:'), true);
   assert.equal(persistedInputs[0]?.customerEmail, 'customer@example.com');
   assert.equal(queuedRecords[0]?.capture_channel, 'email');
+  assert.equal(queuedRecords[0]?.customer_language, 'en');
   assert.equal(queuedRecords[0]?.preferred_outreach_channel, 'email');
   assert.equal(queuedRecords[1]?.lead_record_id, 'lead-1');
   assert.equal(queuedRecords[1]?.email_status, null);

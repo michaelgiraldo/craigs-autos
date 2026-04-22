@@ -12,6 +12,10 @@
       "types": "./src/lead-attachment-contract.d.ts",
       "default": "./src/lead-attachment-contract.js"
     },
+    "./lead-ai-policy": {
+      "types": "./src/lead-ai-policy.d.ts",
+      "default": "./src/lead-ai-policy.js"
+    },
     "./lead-event-contract": {
       "types": "./src/lead-event-contract.d.ts",
       "default": "./src/lead-event-contract.js"

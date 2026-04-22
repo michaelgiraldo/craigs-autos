@@ -19,6 +19,7 @@ function makeRecord(overrides: Partial<LeadFollowupWorkItem> = {}): LeadFollowup
     vehicle: '2018 Toyota Camry',
     service: 'seat-repair',
     message: 'Driver seat tear',
+    customer_language: 'en',
     capture_channel: 'form',
     origin: 'https://craigs.autos/request-a-quote',
     site_label: 'craigs.autos',

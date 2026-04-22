@@ -35,6 +35,7 @@ function makeRecord(overrides: Partial<LeadFollowupWorkItem> = {}): LeadFollowup
     email_status: 'sent',
     email_subject: 'Next steps',
     email_thread_key: '',
+    customer_language: 'English',
     followup_work_id: 'followup-work-1',
     idempotency_key: 'chat:thread-1',
     inbound_attachment_count: 0,
@@ -118,6 +119,7 @@ test('internal lead notifications with attachments keep the internal lead inbox 
   const raw = Buffer.from(sent[0]?.Content?.Raw?.Data ?? '').toString('utf8');
   assert.match(raw, /^From: leads@craigs\.autos$/m);
   assert.match(raw, /^To: leads@craigs\.autos$/m);
-  assert.match(raw, /^X-Craigs-Email-Intake: owner-notification-v1$/m);
+  assert.match(raw, /^X-Craigs-Email-Intake: lead-notification-v1$/m);
+  assert.match(raw, /Photos attached to notification: 1/);
   assert.match(raw, /^Content-Type: image\/jpeg; name="seat\.jpg"$/m);
 });

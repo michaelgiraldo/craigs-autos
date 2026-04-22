@@ -1,5 +1,6 @@
 import { defineFunction, secret } from '@aws-amplify/backend';
 import { CRAIGS_LEAD_ENV_DEFAULTS } from '@craigs/business-profile/business-profile';
+import { LEAD_AI_MODELS } from '@craigs/contracts/lead-ai-policy';
 
 export const leadFollowupWorker = defineFunction({
   name: 'lead-followup-worker',
@@ -14,7 +15,7 @@ export const leadFollowupWorker = defineFunction({
     QUO_CONTACT_EXTERNAL_ID_PREFIX: CRAIGS_LEAD_ENV_DEFAULTS.QUO_CONTACT_EXTERNAL_ID_PREFIX,
     QUO_LEAD_TAGS_FIELD_KEY: '',
     QUO_LEAD_TAGS_FIELD_NAME: CRAIGS_LEAD_ENV_DEFAULTS.QUO_LEAD_TAGS_FIELD_NAME,
-    QUOTE_OUTREACH_MODEL: 'gpt-5.2-2025-12-11',
+    QUOTE_OUTREACH_MODEL: LEAD_AI_MODELS.customerFollowupDraft,
     CONTACT_FROM_EMAIL: CRAIGS_LEAD_ENV_DEFAULTS.CONTACT_FROM_EMAIL,
     CONTACT_TO_EMAIL: CRAIGS_LEAD_ENV_DEFAULTS.CONTACT_TO_EMAIL,
     CONTACT_SITE_LABEL: CRAIGS_LEAD_ENV_DEFAULTS.CONTACT_SITE_LABEL,

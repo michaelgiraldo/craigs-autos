@@ -292,6 +292,7 @@ export const handler = async (
       leadRecordId: sourceEvent.lead_record_id,
       locale: sourceEvent.locale,
       message: sourceEvent.message,
+      customerLanguage: leadSummary.customer_language ?? locale,
       name: sourceEvent.name,
       nowEpochSeconds: nowEpochSeconds(),
       origin: sourceEvent.origin,

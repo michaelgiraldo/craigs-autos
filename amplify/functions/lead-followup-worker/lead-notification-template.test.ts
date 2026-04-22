@@ -24,6 +24,7 @@ function makeRecord(overrides: Partial<LeadFollowupWorkItem> = {}): LeadFollowup
     email_status: 'sent',
     email_subject: 'Re: Seat repair',
     email_thread_key: 'thread-1',
+    customer_language: 'English',
     followup_work_id: 'followup-work-1',
     idempotency_key: 'email:thread-1',
     inbound_attachment_count: 3,
@@ -74,7 +75,9 @@ test('lead notification content includes the operational lead context', () => {
 
   assert.equal(message.subject, '[Internal] New quote lead: 2010 VW Eos - seat repair');
   assert.match(message.text, /Capture channel: email/);
-  assert.match(message.text, /Photos: 2 accepted, 1 unsupported/);
+  assert.match(message.text, /Customer language: English/);
+  assert.match(message.text, /Photos received: 2 accepted, 1 unsupported/);
+  assert.match(message.text, /Photos attached to notification: 0/);
   assert.match(message.text, /Missing info: photos, seat material/);
   assert.match(message.text, /Customer message:\nDriver seat has <tear> & needs help\./);
   assert.match(message.text, /Email draft body:\nPlease send 2-4 photos\./);

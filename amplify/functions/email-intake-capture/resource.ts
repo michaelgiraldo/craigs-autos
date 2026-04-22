@@ -1,5 +1,6 @@
 import { defineFunction, secret } from '@aws-amplify/backend';
 import { CRAIGS_LEAD_ENV_DEFAULTS } from '@craigs/business-profile/business-profile';
+import { LEAD_AI_MODELS } from '@craigs/contracts/lead-ai-policy';
 
 export const emailIntakeCapture = defineFunction({
   name: 'email-intake-capture',
@@ -8,7 +9,7 @@ export const emailIntakeCapture = defineFunction({
   memoryMB: 1024,
   environment: {
     CHATKIT_OPENAI_API_KEY: secret('OPENAI_API_KEY'),
-    EMAIL_INTAKE_MODEL: 'gpt-5.2-2025-12-11',
+    EMAIL_INTAKE_MODEL: LEAD_AI_MODELS.emailIntakeClassification,
     EMAIL_INTAKE_RECIPIENT: CRAIGS_LEAD_ENV_DEFAULTS.EMAIL_INTAKE_RECIPIENT,
     EMAIL_INTAKE_ORIGINAL_RECIPIENT: CRAIGS_LEAD_ENV_DEFAULTS.EMAIL_INTAKE_ORIGINAL_RECIPIENT,
     EMAIL_INTAKE_GOOGLE_ROUTE_HEADER: CRAIGS_LEAD_ENV_DEFAULTS.EMAIL_INTAKE_GOOGLE_ROUTE_HEADER,

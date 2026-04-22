@@ -3,6 +3,7 @@ import { SchedulerClient } from '@aws-sdk/client-scheduler';
 import OpenAI from 'openai';
 import { z } from 'zod';
 import { CRAIGS_LEAD_ENV_DEFAULTS } from '@craigs/business-profile/business-profile';
+import { LEAD_AI_MODELS } from '@craigs/contracts/lead-ai-policy';
 import type { TranscriptLine } from './lead-types.ts';
 
 const chatHandoffPromoteEnvSchema = z.object({
@@ -21,7 +22,7 @@ export const leadFollowupLambda = leadFollowupWorkerFunctionName.trim()
   ? new LambdaClient({})
   : null;
 
-export const leadSummaryModel = process.env.LEAD_SUMMARY_MODEL ?? 'gpt-5.2-2025-12-11';
+export const leadSummaryModel = process.env.LEAD_SUMMARY_MODEL ?? LEAD_AI_MODELS.chatLeadSummary;
 export const leadRetrySchedulerRoleArn = process.env.LEAD_RETRY_SCHEDULER_ROLE_ARN ?? '';
 export const leadRetryScheduleGroupName = process.env.LEAD_RETRY_SCHEDULE_GROUP ?? 'default';
 

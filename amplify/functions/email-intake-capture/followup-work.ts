@@ -83,6 +83,7 @@ export function createEmailFollowupWork(args: {
     leadRecordId: sourceEvent.lead_record_id,
     locale: sourceEvent.locale,
     message: sourceEvent.message,
+    customerLanguage: args.evaluation.customerLanguage,
     name: sourceEvent.name,
     nowEpochSeconds: now,
     origin: sourceEvent.origin,

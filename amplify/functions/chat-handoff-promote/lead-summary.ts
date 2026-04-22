@@ -1,4 +1,5 @@
 import type OpenAI from 'openai';
+import { LEAD_AI_REASONING } from '@craigs/contracts/lead-ai-policy';
 import { asObject, getErrorDetails } from '../_shared/safe.ts';
 import type { LeadSummary, TranscriptLine } from './lead-types';
 import { isPlausibleEmail, isPlausiblePhone, trimTranscriptForModel } from './text-utils';
@@ -106,6 +107,7 @@ export async function generateLeadSummary(args: {
   try {
     const response = await args.openai.responses.parse({
       model: args.leadSummaryModel,
+      reasoning: LEAD_AI_REASONING,
       instructions: [
         "You format internal lead emails for an auto upholstery shop. Extract details from the customer's chat transcript.",
         '',

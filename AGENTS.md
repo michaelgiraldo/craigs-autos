@@ -176,7 +176,7 @@ Do not store these in the frontend or in git.
   `contact@craigs.autos` mail to that address and stamp:
   - `X-Gm-Original-To: contact@craigs.autos`
   - `X-Craigs-Google-Route: contact-public-intake`
-- Email lead auto-replies use `victor@craigs.autos` for `From` and `Reply-To`.
+- Email lead auto-replies use `contact@craigs.autos` for customer-visible `From` and `Reply-To`.
   Raw SES MIME in S3 is transient: explicit delete after processing, with a
   1-day lifecycle rule as backup.
 
@@ -376,8 +376,8 @@ If you are debugging, always start by getting the thread id (`cthr_...`) and the
   - public request parsing: `amplify/functions/quote-request-submit/request.ts`
   - quote submit orchestration / queueing: `amplify/functions/quote-request-submit/submit-quote-request.ts`
   - Lambda response mapping only: `amplify/functions/quote-request-submit/handler.ts`
-  - customer/shop follow-up orchestration: `amplify/functions/lead-followup-worker/process-lead-followup-worker.ts`
-  - customer/shop follow-up workflow transitions: `amplify/functions/lead-followup-worker/workflow.ts`
+  - customer/lead-notification follow-up orchestration: `amplify/functions/lead-followup-worker/process-lead-followup-worker.ts`
+  - customer/lead-notification follow-up workflow transitions: `amplify/functions/lead-followup-worker/workflow.ts`
   - follow-up delivery adapters: `amplify/functions/lead-followup-worker/customer-email.ts`, `lead-notification-email.ts`, `quo-sms.ts`
   - frontend fields / quote request UX: `src/features/quote/components/quote-request-form/*`
 - Run:

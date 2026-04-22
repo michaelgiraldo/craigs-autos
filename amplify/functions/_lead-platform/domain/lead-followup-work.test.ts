@@ -33,6 +33,7 @@ test('createLeadFollowupWorkItem creates a queued request with canonical lead li
   assert.equal(record.sms_status, null);
   assert.equal(record.email_status, null);
   assert.equal(record.lead_notification_status, null);
+  assert.equal(record.customer_language, '');
   assert.deepEqual(record.attachments, []);
   assert.equal(record.attachment_count, 0);
   assert.equal(record.photo_attachment_count, 0);
@@ -72,6 +73,7 @@ test('createLeadFollowupWorkItem stores a generic attachment manifest', () => {
     leadRecordId: 'lead-record-1',
     contactId: 'contact-1',
     locale: 'en',
+    customerLanguage: 'Spanish',
     pageUrl: 'https://craigs.autos/en/request-a-quote',
     userId: 'anon-user',
     attribution: null,
@@ -85,4 +87,5 @@ test('createLeadFollowupWorkItem stores a generic attachment manifest', () => {
   assert.equal(record.attachment_count, 2);
   assert.equal(record.photo_attachment_count, 1);
   assert.equal(record.unsupported_attachment_count, 1);
+  assert.equal(record.customer_language, 'Spanish');
 });

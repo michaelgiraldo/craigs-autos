@@ -24,3 +24,15 @@ test('buildFormLeadBundle reuses the same lead record for the same journey', () 
   assert.equal(first.journey.lead_record_id, first.leadRecord?.lead_record_id ?? null);
   assert.equal(second.journey.lead_record_id, second.leadRecord?.lead_record_id ?? null);
 });
+
+test('buildFormLeadBundle derives customer language from the form locale', () => {
+  const bundle = buildFormLeadBundle({
+    quoteRequestId: 'quote-request-es',
+    occurredAt: 1_000,
+    locale: 'es',
+    name: 'Alex Example',
+    email: 'alex@example.com',
+  });
+
+  assert.equal(bundle.leadRecord?.customer_language, 'es');
+});

@@ -160,6 +160,7 @@ test('async quote flow falls back to email when the stored follow-up work has no
     vehicle: '1969 Camaro',
     service: 'full-restoration',
     message: 'Looking for interior restoration.',
+    customer_language: 'en',
     capture_channel: 'form',
     origin: 'https://example.test/en/request-a-quote',
     site_label: 'example.test',
