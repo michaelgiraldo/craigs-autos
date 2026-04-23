@@ -45,6 +45,7 @@
     "verify:release": "npm run predeploy && npm run build:release",
     "smoke:admin-leads": "node scripts/smoke-admin-leads.mjs",
     "smoke:chatkit": "node scripts/smoke-chatkit.mjs",
+    "smoke:email-intake": "node --experimental-strip-types scripts/smoke-email-intake.ts",
     "smoke:journey": "node --experimental-strip-types scripts/smoke-journey.ts",
     "sync:amplify-redirects": "node scripts/sync-amplify-redirects.mjs",
     "check:amplify-redirects": "node scripts/sync-amplify-redirects.mjs --check",

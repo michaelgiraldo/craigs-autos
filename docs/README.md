@@ -13,6 +13,7 @@ This repo is a multi-locale Astro site deployed on AWS Amplify. It includes a pr
   - `docs/chatkit/chat-handoff-promote-process.md`
 - Email lead intake:
   - `docs/email-intake.md`
+  - `docs/email-intake-smoke.md`
 - Lead photo attachments:
   - `docs/lead-photo-attachments.md`
 - Journey smoke:

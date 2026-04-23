@@ -82,4 +82,5 @@ Run:
 npm run typecheck:backend
 npm run test:backend
 npm run validate:business-profile
+npm run smoke:email-intake -- --profile AdministratorAccess-281934899223
 ```
