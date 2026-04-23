@@ -103,7 +103,7 @@ Managed-conversion worker defaults:
 - `MANAGED_CONVERSION_FEEDBACK_LEASE_SECONDS` (default `300`)
 - `MANAGED_CONVERSION_FEEDBACK_MAX_ATTEMPTS` (default `3`)
 - `GOOGLE_ADS_CONVERSION_FEEDBACK_MODE` (default `dry_run`; supported modes: `disabled`, `dry_run`, `test`/`validate_only`, `live`)
-- `GOOGLE_ADS_API_VERSION` (default `v22`)
+- `GOOGLE_ADS_API_VERSION` (default `v24`)
 - `GOOGLE_ADS_ENDPOINT_BASE` (default `https://googleads.googleapis.com`)
 - `GOOGLE_ADS_CUSTOMER_ID` (required for Google Ads dry-run validation)
 - `GOOGLE_ADS_CONVERSION_ACTION_RESOURCE_NAME` or `GOOGLE_ADS_CONVERSION_ACTION_ID` (required for Google Ads dry-run validation)

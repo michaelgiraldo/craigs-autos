@@ -13,6 +13,8 @@ import {
 
 export type GoogleAdsConsentStatus = 'GRANTED' | 'DENIED';
 
+export const DEFAULT_GOOGLE_ADS_API_VERSION = 'v24';
+
 export const GOOGLE_ADS_CONFIG_FIELDS = Object.freeze([
   {
     name: 'mode',
@@ -25,7 +27,7 @@ export const GOOGLE_ADS_CONFIG_FIELDS = Object.freeze([
     name: 'apiVersion',
     envKey: 'GOOGLE_ADS_API_VERSION',
     providerConfigKey: 'api_version',
-    defaultValue: 'v22',
+    defaultValue: DEFAULT_GOOGLE_ADS_API_VERSION,
     description: 'Google Ads API version used for REST conversion upload.',
   },
   {
@@ -199,7 +201,8 @@ export function parseGoogleAdsManagedConversionConfig(
   return {
     mode: parseProviderExecutionMode(modeValue),
     apiVersion:
-      readStringConfigValue(env, providerConfig, 'GOOGLE_ADS_API_VERSION', 'api_version') ?? 'v22',
+      readStringConfigValue(env, providerConfig, 'GOOGLE_ADS_API_VERSION', 'api_version') ??
+      DEFAULT_GOOGLE_ADS_API_VERSION,
     endpointBase:
       readStringConfigValue(env, providerConfig, 'GOOGLE_ADS_ENDPOINT_BASE', 'endpoint_base') ??
       'https://googleads.googleapis.com',

@@ -335,7 +335,7 @@ test('createGoogleAdsManagedConversionAdapter sends validate-only test requests 
   assert.equal(calls.length, 1);
   assert.equal(
     calls[0].url,
-    'https://googleads.googleapis.com/v22/customers/1234567890:uploadClickConversions',
+    'https://googleads.googleapis.com/v24/customers/1234567890:uploadClickConversions',
   );
   assert.equal(calls[0].headers.authorization, 'Bearer access-token');
   assert.equal(calls[0].headers['developer-token'], 'developer-token');
