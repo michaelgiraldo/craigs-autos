@@ -10,6 +10,7 @@ import type {
 const EXPLORE_CARD_KEYS = [
 	'autoUpholstery',
 	'carSeats',
+	'dashboardReupholstery',
 	'motorcycleSeats',
 	'headliners',
 	'convertibleTops',
@@ -21,18 +22,19 @@ const EXPLORE_CARD_KEYS = [
 ];
 
 const SERVICE_RELATED_KEYS: Record<string, string[]> = {
-	autoUpholstery: ['carSeats', 'headliners', 'classicCars'],
-	carSeats: ['autoUpholstery', 'motorcycleSeats', 'classicCars'],
+	autoUpholstery: ['carSeats', 'dashboardReupholstery', 'headliners'],
+	carSeats: ['autoUpholstery', 'dashboardReupholstery', 'motorcycleSeats'],
+	dashboardReupholstery: ['autoUpholstery', 'carSeats', 'classicCars'],
 	motorcycleSeats: ['carSeats', 'autoUpholstery', 'classicCars'],
 	boatUpholstery: ['motorcycleSeats', 'carSeats', 'autoUpholstery'],
 	headliners: ['autoUpholstery', 'convertibleTops', 'classicCars'],
 	convertibleTops: ['classicCars', 'autoUpholstery', 'headliners'],
-	classicCars: ['autoUpholstery', 'carSeats', 'convertibleTops'],
+	classicCars: ['autoUpholstery', 'dashboardReupholstery', 'carSeats'],
 	commercialFleet: ['autoUpholstery', 'carSeats', 'headliners'],
 };
 
 const FALLBACK_RELATED_KEYS = EXPLORE_CARD_KEYS.filter((key) =>
-	['autoUpholstery', 'carSeats', 'motorcycleSeats', 'headliners', 'convertibleTops', 'classicCars', 'commercialFleet'].includes(
+	['autoUpholstery', 'carSeats', 'dashboardReupholstery', 'motorcycleSeats', 'headliners', 'convertibleTops', 'classicCars', 'commercialFleet'].includes(
 		key,
 	),
 );

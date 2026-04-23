@@ -912,6 +912,120 @@
     }
   },
   {
+    "pageKey": "dashboardReupholstery",
+    "template": "service",
+    "locales": {
+      "en": {
+        "eyebrow": "Dashboard Reupholstery",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Dash pads, vinyl dash repair, and interior panel matching.",
+        "alt": "Dashboard Reupholstery | Craig's Auto Upholstery"
+      },
+      "es": {
+        "eyebrow": "Tableros",
+        "headline": "Tapicería Automotriz Craig's",
+        "summary": "Tableros, vinil y paneles interiores con buen ajuste.",
+        "alt": "Tableros | Tapicería Automotriz Craig's"
+      },
+      "vi": {
+        "eyebrow": "Bọc táp-lô",
+        "headline": "Bọc Nội Thất Ô Tô Craig's",
+        "summary": "Táp-lô, vinyl và tấm nội thất được làm cho khớp.",
+        "alt": "Bọc táp-lô | Bọc Nội Thất Ô Tô Craig's"
+      },
+      "zh-hans": {
+        "eyebrow": "仪表台内饰",
+        "headline": "Craig's 汽车内饰",
+        "summary": "仪表台、乙烯基修复和内饰面板匹配。",
+        "alt": "仪表台内饰 | Craig's 汽车内饰"
+      },
+      "tl": {
+        "eyebrow": "Dashboard",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Dash pad, vinyl repair, at tugma ng interior panels.",
+        "alt": "Dashboard | Craig's Auto Upholstery"
+      },
+      "id": {
+        "eyebrow": "Dashboard",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Dash pad, perbaikan vinyl, dan panel interior yang serasi.",
+        "alt": "Dashboard | Craig's Auto Upholstery"
+      },
+      "fa": {
+        "eyebrow": "داشبورد",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "داش پد، تعمیر وینیل داشبورد و هماهنگی پنل‌های داخل.",
+        "alt": "داشبورد | Craig's Auto Upholstery"
+      },
+      "te": {
+        "eyebrow": "డాష్‌బోర్డ్",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "డాష్ ప్యాడ్, వినైల్ డాష్ రిపేర్, ఇంటీరియర్ ప్యానల్ మ్యాచ్.",
+        "alt": "డాష్‌బోర్డ్ | Craig's Auto Upholstery"
+      },
+      "fr": {
+        "eyebrow": "Tableau de bord",
+        "headline": "Craig's Auto Upholstery",
+        "summary": "Tableaux de bord, vinyle et panneaux intérieurs bien raccordés.",
+        "alt": "Tableau de bord | Craig's Auto Upholstery"
+      },
+      "ko": {
+        "eyebrow": "대시보드",
+        "headline": "Craig's 자동차 내장",
+        "summary": "대시패드, 비닐 대시 수리, 내장 패널 매칭.",
+        "alt": "대시보드 | Craig's 자동차 내장"
+      },
+      "hi": {
+        "eyebrow": "डैशबोर्ड",
+        "headline": "Craig's ऑटो अपहोल्स्ट्री",
+        "summary": "डैश पैड, विनाइल डैश रिपेयर और इंटीरियर पैनल मैचिंग।",
+        "alt": "डैशबोर्ड | Craig's ऑटो अपहोल्स्ट्री"
+      },
+      "pa": {
+        "eyebrow": "ਡੈਸ਼ਬੋਰਡ",
+        "headline": "Craig's ਆਟੋ ਅਪਹੋਲਸਟਰੀ",
+        "summary": "ਡੈਸ਼ ਪੈਡ, ਵਿਨਾਇਲ ਡੈਸ਼ ਰਿਪੇਅਰ ਅਤੇ ਇੰਟੀਰੀਅਰ ਪੈਨਲ ਮੈਚਿੰਗ।",
+        "alt": "ਡੈਸ਼ਬੋਰਡ | Craig's ਆਟੋ ਅਪਹੋਲਸਟਰੀ"
+      },
+      "pt-br": {
+        "eyebrow": "Painel",
+        "headline": "Estofamento Automotivo Craig's",
+        "summary": "Painéis, vinil e acabamento interno com bom encaixe.",
+        "alt": "Painel | Estofamento Automotivo Craig's"
+      },
+      "zh-hant": {
+        "eyebrow": "儀表板",
+        "headline": "Craig's 汽車內飾",
+        "summary": "儀表板、乙烯基修復與內飾面板匹配。",
+        "alt": "儀表板 | Craig's 汽車內飾"
+      },
+      "ja": {
+        "eyebrow": "ダッシュボード",
+        "headline": "Craig's 自動車内装",
+        "summary": "ダッシュパッド、ビニール補修、内装パネルの自然な仕上げ。",
+        "alt": "ダッシュボード | Craig's 自動車内装"
+      },
+      "ar": {
+        "eyebrow": "لوحة القيادة",
+        "headline": "Craig's تنجيد السيارات",
+        "summary": "تنجيد لوحة القيادة وإصلاح الفينيل وتنسيق ألواح الداخل.",
+        "alt": "لوحة القيادة | Craig's تنجيد السيارات"
+      },
+      "ru": {
+        "eyebrow": "Панель приборов",
+        "headline": "Craig's Автообивка",
+        "summary": "Панели, винил и детали салона с аккуратной подгонкой.",
+        "alt": "Панель приборов | Craig's Автообивка"
+      },
+      "ta": {
+        "eyebrow": "டாஷ்போர்டு",
+        "headline": "Craig's கார் உள்வடிவம்",
+        "summary": "டாஷ் பேட், வினைல் பழுது, உள் பேனல் பொருத்தம்.",
+        "alt": "டாஷ்போர்டு | Craig's கார் உள்வடிவம்"
+      }
+    }
+  },
+  {
     "pageKey": "gallery",
     "template": "gallery",
     "locales": {

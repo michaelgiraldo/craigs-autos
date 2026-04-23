@@ -132,6 +132,49 @@
     }
   },
   {
+    "id": "dashboardReupholstery",
+    "navLabel": {
+      "en": "Dashboard Reupholstery",
+      "es": "Tableros",
+      "vi": "Bọc táp-lô",
+      "zh-hans": "仪表台内饰",
+      "tl": "Dashboard",
+      "id": "Dashboard",
+      "ko": "대시보드",
+      "hi": "डैशबोर्ड",
+      "pa": "ਡੈਸ਼ਬੋਰਡ",
+      "pt-br": "Painel",
+      "zh-hant": "儀表板",
+      "ja": "ダッシュボード",
+      "ar": "لوحة القيادة",
+      "ru": "Панель приборов",
+      "ta": "டாஷ்போர்டு",
+      "fa": "داشبورد",
+      "te": "డాష్‌బోర్డ్",
+      "fr": "Tableau de bord"
+    },
+    "cardSummary": {
+      "en": "Dash pads, vinyl dash repair, and interior panel matching.",
+      "es": "Tableros, vinil y paneles interiores con buen ajuste.",
+      "vi": "Táp-lô, vinyl và tấm nội thất được làm cho khớp.",
+      "zh-hans": "仪表台、乙烯基修复和内饰面板匹配。",
+      "tl": "Dash pad, vinyl repair, at tugma ng interior panels.",
+      "id": "Dash pad, perbaikan vinyl, dan panel interior yang serasi.",
+      "ko": "대시패드, 비닐 대시 수리, 내장 패널 매칭.",
+      "hi": "डैश पैड, विनाइल डैश रिपेयर और इंटीरियर पैनल मैचिंग।",
+      "pa": "ਡੈਸ਼ ਪੈਡ, ਵਿਨਾਇਲ ਡੈਸ਼ ਰਿਪੇਅਰ ਅਤੇ ਇੰਟੀਰੀਅਰ ਪੈਨਲ ਮੈਚਿੰਗ।",
+      "pt-br": "Painéis, vinil e acabamento interno com bom encaixe.",
+      "zh-hant": "儀表板、乙烯基修復與內飾面板匹配。",
+      "ja": "ダッシュパッド、ビニール補修、内装パネルの自然な仕上げ。",
+      "ar": "تنجيد لوحة القيادة وإصلاح الفينيل وتنسيق ألواح الداخل.",
+      "ru": "Панели, винил и детали салона с аккуратной подгонкой.",
+      "ta": "டாஷ் பேட், வினைல் பழுது, உள் பேனல் பொருத்தம்.",
+      "fa": "داش پد، تعمیر وینیل داشبورد و هماهنگی پنل‌های داخل.",
+      "te": "డాష్ ప్యాడ్, వినైల్ డాష్ రిపేర్, ఇంటీరియర్ ప్యానల్ మ్యాచ్.",
+      "fr": "Tableaux de bord, vinyle et panneaux intérieurs bien raccordés."
+    }
+  },
+  {
     "id": "motorcycleSeats",
     "navLabel": {
       "en": "Motorcycle Seats",

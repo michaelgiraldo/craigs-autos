@@ -22,6 +22,7 @@ const TEMPLATE_BY_PAGE_KEY = {
   autoUpholstery: 'service',
   boatUpholstery: 'service',
   carSeats: 'service',
+  dashboardReupholstery: 'service',
   classicCars: 'service',
   commercialFleet: 'service',
   convertibleTops: 'service',
