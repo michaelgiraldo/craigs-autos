@@ -15,6 +15,8 @@ This repo is a multi-locale Astro site deployed on AWS Amplify. It includes a pr
   - `docs/email-intake.md`
 - Lead photo attachments:
   - `docs/lead-photo-attachments.md`
+- Journey smoke:
+  - `docs/journey-smoke.md`
 
 Compatibility pointer:
 
