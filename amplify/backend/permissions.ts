@@ -11,6 +11,7 @@ function grantSesSend(backend: CraigsBackend): void {
 
   getLambda(backend.chatHandoffPromote).addToRolePolicy(sendEmailPolicy);
   getLambda(backend.leadFollowupWorker).addToRolePolicy(sendEmailPolicy);
+  getLambda(backend.leadFollowupAlertMonitor).addToRolePolicy(sendEmailPolicy);
 }
 
 function configureChatHandoffPromoteRetryScheduler(backend: CraigsBackend): void {

@@ -210,6 +210,49 @@ test('DynamoLeadFollowupWorkRepo.listByStatus queries the operational status ind
   assert.equal(command.input.Limit, 25);
 });
 
+test('DynamoLeadFollowupWorkRepo.listByStatus supports stale-threshold queries', async () => {
+  const { db, commands } = createDbStub();
+  const repo = new DynamoLeadFollowupWorkRepo(db as never, 'LeadFollowupWorkTable');
+
+  await repo.listByStatus('queued', { limit: 10, scanIndexForward: true, updatedAtLte: 5_000 });
+
+  assert.equal(commands.length, 1);
+  const command = commands[0] as QueryCommand & { input: Record<string, unknown> };
+  assert.equal(
+    command.input.KeyConditionExpression,
+    '#status = :status AND #updated_at <= :updated_at_lte',
+  );
+  assert.equal(command.input.ScanIndexForward, true);
+  assert.equal(command.input.Limit, 10);
+});
+
+test('DynamoLeadFollowupWorkRepo.updateFailureAlertState conditionally updates alert fields', async () => {
+  const { db, commands } = createDbStub();
+  const repo = new DynamoLeadFollowupWorkRepo(db as never, 'LeadFollowupWorkTable');
+
+  await repo.updateFailureAlertState({
+    alertError: null,
+    alertKind: 'error',
+    alertMessageId: 'ses-message-1',
+    alertSentAt: 6_000,
+    alertStatus: 'sent',
+    expectedStatus: 'error',
+    expectedUpdatedAt: 5_000,
+    idempotencyKey: 'form:lead-1',
+    lastAttemptAt: 6_000,
+  });
+
+  assert.equal(commands.length, 1);
+  const command = commands[0] as UpdateCommand & { input: Record<string, unknown> };
+  assert.equal(command.input.TableName, 'LeadFollowupWorkTable');
+  assert.equal(
+    command.input.ConditionExpression,
+    'attribute_exists(idempotency_key) AND #status = :expected_status AND #updated_at = :expected_updated_at AND attribute_not_exists(#failure_alert_sent_at)',
+  );
+  assert.match(String(command.input.UpdateExpression), /#failure_alert_status = :alert_status/);
+  assert.match(String(command.input.UpdateExpression), /#failure_alert_sent_at = :alert_sent_at/);
+});
+
 test('DynamoLeadConversionFeedbackOutboxRepo.acquireLease conditionally leases queued work', async () => {
   const { db, commands } = createDbStub();
   const repo = new DynamoLeadConversionFeedbackOutboxRepo(db as never, 'FeedbackOutboxTable');

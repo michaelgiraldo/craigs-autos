@@ -204,6 +204,7 @@ function createRepos(args: {
       listByStatus: async () => [],
       put: async () => undefined,
       putIfAbsent: async () => true,
+      updateFailureAlertState: async () => true,
     },
     leadRecords: {
       getById: async (leadRecordId) => leadRecords.get(leadRecordId) ?? null,

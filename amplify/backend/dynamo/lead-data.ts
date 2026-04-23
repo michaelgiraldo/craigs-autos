@@ -251,7 +251,10 @@ function createLeadDataTables(stack: Stack): LeadDataTables {
 }
 
 function addLeadDataEnvironment(lambda: LambdaWithEnvironment, tables: LeadDataTables): void {
-  lambda.addEnvironment('LEAD_CONTACT_OBSERVATIONS_TABLE_NAME', tables.contactObservations.tableName);
+  lambda.addEnvironment(
+    'LEAD_CONTACT_OBSERVATIONS_TABLE_NAME',
+    tables.contactObservations.tableName,
+  );
   lambda.addEnvironment('LEAD_CONTACT_POINTS_TABLE_NAME', tables.contactPoints.tableName);
   lambda.addEnvironment('LEAD_CONTACTS_TABLE_NAME', tables.contacts.tableName);
   lambda.addEnvironment(
@@ -338,6 +341,7 @@ export function configureLeadDataTables(backend: CraigsBackend): void {
   const leadDataStack = Stack.of(getLambda(backend.chatHandoffPromote));
   const tables = createLeadDataTables(leadDataStack);
   const leadFollowupWorkerLambda = getLambda(backend.leadFollowupWorker);
+  const leadFollowupAlertMonitorLambda = getLambda(backend.leadFollowupAlertMonitor);
   const followupProducers = [
     getLambda(backend.quoteRequestSubmit),
     getLambda(backend.emailIntakeCapture),
@@ -367,6 +371,11 @@ export function configureLeadDataTables(backend: CraigsBackend): void {
 
   grantManagedConversionAccess(managedConversionFeedbackWorkerLambda, tables);
   grantLeadAdminAccess(leadAdminApiLambda, tables);
+  leadFollowupAlertMonitorLambda.addEnvironment(
+    'LEAD_FOLLOWUP_WORK_TABLE_NAME',
+    tables.followupWork.tableName,
+  );
+  grantLeadTableReadWriteAccess(leadFollowupAlertMonitorLambda, [tables.followupWork]);
 
   for (const lambda of followupProducers) {
     leadFollowupWorkerLambda.grantInvoke(lambda);

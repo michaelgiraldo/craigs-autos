@@ -38,6 +38,7 @@ export function configureMonitoring(backend: CraigsBackend): void {
     ['EmailIntakeCapture', getLambda(backend.emailIntakeCapture)],
     ['ChatHandoffPromote', getLambda(backend.chatHandoffPromote)],
     ['LeadFollowupWorker', getLambda(backend.leadFollowupWorker)],
+    ['LeadFollowupAlertMonitor', getLambda(backend.leadFollowupAlertMonitor)],
     ['LeadAdminApi', getLambda(backend.leadAdminApi)],
   ] as const) {
     addLeadCriticalLambdaAlarms(idPrefix, lambda);

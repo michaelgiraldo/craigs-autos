@@ -178,6 +178,7 @@ test('syncQuoLeadContact upserts Quo contacts and persists remote tags', async (
       listByStatus: async () => [],
       put: async () => undefined,
       putIfAbsent: async () => true,
+      updateFailureAlertState: async () => true,
     },
     conversionDecisions: {
       getById: async () => null,

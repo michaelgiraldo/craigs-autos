@@ -8,6 +8,8 @@ import {
 const PUBLIC_CONVERSATION_EMAIL = 'contact@craigs.autos';
 const INTERNAL_LEAD_INBOX_EMAIL = 'leads@craigs.autos';
 const HUMAN_OPERATOR_EMAIL = 'victor@craigs.autos';
+const SYSTEM_SENDER_EMAIL = 'system@craigs.autos';
+const ALERT_GROUP_EMAIL = 'alerts@craigs.autos';
 
 test("Craig's email identity roles keep customer automation on the public conversation address", () => {
   const { email } = CRAIGS_BUSINESS_PROFILE;
@@ -16,6 +18,8 @@ test("Craig's email identity roles keep customer automation on the public conver
   assert.equal(email.publicConversation, PUBLIC_CONVERSATION_EMAIL);
   assert.equal(email.internalLeadInbox, INTERNAL_LEAD_INBOX_EMAIL);
   assert.equal(email.humanOperator, HUMAN_OPERATOR_EMAIL);
+  assert.equal(email.systemSender, SYSTEM_SENDER_EMAIL);
+  assert.equal(email.alertGroup, ALERT_GROUP_EMAIL);
 
   assert.equal(email.customerOutboundFrom, PUBLIC_CONVERSATION_EMAIL);
   assert.equal(email.customerOutboundReplyTo, PUBLIC_CONVERSATION_EMAIL);
@@ -30,6 +34,8 @@ test("Craig's email identity roles keep customer automation on the public conver
   assert.equal(CRAIGS_LEAD_ENV_DEFAULTS.QUOTE_CUSTOMER_BCC_EMAIL, INTERNAL_LEAD_INBOX_EMAIL);
   assert.equal(CRAIGS_LEAD_ENV_DEFAULTS.CONTACT_FROM_EMAIL, INTERNAL_LEAD_INBOX_EMAIL);
   assert.equal(CRAIGS_LEAD_ENV_DEFAULTS.CONTACT_TO_EMAIL, INTERNAL_LEAD_INBOX_EMAIL);
+  assert.equal(CRAIGS_LEAD_ENV_DEFAULTS.LEAD_FAILURE_ALERT_FROM_EMAIL, SYSTEM_SENDER_EMAIL);
+  assert.equal(CRAIGS_LEAD_ENV_DEFAULTS.LEAD_FAILURE_ALERT_EMAILS, ALERT_GROUP_EMAIL);
 
   assert.notEqual(CRAIGS_LEAD_ENV_DEFAULTS.EMAIL_CUSTOMER_FROM_EMAIL, HUMAN_OPERATOR_EMAIL);
   assert.notEqual(CRAIGS_LEAD_ENV_DEFAULTS.QUOTE_CUSTOMER_FROM_EMAIL, HUMAN_OPERATOR_EMAIL);

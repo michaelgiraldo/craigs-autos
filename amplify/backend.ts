@@ -17,6 +17,7 @@ import { quoteRequestSubmit } from './functions/quote-request-submit/resource';
 import { leadAttachmentUploadStart } from './functions/lead-attachment-upload-start/resource';
 import { emailIntakeCapture } from './functions/email-intake-capture/resource';
 import { leadAdminApi } from './functions/lead-admin-api/resource';
+import { leadFollowupAlertMonitor } from './functions/lead-followup-alert-monitor/resource';
 import { leadFollowupWorker } from './functions/lead-followup-worker/resource';
 import { managedConversionFeedbackWorker } from './functions/managed-conversion-feedback-worker/resource';
 
@@ -25,6 +26,7 @@ const backend = defineBackend({
   leadAttachmentUploadStart,
   emailIntakeCapture,
   leadFollowupWorker,
+  leadFollowupAlertMonitor,
   managedConversionFeedbackWorker,
   chatSessionCreate,
   chatHandoffPromote,

@@ -19,6 +19,8 @@ export type BusinessProfile = {
     readonly emailIntakeRouteHeader: string;
     readonly internalLeadInbox: string;
     readonly humanOperator: string;
+    readonly systemSender: string;
+    readonly alertGroup: string;
     readonly customerOutboundFrom: string;
     readonly customerOutboundReplyTo: string;
     readonly customerOutboundBcc: string;
@@ -76,6 +78,10 @@ export declare const CRAIGS_LEAD_ENV_DEFAULTS: {
   readonly QUOTE_CUSTOMER_FROM_EMAIL: string;
   readonly QUOTE_CUSTOMER_BCC_EMAIL: string;
   readonly QUOTE_CUSTOMER_REPLY_TO_EMAIL: string;
+  readonly LEAD_FAILURE_ALERT_FROM_EMAIL: string;
+  readonly LEAD_FAILURE_ALERT_EMAILS: string;
+  readonly LEAD_FAILURE_ALERT_BATCH_SIZE: string;
+  readonly LEAD_FAILURE_ALERT_MIN_INTERVAL_SECONDS: string;
   readonly SHOP_NAME: string;
   readonly SHOP_PHONE_DISPLAY: string;
   readonly SHOP_PHONE_DIGITS: string;

@@ -33,6 +33,8 @@ test('createLeadFollowupWorkItem creates a queued request with canonical lead li
   assert.equal(record.sms_status, null);
   assert.equal(record.email_status, null);
   assert.equal(record.lead_notification_status, null);
+  assert.equal(record.failure_alert_status, null);
+  assert.equal(record.failure_alert_kind, null);
   assert.equal(record.customer_language, 'en');
   assert.equal(record.lead_summary?.project_summary, 'Driver seat needs work.');
   assert.equal(record.customer_response_policy, 'automatic');

@@ -16,6 +16,7 @@ export type CraigsBackend = {
   leadAttachmentUploadStart: BackendFunctionResource;
   emailIntakeCapture: BackendFunctionResource;
   leadFollowupWorker: BackendFunctionResource;
+  leadFollowupAlertMonitor: BackendFunctionResource;
   managedConversionFeedbackWorker: BackendFunctionResource;
   chatSessionCreate: BackendFunctionResource;
   chatHandoffPromote: BackendFunctionResource;

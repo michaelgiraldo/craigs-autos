@@ -163,6 +163,7 @@ function createRepos() {
       listByStatus: async () => [],
       put: async () => undefined,
       putIfAbsent: async () => true,
+      updateFailureAlertState: async () => true,
     },
     leadRecords: {
       getById: async () => null,

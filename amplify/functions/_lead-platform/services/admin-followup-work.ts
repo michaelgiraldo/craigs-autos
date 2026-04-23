@@ -4,6 +4,7 @@ import type {
   LeadFollowupWorkStatus,
 } from '../domain/lead-followup-work.ts';
 import type { CustomerResponsePolicy, LeadSummary } from '../domain/lead-summary.ts';
+import { isLeadFollowupWorkStale, summarizeLeadFollowupError } from './followup-work-alerts.ts';
 
 export type LeadAdminFollowupWorkSummary = {
   idempotency_key: string;
@@ -42,38 +43,12 @@ export type LeadAdminFollowupWorkSummary = {
   operator_resolved_at: number | null;
 };
 
-export const LEAD_FOLLOWUP_STALE_QUEUED_SECONDS = 10 * 60;
-
 function hasUnconfirmedDeliveryAttempt(record: LeadFollowupWorkItem): boolean {
   return (
     record.sms_status === 'sending' ||
     record.email_status === 'sending' ||
     record.lead_notification_status === 'sending'
   );
-}
-
-function summarizeFollowupError(record: LeadFollowupWorkItem): string | null {
-  return (
-    record.customer_email_error ||
-    record.sms_error ||
-    record.lead_notification_error ||
-    record.ai_error ||
-    null
-  );
-}
-
-export function isLeadFollowupWorkStale(args: {
-  nowEpochSeconds: number;
-  record: LeadFollowupWorkItem;
-}): boolean {
-  if (args.record.status === 'error') return true;
-  if (args.record.status === 'queued') {
-    return args.nowEpochSeconds - args.record.updated_at >= LEAD_FOLLOWUP_STALE_QUEUED_SECONDS;
-  }
-  if (args.record.status === 'processing') {
-    return (args.record.lock_expires_at ?? 0) <= args.nowEpochSeconds;
-  }
-  return false;
 }
 
 export function getLeadFollowupRetryBlockReason(args: {
@@ -120,7 +95,7 @@ export function toLeadAdminFollowupWorkSummary(args: {
     email_status: args.record.email_status,
     lead_notification_status: args.record.lead_notification_status,
     outreach_result: args.record.outreach_result,
-    error: summarizeFollowupError(args.record),
+    error: summarizeLeadFollowupError(args.record),
     lock_expires_at: args.record.lock_expires_at ?? null,
     created_at: args.record.created_at,
     updated_at: args.record.updated_at,

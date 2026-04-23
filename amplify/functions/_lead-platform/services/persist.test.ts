@@ -113,6 +113,7 @@ test('upsertLeadBundle chooses phone contact on phone/email identity conflict', 
       listByStatus: async () => [],
       put: async () => undefined,
       putIfAbsent: async () => true,
+      updateFailureAlertState: async () => true,
     },
     conversionDecisions: {
       getById: async () => null,

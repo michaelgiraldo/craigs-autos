@@ -1,6 +1,8 @@
 const PUBLIC_CONVERSATION_EMAIL = 'contact@craigs.autos';
 const INTERNAL_LEAD_INBOX_EMAIL = 'leads@craigs.autos';
 const HUMAN_OPERATOR_EMAIL = 'victor@craigs.autos';
+const SYSTEM_SENDER_EMAIL = 'system@craigs.autos';
+const ALERT_GROUP_EMAIL = 'alerts@craigs.autos';
 const EMAIL_INTAKE_RECIPIENT = 'contact-intake@email-intake.craigs.autos';
 
 export const CRAIGS_BUSINESS_PROFILE = Object.freeze({
@@ -24,6 +26,8 @@ export const CRAIGS_BUSINESS_PROFILE = Object.freeze({
     emailIntakeRouteHeader: 'contact-public-intake',
     internalLeadInbox: INTERNAL_LEAD_INBOX_EMAIL,
     humanOperator: HUMAN_OPERATOR_EMAIL,
+    systemSender: SYSTEM_SENDER_EMAIL,
+    alertGroup: ALERT_GROUP_EMAIL,
     customerOutboundFrom: PUBLIC_CONVERSATION_EMAIL,
     customerOutboundReplyTo: PUBLIC_CONVERSATION_EMAIL,
     customerOutboundBcc: INTERNAL_LEAD_INBOX_EMAIL,
@@ -86,6 +90,10 @@ export const CRAIGS_LEAD_ENV_DEFAULTS = Object.freeze({
   QUOTE_CUSTOMER_FROM_EMAIL: CRAIGS_BUSINESS_PROFILE.email.customerOutboundFrom,
   QUOTE_CUSTOMER_BCC_EMAIL: CRAIGS_BUSINESS_PROFILE.email.customerOutboundBcc,
   QUOTE_CUSTOMER_REPLY_TO_EMAIL: CRAIGS_BUSINESS_PROFILE.email.customerOutboundReplyTo,
+  LEAD_FAILURE_ALERT_FROM_EMAIL: CRAIGS_BUSINESS_PROFILE.email.systemSender,
+  LEAD_FAILURE_ALERT_EMAILS: CRAIGS_BUSINESS_PROFILE.email.alertGroup,
+  LEAD_FAILURE_ALERT_BATCH_SIZE: '25',
+  LEAD_FAILURE_ALERT_MIN_INTERVAL_SECONDS: '3600',
   SHOP_NAME: CRAIGS_BUSINESS_PROFILE.name,
   SHOP_PHONE_DISPLAY: CRAIGS_BUSINESS_PROFILE.phone.display,
   SHOP_PHONE_DIGITS: CRAIGS_BUSINESS_PROFILE.phone.digits,

@@ -14,6 +14,8 @@ export type LeadFollowupAiStatus = 'generated' | 'fallback' | null;
 export type LeadFollowupSendStatus = 'sending' | 'sent' | 'failed' | 'skipped' | null;
 export type LeadFollowupOutreachChannel = 'sms' | 'email' | null;
 export type LeadFollowupPreferredOutreachChannel = 'sms' | 'email' | null;
+export type LeadFollowupFailureAlertStatus = 'sent' | 'failed' | null;
+export type LeadFollowupFailureAlertKind = 'error' | 'stale_queued' | 'stale_processing' | null;
 export type LeadFollowupOutreachResult =
   | 'sms_sent'
   | 'email_sent'
@@ -80,6 +82,12 @@ export type LeadFollowupWorkItem = {
   lead_notification_status: LeadFollowupSendStatus;
   lead_notification_message_id: string;
   lead_notification_error: string;
+  failure_alert_status?: LeadFollowupFailureAlertStatus;
+  failure_alert_kind?: LeadFollowupFailureAlertKind;
+  failure_alert_sent_at?: number;
+  failure_alert_last_attempt_at?: number;
+  failure_alert_message_id?: string;
+  failure_alert_error?: string;
   operator_resolution?: 'manual_followup';
   operator_resolution_reason?: string;
   operator_resolved_at?: number;
@@ -228,6 +236,8 @@ export function createLeadFollowupWorkItem(input: LeadFollowupWorkItemInput): Le
     lead_notification_status: null,
     lead_notification_message_id: '',
     lead_notification_error: '',
+    failure_alert_status: null,
+    failure_alert_kind: null,
     source_message_id: normalizeWorkString(input.sourceMessageId),
     source_references: normalizeWorkString(input.sourceReferences),
     attachments: input.attachments ?? [],
