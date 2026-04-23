@@ -1710,6 +1710,120 @@
     }
   },
   {
+    "pageKey": "skeeterBoatUpholsteryMarineCarpetInstallation",
+    "template": "project",
+    "locales": {
+      "en": {
+        "eyebrow": "Boat Project",
+        "headline": "Skeeter Boat",
+        "summary": "Shop-built reupholstered seats, foam support, and new marine carpet installed.",
+        "alt": "Skeeter Boat | Craig's Auto Upholstery"
+      },
+      "es": {
+        "eyebrow": "Proyecto de tapiceria nautica",
+        "headline": "Tapiceria de barco Skeeter e instalacion de alfombra marina",
+        "summary": "Asientos de barco retapizados y fabricados en el taller, junto con alfombra marina nueva, instalados en un barco de pesca Skeeter con acabado limpio en negro, marron, gris y blanco.",
+        "alt": "Tapiceria de barco Skeeter e instalacion de alfombra marina | Tapicería Automotriz Craig's"
+      },
+      "vi": {
+        "eyebrow": "Du an boc noi that thuyen",
+        "headline": "Boc ghe thuyen Skeeter va lap tham hang hai",
+        "summary": "Ghe thuyen duoc boc lai va lam tai xuong, cung tham hang hai moi, duoc lap tren thuyen cau ca Skeeter voi tong den, nau, xam va trang gon sach.",
+        "alt": "Boc ghe thuyen Skeeter va lap tham hang hai | Bọc Nội Thất Ô Tô Craig's"
+      },
+      "zh-hans": {
+        "eyebrow": "船艇内饰项目",
+        "headline": "Skeeter 船艇座椅内饰与海用地毯安装",
+        "summary": "这艘 Skeeter 钓鱼船安装了店内制作并重新包覆的船座和新海用地毯，呈现黑色、棕色、灰色与白色的干净完成效果。",
+        "alt": "Skeeter 船艇座椅内饰与海用地毯安装 | Craig's 汽车内饰"
+      },
+      "tl": {
+        "eyebrow": "Proyekto ng boat upholstery",
+        "headline": "Upholstery ng Bangkang Skeeter at Pagkabit ng Marine Carpet",
+        "summary": "Shop-built at reupholstered na mga upuan, kasama ang bagong marine carpet, ang ikinabit sa Skeeter fishing boat na may malinis na black, brown, gray, at white finish.",
+        "alt": "Upholstery ng Bangkang Skeeter at Pagkabit ng Marine Carpet | Craig's Auto Upholstery"
+      },
+      "id": {
+        "eyebrow": "Proyek upholstery kapal",
+        "headline": "Upholstery Kapal Skeeter dan Pemasangan Karpet Marine",
+        "summary": "Jok kapal yang dibuat dan dilapis ulang di bengkel, bersama karpet marine baru, dipasang pada kapal pancing Skeeter dengan hasil akhir bersih bernuansa hitam, cokelat, abu-abu, dan putih.",
+        "alt": "Upholstery Kapal Skeeter dan Pemasangan Karpet Marine | Craig's Auto Upholstery"
+      },
+      "fa": {
+        "eyebrow": "پروژه روکش قایق",
+        "headline": "روکش قایق Skeeter و نصب فرش دریایی",
+        "summary": "صندلی‌های قایق که در کارگاه ساخته و روکش دوباره شدند، همراه با فرش دریایی جدید روی قایق ماهیگیری Skeeter نصب شدند؛ با خروجی تمیز مشکی، قهوه‌ای، خاکستری و سفید.",
+        "alt": "روکش قایق Skeeter و نصب فرش دریایی | Craig's Auto Upholstery"
+      },
+      "te": {
+        "eyebrow": "బోట్ అప్హోల్స్టరీ ప్రాజెక్ట్",
+        "headline": "Skeeter బోట్ అప్హోల్స్టరీ మరియు మెరైన్ కార్పెట్ ఇన్‌స్టాలేషన్",
+        "summary": "షాప్‌లో తయారు చేసి రీఅప్హోల్స్టర్ చేసిన బోట్ సీట్లు, కొత్త మెరైన్ కార్పెట్‌తో కలిసి Skeeter ఫిషింగ్ బోట్‌లో ఇన్‌స్టాల్ చేసి, బ్లాక్, బ్రౌన్, గ్రే, వైట్ ఫినిష్‌తో పూర్తి చేశారు.",
+        "alt": "Skeeter బోట్ అప్హోల్స్టరీ మరియు మెరైన్ కార్పెట్ ఇన్‌స్టాలేషన్ | Craig's Auto Upholstery"
+      },
+      "fr": {
+        "eyebrow": "Projet de garnissage nautique",
+        "headline": "Garnissage de bateau Skeeter et pose de moquette marine",
+        "summary": "Sièges de bateau fabriqués et regarnis à l’atelier, avec moquette marine neuve, installés sur un bateau de pêche Skeeter avec une finition nette noir, brun, gris et blanc.",
+        "alt": "Garnissage de bateau Skeeter et pose de moquette marine | Craig's Auto Upholstery"
+      },
+      "ko": {
+        "eyebrow": "보트 내장 프로젝트",
+        "headline": "Skeeter 보트 시트 내장 및 해양 카펫 설치",
+        "summary": "작업장에서 제작하고 재시공한 보트 시트와 새 해양 카펫을 Skeeter 낚시 보트에 설치해 블랙, 브라운, 그레이, 화이트가 깔끔하게 어우러지도록 마감했습니다.",
+        "alt": "Skeeter 보트 시트 내장 및 해양 카펫 설치 | Craig's 자동차 내장"
+      },
+      "hi": {
+        "eyebrow": "बोट अपहोल्स्ट्री प्रोजेक्ट",
+        "headline": "Skeeter बोट अपहोल्स्ट्री और मरीन कार्पेट इंस्टॉलेशन",
+        "summary": "दुकान में बनाए और रीअपहोल्स्टर किए गए बोट सीट, साथ में नया मरीन कार्पेट, Skeeter फिशिंग बोट पर लगाए गए, साफ़ ब्लैक, ब्राउन, ग्रे और व्हाइट फिनिश के साथ।",
+        "alt": "Skeeter बोट अपहोल्स्ट्री और मरीन कार्पेट इंस्टॉलेशन | Craig's ऑटो अपहोल्स्ट्री"
+      },
+      "pa": {
+        "eyebrow": "ਬੋਟ ਅਪਹੋਲਸਟਰੀ ਪ੍ਰੋਜੈਕਟ",
+        "headline": "Skeeter ਬੋਟ ਅਪਹੋਲਸਟਰੀ ਅਤੇ ਮਰੀਨ ਕਾਰਪੇਟ ਇੰਸਟਾਲੇਸ਼ਨ",
+        "summary": "ਦੁਕਾਨ ਵਿੱਚ ਬਣੇ ਅਤੇ ਦੁਬਾਰਾ ਅਪਹੋਲਸਟਰ ਕੀਤੇ ਬੋਟ ਸੀਟਾਂ, ਨਾਲ ਨਵਾਂ ਮਰੀਨ ਕਾਰਪੇਟ, Skeeter ਫਿਸ਼ਿੰਗ ਬੋਟ ਵਿੱਚ ਲਗਾਏ ਗਏ, ਸਾਫ਼ ਕਾਲੇ, ਭੂਰੇ, ਸਲੇਟੀ ਅਤੇ ਚਿੱਟੇ ਫਿਨਿਸ਼ ਨਾਲ।",
+        "alt": "Skeeter ਬੋਟ ਅਪਹੋਲਸਟਰੀ ਅਤੇ ਮਰੀਨ ਕਾਰਪੇਟ ਇੰਸਟਾਲੇਸ਼ਨ | Craig's ਆਟੋ ਅਪਹੋਲਸਟਰੀ"
+      },
+      "pt-br": {
+        "eyebrow": "Projeto de estofamento nautico",
+        "headline": "Estofamento de barco Skeeter e instalacao de carpete nautico",
+        "summary": "Bancos nauticos fabricados e reestofados na oficina, com carpete nautico novo, instalados em um barco de pesca Skeeter com acabamento limpo em preto, marrom, cinza e branco.",
+        "alt": "Estofamento de barco Skeeter e instalacao de carpete nautico | Estofamento Automotivo Craig's"
+      },
+      "zh-hant": {
+        "eyebrow": "船艇內裝專案",
+        "headline": "Skeeter 船艇座椅內裝與海用地毯安裝",
+        "summary": "這艘 Skeeter 釣魚船安裝了店內製作並重新包覆的船艇座椅與全新海用地毯，呈現黑色、棕色、灰色與白色的乾淨完成效果。",
+        "alt": "Skeeter 船艇座椅內裝與海用地毯安裝 | Craig's 汽車內飾"
+      },
+      "ja": {
+        "eyebrow": "ボート内装プロジェクト",
+        "headline": "Skeeter ボート内装とマリンカーペット施工",
+        "summary": "Skeeter フィッシングボートに、工房で製作・張り替えしたボートシートと新しいマリンカーペットを施工し、黒、ブラウン、グレー、白でまとまる仕上がりにしました。",
+        "alt": "Skeeter ボート内装とマリンカーペット施工 | Craig's 自動車内装"
+      },
+      "ar": {
+        "eyebrow": "مشروع تنجيد قارب",
+        "headline": "تنجيد قارب Skeeter وتركيب السجاد البحري",
+        "summary": "تم تركيب مقاعد قارب صُنعت وأعيد تنجيدها في الورشة، مع سجاد بحري جديد، في قارب صيد Skeeter بتشطيب نظيف بالأسود والبني والرمادي والأبيض.",
+        "alt": "تنجيد قارب Skeeter وتركيب السجاد البحري | Craig's تنجيد السيارات"
+      },
+      "ru": {
+        "eyebrow": "Проект обивки лодки",
+        "headline": "Обивка лодки Skeeter и установка морского ковролина",
+        "summary": "На рыболовную лодку Skeeter установили изготовленные и перетянутые в мастерской лодочные сиденья и новый морской ковролин с чистой отделкой в черном, коричневом, сером и белом цветах.",
+        "alt": "Обивка лодки Skeeter и установка морского ковролина | Craig's Автообивка"
+      },
+      "ta": {
+        "eyebrow": "படகு உள்வடிவ திட்டம்",
+        "headline": "Skeeter படகு உள்வடிவம் மற்றும் மரைன் கார்பெட் நிறுவல்",
+        "summary": "கடையில் கட்டமைத்து மீண்டும் உள்வடிவம் செய்யப்பட்ட படகு சீட்களும் புதிய மரைன் கார்பெட்டும் Skeeter மீன்பிடி படகில் நிறுவப்பட்டு, கருப்பு, பழுப்பு, சாம்பல், வெள்ளை நிறங்களில் சுத்தமான முடிவு கிடைத்தது.",
+        "alt": "Skeeter படகு உள்வடிவம் மற்றும் மரைன் கார்பெட் நிறுவல் | Craig's கார் உள்வடிவம்"
+      }
+    }
+  },
+  {
     "pageKey": "upholsteryGuide",
     "template": "guide",
     "locales": {

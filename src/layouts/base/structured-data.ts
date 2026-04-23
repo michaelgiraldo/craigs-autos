@@ -2,6 +2,7 @@ import type { LocaleKey } from '../../types/site';
 import buickFrontSeats from '../../assets/images/projects/buick-eight/buick-eight-classic-car-upholstery-front-seats.jpg';
 import buickHeadliner from '../../assets/images/projects/buick-eight/buick-eight-classic-car-upholstery-headliner.jpg';
 import porscheDoorPanel from '../../assets/images/projects/porsche-boxster-s-seat-project/porsche-boxster-s-seat-upholstery-door-panel.jpg';
+import skeeterBoatCockpit from '../../assets/images/projects/skeeter-boat-upholstery-marine-carpet-installation/skeeter-boat-reupholstered-seats-marine-carpet-cockpit-overview.jpg';
 import boatSeatBlackVinyl from '../../assets/images/services/car-seats/boat-seat-black-vinyl-upholstery.jpg';
 import customSeatSetTwoTone from '../../assets/images/services/car-seats/custom-seat-set-two-tone-upholstery.jpg';
 import ktmOrangeMotorcycleSeatTopView from '../../assets/images/services/motorcycle-seats/ktm-orange-motorcycle-seat-top-view.jpg';
@@ -44,6 +45,7 @@ const BUSINESS_IMAGE_ASSETS = [
   buickFrontSeats,
   buickHeadliner,
   porscheDoorPanel,
+  skeeterBoatCockpit,
   customSeatSetTwoTone,
   boatSeatBlackVinyl,
   ktmOrangeMotorcycleSeatTopView,

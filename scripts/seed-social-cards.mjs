@@ -6,6 +6,9 @@ import buickProject from '../src/content/projects/buick-eight.json' with { type:
 import porscheProject from '../src/content/projects/porsche-boxster-s-seat-project.json' with {
   type: 'json',
 };
+import skeeterProject from '../src/content/projects/skeeter-boat-upholstery-marine-carpet-installation.json' with {
+  type: 'json',
+};
 import { BUSINESS_COPY, LOCALE_ORDER, NAV_LABELS } from '../src/lib/site-data.js';
 import { getManifestPageKeys, getPageEntry } from '../src/lib/site-data/page-manifest.js';
 
@@ -31,11 +34,13 @@ const TEMPLATE_BY_PAGE_KEY = {
   upholsteryGuide: 'guide',
   buickEight: 'project',
   porscheBoxsterSSeatProject: 'project',
+  skeeterBoatUpholsteryMarineCarpetInstallation: 'project',
 };
 
 const PROJECT_BY_PAGE_KEY = {
   buickEight: buickProject,
   porscheBoxsterSSeatProject: porscheProject,
+  skeeterBoatUpholsteryMarineCarpetInstallation: skeeterProject,
 };
 
 const PROJECT_ENGLISH_OVERRIDES = {
@@ -48,6 +53,11 @@ const PROJECT_ENGLISH_OVERRIDES = {
     eyebrow: 'Seat Project',
     headline: 'Porsche Boxster S',
     summary: 'Saddle leather bolsters, houndstooth inserts, matched door panels.',
+  },
+  skeeterBoatUpholsteryMarineCarpetInstallation: {
+    eyebrow: 'Boat Project',
+    headline: 'Skeeter Boat',
+    summary: 'Shop-built reupholstered seats, foam support, and new marine carpet installed.',
   },
 };
 
