@@ -38,7 +38,17 @@
       "status": "301"
     },
     {
+      "source": "/en/dashboard-reupholstery/",
+      "target": "https://craigs.autos/en/dashboard/",
+      "status": "301"
+    },
+    {
       "source": "/es/tapiceria-de-tablero",
+      "target": "https://craigs.autos/es/tablero/",
+      "status": "301"
+    },
+    {
+      "source": "/es/tapiceria-de-tablero/",
       "target": "https://craigs.autos/es/tablero/",
       "status": "301"
     },
@@ -48,7 +58,17 @@
       "status": "301"
     },
     {
+      "source": "/vi/boc-tap-lo/",
+      "target": "https://craigs.autos/vi/tap-lo/",
+      "status": "301"
+    },
+    {
       "source": "/zh-hans/仪表台内饰",
+      "target": "https://craigs.autos/zh-hans/仪表台/",
+      "status": "301"
+    },
+    {
+      "source": "/zh-hans/仪表台内饰/",
       "target": "https://craigs.autos/zh-hans/仪表台/",
       "status": "301"
     },
@@ -58,7 +78,17 @@
       "status": "301"
     },
     {
+      "source": "/tl/tapiseriya-ng-dashboard/",
+      "target": "https://craigs.autos/tl/dashboard/",
+      "status": "301"
+    },
+    {
       "source": "/id/upholstery-dashboard",
+      "target": "https://craigs.autos/id/dashboard/",
+      "status": "301"
+    },
+    {
+      "source": "/id/upholstery-dashboard/",
       "target": "https://craigs.autos/id/dashboard/",
       "status": "301"
     },
@@ -68,7 +98,17 @@
       "status": "301"
     },
     {
+      "source": "/ko/대시보드-내장/",
+      "target": "https://craigs.autos/ko/대시보드/",
+      "status": "301"
+    },
+    {
       "source": "/hi/डैशबोर्ड-अपहोल्स्ट्री",
+      "target": "https://craigs.autos/hi/डैशबोर्ड/",
+      "status": "301"
+    },
+    {
+      "source": "/hi/डैशबोर्ड-अपहोल्स्ट्री/",
       "target": "https://craigs.autos/hi/डैशबोर्ड/",
       "status": "301"
     },
@@ -78,7 +118,17 @@
       "status": "301"
     },
     {
+      "source": "/pa/ਡੈਸ਼ਬੋਰਡ-ਅਪਹੋਲਸਟਰੀ/",
+      "target": "https://craigs.autos/pa/ਡੈਸ਼ਬੋਰਡ/",
+      "status": "301"
+    },
+    {
       "source": "/pt-br/estofamento-de-painel",
+      "target": "https://craigs.autos/pt-br/painel/",
+      "status": "301"
+    },
+    {
+      "source": "/pt-br/estofamento-de-painel/",
       "target": "https://craigs.autos/pt-br/painel/",
       "status": "301"
     },
@@ -88,7 +138,17 @@
       "status": "301"
     },
     {
+      "source": "/zh-hant/儀表板內飾/",
+      "target": "https://craigs.autos/zh-hant/儀表板/",
+      "status": "301"
+    },
+    {
       "source": "/ja/ダッシュボード内装",
+      "target": "https://craigs.autos/ja/ダッシュボード/",
+      "status": "301"
+    },
+    {
+      "source": "/ja/ダッシュボード内装/",
       "target": "https://craigs.autos/ja/ダッシュボード/",
       "status": "301"
     },
@@ -98,7 +158,17 @@
       "status": "301"
     },
     {
+      "source": "/ar/تنجيد-لوحة-القيادة/",
+      "target": "https://craigs.autos/ar/لوحة-القيادة/",
+      "status": "301"
+    },
+    {
       "source": "/ru/перетяжка-панели-приборов",
+      "target": "https://craigs.autos/ru/панель-приборов/",
+      "status": "301"
+    },
+    {
+      "source": "/ru/перетяжка-панели-приборов/",
       "target": "https://craigs.autos/ru/панель-приборов/",
       "status": "301"
     },
@@ -108,7 +178,17 @@
       "status": "301"
     },
     {
+      "source": "/ta/டாஷ்போர்டு-உள்வடிவம்/",
+      "target": "https://craigs.autos/ta/டாஷ்போர்டு/",
+      "status": "301"
+    },
+    {
       "source": "/fa/روکش-داشبورد",
+      "target": "https://craigs.autos/fa/داشبورد/",
+      "status": "301"
+    },
+    {
+      "source": "/fa/روکش-داشبورد/",
       "target": "https://craigs.autos/fa/داشبورد/",
       "status": "301"
     },
@@ -118,7 +198,17 @@
       "status": "301"
     },
     {
+      "source": "/te/డాష్‌బోర్డ్-అప్హోల్స్టరీ/",
+      "target": "https://craigs.autos/te/డాష్‌బోర్డ్/",
+      "status": "301"
+    },
+    {
       "source": "/fr/garnissage-tableau-de-bord",
+      "target": "https://craigs.autos/fr/tableau-de-bord/",
+      "status": "301"
+    },
+    {
+      "source": "/fr/garnissage-tableau-de-bord/",
       "target": "https://craigs.autos/fr/tableau-de-bord/",
       "status": "301"
     }
