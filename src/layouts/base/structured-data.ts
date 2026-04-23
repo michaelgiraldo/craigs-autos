@@ -34,7 +34,7 @@ type BuildStructuredDataArgs = {
 const SERVICE_KEYS = [
   'autoUpholstery',
   'carSeats',
-  'dashboardReupholstery',
+  'dashboard',
   'boatUpholstery',
   'headliners',
   'convertibleTops',

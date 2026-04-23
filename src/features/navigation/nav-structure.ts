@@ -16,7 +16,7 @@ export type HeaderNavStructure = {
 export const NAV_ITEM_ORDER = [
 	'autoUpholstery',
 	'carSeats',
-	'dashboardReupholstery',
+	'dashboard',
 	'motorcycleSeats',
 	'boatUpholstery',
 	'headliners',
@@ -33,7 +33,7 @@ export const NAV_ITEM_ORDER = [
 const SERVICES_NAV_KEYS = [
 	'autoUpholstery',
 	'carSeats',
-	'dashboardReupholstery',
+	'dashboard',
 	'headliners',
 	'convertibleTops',
 	'classicCars',
@@ -58,7 +58,7 @@ const MOBILE_PRIMARY_NAV_ITEMS: NavItemDefinition[] = [
 ];
 
 const MOBILE_SECONDARY_NAV_ITEMS: NavItemDefinition[] = [
-	{ key: 'dashboardReupholstery' },
+	{ key: 'dashboard' },
 	{ key: 'convertibleTops' },
 	{ key: 'classicCars' },
 	{ key: 'commercialFleet' },

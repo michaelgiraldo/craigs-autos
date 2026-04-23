@@ -132,12 +132,12 @@
     }
   },
   {
-    "id": "dashboardReupholstery",
+    "id": "dashboard",
     "navLabel": {
-      "en": "Dashboard Reupholstery",
+      "en": "Dashboard",
       "es": "Tableros",
       "vi": "Bọc táp-lô",
-      "zh-hans": "仪表台内饰",
+      "zh-hans": "仪表台",
       "tl": "Dashboard",
       "id": "Dashboard",
       "ko": "대시보드",

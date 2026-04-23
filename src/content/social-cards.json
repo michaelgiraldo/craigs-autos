@@ -912,14 +912,14 @@
     }
   },
   {
-    "pageKey": "dashboardReupholstery",
+    "pageKey": "dashboard",
     "template": "service",
     "locales": {
       "en": {
-        "eyebrow": "Dashboard Reupholstery",
+        "eyebrow": "Dashboard",
         "headline": "Craig's Auto Upholstery",
         "summary": "Dash pads, vinyl dash repair, and interior panel matching.",
-        "alt": "Dashboard Reupholstery | Craig's Auto Upholstery"
+        "alt": "Dashboard | Craig's Auto Upholstery"
       },
       "es": {
         "eyebrow": "Tableros",
@@ -934,10 +934,10 @@
         "alt": "Bọc táp-lô | Bọc Nội Thất Ô Tô Craig's"
       },
       "zh-hans": {
-        "eyebrow": "仪表台内饰",
+        "eyebrow": "仪表台",
         "headline": "Craig's 汽车内饰",
         "summary": "仪表台、乙烯基修复和内饰面板匹配。",
-        "alt": "仪表台内饰 | Craig's 汽车内饰"
+        "alt": "仪表台 | Craig's 汽车内饰"
       },
       "tl": {
         "eyebrow": "Dashboard",

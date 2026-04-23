@@ -5,7 +5,7 @@ import type { QuoteServiceOption } from './types';
 const SERVICE_OPTION_KEYS = [
   { value: 'auto-upholstery', pageKey: 'autoUpholstery' },
   { value: 'car-seats', pageKey: 'carSeats' },
-  { value: 'dashboard-reupholstery', pageKey: 'dashboardReupholstery' },
+  { value: 'dashboard', pageKey: 'dashboard' },
   { value: 'headliners', pageKey: 'headliners' },
   { value: 'convertible-tops', pageKey: 'convertibleTops' },
   { value: 'classic-cars', pageKey: 'classicCars' },
