@@ -587,10 +587,11 @@ export async function prepareSyntheticScenario(args: {
     vehicle: evaluation.vehicle,
   };
   const bundle = buildEmailLeadBundle(leadBundleInput);
+  const contactPoints = bundle.contactPoints ?? [];
   const phoneContactPointId =
-    bundle.contactPoints.find((point) => point.type === 'phone')?.contact_point_id ?? null;
+    contactPoints.find((point) => point.type === 'phone')?.contact_point_id ?? null;
   const emailContactPointId =
-    bundle.contactPoints.find((point) => point.type === 'email')?.contact_point_id ?? null;
+    contactPoints.find((point) => point.type === 'email')?.contact_point_id ?? null;
 
   return {
     bucketName: args.bucketName,
@@ -1234,6 +1235,9 @@ async function run(options: CliOptions): Promise<SmokeReport | DryRunPlan> {
         unsupportedAttachmentCount: input.unsupportedAttachmentCount,
         vehicle: input.vehicle,
       });
+      if (!baseRuntime.repos) {
+        throw new Error('Email smoke runtime is missing lead platform repositories.');
+      }
       const persisted = await upsertLeadBundle(baseRuntime.repos, persistedBundle);
       return {
         contactId: persisted.contact?.contact_id ?? null,

@@ -14,6 +14,9 @@ This repo is a multi-locale Astro site deployed on AWS Amplify. It includes a pr
 - Email lead intake:
   - `docs/email-intake.md`
   - `docs/email-intake-smoke.md`
+- Lead failure alerts:
+  - `docs/lead-alert-smoke.md`
+  - `docs/ops/lead-platform-incident-runbook.md`
 - Lead photo attachments:
   - `docs/lead-photo-attachments.md`
 - Journey smoke:

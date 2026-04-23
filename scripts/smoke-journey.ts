@@ -813,6 +813,7 @@ async function cleanupSyntheticRecords(args: {
     ['phone', phoneContactPoint] as const,
     ['email', emailContactPoint] as const,
   ]) {
+    if (!point) continue;
     if (!isSyntheticContactPoint(point, expected, kind)) continue;
     await db.send(
       new DeleteCommand({
