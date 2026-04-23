@@ -40,6 +40,18 @@ test('getQuoMessagingReadiness reports disabled and missing config precisely', (
   );
 });
 
+test('getQuoMessagingReadiness treats unresolved Amplify secret placeholders as missing', () => {
+  const readiness = getQuoMessagingReadiness(
+    makeConfig({ apiKey: '<value will be resolved during runtime>' }),
+  );
+
+  assert.equal(readiness.ready, false);
+  assert.deepEqual(
+    readiness.issues.map((issue) => issue.code),
+    ['missing_api_key'],
+  );
+});
+
 test('getQuoMessagingReadiness rejects invalid Quo identifiers', () => {
   const readiness = getQuoMessagingReadiness(
     makeConfig({ fromPhoneNumberId: 'OPabc123', userId: 'abc123' }),

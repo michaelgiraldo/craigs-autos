@@ -38,6 +38,24 @@ Current verified setup:
 | `QUO_ENABLED` | `false` until the approved live SMS smoke test |
 | Contact custom field | `Tags`, key `69e95720a08b1f74fc5e6313` |
 
+Secret resolution behavior:
+
+- Keep `QUO_API_KEY` as an Amplify all-branches secret unless a branch truly needs
+  a different value.
+- Do not judge secret propagation by reading the Lambda environment value from
+  `get-function-configuration`. Amplify stores the placeholder
+  `<value will be resolved during runtime>` there by design.
+- At Lambda cold start, Amplify's runtime shim reads `AMPLIFY_SSM_ENV_CONFIG`,
+  tries the branch-specific SSM path first, and falls back to the shared
+  all-branches path when the branch path does not exist.
+- The lead follow-up worker role must have `ssm:GetParameters` access to both
+  the branch and shared `QUO_API_KEY` paths.
+- As of 2026-04-22, the branch-specific `QUO_API_KEY` path is intentionally
+  absent, the shared path exists, the worker role can read both configured paths,
+  and the shared key successfully reaches the QUO phone-numbers API.
+- The QUO provider treats Amplify's unresolved placeholder as a missing API key,
+  so a failed runtime resolution cannot accidentally look like a ready provider.
+
 The QUO `Tags` multi-select field should include `Form Lead`, `Chat Lead`, and
 `Email Lead`. The QUO API can read contact custom fields, but the public docs
 state custom field definitions must be created or modified in QUO itself.

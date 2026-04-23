@@ -19,6 +19,13 @@ export type QuoProviderConfig = {
   leadTagsFieldName: string | null;
 };
 
+const AMPLIFY_UNRESOLVED_SECRET_PLACEHOLDER = '<value will be resolved during runtime>';
+
+function isMissingApiKey(value: string): boolean {
+  const trimmed = value.trim();
+  return !trimmed || trimmed === AMPLIFY_UNRESOLVED_SECRET_PLACEHOLDER;
+}
+
 function readinessMessage(args: {
   label: string;
   enabled: boolean;
@@ -57,11 +64,10 @@ function buildReadiness(args: {
 
 function messagingIssues(config: QuoProviderConfig): ProviderReadinessIssue[] {
   const issues: ProviderReadinessIssue[] = [];
-  const apiKey = config.apiKey.trim();
   const fromPhoneNumberId = config.fromPhoneNumberId.trim();
   const userId = config.userId?.trim() ?? '';
 
-  if (!apiKey) {
+  if (isMissingApiKey(config.apiKey)) {
     issues.push({ code: 'missing_api_key', message: 'QUO API key is missing' });
   }
   if (!fromPhoneNumberId) {
