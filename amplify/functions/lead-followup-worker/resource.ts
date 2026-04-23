@@ -8,7 +8,7 @@ export const leadFollowupWorker = defineFunction({
   timeoutSeconds: 60,
   environment: {
     CHATKIT_OPENAI_API_KEY: secret('OPENAI_API_KEY'),
-    QUO_ENABLED: 'false',
+    QUO_ENABLED: 'true',
     QUO_API_KEY: secret('QUO_API_KEY'),
     QUO_FROM_PHONE_NUMBER_ID: 'PNkd7bfrir',
     QUO_USER_ID: 'USwARwIZne',
