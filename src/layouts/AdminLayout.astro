@@ -39,7 +39,14 @@ const canonicalUrl = new URL(canonicalPath, siteUrl).toString();
     <header class="admin-shell__header">
       <div class="admin-shell__header-inner">
         <a class="admin-shell__brand" href="/admin/leads/" aria-label={`${BRAND_NAME} admin`}>
-          <img src={brandLogo.src} alt="" width="40" height="40" loading="eager" decoding="async" />
+          <img
+            src={brandLogo.src}
+            alt={`${BRAND_NAME} logo`}
+            width="40"
+            height="40"
+            loading="eager"
+            decoding="async"
+          />
           <span>
             <strong>{BRAND_NAME}</strong>
             <small>Lead platform admin</small>
