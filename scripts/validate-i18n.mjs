@@ -6,6 +6,15 @@ import { getPageKeys, getTranslations } from '../src/lib/site-data/page-registry
 
 const errors = [];
 const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const hasMeaningfulEnglishText = (value) =>
+  typeof value === 'string' && value.trim().length >= 12 && /[A-Za-z]{3,}/.test(value);
+
+const sameStringList = (left, right) =>
+  Array.isArray(left) &&
+  Array.isArray(right) &&
+  left.length === right.length &&
+  left.every((value, index) => value === right[index]);
+
 const parseFrontmatter = (content, filePath) => {
   const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---/);
   if (!frontmatterMatch) {
@@ -138,6 +147,62 @@ for (const [pageKey, localeSet] of pagesByKey.entries()) {
 for (const pageKey of pageKeys) {
   if (!pagesByKey.has(pageKey)) {
     errors.push(`No content entries found for pageKey ${pageKey}`);
+  }
+}
+
+const validateLocalizedProjectField = (value, context) => {
+  if (!value || typeof value !== 'object') {
+    errors.push(`${context} must be a localized object.`);
+    return;
+  }
+
+  const englishValue = value.en;
+
+  for (const locale of LOCALE_ORDER) {
+    if (!(locale in value)) {
+      errors.push(`${context} missing locale ${locale}`);
+      continue;
+    }
+
+    if (locale === 'en') {
+      continue;
+    }
+
+    const localizedValue = value[locale];
+
+    if (
+      typeof englishValue === 'string' &&
+      typeof localizedValue === 'string' &&
+      localizedValue.trim() === englishValue.trim() &&
+      hasMeaningfulEnglishText(englishValue)
+    ) {
+      errors.push(`${context}.${locale} copies the English text exactly.`);
+    }
+
+    if (
+      Array.isArray(englishValue) &&
+      sameStringList(localizedValue, englishValue) &&
+      englishValue.join(' ').trim().length >= 12
+    ) {
+      errors.push(`${context}.${locale} copies the English list exactly.`);
+    }
+  }
+};
+
+const projectFiles = await glob('src/content/projects/*.json');
+
+for (const file of projectFiles) {
+  const project = JSON.parse(fs.readFileSync(file, 'utf-8'));
+
+  for (const [fieldName, localizedValue] of Object.entries(project.copy ?? {})) {
+    validateLocalizedProjectField(localizedValue, `${file} copy.${fieldName}`);
+  }
+
+  for (const image of project.images ?? []) {
+    validateLocalizedProjectField(image.alt, `${file} images.${image.id}.alt`);
+    if (image.caption) {
+      validateLocalizedProjectField(image.caption, `${file} images.${image.id}.caption`);
+    }
   }
 }
 
