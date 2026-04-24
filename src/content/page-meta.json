@@ -175,6 +175,12 @@
     }
   },
   {
+    "id": "carpet",
+    "navLabel": {
+      "en": "Carpet"
+    }
+  },
+  {
     "id": "motorcycleSeats",
     "navLabel": {
       "en": "Motorcycle Seats",

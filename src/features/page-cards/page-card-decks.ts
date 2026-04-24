@@ -22,15 +22,16 @@ const EXPLORE_CARD_KEYS = [
 ];
 
 const SERVICE_RELATED_KEYS: Record<string, string[]> = {
-	autoUpholstery: ['carSeats', 'dashboard', 'headliners'],
-	carSeats: ['autoUpholstery', 'dashboard', 'motorcycleSeats'],
-	dashboard: ['autoUpholstery', 'carSeats', 'classicCars'],
+	autoUpholstery: ['carSeats', 'dashboard', 'carpet', 'headliners'],
+	carSeats: ['autoUpholstery', 'dashboard', 'carpet', 'motorcycleSeats'],
+	dashboard: ['autoUpholstery', 'carpet', 'classicCars', 'carSeats'],
 	motorcycleSeats: ['carSeats', 'autoUpholstery', 'classicCars'],
-	boatUpholstery: ['motorcycleSeats', 'carSeats', 'autoUpholstery'],
+	boatUpholstery: ['carpet', 'motorcycleSeats', 'carSeats', 'autoUpholstery'],
 	headliners: ['autoUpholstery', 'convertibleTops', 'classicCars'],
 	convertibleTops: ['classicCars', 'autoUpholstery', 'headliners'],
-	classicCars: ['autoUpholstery', 'dashboard', 'carSeats'],
+	classicCars: ['autoUpholstery', 'dashboard', 'carpet', 'carSeats'],
 	commercialFleet: ['autoUpholstery', 'carSeats', 'headliners'],
+	carpet: ['autoUpholstery', 'boatUpholstery', 'classicCars'],
 };
 
 const FALLBACK_RELATED_KEYS = EXPLORE_CARD_KEYS.filter((key) =>
@@ -116,7 +117,7 @@ export function resolvePageCardDeck(entry: PageEntry, locale: LocaleKey): Resolv
 	}
 
 	const keys = getConfiguredKeys(entry, strategy, entry.data.pageCardDeck).filter(
-		(pageKey) => pageKey !== entry.data.pageKey,
+		(pageKey) => pageKey !== entry.data.pageKey && Boolean(getPageTranslation(pageKey, locale)),
 	);
 	const limit = getConfiguredLimit(strategy, entry.data.pageCardDeck);
 	const limitedKeys = limit ? keys.slice(0, limit) : keys;

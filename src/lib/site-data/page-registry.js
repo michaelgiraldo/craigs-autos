@@ -40,7 +40,12 @@ export function getPageCardSummary(pageKey, locale) {
 	const resolvedLocale = resolveLocaleKey(locale);
 	const summaries = PAGE_CARD_SUMMARIES[resolvedLocale] ?? {};
 	const fallbackSummaries = PAGE_CARD_SUMMARIES.en ?? {};
-	return summaries[pageKey] ?? fallbackSummaries[pageKey] ?? null;
+	return (
+		summaries[pageKey] ??
+		fallbackSummaries[pageKey] ??
+		getPageEntry(pageKey, resolvedLocale)?.description ??
+		null
+	);
 }
 
 export function getPageKeys() {

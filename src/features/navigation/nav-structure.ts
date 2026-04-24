@@ -17,6 +17,7 @@ export const NAV_ITEM_ORDER = [
 	'autoUpholstery',
 	'carSeats',
 	'dashboard',
+	'carpet',
 	'motorcycleSeats',
 	'boatUpholstery',
 	'headliners',
@@ -34,6 +35,7 @@ const SERVICES_NAV_KEYS = [
 	'autoUpholstery',
 	'carSeats',
 	'dashboard',
+	'carpet',
 	'headliners',
 	'convertibleTops',
 	'classicCars',
@@ -59,6 +61,7 @@ const MOBILE_PRIMARY_NAV_ITEMS: NavItemDefinition[] = [
 
 const MOBILE_SECONDARY_NAV_ITEMS: NavItemDefinition[] = [
 	{ key: 'dashboard' },
+	{ key: 'carpet' },
 	{ key: 'convertibleTops' },
 	{ key: 'classicCars' },
 	{ key: 'commercialFleet' },
