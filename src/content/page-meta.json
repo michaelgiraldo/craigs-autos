@@ -177,7 +177,44 @@
   {
     "id": "carpet",
     "navLabel": {
-      "en": "Carpet"
+      "en": "Carpet",
+      "es": "Alfombra",
+      "vi": "Thảm xe",
+      "zh-hans": "地毯",
+      "tl": "Karpet",
+      "id": "Karpet",
+      "ko": "카펫",
+      "hi": "कालीन",
+      "pa": "ਕਾਰਪੇਟ",
+      "pt-br": "Carpete",
+      "zh-hant": "地毯",
+      "ja": "カーペット",
+      "ar": "السجاد",
+      "ru": "Ковролин",
+      "ta": "கார்பெட்",
+      "fa": "موکت",
+      "te": "కార్పెట్",
+      "fr": "Moquette"
+    },
+    "cardSummary": {
+      "en": "Car and marine carpet fitted around seats, trim, decks, and hatches.",
+      "es": "Alfombra automotriz y náutica ajustada a asientos, molduras, cubiertas y escotillas.",
+      "vi": "Thảm xe và thảm thuyền lắp gọn quanh ghế, nẹp, boong và nắp hầm.",
+      "zh-hans": "汽车与船用地毯，贴合座椅、饰条、甲板和舱盖。",
+      "tl": "Karpet para sa kotse at bangka na akma sa upuan, trim, deck, at hatch.",
+      "id": "Karpet mobil dan kapal yang pas di sekitar jok, trim, dek, dan hatch.",
+      "ko": "시트, 트림, 데크, 해치에 맞춘 차량 및 보트 카펫.",
+      "hi": "सीट, ट्रिम, डेक और हैच के आसपास फिट होने वाला कार और मरीन कालीन.",
+      "pa": "ਸੀਟਾਂ, ਟ੍ਰਿਮ, ਡੈੱਕ ਅਤੇ ਹੈਚਾਂ ਦੇ ਆਲੇ ਦੁਆਲੇ ਫਿੱਟ ਕਾਰ ਅਤੇ ਬੋਟ ਕਾਰਪੇਟ.",
+      "pt-br": "Carpete automotivo e náutico ajustado a bancos, acabamentos, decks e tampas.",
+      "zh-hant": "汽車與船用地毯，貼合座椅、飾件、甲板與艙蓋。",
+      "ja": "シート、トリム、デッキ、ハッチに合わせる車とボートのカーペット。",
+      "ar": "سجاد سيارات وقوارب يركب حول المقاعد والزخارف والأسطح والفتحات.",
+      "ru": "Автомобильный и морской ковролин с подгонкой вокруг сидений, отделки, палуб и люков.",
+      "ta": "சீட், டிரிம், டெக், ஹாட்ச் சுற்றி பொருந்தும் கார் மற்றும் படகு கார்பெட்.",
+      "fa": "موکت خودرو و قایق با نصب دقیق دور صندلی‌ها، تریم، عرشه و دریچه‌ها.",
+      "te": "సీట్లు, ట్రిమ్, డెక్కులు, హ్యాచ్‌లకు సరిపోయే కార్ మరియు బోట్ కార్పెట్.",
+      "fr": "Moquette auto et nautique ajustée autour des sièges, garnitures, ponts et trappes."
     }
   },
   {
