@@ -8,7 +8,7 @@ Inbound email lead intake is backend-only. It does not add a public website rout
 2. Google Workspace routing copies messages for `contact@craigs.autos` to the hidden SES recipient `contact-intake@email-intake.craigs.autos`.
 3. SES receives mail for the `email-intake.craigs.autos` subdomain and stores raw MIME in the private S3 inbox.
 4. S3 object creation invokes `email-intake-capture`.
-5. The Lambda parses MIME, validates the Google route headers, rejects replies/auto-responses/non-leads, and sends only email text plus JPEG/PNG/WebP photo attachments to OpenAI.
+5. The Lambda parses MIME, validates the Google route marker, rejects replies/auto-responses/non-leads, and sends only email text plus JPEG/PNG/WebP photo attachments to OpenAI.
 6. Accepted leads reserve `LeadFollowupWork`, persist into the journey-first lead tables, and hand the work to `lead-followup-worker`.
 7. The worker sends the first customer response by email, using `contact@craigs.autos` for customer-visible `From` and `Reply-To`.
 8. The worker sends the shop notification and attaches accepted inbound photos when they still fit the lead notification email budget.
@@ -21,11 +21,12 @@ The route should copy, not replace, messages addressed to `contact@craigs.autos`
 Required route evidence:
 
 - `X-Craigs-Google-Route: contact-public-intake`
-- `X-Gm-Original-To: contact@craigs.autos`
 
-Both headers are required. `email-intake-capture` rejects the message before
-OpenAI classification with `missing_expected_google_route` when either header is
-missing or mismatched. Direct hidden-recipient intake is disabled.
+The custom route marker is the source of truth. `email-intake-capture` rejects
+the message before OpenAI classification with `missing_expected_google_route`
+when that header is missing or mismatched. `X-Gm-Original-To` and Google Group
+list headers are not required because Google does not reliably add them to every
+valid routed copy.
 
 Do not make `contact-intake@email-intake.craigs.autos` a direct member of the public group when this routing rule is active. Membership plus routing can duplicate SES deliveries.
 
@@ -67,7 +68,7 @@ SES only has one active receipt rule set per region. This backend activates `cra
 - Only JPEG, PNG, and WebP attachments are processed.
 - PDFs, documents, ZIP files, and HEIC are ignored in v1.
 - Replies and messages with `In-Reply-To` or `References` are skipped before OpenAI.
-- Internal `@craigs.autos` senders, auto-submitted mail, mailing lists, and delivery reports are skipped.
+- Internal `@craigs.autos` senders, auto-submitted mail, unrelated mailing lists, and delivery reports are skipped.
 - One automatic customer response is queued per email thread ledger key and `LeadFollowupWork.idempotency_key`.
 - The email `followup_work_id` is deterministically derived from the email
   thread idempotency key; the hidden SES message id is not used as the durable

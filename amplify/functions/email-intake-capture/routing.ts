@@ -47,38 +47,30 @@ export function validateEmailRoute(
 ): { ok: boolean; status: string } {
   const expectedRoute = deps.config.googleRouteHeaderValue.trim();
   const routeHeader = email.header('x-craigs-google-route').trim();
-  const originalTo = email.header('x-gm-original-to').trim();
   if (!expectedRoute || routeHeader !== expectedRoute) {
     return { ok: false, status: 'missing_expected_google_route' };
   }
 
-  if (originalTo && addressMatches(originalTo, deps.config.originalRecipient)) {
-    return { ok: true, status: 'google_workspace_route' };
-  }
-
-  if (isTrustedContactGroupRoute(email, deps.config.originalRecipient)) {
-    return { ok: true, status: 'google_workspace_contact_group_route' };
-  }
-
-  return { ok: false, status: 'missing_expected_google_route' };
+  return { ok: true, status: 'google_workspace_route' };
 }
 
 export function getEmailPreAiSkipReason(
   email: ParsedInboundEmail,
-  args: { allowTrustedContactGroupList: boolean },
+  args: { originalRecipient: string },
 ): string | null {
   const from = email.from?.address.toLowerCase() ?? '';
   const autoSubmitted = email.header('auto-submitted').toLowerCase();
   const precedence = email.header('precedence').toLowerCase();
   const contentType = email.header('content-type').toLowerCase();
   const subject = email.subject.toLowerCase();
+  const trustedContactGroupRoute = isTrustedContactGroupRoute(email, args.originalRecipient);
 
   if (from.endsWith('@craigs.autos')) return 'internal_sender';
   if (email.inReplyTo || email.references) return 'existing_email_thread';
   if (autoSubmitted && autoSubmitted !== 'no') return 'auto_submitted';
   if (['bulk', 'junk'].includes(precedence)) return 'bulk_or_list';
-  if (precedence === 'list' && !args.allowTrustedContactGroupList) return 'bulk_or_list';
-  if (email.header('list-id') && !args.allowTrustedContactGroupList) return 'mailing_list';
+  if (precedence === 'list' && !trustedContactGroupRoute) return 'bulk_or_list';
+  if (email.header('list-id') && !trustedContactGroupRoute) return 'mailing_list';
   if (from.startsWith('mailer-daemon@') || from.startsWith('postmaster@')) return 'mailer_daemon';
   if (contentType.includes('multipart/report')) return 'delivery_report';
   if (subject.includes('delivery status notification') || subject.includes('undeliverable')) {

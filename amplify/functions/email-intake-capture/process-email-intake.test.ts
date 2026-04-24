@@ -246,7 +246,49 @@ test('email intake rejects existing email threads before OpenAI and deletes raw 
   });
 });
 
-test('email intake accepts the trusted contact Google Group route without X-Gm-Original-To', async () => {
+test('email intake rejects internal reply-all messages before OpenAI', async () => {
+  let evaluated = false;
+  let deleted = false;
+
+  const deps = makeDeps({
+    deleteRawEmail: async () => {
+      deleted = true;
+    },
+    evaluateLead: async () => {
+      evaluated = true;
+      throw new Error('should not evaluate internal replies');
+    },
+    getRawEmail: async () =>
+      rawEmail(
+        {
+          From: 'Victor <victor@craigs.autos>',
+          To: 'Customer Example <customer@example.com>',
+          Cc: 'contact@craigs.autos',
+          Subject: 'Re: Seat repair',
+          'Message-ID': '<message-victor-reply@example.com>',
+          'In-Reply-To': '<message-1@example.com>',
+          'X-Craigs-Google-Route': 'contact-public-intake',
+        },
+        'Please bring it by the shop.',
+      ),
+  });
+
+  const result = await processEmailIntakeEvent(
+    s3Event({ bucket: 'email-bucket', key: 'raw/victor-reply' }),
+    deps,
+  );
+
+  assert.equal(result.ok, true);
+  assert.equal(evaluated, false);
+  assert.equal(deleted, true);
+  assert.deepEqual(result.results[0], {
+    key: 'raw/victor-reply',
+    rejected: true,
+    reason: 'internal_sender',
+  });
+});
+
+test('email intake accepts the Google route marker without X-Gm-Original-To or group headers', async () => {
   const persistedInputs: PersistEmailLeadInput[] = [];
   const queuedRecords: LeadFollowupWorkItem[] = [];
   let invokedIdempotencyKey = '';
@@ -256,6 +298,51 @@ test('email intake accepts the trusted contact Google Group route without X-Gm-O
     deleteRawEmail: async () => {
       deleted = true;
     },
+    getRawEmail: async () =>
+      rawEmail(
+        {
+          From: 'Customer Example <customer@example.com>',
+          To: 'contact-intake@email-intake.craigs.autos',
+          Subject: 'Seat repair',
+          'Message-ID': '<message-route-marker@example.com>',
+          'X-Craigs-Google-Route': 'contact-public-intake',
+        },
+        'Can you fix the driver seat in my Toyota Camry?',
+      ),
+    invokeFollowup: async (idempotencyKey) => {
+      invokedIdempotencyKey = idempotencyKey;
+    },
+    persistEmailLead: async (input) => {
+      persistedInputs.push(input);
+      return {
+        contactId: 'contact-1',
+        journeyId: 'journey-1',
+        leadRecordId: 'lead-1',
+      };
+    },
+    repos: makeRepos(queuedRecords),
+  });
+
+  const result = await processEmailIntakeEvent(
+    s3Event({ bucket: 'email-bucket', key: 'raw/group-route' }),
+    deps,
+  );
+
+  assert.equal(result.ok, true);
+  assert.equal(deleted, false);
+  assert.equal(invokedIdempotencyKey.startsWith('email:'), true);
+  assert.equal(persistedInputs[0]?.customerEmail, 'customer@example.com');
+  assert.equal(queuedRecords[0]?.capture_channel, 'email');
+  assert.equal(queuedRecords[0]?.inbound_route_status, 'google_workspace_route');
+  assert.equal(queuedRecords[1]?.lead_record_id, 'lead-1');
+});
+
+test('email intake accepts the contact Google Group list shape without treating it as bulk', async () => {
+  const persistedInputs: PersistEmailLeadInput[] = [];
+  const queuedRecords: LeadFollowupWorkItem[] = [];
+  let invokedIdempotencyKey = '';
+
+  const deps = makeDeps({
     getRawEmail: async () =>
       rawEmail(
         {
@@ -293,12 +380,9 @@ test('email intake accepts the trusted contact Google Group route without X-Gm-O
   );
 
   assert.equal(result.ok, true);
-  assert.equal(deleted, false);
   assert.equal(invokedIdempotencyKey.startsWith('email:'), true);
   assert.equal(persistedInputs[0]?.customerEmail, 'customer@example.com');
-  assert.equal(queuedRecords[0]?.capture_channel, 'email');
-  assert.equal(queuedRecords[0]?.inbound_route_status, 'google_workspace_contact_group_route');
-  assert.equal(queuedRecords[1]?.lead_record_id, 'lead-1');
+  assert.equal(queuedRecords[0]?.inbound_route_status, 'google_workspace_route');
 });
 
 test('email intake rejects missing Google route header before OpenAI', async () => {
@@ -341,17 +425,15 @@ test('email intake rejects missing Google route header before OpenAI', async () 
   });
 });
 
-test('email intake rejects missing original recipient header when the contact group route is absent', async () => {
-  let evaluated = false;
+test('email intake accepts route marker as sufficient proof for first inbound mail', async () => {
+  const persistedInputs: PersistEmailLeadInput[] = [];
+  const queuedRecords: LeadFollowupWorkItem[] = [];
+  let invokedIdempotencyKey = '';
   let deleted = false;
 
   const deps = makeDeps({
     deleteRawEmail: async () => {
       deleted = true;
-    },
-    evaluateLead: async () => {
-      evaluated = true;
-      throw new Error('should not evaluate invalid routes');
     },
     getRawEmail: async () =>
       rawEmail(
@@ -364,6 +446,18 @@ test('email intake rejects missing original recipient header when the contact gr
         },
         'Can you fix this seat?',
       ),
+    invokeFollowup: async (idempotencyKey) => {
+      invokedIdempotencyKey = idempotencyKey;
+    },
+    persistEmailLead: async (input) => {
+      persistedInputs.push(input);
+      return {
+        contactId: 'contact-1',
+        journeyId: 'journey-1',
+        leadRecordId: 'lead-1',
+      };
+    },
+    repos: makeRepos(queuedRecords),
   });
 
   const result = await processEmailIntakeEvent(
@@ -372,13 +466,10 @@ test('email intake rejects missing original recipient header when the contact gr
   );
 
   assert.equal(result.ok, true);
-  assert.equal(evaluated, false);
-  assert.equal(deleted, true);
-  assert.deepEqual(result.results[0], {
-    key: 'raw/4',
-    rejected: true,
-    reason: 'missing_expected_google_route',
-  });
+  assert.equal(deleted, false);
+  assert.equal(invokedIdempotencyKey.startsWith('email:'), true);
+  assert.equal(persistedInputs[0]?.customerEmail, 'customer@example.com');
+  assert.equal(queuedRecords[0]?.inbound_route_status, 'google_workspace_route');
 });
 
 test('email intake still rejects unrelated mailing list mail before OpenAI', async () => {

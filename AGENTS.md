@@ -174,8 +174,9 @@ Do not store these in the frontend or in git.
 - Inbound email intake uses the hidden SES recipient
   `contact-intake@email-intake.craigs.autos`. Google Workspace should copy
   `contact@craigs.autos` mail to that address and stamp:
-  - `X-Gm-Original-To: contact@craigs.autos`
   - `X-Craigs-Google-Route: contact-public-intake`
+  The custom route marker is sufficient route evidence; do not require
+  `X-Gm-Original-To` or Google Group list headers for valid intake.
 - Email lead auto-replies use `contact@craigs.autos` for customer-visible `From` and `Reply-To`.
   Raw SES MIME in S3 is transient: explicit delete after processing, with a
   1-day lifecycle rule as backup.

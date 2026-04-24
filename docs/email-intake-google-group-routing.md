@@ -1,80 +1,48 @@
-# Email Intake Google Group Routing
+# Email Intake Route Marker
 
 ## Summary
 
-Craig's public contact address, `contact@craigs.autos`, is delivered through a
-Google Group before the AWS SES intake copy reaches the email intake Lambda.
-That group redistribution path does not reliably include Google's
-`X-Gm-Original-To` header, even when the Workspace routing setting for that
-header is enabled.
-
-The reliable production signal for this path is the custom Workspace route
-marker:
+Craig's public contact address, `contact@craigs.autos`, is delivered through
+Google Workspace before the AWS SES intake copy reaches the email intake Lambda.
+The stable production signal for the automation copy is the custom Workspace
+route marker:
 
 ```text
 X-Craigs-Google-Route: contact-public-intake
 ```
 
-When mail is redistributed by the known Craig's contact Google Group, the raw
-message also carries group identity headers similar to:
+The email intake route guard treats that marker as sufficient route evidence.
+It does not require `X-Gm-Original-To` or Google Group list headers because
+Google does not reliably add those headers to every valid routed copy.
 
-```text
-To: contact@craigs.autos
-Sender: contact@craigs.autos
-Return-Path: <contact+...@craigs.autos>
-Precedence: list
-Mailing-list: list contact@craigs.autos; contact contact+owners@craigs.autos
-List-ID: <contact.craigs.autos>
-```
+## Safety Model
 
-The email intake route guard accepts only these two trusted shapes:
+Route trust and automation eligibility are separate decisions:
 
-1. Direct Workspace route:
-   - `X-Craigs-Google-Route: contact-public-intake`
-   - `X-Gm-Original-To: contact@craigs.autos`
+- `X-Craigs-Google-Route: contact-public-intake` means Google Workspace
+  intentionally copied the message to the hidden SES intake recipient.
+- `In-Reply-To` or `References` means the message is part of an existing email
+  thread and must be skipped before OpenAI classification.
+- `From: *@craigs.autos` means the message is internal and must be skipped before
+  OpenAI classification, even when Victor reply-all copies `contact@craigs.autos`.
+- Auto-submitted mail, delivery reports, and unrelated mailing list traffic are
+  skipped before OpenAI classification.
 
-2. Craig's contact Google Group route:
-   - `X-Craigs-Google-Route: contact-public-intake`
-   - visible `To: contact@craigs.autos`
-   - Craig's contact group `Mailing-list` or `List-ID`
-   - Craig's contact group `Sender` or `Return-Path`
+Google Group list headers such as `Mailing-list` and `List-ID` may appear on
+some copies. The backend only uses the known Craig's contact group shape to avoid
+misclassifying a valid contact-group customer message as generic bulk list mail.
+Those headers are not route evidence.
 
-Unrelated mailing lists must still be rejected before OpenAI classification.
+## Guardrail Tests
 
-## Why `X-Gm-Original-To` Was Not Enough
+Keep these cases covered by tests:
 
-Google documents `Add X-Gm-Original-To header` as a routing/compliance option
-that adds a header when the recipient is changed, so the receiving server can
-see the original envelope recipient.
-
-Google also documents custom headers as a separate routing option. The Craig's
-route marker is a custom header, not the same setting as
-`X-Gm-Original-To`.
-
-Relevant Google Workspace references:
-
-- <https://support.google.com/a/answer/2368153>
-- <https://support.google.com/a/answer/1346936>
-
-In production tests on April 21, 2026, messages sent to `contact@craigs.autos`
-through the Google Group included `X-Craigs-Google-Route` but did not include
-`X-Gm-Original-To`. The intake ledger rejected those messages as
-`missing_expected_google_route` before this fix.
-
-## Guardrail
-
-Do not loosen the intake gate to accept arbitrary list mail. The Google Group
-exception is intentionally narrow because list headers are also used by
-newsletters, vendor solicitations, mailing lists, and auto-generated traffic.
-
-Before changing this behavior, keep these cases covered by tests:
-
-- Direct Workspace route with `X-Gm-Original-To` is accepted.
-- Craig's contact Google Group route without `X-Gm-Original-To` is accepted.
-- Missing `X-Craigs-Google-Route` is rejected.
-- Missing `X-Gm-Original-To` without Craig's contact group proof is rejected.
-- Unrelated mailing list mail is rejected even when it has the custom route
-  marker and original recipient header.
+- Route marker present, no `X-Gm-Original-To`, no Google Group headers: accepted.
+- Route marker missing: rejected.
+- Customer reply with `In-Reply-To` or `References`: rejected.
+- Internal reply-all from `@craigs.autos`: rejected.
+- Known Craig's contact Google Group list shape: not rejected as bulk.
+- Unrelated mailing list mail with the route marker: rejected before OpenAI.
 
 ## Operational Debugging
 
@@ -83,14 +51,10 @@ For a specific missed email:
 1. Normalize the raw `Message-ID`.
 2. Compute the email intake ledger keys from the normalized message id.
 3. Check the `EmailIntakeLedger` table for `message:*` and `thread:*` rows.
-4. If the reason is `missing_expected_google_route`, inspect these raw headers:
-   - `X-Craigs-Google-Route`
-   - `X-Gm-Original-To`
-   - `To`
-   - `Sender`
-   - `Return-Path`
-   - `Precedence`
-   - `Mailing-list`
-   - `List-ID`
-5. Confirm whether follow-up work exists under the expected `email:*`
+4. If the reason is `missing_expected_google_route`, inspect
+   `X-Craigs-Google-Route`.
+5. If the reason is `existing_email_thread`, inspect `In-Reply-To` and
+   `References`.
+6. If the reason is `internal_sender`, inspect `From`.
+7. Confirm whether follow-up work exists under the expected `email:*`
    idempotency key.

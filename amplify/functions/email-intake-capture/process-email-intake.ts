@@ -147,7 +147,7 @@ export async function processEmailIntakeEvent(event: S3EmailIntakeEvent, deps: E
       const route = validateEmailRoute(email, deps);
       const preAiSkip = route.ok
         ? getEmailPreAiSkipReason(email, {
-            allowTrustedContactGroupList: route.status === 'google_workspace_contact_group_route',
+            originalRecipient: deps.config.originalRecipient,
           })
         : route.status;
       if (preAiSkip) {
