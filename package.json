@@ -55,8 +55,8 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/mdx": "^5.0.4",
-    "@astrojs/react": "^5.0.4",
+    "@astrojs/mdx": "^6.0.0-alpha.0",
+    "@astrojs/react": "^6.0.0-alpha.0",
     "@astrojs/sitemap": "^3.7.2",
     "@aws-sdk/client-dynamodb": "^3.1038.0",
     "@aws-sdk/client-lambda": "^3.1038.0",
@@ -69,7 +69,7 @@
     "@craigs/contracts": "file:packages/contracts",
     "@openai/chatkit-react": "^1.5.0",
     "@resvg/resvg-js": "^2.6.2",
-    "astro": "^6.1.10",
+    "astro": "^7.0.0-alpha.0",
     "concurrently": "^9.2.1",
     "openai": "^6.35.0",
     "postal-mime": "^2.7.4",
