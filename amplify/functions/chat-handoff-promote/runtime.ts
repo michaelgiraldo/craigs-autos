@@ -1,4 +1,5 @@
 import { LambdaClient } from '@aws-sdk/client-lambda';
+import { S3Client } from '@aws-sdk/client-s3';
 import { SchedulerClient } from '@aws-sdk/client-scheduler';
 import OpenAI from 'openai';
 import { z } from 'zod';
@@ -8,6 +9,7 @@ import type { TranscriptLine } from './lead-types.ts';
 
 const chatHandoffPromoteEnvSchema = z.object({
   CHATKIT_OPENAI_API_KEY: z.string().trim().min(1),
+  LEAD_ATTACHMENT_BUCKET_NAME: z.string().trim().optional(),
 });
 
 const parsedChatHandoffPromoteEnv = chatHandoffPromoteEnvSchema.safeParse(process.env);
@@ -21,6 +23,10 @@ export const leadFollowupWorkerFunctionName = process.env.LEAD_FOLLOWUP_WORKER_F
 export const leadFollowupLambda = leadFollowupWorkerFunctionName.trim()
   ? new LambdaClient({})
   : null;
+export const leadAttachmentBucketName = parsedChatHandoffPromoteEnv.success
+  ? (parsedChatHandoffPromoteEnv.data.LEAD_ATTACHMENT_BUCKET_NAME ?? '')
+  : '';
+export const leadAttachmentS3 = leadAttachmentBucketName ? new S3Client({}) : null;
 
 export const leadSummaryModel =
   process.env.LEAD_SUMMARY_MODEL ?? LEAD_AI_TASK_POLICY.chatTranscriptLeadSummary.model;

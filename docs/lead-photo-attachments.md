@@ -34,7 +34,8 @@ attachment DynamoDB table in v1.
 flowchart LR
   Form["Form photo upload"] --> Manifest["LeadFollowupWorkItem.attachments"]
   Email["Raw SES MIME"] --> Manifest
-  Chat["ChatKit file references"] --> Manifest
+  Chat["ChatKit file references"] --> S3["Transient S3"]
+  S3 --> Manifest
   Manifest --> Worker["lead-followup-worker"]
   Worker --> OpenAI["OpenAI draft generation"]
   Worker --> LeadNotice["Lead notification email attachments"]
@@ -56,7 +57,7 @@ Generic counts are stored on follow-up work for all sources:
 | --- | --- | --- | --- |
 | Form | Private transient S3 object under `form/{client_event_id}/` | Loads supported S3 photos into OpenAI as image data URLs and attaches them to lead notification email | Deletes form S3 objects after the workflow completes |
 | Email | Raw SES MIME object | Reparses raw MIME, applies the same JPEG/PNG/WebP limits, and passes supported photos to OpenAI and lead notification email | Deletes raw MIME after the workflow completes |
-| Chat | ChatKit attachment references | Records supported references/counts for lead-recipient context; v1 does not copy ChatKit files into S3 | No local object cleanup |
+| Chat | Private transient S3 object under `chat/{thread_id}/`, copied from the short-lived ChatKit file URL during handoff | Loads supported S3 photos into OpenAI as image data URLs and attaches them to lead notification email | Deletes chat S3 objects after the workflow completes |
 
 ## Form Upload Sequence
 
@@ -82,6 +83,28 @@ sequenceDiagram
 The upload target Lambda must keep presigned POSTs short-lived and constrained
 by content type, exact key, metadata, and content-length range. Quote submit
 must validate the uploaded object before trusting the descriptor.
+
+## Chat Upload Sequence
+
+```mermaid
+sequenceDiagram
+  participant ChatKit
+  participant Handoff as chat-handoff-promote
+  participant S3 as Transient S3
+  participant Worker as lead-followup-worker
+
+  ChatKit-->>Handoff: attachment metadata + temporary file URL
+  Handoff->>ChatKit: GET supported photo bytes before URL expiry
+  Handoff->>S3: PUT supported photos under chat/{thread_id}/
+  Handoff->>Worker: LeadFollowupWorkItem with S3-backed attachment manifest
+  Worker->>S3: GET supported photos
+  Worker->>Worker: Send OpenAI draft request + lead notification email
+  Worker->>S3: DELETE transient chat photos after completion
+```
+
+Chat handoff must copy supported ChatKit photo bytes before reserving follow-up
+work. ChatKit file URLs are temporary references and must not be treated as the
+durable notification attachment source.
 
 ## Operational Notes
 

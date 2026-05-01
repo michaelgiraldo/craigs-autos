@@ -35,6 +35,8 @@ import {
   SHOP_NAME,
   SHOP_PHONE_DIGITS,
   SHOP_PHONE_DISPLAY,
+  leadAttachmentBucketName,
+  leadAttachmentS3,
   leadFollowupLambda,
   leadFollowupWorkerFunctionName,
   leadSummaryModel,
@@ -42,6 +44,7 @@ import {
   openai,
   isValidThreadId,
 } from './runtime.ts';
+import { persistChatLeadPhotoAttachments } from './lead-photo-persistence.ts';
 import { evaluateChatLead } from './evaluation.ts';
 import { persistCapturedChatLead } from './promotion.ts';
 import { existingWorkResponse } from './work-response.ts';
@@ -250,10 +253,16 @@ export const handler = async (
       customerEmail,
     } = evaluation;
     const chatPhotoManifest = createChatLeadPhotoAttachments(attachments);
+    const persistedChatPhotoManifest = await persistChatLeadPhotoAttachments({
+      attachments: chatPhotoManifest.attachments,
+      bucketName: leadAttachmentBucketName,
+      s3: leadAttachmentS3,
+      threadId,
+    });
     const leadSummaryWithPhotos: LeadSummary = {
       ...leadSummary,
       photo_reference_count: chatPhotoManifest.attachments.length,
-      loaded_photo_count: 0,
+      loaded_photo_count: persistedChatPhotoManifest.loadedPhotoCount,
       unsupported_attachment_count: chatPhotoManifest.unsupportedCount,
     };
 
@@ -312,7 +321,7 @@ export const handler = async (
       service: sourceEvent.service,
       siteLabel: sourceEvent.site_label,
       sourceEventId: sourceEvent.source_event_id,
-      attachments: chatPhotoManifest.attachments,
+      attachments: persistedChatPhotoManifest.attachments,
       attachmentCount: attachments.length,
       photoAttachmentCount: chatPhotoManifest.attachments.length,
       unsupportedAttachmentCount: chatPhotoManifest.unsupportedCount,

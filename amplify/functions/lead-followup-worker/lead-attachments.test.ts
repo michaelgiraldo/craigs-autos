@@ -112,7 +112,7 @@ test('lead photo loader parses email raw MIME through shared image limits', asyn
   assert.equal(photos[0]?.dataUrl, 'data:image/webp;base64,BQYHCA==');
 });
 
-test('lead photo loader does not load ChatKit references in v1', async () => {
+test('lead photo loader does not load unpersisted ChatKit references', async () => {
   const loader = createLeadPhotoAttachmentLoader({
     s3: makeS3({}),
   });

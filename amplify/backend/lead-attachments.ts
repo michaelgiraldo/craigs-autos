@@ -10,11 +10,13 @@ import { getLambda } from './types';
 import { PUBLIC_ALLOWED_ORIGINS } from './cors';
 
 const FORM_ATTACHMENT_PREFIX = 'form/';
+const CHAT_ATTACHMENT_PREFIX = 'chat/';
 
 export function configureLeadAttachments(backend: CraigsBackend): void {
   const uploadStartLambda = getLambda(backend.leadAttachmentUploadStart);
   const quoteRequestSubmitLambda = getLambda(backend.quoteRequestSubmit);
   const leadFollowupWorkerLambda = getLambda(backend.leadFollowupWorker);
+  const chatHandoffPromoteLambda = getLambda(backend.chatHandoffPromote);
   const stack = Stack.of(uploadStartLambda);
 
   const bucket = new Bucket(stack, 'LeadTransientAttachments', {
@@ -35,16 +37,23 @@ export function configureLeadAttachments(backend: CraigsBackend): void {
         expiration: Duration.days(1),
         prefix: FORM_ATTACHMENT_PREFIX,
       },
+      {
+        abortIncompleteMultipartUploadAfter: Duration.days(1),
+        expiration: Duration.days(1),
+        prefix: CHAT_ATTACHMENT_PREFIX,
+      },
     ],
     removalPolicy: RemovalPolicy.DESTROY,
   });
 
   bucket.grantPut(uploadStartLambda);
+  bucket.grantPut(chatHandoffPromoteLambda);
   bucket.grantRead(quoteRequestSubmitLambda);
   bucket.grantRead(leadFollowupWorkerLambda);
   bucket.grantDelete(leadFollowupWorkerLambda);
 
   uploadStartLambda.addEnvironment('LEAD_ATTACHMENT_BUCKET_NAME', bucket.bucketName);
+  chatHandoffPromoteLambda.addEnvironment('LEAD_ATTACHMENT_BUCKET_NAME', bucket.bucketName);
   quoteRequestSubmitLambda.addEnvironment('LEAD_ATTACHMENT_BUCKET_NAME', bucket.bucketName);
   leadFollowupWorkerLambda.addEnvironment('LEAD_ATTACHMENT_BUCKET_NAME', bucket.bucketName);
 }
