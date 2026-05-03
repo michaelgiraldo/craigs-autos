@@ -14,6 +14,22 @@ If you are new here, start with:
 - `docs/amplify-backend-pattern-modernization-follow-up.md`
 - `docs/lead-photo-attachments.md`
 
+## Local Client Secrets
+
+Machine-level encrypted client secrets are registered at:
+
+`/Users/mg/.config/client-secrets/clients.yaml`
+
+This repo maps to the `craigs-autos` entry. For local tools that need the client-owned
+OpenAI key, use:
+
+```bash
+sops exec-env /Users/mg/.config/client-secrets/encrypted/craigs-autos.sops.env '<command>'
+```
+
+Never print decrypted secret values. Production Amplify secrets remain the runtime
+source of truth for deployed functions.
+
 ## Repo overview
 
 - Framework: Astro (static site output) with React islands.
