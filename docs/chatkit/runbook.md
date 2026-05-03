@@ -164,6 +164,9 @@ Checks:
 3) Domain allowlist:
    - Ensure `craigs.autos` is on the allowlist:
      https://platform.openai.com/settings/organization/security/domain-allowlist
+   - Remove stale retired hosts if still present. The production embed should
+     rely on `craigs.autos`; `www.craigs.autos` redirects and
+     `chat.craigs.autos` is retired.
 
 4) Session endpoint reachable:
    - Confirm `/amplify_outputs.json` has `custom.api_base_url`.

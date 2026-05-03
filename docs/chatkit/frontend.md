@@ -303,7 +303,8 @@ This is the widget fallback when ChatKit session creation fails or runtime init 
 Check:
 
 - `/amplify_outputs.json` loads and has valid `custom.api_base_url`.
-- Domain allowlist includes the current domain.
+- Domain allowlist includes the current production domain, `craigs.autos`.
+  The allowlist is managed in OpenAI settings, not in this repo.
 - CORS allows the current origin.
 
 For backend debugging steps, see `docs/chatkit/runbook.md`.

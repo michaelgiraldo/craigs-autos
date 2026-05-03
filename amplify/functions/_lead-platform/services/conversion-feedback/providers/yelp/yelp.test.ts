@@ -172,7 +172,7 @@ test('parseYelpManagedConversionConfig normalizes provider SDK configuration', (
   const config = parseYelpManagedConversionConfig({
     YELP_CONVERSION_FEEDBACK_MODE: 'test_event',
     YELP_CONVERSION_ENDPOINT_BASE: 'https://example.test',
-    YELP_CONVERSION_API_KEY: 'secret',
+    YELP_API_KEY: 'secret',
     YELP_CONVERSION_DEFAULT_EVENT_NAME: 'custom_quote_request',
     YELP_CONVERSION_ACTION_SOURCE: 'physical_store',
     YELP_CONVERSION_CURRENCY_CODE: 'cad',
@@ -276,7 +276,7 @@ test('createYelpManagedConversionAdapter sends test events through Yelp API clie
   const adapter = createYelpManagedConversionAdapter({
     env: {
       YELP_CONVERSION_FEEDBACK_MODE: 'test',
-      YELP_CONVERSION_API_KEY: 'yelp-key',
+      YELP_API_KEY: 'yelp-key',
     },
     httpClient,
   });
@@ -302,7 +302,7 @@ test('createYelpManagedConversionAdapter maps live acceptance and retryable fail
   const acceptedAdapter = createYelpManagedConversionAdapter({
     env: {
       YELP_CONVERSION_FEEDBACK_MODE: 'live',
-      YELP_CONVERSION_API_KEY: 'yelp-key',
+      YELP_API_KEY: 'yelp-key',
     },
     httpClient: async () => ({
       status: 202,
@@ -325,7 +325,7 @@ test('createYelpManagedConversionAdapter maps live acceptance and retryable fail
   const failedAdapter = createYelpManagedConversionAdapter({
     env: {
       YELP_CONVERSION_FEEDBACK_MODE: 'live',
-      YELP_CONVERSION_API_KEY: 'yelp-key',
+      YELP_API_KEY: 'yelp-key',
     },
     httpClient: async () => ({
       status: 429,

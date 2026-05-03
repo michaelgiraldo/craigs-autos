@@ -34,6 +34,7 @@
     "managed-conversions:validate": "npm run managed-conversions -- validate",
     "managed-conversions:readiness": "npm run managed-conversions -- readiness",
     "managed-conversions:env-template": "npm run managed-conversions -- env-template",
+    "probe:lead-events": "node scripts/probe-production-lead-events.mjs",
     "generate:social-images": "node scripts/generate-social-images.mjs",
     "guard:build": "node scripts/build-guards.mjs",
     "guard:admin-build": "node scripts/guard-admin-build.mjs",

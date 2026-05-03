@@ -118,7 +118,7 @@ Managed-conversion worker defaults:
 - `GOOGLE_ADS_LOGIN_CUSTOMER_ID` (optional manager-account header)
 - `YELP_CONVERSION_FEEDBACK_MODE` (default `dry_run`; supported modes: `disabled`, `dry_run`, `test`/`test_event`, `live`)
 - `YELP_CONVERSION_ENDPOINT_BASE` (default `https://api.yelp.com`)
-- `YELP_CONVERSION_API_KEY` (required for Yelp `test`/`live` API delivery)
+- `YELP_API_KEY` (shared Yelp developer app API key; required for Yelp `test`/`live` API delivery)
 - `YELP_CONVERSION_DEFAULT_EVENT_NAME` (default `lead`)
 - `YELP_CONVERSION_ACTION_SOURCE` (default `website`)
 - `YELP_CONVERSION_CURRENCY_CODE` (default `USD`; Yelp supports `USD` and `CAD`)

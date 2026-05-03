@@ -29,11 +29,11 @@ export const YELP_CONFIG_FIELDS = Object.freeze([
   },
   {
     name: 'apiKey',
-    envKey: 'YELP_CONVERSION_API_KEY',
+    envKey: 'YELP_API_KEY',
     providerConfigKey: 'api_key',
     secret: true,
     requiredForModes: ['test', 'live'],
-    description: 'Yelp Conversions API bearer token.',
+    description: 'Yelp developer app API key used for Yelp API delivery.',
   },
   {
     name: 'defaultEventName',
@@ -106,7 +106,7 @@ export function parseYelpManagedConversionConfig(
         'YELP_CONVERSION_ENDPOINT_BASE',
         'endpoint_base',
       ) ?? 'https://api.yelp.com',
-    apiKey: readStringConfigValue(env, providerConfig, 'YELP_CONVERSION_API_KEY', 'api_key'),
+    apiKey: readStringConfigValue(env, providerConfig, 'YELP_API_KEY', 'api_key'),
     defaultEventName: normalizeEventName(
       readConfigValue(
         env,
@@ -125,7 +125,5 @@ export function parseYelpManagedConversionConfig(
 }
 
 export function getYelpMissingLiveConfigKeys(config: YelpManagedConversionConfig): string[] {
-  return [config.apiKey ? null : 'YELP_CONVERSION_API_KEY'].filter((value): value is string =>
-    Boolean(value),
-  );
+  return [config.apiKey ? null : 'YELP_API_KEY'].filter((value): value is string => Boolean(value));
 }

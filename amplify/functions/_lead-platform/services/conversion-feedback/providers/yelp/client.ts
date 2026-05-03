@@ -36,7 +36,7 @@ export async function uploadYelpConversionEvent(args: {
       message: 'Yelp Conversions API key is missing.',
       errorCode: 'yelp_missing_api_key',
       payload: {
-        missing_config_keys: ['YELP_CONVERSION_API_KEY'],
+        missing_config_keys: ['YELP_API_KEY'],
       },
     };
   }

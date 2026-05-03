@@ -20,6 +20,9 @@ Related docs:
 
 - Domain allowlist (production requirement):
   https://platform.openai.com/settings/organization/security/domain-allowlist
+  Desired production entry: `craigs.autos` only. Retired hosts such as
+  `chat.craigs.autos` and redirect-only hosts such as `www.craigs.autos` should
+  not be required for the production ChatKit embed.
 
 - Logs for a specific thread (debugging):
   https://platform.openai.com/logs/cthr_...
@@ -176,6 +179,9 @@ Fix:
 
 - Add `craigs.autos` in:
   https://platform.openai.com/settings/organization/security/domain-allowlist
+- Remove stale retired hosts if they are still present there. The current
+  production site is apex-only; `www.craigs.autos` redirects and
+  `chat.craigs.autos` should not serve the app.
 
 ### 4) Over-aggressive guardrails block normal lead messages
 
