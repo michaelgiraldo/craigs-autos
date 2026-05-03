@@ -173,13 +173,13 @@ function checkRoute53Records(config, records) {
 async function checkPublicHttp(config) {
   const failures = [];
   const path = '/en/contact/';
-  const canonical = await fetchHead(`https://${config.canonicalHost}${path}`);
+  const canonical = await fetchStatus(`https://${config.canonicalHost}${path}`);
   if (canonical.status !== 200) {
     failures.push(`Expected canonical host to serve ${path} with 200; got ${canonical.status}.`);
   }
 
   for (const host of config.redirectHosts) {
-    const response = await fetchHead(`https://${host}${path}`);
+    const response = await fetchStatus(`https://${host}${path}`);
     const location = response.headers.location ?? '';
     const expectedLocation = `https://${config.canonicalHost}${path}`;
     if (![301, 302].includes(response.status) || location !== expectedLocation) {
@@ -190,7 +190,7 @@ async function checkPublicHttp(config) {
   }
 
   for (const host of [...config.retiredHosts, `random-canonical-check.${config.domainName}`]) {
-    const response = await fetchHead(`https://${host}${path}`).catch((error) => ({
+    const response = await fetchStatus(`https://${host}${path}`).catch((error) => ({
       error: error.message,
       status: null,
       headers: {},
@@ -206,9 +206,9 @@ function hostToPrefix(config, host) {
   return host.slice(0, -1 * `.${config.domainName}`.length);
 }
 
-function fetchHead(url) {
+function fetchStatus(url) {
   return new Promise((resolve, reject) => {
-    const request = https.request(url, { method: 'HEAD', timeout: 10000 }, (response) => {
+    const request = https.request(url, { method: 'GET', timeout: 10000 }, (response) => {
       response.resume();
       response.on('end', () => {
         resolve({ status: response.statusCode, headers: response.headers });
