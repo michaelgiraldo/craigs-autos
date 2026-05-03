@@ -193,9 +193,7 @@ export default function ChatWidgetReact({
                     const nextId = detail?.threadId;
                     if (!nextId) return;
                     setActiveThreadId(nextId);
-                    hasUserInteractedRef.current = true;
                     handleThreadChanged(nextId);
-                    bumpIdleTimer();
                   }}
                 />
                 {!chatkitReady && !chatkitError ? (

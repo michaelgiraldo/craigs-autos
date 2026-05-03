@@ -35,13 +35,11 @@ export function useLeadTriggers({ open, chatPanelRef, requestLeadHandoff, hasUse
     panel.addEventListener('keydown', onActivity, true);
     panel.addEventListener('pointerdown', onActivity, true);
     panel.addEventListener('touchstart', onActivity, true);
-    panel.addEventListener('focusin', onActivity, true);
 
     return () => {
       panel.removeEventListener('keydown', onActivity, true);
       panel.removeEventListener('pointerdown', onActivity, true);
       panel.removeEventListener('touchstart', onActivity, true);
-      panel.removeEventListener('focusin', onActivity, true);
     };
   }, [bumpIdleTimer, chatPanelRef, hasUserInteractedRef, open]);
 

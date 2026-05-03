@@ -63,9 +63,9 @@ function parseArgs(argv) {
     );
   }
 
-  if (!['all', 'quote-form', 'chat'].includes(options.flow)) {
+  if (!['all', 'quote-form', 'chat', 'chat-passive'].includes(options.flow)) {
     throw new Error(
-      `Expected --flow to be one of: all, quote-form, chat. Received: ${options.flow}`,
+      `Expected --flow to be one of: all, quote-form, chat, chat-passive. Received: ${options.flow}`,
     );
   }
 
@@ -132,7 +132,7 @@ function summarizeRequest(request) {
   };
 }
 
-function installProbeScript({ mockFetch = true } = {}) {
+function installProbeScript({ mockFetch = true, mockLeadInteractions = false } = {}) {
   return `(() => {
     try {
       if (window.top !== window) return;
@@ -141,6 +141,7 @@ function installProbeScript({ mockFetch = true } = {}) {
     }
 
     const shouldMockFetch = ${JSON.stringify(mockFetch)};
+    const shouldMockLeadInteractions = ${JSON.stringify(mockLeadInteractions)};
     const probe = {
       dataLayer: [],
       fetch: [],
@@ -164,13 +165,15 @@ function installProbeScript({ mockFetch = true } = {}) {
       }
     };
 
-    const isPostTo = (url, method, route) => {
+    const isRoute = (url, route) => {
       const parsed = normalizeUrl(url);
       if (!parsed) return false;
-      return method.toUpperCase() === 'POST' && (
+      return (
         parsed.pathname.endsWith('/' + route) || parsed.pathname.endsWith('/' + route + '/')
       );
     };
+
+    const isPostTo = (url, method, route) => method.toUpperCase() === 'POST' && isRoute(url, route);
 
     const patchDataLayer = (value) => {
       const next = Array.isArray(value) ? value : [];
@@ -201,6 +204,10 @@ function installProbeScript({ mockFetch = true } = {}) {
       const originalSendBeacon = navigator.sendBeacon.bind(navigator);
       navigator.sendBeacon = (url, data) => {
         probe.sendBeacon.push({ url: String(url), data: typeof data === 'string' ? data : null });
+        if (shouldMockLeadInteractions && isRoute(url, 'lead-interactions')) {
+          probe.mocked.push({ route: 'lead-interactions', url: String(url) });
+          return true;
+        }
         return originalSendBeacon(url, data);
       };
     }
@@ -230,6 +237,11 @@ function installProbeScript({ mockFetch = true } = {}) {
           );
         }
 
+        if (shouldMockLeadInteractions && isPostTo(url, method, 'lead-interactions')) {
+          probe.mocked.push({ route: 'lead-interactions', url });
+          return new Response(null, { status: 204 });
+        }
+
         return originalFetch(input, init);
       };
     }
@@ -249,14 +261,19 @@ function isAllowedConsoleError(message, locationUrl) {
   return CHATKIT_RUNTIME_ERROR_PATTERNS.some((pattern) => pattern.test(message));
 }
 
-async function createProbePage(browser, { installInitScript = true, mockFetch = true } = {}) {
+async function createProbePage(
+  browser,
+  { installInitScript = true, mockFetch = true, mockLeadInteractions = false } = {},
+) {
   const requests = [];
   const issues = [];
   const context = await browser.newContext({
     viewport: { width: 1440, height: 1100 },
   });
   if (installInitScript) {
-    await context.addInitScript({ content: installProbeScript({ mockFetch }) });
+    await context.addInitScript({
+      content: installProbeScript({ mockFetch, mockLeadInteractions }),
+    });
   }
   const page = await context.newPage();
 
@@ -397,6 +414,15 @@ function parseJsonEvent(value) {
   }
 }
 
+function isRouteUrl(url, route) {
+  try {
+    const parsed = new URL(url);
+    return parsed.pathname.endsWith(`/${route}`) || parsed.pathname.endsWith(`/${route}/`);
+  } catch {
+    return false;
+  }
+}
+
 async function collectObserved(page, requests) {
   const browserState = await page.evaluate(() => ({
     dataLayer: Array.isArray(window.dataLayer) ? window.dataLayer : [],
@@ -422,6 +448,15 @@ async function collectObserved(page, requests) {
     ...(browserProbe?.fetch ?? []).map((entry) => parseJsonEvent(entry.body)),
   ]);
   const mockedRoutes = uniqueSorted((browserProbe?.mocked ?? []).map((entry) => entry?.route));
+  const chatHandoffRequests = (browserProbe?.fetch ?? []).filter((entry) =>
+    isRouteUrl(entry.url, 'chat-handoffs'),
+  ).length;
+  const leadInteractionRequests =
+    requests.filter((request) => request.path.endsWith('/lead-interactions')).length +
+    (browserProbe?.sendBeacon ?? []).filter((entry) => isRouteUrl(entry.url, 'lead-interactions'))
+      .length +
+    (browserProbe?.fetch ?? []).filter((entry) => isRouteUrl(entry.url, 'lead-interactions'))
+      .length;
   const gtmLoaded = requests.some(
     (request) =>
       request.host === 'www.googletagmanager.com' && request.url.includes(EXPECTED_GTM_ID),
@@ -433,6 +468,8 @@ async function collectObserved(page, requests) {
     ga4Events,
     ga4Observed,
     gtmLoaded,
+    chatHandoffRequests,
+    leadInteractionRequests,
     leadInteractionEvents,
     mockedRoutes,
   };
@@ -442,6 +479,13 @@ function assertContains(label, actual, expected) {
   const missing = expected.filter((eventName) => !actual.includes(eventName));
   if (missing.length > 0) {
     throw new Error(`${label} missing: ${missing.join(', ')}`);
+  }
+}
+
+function assertDoesNotContain(label, actual, forbidden) {
+  const present = forbidden.filter((eventName) => actual.includes(eventName));
+  if (present.length > 0) {
+    throw new Error(`${label} should not include: ${present.join(', ')}`);
   }
 }
 
@@ -469,6 +513,8 @@ function printObserved(label, observed, issues) {
     `dataLayer: ${observed.dataLayerEvents.join(', ') || 'none'}`,
     `GA4 collect: ${observed.ga4Events.join(', ') || 'none'}`,
     `lead-interactions transport: ${observed.leadInteractionEvents.join(', ') || 'none'}`,
+    `chat handoff request count: ${observed.chatHandoffRequests}`,
+    `lead-interactions request count: ${observed.leadInteractionRequests}`,
     `mocked production routes: ${observed.mockedRoutes.join(', ') || 'none'}`,
   ]);
 
@@ -590,6 +636,94 @@ async function probeChat(browser, options) {
   }
 }
 
+async function probePassiveChat(browser, options) {
+  const { context, issues, page, requests } = await createProbePage(browser, {
+    mockFetch: true,
+    mockLeadInteractions: true,
+  });
+  try {
+    const url = withProbeQuery(`${options.baseUrl}/en/`, 'chat_passive');
+    logStep('Passive ChatKit', `loading ${url}`);
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: options.timeoutMs });
+    await waitForGtm(page);
+    const setupFrame = await waitForChatFrame(page, options.timeoutMs);
+
+    logStep('Passive ChatKit', 'creating setup thread before passive restore');
+    await setupFrame
+      .getByRole('textbox')
+      .first()
+      .fill('Passive restore setup message. This is a measurement probe, do not contact.');
+    await setupFrame.getByRole('textbox').first().press('Enter');
+    const setupThreadId = await waitForPersistedChatThread(page, options.timeoutMs);
+    await waitForLeadEvent(page, LEAD_EVENTS.chatFirstMessageSent, options.timeoutMs);
+    await delay(4_000);
+
+    requests.length = 0;
+    issues.length = 0;
+
+    const restoreUrl = withProbeQuery(`${options.baseUrl}/en/`, 'chat_passive_restore');
+    logStep('Passive ChatKit', `reloading restored thread ${setupThreadId}`);
+    await page.goto(restoreUrl, { waitUntil: 'domcontentloaded', timeout: options.timeoutMs });
+    await waitForGtm(page);
+    await waitForChatFrame(page, options.timeoutMs);
+    await delay(3_000);
+
+    const threadId = await page.evaluate(() => window.sessionStorage.getItem('chatkit-thread-id'));
+    printTable('Passive ChatKit production conversion probe', [
+      `Setup thread id: ${setupThreadId}`,
+      `Thread id after passive restore: ${threadId || 'none'}`,
+    ]);
+    if (threadId !== setupThreadId) {
+      throw new Error(
+        `Passive ChatKit restore did not keep the setup thread. Expected ${setupThreadId}, received ${threadId || 'none'}.`,
+      );
+    }
+
+    logStep('Passive ChatKit', 'triggering pagehide without chat interaction');
+    await page.evaluate(() => {
+      window.dispatchEvent(new PageTransitionEvent('pagehide', { persisted: false }));
+    });
+    await delay(2_000);
+
+    const observed = await collectObserved(page, requests);
+    printObserved('Passive ChatKit production conversion probe', observed, issues);
+    assertCleanInfrastructure(observed, issues, 'Passive ChatKit production conversion probe');
+
+    if (observed.chatHandoffRequests !== 0) {
+      throw new Error(
+        `Passive ChatKit should not request /chat-handoffs, saw ${observed.chatHandoffRequests}.`,
+      );
+    }
+    if (observed.leadInteractionRequests !== 0) {
+      throw new Error(
+        `Passive ChatKit should not send /lead-interactions, saw ${observed.leadInteractionRequests}.`,
+      );
+    }
+    assertDoesNotContain('passive chat dataLayer events', observed.dataLayerEvents, [
+      LEAD_EVENTS.chatFirstMessageSent,
+      LEAD_EVENTS.chatHandoffCompleted,
+      LEAD_EVENTS.chatHandoffBlocked,
+      LEAD_EVENTS.chatHandoffDeferred,
+      LEAD_EVENTS.chatHandoffError,
+    ]);
+    assertDoesNotContain('passive chat GA4 collect events', observed.ga4Events, [
+      LEAD_EVENTS.chatHandoffCompleted,
+      LEAD_EVENTS.chatHandoffBlocked,
+      LEAD_EVENTS.chatHandoffDeferred,
+      LEAD_EVENTS.chatHandoffError,
+    ]);
+    assertDoesNotContain('passive chat lead-interactions events', observed.leadInteractionEvents, [
+      LEAD_EVENTS.chatFirstMessageSent,
+      LEAD_EVENTS.chatHandoffCompleted,
+      LEAD_EVENTS.chatHandoffBlocked,
+      LEAD_EVENTS.chatHandoffDeferred,
+      LEAD_EVENTS.chatHandoffError,
+    ]);
+  } finally {
+    await context.close();
+  }
+}
+
 async function main() {
   const options = parseArgs(process.argv.slice(2));
   const browser = await chromium.launch({ headless: !options.headed });
@@ -597,11 +731,14 @@ async function main() {
     printTable('Production conversion probe setup', [
       `Base URL: ${options.baseUrl}`,
       `Flow: ${options.flow}`,
-      'Safety: quote submit and chat handoff POSTs are mocked in-browser; GTM/GA4 requests are live.',
+      'Safety: quote submit and chat handoff POSTs are mocked in-browser; passive chat lead-interactions are mocked; GTM/GA4 requests are live.',
     ]);
 
     if (options.flow === 'all' || options.flow === 'quote-form') {
       await probeQuoteForm(browser, options);
+    }
+    if (options.flow === 'all' || options.flow === 'chat-passive') {
+      await probePassiveChat(browser, options);
     }
     if (options.flow === 'all' || options.flow === 'chat') {
       await probeChat(browser, options);

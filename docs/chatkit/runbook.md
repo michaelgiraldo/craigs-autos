@@ -236,6 +236,9 @@ Common causes:
 Notes on chat lead summaries:
 
 - Current handoff triggers are `idle`, `pagehide`, and `chat_closed` (once contact exists).
+- Desktop ChatKit may auto-open, but passive thread creation or thread restore is
+  not a lead signal. If `/chat-handoffs` fires before launcher/chat activity or
+  customer message submission, treat that as a frontend trigger bug.
 - Summary uncertainty should become `customer_response_policy = "manual_review"`, which captures
   the lead, sends the internal notification, and skips automated customer outreach.
 - If you see `last_reason = "auto"` in DynamoDB, you're likely looking at an older deployment

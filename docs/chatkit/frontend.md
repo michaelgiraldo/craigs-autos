@@ -152,6 +152,9 @@ Notes:
 - Thread ids are canonical conversation ids (see `docs/chatkit/overview.md`).
 - SessionStorage is intentionally scoped to a browser tab session to avoid
   surprising cross-tab thread sharing.
+- A thread change is state synchronization, not visitor intent. Desktop can
+  auto-open ChatKit, but passive open/thread restore must not mark the visitor
+  as interacted or make `/chat-handoffs` eligible.
 
 ## Chat lead handoff triggers (no customer action)
 
@@ -169,8 +172,10 @@ Triggers implemented by `src/components/chatwidget/triggers.js`:
 
 1) `reason: "idle"` (primary)
    - After ~300 seconds (5 minutes) without in-chat activity while the chat is open.
-   - The timer resets on in-chat activity (typing, clicks/taps, focus changes) so we
-     don't complete handoff while the customer is actively using the chat.
+   - The timer resets on in-chat activity (typing and clicks/taps) so we don't
+     complete handoff while the customer is actively using the chat.
+   - Programmatic focus is not treated as intent; desktop auto-open may focus the
+     composer without the visitor choosing to chat.
 
 2) `reason: "pagehide"`
    - On tab hide/unload.
@@ -268,7 +273,12 @@ What it checks:
 1) Update the timing constant in `src/components/chatwidget/constants.js`:
    - `LEAD_QUIET_SEND_MS`
 2) Keep `reason` strings stable unless you also update backend logic/metrics.
-3) Verify you still get at most one email per thread (server idempotency).
+3) Keep thread lifecycle callbacks separate from user interaction. `onThreadChange`
+   should store the `cthr_...` only; real intent comes from launcher/chat activity
+   and customer message submission.
+4) Verify passive desktop auto-open does not call `/chat-handoffs`, then verify
+   active typed chat still works.
+5) Verify you still get at most one email per thread (server idempotency).
 
 ### Change theme colors
 
