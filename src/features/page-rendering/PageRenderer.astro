@@ -1,5 +1,6 @@
 ---
 import type { LocaleKey, PageEntry } from '../../types/site';
+import JobPageRenderer from './renderers/JobPageRenderer.astro';
 import ProjectPageRenderer from './renderers/ProjectPageRenderer.astro';
 import QuotePageRenderer from './renderers/QuotePageRenderer.astro';
 import StandardPageRenderer from './renderers/StandardPageRenderer.astro';
@@ -17,6 +18,8 @@ const pageType = entry.data.pageType;
 	<ProjectPageRenderer entry={entry} locale={locale} />
 ) : pageType === 'quote' ? (
 	<QuotePageRenderer entry={entry} locale={locale} />
+) : pageType === 'job' ? (
+	<JobPageRenderer entry={entry} locale={locale} />
 ) : (
 	<StandardPageRenderer entry={entry} locale={locale} />
 )}

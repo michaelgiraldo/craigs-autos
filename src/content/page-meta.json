@@ -23,6 +23,49 @@
     }
   },
   {
+    "id": "autoUpholsteryTechnicianJob",
+    "navLabel": {
+      "en": "Auto Upholstery Technician Job",
+      "es": "Trabajo de tapicero automotriz",
+      "vi": "Việc thợ bọc nội thất ô tô",
+      "zh-hans": "汽车内饰技师招聘",
+      "tl": "Trabaho sa auto upholstery",
+      "id": "Lowongan teknisi upholstery mobil",
+      "ko": "자동차 내장 기술자 채용",
+      "hi": "ऑटो अपहोल्स्ट्री तकनीशियन नौकरी",
+      "pa": "ਆਟੋ ਅਪਹੋਲਸਟਰੀ ਟੈਕਨੀਸ਼ਨ ਨੌਕਰੀ",
+      "pt-br": "Vaga de técnico de estofamento automotivo",
+      "zh-hant": "汽車內飾技師招聘",
+      "ja": "自動車内装技術者の求人",
+      "ar": "وظيفة فني تنجيد سيارات",
+      "ru": "Вакансия техника по автообивке",
+      "ta": "கார் உள்வடிவ தொழில்நுட்பர் வேலை",
+      "fa": "استخدام تکنسین روکش خودرو",
+      "te": "ఆటో అప్హోల్స్టరీ టెక్నీషియన్ ఉద్యోగం",
+      "fr": "Emploi technicien garnissage automobile"
+    },
+    "cardSummary": {
+      "en": "Experienced upholstery role at Craig's San Jose shop.",
+      "es": "Puesto de tapicería con experiencia en el taller de San Jose.",
+      "vi": "Vị trí bọc nội thất có kinh nghiệm tại xưởng San Jose.",
+      "zh-hans": "Craig's San Jose 店的经验内饰职位。",
+      "tl": "May karanasang upholstery role sa San Jose shop.",
+      "id": "Posisi upholstery berpengalaman di bengkel San Jose.",
+      "fa": "نقش روکش باتجربه در کارگاه San Jose.",
+      "te": "San Jose షాప్‌లో అనుభవం ఉన్న అప్హోల్స్టరీ పని.",
+      "fr": "Poste garnissage expérimenté à l'atelier de San Jose.",
+      "ko": "San Jose 매장의 경력 내장 직무.",
+      "hi": "San Jose shop में अनुभवी upholstery role.",
+      "pa": "San Jose shop ਵਿੱਚ ਤਜਰਬੇਕਾਰ upholstery role.",
+      "pt-br": "Vaga de estofamento experiente na oficina de San Jose.",
+      "zh-hant": "Craig's San Jose 店的經驗內飾職位。",
+      "ja": "San Jose店舗の経験者向け内装職。",
+      "ar": "وظيفة تنجيد بخبرة في ورشة San Jose.",
+      "ru": "Опытная работа по обивке в мастерской San Jose.",
+      "ta": "San Jose shop-ல் அனுபவமுள்ள upholstery role."
+    }
+  },
+  {
     "id": "autoUpholstery",
     "navLabel": {
       "en": "Auto Upholstery",

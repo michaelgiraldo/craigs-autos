@@ -97,7 +97,17 @@ const beforeAfterSection = z.object({
 	title: localizedText.optional(),
 	gallery: reference('galleries'),
 });
-const pageType = z.enum(['home', 'service', 'contact', 'quote', 'project', 'reviews', 'gallery', 'guide']);
+const pageType = z.enum([
+	'home',
+	'service',
+	'contact',
+	'quote',
+	'project',
+	'reviews',
+	'gallery',
+	'guide',
+	'job',
+]);
 const pageCtaConfig = z.object({
 	quotePrompt: z.enum(['none', 'inline']).optional(),
 });
@@ -140,6 +150,7 @@ const pages = defineCollection({
 			})
 			.optional(),
 		project: reference('projects').optional(),
+		job: reference('jobs').optional(),
 		noindex: z.boolean().optional(),
 	}),
 });
@@ -163,6 +174,79 @@ const projects = defineCollection({
 			featuredCta: localizedText,
 		}),
 		images: z.array(galleryMedia.extend({ id: z.string() })),
+	}),
+});
+
+const jobEmploymentType = z.enum([
+	'FULL_TIME',
+	'PART_TIME',
+	'CONTRACTOR',
+	'TEMPORARY',
+	'INTERN',
+	'VOLUNTEER',
+	'PER_DIEM',
+	'OTHER',
+]);
+
+const jobCopy = z.object({
+	summary: z.string(),
+	roleLabel: z.string(),
+	locationLabel: z.string(),
+	employmentLabel: z.string(),
+	employmentValue: z.string(),
+	callCta: z.string(),
+	textCta: z.string(),
+	customerNotice: z.string(),
+	requirementsHeading: z.string(),
+	requirementsLead: z.string(),
+	experienceHeading: z.string(),
+	experienceItems: z.array(z.string()),
+	automotiveHeading: z.string(),
+	automotiveItems: z.array(z.string()),
+	toolsHeading: z.string(),
+	toolsItems: z.array(z.string()),
+	applyHeading: z.string(),
+	applySteps: z.array(z.string()),
+	photosHeading: z.string(),
+	photosLead: z.string(),
+	photoExamples: z.array(z.string()),
+	processHeading: z.string(),
+	processSteps: z.array(z.string()),
+	detailsHeading: z.string(),
+	details: z.array(z.string()),
+	imageAlt: z.string(),
+});
+
+const jobs = defineCollection({
+	loader: glob({ pattern: '**/*.json', base: './src/content/jobs' }),
+	schema: z.object({
+		id: z.string(),
+		status: z.enum(['open', 'paused', 'closed']),
+		datePosted: z.string(),
+		validThrough: z.string().optional(),
+		employmentType: z.array(jobEmploymentType).min(1),
+		title: z.string(),
+		alternateTitle: z.string().optional(),
+		directApply: z.boolean().optional(),
+		hiringPhone: z.string(),
+		hiringPhoneDisplay: z.string(),
+		hiringSms: z.string().optional(),
+		jobLocation: z.object({
+			streetAddress: z.string(),
+			addressLocality: z.string(),
+			addressRegion: z.string(),
+			postalCode: z.string(),
+			addressCountry: z.string(),
+		}),
+		baseSalary: z
+			.object({
+				currency: z.string(),
+				minValue: z.number().optional(),
+				maxValue: z.number().optional(),
+				unitText: z.enum(['HOUR', 'DAY', 'WEEK', 'MONTH', 'YEAR']),
+			})
+			.optional(),
+		copy: z.record(z.string(), jobCopy),
 	}),
 });
 
@@ -283,6 +367,7 @@ const convertibleTopAtlas = defineCollection({
 export const collections = {
 	pages,
 	projects,
+	jobs,
 	chatCopy,
 	uiCopy,
 	businessCopy,

@@ -34,7 +34,8 @@ export type PageType =
 	| 'project'
 	| 'reviews'
 	| 'gallery'
-	| 'guide';
+	| 'guide'
+	| 'job';
 export type PageQuotePromptPlacement = 'none' | 'inline';
 export type PageCtaConfig = {
 	quotePrompt?: PageQuotePromptPlacement;
@@ -47,6 +48,7 @@ export type PageCardDeckConfig = {
 };
 
 export type PageEntry = CollectionEntry<'pages'>;
+export type JobEntry = CollectionEntry<'jobs'>;
 export type PageModule = NonNullable<PageEntry['data']['pageModules']>[number];
 export type PageFaqItem = NonNullable<NonNullable<PageEntry['data']['faq']>['items']>[number];
 export type GalleryEntry = CollectionEntry<'galleries'>;

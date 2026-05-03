@@ -32,6 +32,8 @@ export interface LayoutProps {
   translations?: LocaleMap<string>;
   pageKey?: string;
   noindex?: boolean;
+  disableLeadWidgets?: boolean;
+  disableCustomerContactActions?: boolean;
 }
 
 export type BaseLayoutContext = HeaderNavStructure & {
@@ -54,6 +56,7 @@ export type BaseLayoutContext = HeaderNavStructure & {
   lang: string;
   locale: LocaleKey;
   localeBaseHref: string;
+  customerContactActionsAllowedOnPage: boolean;
   leadWidgetsAllowedOnPage: boolean;
   mapsHref: string;
   mobilePrimaryNav: NavItem[];
@@ -162,6 +165,8 @@ export function buildBaseLayoutContext(args: {
     translations,
     pageKey,
     noindex = false,
+    disableLeadWidgets = false,
+    disableCustomerContactActions = false,
   } = resolveLayoutProps(args.props);
   const siteUrl = args.site ?? new URL(SITE.url);
   const localeKeys = LOCALE_ORDER as LocaleKey[];
@@ -202,8 +207,12 @@ export function buildBaseLayoutContext(args: {
     href: new URL(pageTranslations[key] ?? LOCALES[key].base, siteUrl).toString(),
   }));
   const navItems = buildNavItems(locale);
+  const customerContactActionsAllowedOnPage = !disableCustomerContactActions;
+  const visibleNavItems = customerContactActionsAllowedOnPage
+    ? navItems
+    : navItems.filter((item) => item.key !== 'requestQuote');
   const resolvedHeaderNav = buildHeaderNavStructure(
-    Object.fromEntries(navItems.map((item) => [item.key, item])),
+    Object.fromEntries(visibleNavItems.map((item) => [item.key, item])),
   );
   const navLabels = NAV_LABELS[locale] ?? NAV_LABELS.en;
   const fallbackNavLabels = NAV_LABELS.en ?? {};
@@ -211,7 +220,7 @@ export function buildBaseLayoutContext(args: {
   const gtmEnabled =
     args.isProduction && /^GTM-[A-Z0-9]{6,20}$/i.test(gtmId) && !/disabled/i.test(gtmId);
   const gtmAllowedOnPage = gtmEnabled && !noindex;
-  const leadWidgetsAllowedOnPage = !noindex && pageKey !== 'admin';
+  const leadWidgetsAllowedOnPage = !disableLeadWidgets && !noindex && pageKey !== 'admin';
 
   return {
     ...resolvedHeaderNav,
@@ -234,9 +243,10 @@ export function buildBaseLayoutContext(args: {
     lang,
     locale,
     localeBaseHref,
+    customerContactActionsAllowedOnPage,
     leadWidgetsAllowedOnPage,
     mapsHref,
-    navItems,
+    navItems: visibleNavItems,
     noindex,
     ogImageAlt: socialCard.imageAlt,
     ogImageHeight: '630',

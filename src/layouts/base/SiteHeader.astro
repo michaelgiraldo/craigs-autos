@@ -18,6 +18,7 @@ interface Props {
 	mobileSecondaryNav?: NavItem[];
 	servicesLabel?: string;
 	servicesNav?: NavItem[];
+	showContactActions?: boolean;
 	site: SiteData;
 	smsHref: string;
 	ui?: UiCopy;
@@ -37,6 +38,7 @@ const {
 	mobileSecondaryNav = [],
 	servicesLabel = 'Services',
 	servicesNav = [],
+	showContactActions = true,
 	site,
 	smsHref,
 	ui = {} as UiCopy,
@@ -108,32 +110,34 @@ const {
 			</a>
 		</div>
 		<div class="site-header__right">
-			<div class="header-contact">
-				<div class="header-contact__row">
-					<a class="header-phone" href={`tel:${site.phone}`}>
-						<span dir="ltr">{site.displayPhone}</span>
-					</a>
-					<a class="header-text" href={smsHref}>
-						<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-							<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-						</svg>
-						{ui.textCta ?? 'Text'}
-					</a>
+			{showContactActions ? (
+				<div class="header-contact">
+					<div class="header-contact__row">
+						<a class="header-phone" href={`tel:${site.phone}`}>
+							<span dir="ltr">{site.displayPhone}</span>
+						</a>
+						<a class="header-text" href={smsHref}>
+							<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+								<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+							</svg>
+							{ui.textCta ?? 'Text'}
+						</a>
+					</div>
+					<div class="header-contact__row header-contact__row--secondary">
+						<a
+							class="header-email"
+							href={emailHref}
+							aria-label={`${ui.emailCta ?? 'Email'} ${site.email}`}
+						>
+							<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+								<path d="M4 6h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z" />
+								<path d="m22 8-10 6L2 8" />
+							</svg>
+							<span class="header-email__value" dir="ltr">{site.email}</span>
+						</a>
+					</div>
 				</div>
-				<div class="header-contact__row header-contact__row--secondary">
-					<a
-						class="header-email"
-						href={emailHref}
-						aria-label={`${ui.emailCta ?? 'Email'} ${site.email}`}
-					>
-						<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-							<path d="M4 6h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z" />
-							<path d="m22 8-10 6L2 8" />
-						</svg>
-						<span class="header-email__value" dir="ltr">{site.email}</span>
-					</a>
-				</div>
-			</div>
+			) : null}
 			<LanguageSwitcher
 				links={languageLinks}
 				currentLabel={currentLanguageLabel}

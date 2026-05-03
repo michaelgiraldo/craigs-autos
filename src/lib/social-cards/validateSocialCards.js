@@ -12,6 +12,7 @@ const VALID_TEMPLATES = new Set([
 	'contact',
 	'quote',
 	'guide',
+	'job',
 ]);
 
 const VISUAL_LIMITS = {

@@ -33,6 +33,8 @@ const translations = getTranslations(pageKey);
 const canonicalPath = translations?.[locale] ?? `/${locale}/${slug}/`;
 const lang = LOCALES[locale]?.lang ?? LOCALES.en.lang;
 const noindex = entry.data.noindex ?? false;
+const disableLeadWidgets = entry.data.pageType === 'job';
+const disableCustomerContactActions = entry.data.pageType === 'job';
 ---
 
 <BaseLayout
@@ -44,6 +46,8 @@ const noindex = entry.data.noindex ?? false;
 	canonicalPath={canonicalPath}
 	translations={translations}
 	noindex={noindex}
+	disableLeadWidgets={disableLeadWidgets}
+	disableCustomerContactActions={disableCustomerContactActions}
 >
 	<LocalizedPageContent entry={entry} locale={locale} />
 </BaseLayout>

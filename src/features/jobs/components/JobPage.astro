@@ -1,0 +1,1074 @@
+---
+import { Image } from 'astro:assets';
+import heroSeatDetail from '../../../assets/images/projects/porsche-boxster-s-seat-project/porsche-boxster-s-seat-upholstery-seat-detail.jpg';
+import upholsteryWorkImage from '../../../assets/images/services/car-seats/classic-mercedes-front-seats-upholstery.jpg';
+import automotiveExperienceImage from '../../../assets/images/projects/buick-eight/buick-eight-classic-car-upholstery-cockpit.jpg';
+import toolsImage from '../../../assets/images/projects/porsche-boxster-s-seat-project/porsche-boxster-s-seat-upholstery-seat-core.jpg';
+import photoSeatImage from '../../../assets/images/services/car-seats/classic-rear-bench-seat-upholstery.jpg';
+import photoStitchImage from '../../../assets/images/projects/buick-eight/buick-eight-classic-car-upholstery-seat-closeup.jpg';
+import photoHeadrestImage from '../../../assets/images/services/car-seats/rv-captain-seat-upholstery-installed.jpg';
+import photoDoorImage from '../../../assets/images/projects/porsche-boxster-s-seat-project/porsche-boxster-s-seat-upholstery-door-panel.jpg';
+import type { JobEntry, LocaleKey } from '../../../types/site';
+import { BRAND_NAME } from '../../../lib/site-data.js';
+import { getJobCopy } from '../structured-data';
+
+interface Props {
+	job: JobEntry;
+	locale: LocaleKey;
+	pageTitle: string;
+	pageDescription: string;
+}
+
+const { job, locale, pageTitle, pageDescription } = Astro.props as Props;
+const data = job.data;
+const copy = getJobCopy(data, locale);
+const telHref = `tel:${data.hiringPhone}`;
+const smsHref = `sms:${data.hiringSms ?? data.hiringPhone}`;
+const location = `${data.jobLocation.addressLocality}, ${data.jobLocation.addressRegion}`;
+
+const titleWords = pageTitle.trim().split(/\s+/).filter(Boolean);
+const hasTitleAccent = titleWords.length > 1;
+const titleBase = hasTitleAccent ? titleWords.slice(0, -1).join(' ') : pageTitle;
+const titleAccent = hasTitleAccent ? titleWords[titleWords.length - 1] : '';
+const primaryExperienceItems = copy.experienceItems.slice(0, Math.ceil(copy.experienceItems.length / 2));
+const secondaryExperienceItems = copy.experienceItems.slice(primaryExperienceItems.length);
+const skillCards = [
+	{
+		heading: copy.experienceHeading,
+		items: copy.experienceItems,
+		image: upholsteryWorkImage,
+		icon: 'work',
+	},
+	{
+		heading: copy.automotiveHeading,
+		items: copy.automotiveItems,
+		image: automotiveExperienceImage,
+		icon: 'car',
+	},
+	{
+		heading: copy.toolsHeading,
+		items: copy.toolsItems,
+		image: toolsImage,
+		icon: 'tool',
+	},
+];
+const photoImages = [photoSeatImage, photoStitchImage, photoHeadrestImage, photoDoorImage];
+const photoItems = copy.photoExamples.map((item, index) => ({
+	item,
+	image: photoImages[index % photoImages.length],
+	isCaution: index === copy.photoExamples.length - 1,
+}));
+---
+
+<article class="job-page full-bleed">
+	<section class="job-hero" aria-labelledby="job-title">
+		<Image
+			src={heroSeatDetail}
+			alt=""
+			width={1600}
+			height={980}
+			loading="eager"
+			decoding="async"
+			class="job-hero__background"
+		/>
+		<div class="job-hero__shade"></div>
+		<div class="container job-hero__layout">
+			<div class="job-hero__content">
+				<p class="job-hero__brand">{BRAND_NAME}</p>
+				<h1 id="job-title">
+					<span>{titleBase}</span>
+					{titleAccent ? <span class="job-hero__accent">{titleAccent}</span> : null}
+				</h1>
+				<p class="job-hero__lede">{copy.requirementsLead}</p>
+				<p class="job-hero__summary">{copy.summary}</p>
+				<div class="job-hero__actions" aria-label={copy.applyHeading}>
+					<a class="job-button job-button--primary" href={telHref}>
+						<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+							<path
+								d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
+							/>
+						</svg>
+						<span>{copy.callCta}</span>
+						<span class="job-button__phone" dir="ltr">{data.hiringPhoneDisplay}</span>
+					</a>
+					<a class="job-button job-button--outline" href={smsHref}>
+						<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+							<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+						</svg>
+						<span>{copy.textCta}</span>
+					</a>
+				</div>
+				<p class="job-hero__notice">{copy.customerNotice}</p>
+			</div>
+
+			<dl class="job-fact-card" aria-label={pageDescription}>
+				<div>
+					<dt>
+						<span class="job-fact-card__icon" aria-hidden="true">
+							<svg class="icon" viewBox="0 0 24 24">
+								<path d="M20 21a8 8 0 0 0-16 0" />
+								<circle cx="12" cy="7" r="4" />
+							</svg>
+						</span>
+						{copy.roleLabel}
+					</dt>
+					<dd>{pageTitle}</dd>
+				</div>
+				<div>
+					<dt>
+						<span class="job-fact-card__icon" aria-hidden="true">
+							<svg class="icon" viewBox="0 0 24 24">
+								<path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0z" />
+								<circle cx="12" cy="10" r="3" />
+							</svg>
+						</span>
+						{copy.locationLabel}
+					</dt>
+					<dd>{location}</dd>
+				</div>
+				<div>
+					<dt>
+						<span class="job-fact-card__icon" aria-hidden="true">
+							<svg class="icon" viewBox="0 0 24 24">
+								<rect x="3" y="7" width="18" height="13" rx="2" />
+								<path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+								<path d="M3 13h18" />
+							</svg>
+						</span>
+						{copy.employmentLabel}
+					</dt>
+					<dd>{copy.employmentValue}</dd>
+				</div>
+			</dl>
+		</div>
+	</section>
+
+	<section class="job-apply-strip" aria-labelledby="job-apply-heading">
+		<div class="container">
+			<h2 id="job-apply-heading">{copy.applyHeading}</h2>
+			<ol class="job-apply-steps">
+				{copy.applySteps.map((step, index) => (
+					<li>
+						<span class="job-apply-steps__number">{index + 1}</span>
+						<span class="job-apply-steps__icon" aria-hidden="true">
+							{index === 0 ? (
+								<svg class="icon" viewBox="0 0 24 24">
+									<path
+										d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
+									/>
+								</svg>
+							) : index === 1 ? (
+								<svg class="icon" viewBox="0 0 24 24">
+									<path d="M20 21a8 8 0 0 0-16 0" />
+									<circle cx="12" cy="7" r="4" />
+								</svg>
+							) : (
+								<svg class="icon" viewBox="0 0 24 24">
+									<rect x="3" y="3" width="18" height="18" rx="2" />
+									<circle cx="8.5" cy="8.5" r="1.5" />
+									<path d="m21 15-5-5L5 21" />
+								</svg>
+							)}
+						</span>
+						<p>{step}</p>
+					</li>
+				))}
+			</ol>
+		</div>
+	</section>
+
+	<section class="job-looking" aria-labelledby="job-looking-heading">
+		<div class="container job-looking__grid">
+			<div>
+				<h2 id="job-looking-heading">{copy.requirementsHeading}</h2>
+				<p>{copy.requirementsLead}</p>
+			</div>
+			<ul class="job-check-list">
+				{primaryExperienceItems.map((item) => (
+					<li>
+						<span aria-hidden="true">
+							<svg class="icon" viewBox="0 0 24 24">
+								<path d="m5 12 4 4L19 6" />
+							</svg>
+						</span>
+						{item}
+					</li>
+				))}
+			</ul>
+			<ul class="job-check-list">
+				{secondaryExperienceItems.map((item) => (
+					<li>
+						<span aria-hidden="true">
+							<svg class="icon" viewBox="0 0 24 24">
+								<path d="m5 12 4 4L19 6" />
+							</svg>
+						</span>
+						{item}
+					</li>
+				))}
+			</ul>
+		</div>
+	</section>
+
+	<section class="job-skills" aria-labelledby="job-skills-heading">
+		<div class="container">
+			<h2 id="job-skills-heading">{copy.automotiveHeading}</h2>
+			<div class="job-skill-cards">
+				{skillCards.map((card) => (
+					<article class="job-skill-card">
+						<header>
+							<span class="job-skill-card__icon" aria-hidden="true">
+								{card.icon === 'car' ? (
+									<svg class="icon" viewBox="0 0 24 24">
+										<path d="M7 17h10" />
+										<path d="M5 17h14l-1.4-7.1A3 3 0 0 0 14.7 7H9.3a3 3 0 0 0-2.9 2.9L5 17z" />
+										<circle cx="7.5" cy="17.5" r="1.5" />
+										<circle cx="16.5" cy="17.5" r="1.5" />
+									</svg>
+								) : card.icon === 'tool' ? (
+									<svg class="icon" viewBox="0 0 24 24">
+										<path d="M14.7 6.3a4 4 0 0 0 5 5L10.5 20.5a2.1 2.1 0 0 1-3-3l9.2-9.2z" />
+									</svg>
+								) : (
+									<svg class="icon" viewBox="0 0 24 24">
+										<rect x="3" y="7" width="18" height="13" rx="2" />
+										<path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+										<path d="M3 13h18" />
+									</svg>
+								)}
+							</span>
+							<h3>{card.heading}</h3>
+						</header>
+						<ul>
+							{card.items.map((item) => (
+								<li>{item}</li>
+							))}
+						</ul>
+						<Image
+							src={card.image}
+							alt=""
+							width={520}
+							height={300}
+							loading="lazy"
+							decoding="async"
+							class="job-skill-card__image"
+						/>
+					</article>
+				))}
+			</div>
+		</div>
+	</section>
+
+	<section class="job-photo-process" aria-labelledby="job-photos-heading">
+		<div class="container job-photo-process__grid">
+			<div class="job-photos">
+				<h2 id="job-photos-heading">{copy.photosHeading}</h2>
+				<p>{copy.photosLead}</p>
+				<ul class="job-photo-list">
+					{photoItems.map((photo) => (
+						<li class={photo.isCaution ? 'job-photo-list__item job-photo-list__item--caution' : 'job-photo-list__item'}>
+							<span aria-hidden="true">
+								<svg class="icon" viewBox="0 0 24 24">
+									{photo.isCaution ? <path d="M18 6 6 18M6 6l12 12" /> : <path d="m5 12 4 4L19 6" />}
+								</svg>
+							</span>
+							{photo.item}
+						</li>
+					))}
+				</ul>
+			</div>
+			<div class="job-photo-grid" aria-hidden="true">
+				{photoItems.map((photo) => (
+					<Image
+						src={photo.image}
+						alt=""
+						width={340}
+						height={230}
+						loading="lazy"
+						decoding="async"
+						class="job-photo-grid__image"
+					/>
+				))}
+			</div>
+			<div class="job-process">
+				<h2>{copy.processHeading}</h2>
+				<ol>
+					{copy.processSteps.map((step, index) => (
+						<li>
+							<span>{index + 1}</span>
+							<p>{step}</p>
+						</li>
+					))}
+				</ol>
+			</div>
+		</div>
+	</section>
+
+	<section class="job-notes" aria-labelledby="job-notes-heading">
+		<div class="container job-notes__grid">
+			<h2 id="job-notes-heading">{copy.detailsHeading}</h2>
+			{copy.details.map((detail, index) => (
+				<div class="job-note">
+					<span aria-hidden="true">
+						{index === 0 ? (
+							<svg class="icon" viewBox="0 0 24 24">
+								<path d="M3 21h18" />
+								<path d="M5 21V9l7-5 7 5v12" />
+								<path d="M9 21v-6h6v6" />
+							</svg>
+						) : index === 1 ? (
+							<svg class="icon" viewBox="0 0 24 24">
+								<path d="M20 21a8 8 0 0 0-16 0" />
+								<circle cx="12" cy="7" r="4" />
+							</svg>
+						) : (
+							<svg class="icon" viewBox="0 0 24 24">
+								<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+								<path d="M14 2v6h6" />
+								<path d="M8 13h8" />
+								<path d="M8 17h8" />
+							</svg>
+						)}
+					</span>
+					<p>{detail}</p>
+				</div>
+			))}
+		</div>
+	</section>
+</article>
+
+<style>
+	:global(.site-header) {
+		background: rgba(6, 5, 4, 0.96);
+		border-bottom-color: rgba(255, 255, 255, 0.14);
+	}
+
+	:global(.brand),
+	:global(.brand:hover),
+	:global(.brand__sub),
+	:global(.brand__sub:hover),
+	:global(.site-nav__link),
+	:global(.site-nav__link:hover) {
+		color: #fff;
+	}
+
+	:global(.brand__sub) {
+		opacity: 0.72;
+	}
+
+	:global(.site-nav) {
+		border-top-color: rgba(255, 255, 255, 0.12);
+	}
+
+	:global(.site-nav__link:hover),
+	:global(.site-nav__link[aria-current='page']) {
+		border-color: rgba(255, 255, 255, 0.18);
+		background: rgba(255, 255, 255, 0.1);
+		color: #fff;
+	}
+
+	:global(.site-nav__panel-body) {
+		border-color: rgba(255, 255, 255, 0.14);
+		background: rgba(12, 12, 12, 0.98);
+	}
+
+	:global(.site-nav__panel-link) {
+		color: rgba(255, 255, 255, 0.86);
+	}
+
+	:global(.site-nav__panel-link:hover) {
+		color: #fff;
+		background: rgba(255, 255, 255, 0.08);
+	}
+
+	:global(.site-menu-toggle),
+	:global(.lang-switcher__toggle) {
+		border-color: rgba(255, 255, 255, 0.22);
+		background: rgba(255, 255, 255, 0.12);
+		color: #fff;
+	}
+
+	:global(.site-footer) {
+		margin-top: 0;
+		background: #0b0a09;
+		border-top: 1px solid rgba(255, 255, 255, 0.12);
+		color: rgba(255, 255, 255, 0.72);
+	}
+
+	:global(.site-footer__brand) {
+		color: #fff;
+	}
+
+	:global(.site-footer__links a) {
+		color: rgba(255, 255, 255, 0.72);
+	}
+
+	:global(.site-footer__links a:hover) {
+		color: #fff;
+	}
+
+	.job-page {
+		--job-black: #080706;
+		--job-ink: #111111;
+		--job-panel: rgba(14, 12, 10, 0.78);
+		--job-orange: #c75b16;
+		--job-orange-dark: #9f3f14;
+		--job-cream: #f4eee6;
+		--job-line: rgba(17, 24, 39, 0.16);
+		background: #f6f1ea;
+		color: var(--color-text);
+	}
+
+	.job-hero {
+		position: relative;
+		min-height: min(47rem, calc(100vh - 6.4rem));
+		overflow: hidden;
+		background: var(--job-black);
+		color: #fff;
+	}
+
+	.job-hero__background {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		object-position: 65% 50%;
+		filter: saturate(0.9) contrast(1.08);
+	}
+
+	.job-hero__shade {
+		position: absolute;
+		inset: 0;
+		background:
+			linear-gradient(90deg, rgba(0, 0, 0, 0.96) 0%, rgba(0, 0, 0, 0.82) 32%, rgba(0, 0, 0, 0.36) 63%, rgba(0, 0, 0, 0.78) 100%),
+			linear-gradient(180deg, rgba(0, 0, 0, 0.12) 0%, rgba(0, 0, 0, 0.86) 100%);
+	}
+
+	.job-hero__layout {
+		position: relative;
+		z-index: 1;
+		display: grid;
+		grid-template-columns: minmax(0, 0.68fr) minmax(18rem, 0.32fr);
+		gap: clamp(2rem, 5vw, 4.2rem);
+		align-items: center;
+		min-height: inherit;
+		padding-top: clamp(3rem, 7vw, 6rem);
+		padding-bottom: clamp(2.4rem, 6vw, 4.5rem);
+	}
+
+	.job-hero__content {
+		max-width: 42rem;
+	}
+
+	.job-hero__brand {
+		margin: 0 0 1rem;
+		color: rgba(255, 255, 255, 0.78);
+		font-size: 0.82rem;
+		font-weight: 950;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+	}
+
+	.job-hero h1,
+	.job-apply-strip h2,
+	.job-looking h2,
+	.job-skills h2,
+	.job-photo-process h2,
+	.job-notes h2 {
+		margin: 0;
+		font-family: Impact, Haettenschweiler, "Arial Narrow Bold", "Arial Black", system-ui, sans-serif;
+		font-weight: 900;
+		letter-spacing: 0;
+		text-transform: uppercase;
+		line-height: 0.96;
+	}
+
+	.job-hero h1 {
+		display: grid;
+		gap: 0.08em;
+		max-width: 12ch;
+		font-size: clamp(3.25rem, 7vw, 6.75rem);
+		text-wrap: balance;
+		overflow-wrap: anywhere;
+	}
+
+	.job-hero__accent {
+		color: var(--job-orange);
+	}
+
+	.job-hero__lede {
+		max-width: 27rem;
+		margin: 1.15rem 0 0;
+		color: #fff;
+		font-size: clamp(1.1rem, 1.75vw, 1.42rem);
+		font-weight: 900;
+		line-height: 1.3;
+	}
+
+	.job-hero__summary {
+		max-width: 35rem;
+		margin: 1rem 0 0;
+		color: rgba(255, 255, 255, 0.86);
+		font-size: 0.98rem;
+		line-height: 1.55;
+	}
+
+	.job-hero__actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75rem;
+		margin: 1.55rem 0 0;
+	}
+
+	.job-button {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.65rem;
+		min-height: 3.55rem;
+		padding: 0.72rem 1rem;
+		border-radius: 0.3rem;
+		color: #fff;
+		text-decoration: none;
+		font-size: 0.9rem;
+		font-weight: 950;
+		line-height: 1.12;
+		text-transform: uppercase;
+		border: 2px solid rgba(255, 255, 255, 0.82);
+	}
+
+	.job-button:hover {
+		color: #fff;
+	}
+
+	.job-button--primary {
+		border-color: var(--job-orange);
+		background: var(--job-orange);
+	}
+
+	.job-button--primary:hover {
+		background: var(--job-orange-dark);
+	}
+
+	.job-button--outline {
+		background: rgba(0, 0, 0, 0.38);
+	}
+
+	.job-button__phone {
+		white-space: nowrap;
+	}
+
+	.job-hero__notice {
+		max-width: 34rem;
+		margin: 0.95rem 0 0;
+		color: rgba(255, 255, 255, 0.76);
+		font-size: 0.78rem;
+		line-height: 1.45;
+	}
+
+	.job-fact-card {
+		display: grid;
+		align-self: center;
+		margin: 0;
+		padding: 1rem 1.1rem;
+		border: 1px solid rgba(255, 255, 255, 0.12);
+		border-radius: 0.45rem;
+		background: var(--job-panel);
+		backdrop-filter: blur(10px);
+		box-shadow: 0 25px 70px rgba(0, 0, 0, 0.32);
+	}
+
+	.job-fact-card div {
+		display: grid;
+		gap: 0.35rem;
+		padding: 1rem 0;
+		border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+	}
+
+	.job-fact-card div:last-child {
+		border-bottom: 0;
+	}
+
+	.job-fact-card dt {
+		display: flex;
+		align-items: center;
+		gap: 0.7rem;
+		color: #d98a45;
+		font-size: 0.76rem;
+		font-weight: 950;
+		line-height: 1.2;
+		text-transform: uppercase;
+	}
+
+	.job-fact-card dd {
+		margin: 0;
+		padding-inline-start: 2.65rem;
+		color: #fff;
+		font-size: 0.94rem;
+		font-weight: 850;
+		line-height: 1.35;
+	}
+
+	.job-fact-card__icon {
+		display: inline-flex;
+		width: 1.95rem;
+		color: rgba(255, 255, 255, 0.76);
+	}
+
+	.job-apply-strip {
+		background: #fff;
+		padding: clamp(1.8rem, 4vw, 3rem) 0 clamp(2.2rem, 4vw, 3.4rem);
+		text-align: center;
+	}
+
+	.job-apply-strip h2,
+	.job-skills h2 {
+		font-size: clamp(2rem, 3.8vw, 3.35rem);
+		color: var(--job-ink);
+	}
+
+	.job-apply-steps {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 0;
+		margin: 1.35rem 0 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.job-apply-steps li {
+		display: grid;
+		justify-items: center;
+		gap: 0.55rem;
+		padding: 0 2rem;
+	}
+
+	.job-apply-steps li + li {
+		border-inline-start: 1px solid var(--job-line);
+	}
+
+	.job-apply-steps__number {
+		display: inline-grid;
+		place-items: center;
+		width: 2.1rem;
+		height: 2.1rem;
+		border-radius: 999px;
+		background: var(--job-orange);
+		color: #fff;
+		font-weight: 950;
+		line-height: 1;
+	}
+
+	.job-apply-steps__icon {
+		display: inline-flex;
+		color: var(--job-ink);
+	}
+
+	.job-apply-steps__icon .icon {
+		width: 2.45rem;
+		height: 2.45rem;
+		stroke-width: 2.3;
+	}
+
+	.job-apply-steps p {
+		max-width: 16rem;
+		margin: 0;
+		color: var(--color-text);
+		font-size: 0.98rem;
+		font-weight: 750;
+		line-height: 1.45;
+	}
+
+	.job-looking {
+		background: linear-gradient(90deg, #f1eee9 0%, #fff 55%, #efe8df 100%);
+		padding: clamp(2.2rem, 5vw, 4rem) 0;
+	}
+
+	.job-looking__grid {
+		display: grid;
+		grid-template-columns: minmax(15rem, 0.8fr) minmax(14rem, 1fr) minmax(12rem, 0.85fr);
+		gap: clamp(1.6rem, 4vw, 3rem);
+		align-items: start;
+	}
+
+	.job-looking h2 {
+		font-size: clamp(2rem, 4vw, 3.3rem);
+		color: var(--job-ink);
+	}
+
+	.job-looking h2::after {
+		content: "";
+		display: block;
+		width: 4.5rem;
+		height: 0.22rem;
+		margin-top: 0.75rem;
+		background: var(--job-orange);
+	}
+
+	.job-looking p {
+		max-width: 25rem;
+		margin: 1rem 0 0;
+		color: var(--color-text);
+		line-height: 1.55;
+	}
+
+	.job-check-list {
+		display: grid;
+		gap: 0.65rem;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		border-inline-start: 1px solid var(--job-line);
+		padding-inline-start: clamp(1.1rem, 3vw, 2rem);
+	}
+
+	.job-check-list li,
+	.job-photo-list__item {
+		display: grid;
+		grid-template-columns: 1.2rem minmax(0, 1fr);
+		gap: 0.65rem;
+		align-items: start;
+		font-weight: 760;
+		line-height: 1.35;
+	}
+
+	.job-check-list span,
+	.job-photo-list__item span {
+		color: var(--job-orange);
+	}
+
+	.job-check-list .icon,
+	.job-photo-list__item .icon {
+		width: 1rem;
+		height: 1rem;
+		stroke-width: 3;
+	}
+
+	.job-skills {
+		padding: clamp(2.3rem, 5vw, 4.5rem) 0;
+		background: #fff;
+	}
+
+	.job-skills h2 {
+		text-align: center;
+	}
+
+	.job-skill-cards {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: clamp(1rem, 2vw, 1.8rem);
+		margin-top: 1.5rem;
+	}
+
+	.job-skill-card {
+		display: grid;
+		grid-template-rows: auto 1fr auto;
+		overflow: hidden;
+		border: 1px solid rgba(17, 24, 39, 0.18);
+		background: #f7f4ef;
+	}
+
+	.job-skill-card header {
+		display: flex;
+		align-items: center;
+		gap: 0.65rem;
+		padding: 0.8rem 1rem;
+		background: var(--job-ink);
+		color: #fff;
+	}
+
+	.job-skill-card h3 {
+		margin: 0;
+		font-size: 0.95rem;
+		font-weight: 950;
+		line-height: 1.2;
+		text-transform: uppercase;
+	}
+
+	.job-skill-card__icon {
+		display: inline-flex;
+		color: rgba(255, 255, 255, 0.86);
+	}
+
+	.job-skill-card ul {
+		display: grid;
+		gap: 0.35rem;
+		margin: 0;
+		padding: 1rem 1.25rem 1rem 1.55rem;
+		font-size: 0.9rem;
+		line-height: 1.3;
+	}
+
+	.job-skill-card__image {
+		display: block;
+		width: 100%;
+		aspect-ratio: 16 / 8.7;
+		object-fit: cover;
+	}
+
+	.job-photo-process {
+		background: #fff;
+		padding: clamp(1rem, 2vw, 2rem) 0 clamp(2.4rem, 5vw, 4.5rem);
+	}
+
+	.job-photo-process__grid {
+		display: grid;
+		grid-template-columns: minmax(15rem, 0.68fr) minmax(16rem, 1fr) minmax(16rem, 0.84fr);
+		gap: clamp(1.4rem, 3vw, 2.5rem);
+		align-items: start;
+	}
+
+	.job-photo-process h2 {
+		color: var(--job-ink);
+		font-size: clamp(1.95rem, 3.2vw, 3rem);
+	}
+
+	.job-photos p {
+		margin: 0.8rem 0 0;
+		color: var(--color-muted);
+		line-height: 1.55;
+	}
+
+	.job-photo-list {
+		display: grid;
+		gap: 0.85rem;
+		margin: 1rem 0 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.job-photo-list__item--caution span {
+		color: #b42318;
+	}
+
+	.job-photo-grid {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 0.6rem;
+	}
+
+	.job-photo-grid__image {
+		display: block;
+		width: 100%;
+		aspect-ratio: 1.35 / 1;
+		object-fit: cover;
+	}
+
+	.job-process {
+		border-inline-start: 1px solid var(--job-line);
+		padding-inline-start: clamp(1rem, 2vw, 1.5rem);
+	}
+
+	.job-process ol {
+		display: grid;
+		gap: 0.95rem;
+		margin: 1rem 0 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.job-process li {
+		display: grid;
+		grid-template-columns: 2rem minmax(0, 1fr);
+		gap: 0.75rem;
+		align-items: start;
+	}
+
+	.job-process li span {
+		display: inline-grid;
+		place-items: center;
+		width: 1.55rem;
+		height: 1.55rem;
+		border-radius: 999px;
+		background: var(--job-ink);
+		color: #fff;
+		font-size: 0.85rem;
+		font-weight: 950;
+		line-height: 1;
+	}
+
+	.job-process p {
+		margin: 0;
+		color: var(--color-text);
+		font-weight: 720;
+		line-height: 1.45;
+	}
+
+	.job-notes {
+		background: #fff;
+		padding: 0 0 clamp(1.6rem, 4vw, 3rem);
+	}
+
+	.job-notes__grid {
+		display: grid;
+		grid-template-columns: auto repeat(3, minmax(0, 1fr));
+		gap: clamp(1rem, 2.5vw, 2rem);
+		align-items: center;
+		padding: clamp(1rem, 2vw, 1.45rem) clamp(1rem, 2.5vw, 2rem);
+		background: var(--job-black);
+		color: #fff;
+	}
+
+	.job-notes h2 {
+		display: flex;
+		align-items: center;
+		color: #d98a45;
+		font-size: clamp(1.2rem, 2vw, 1.7rem);
+		white-space: nowrap;
+	}
+
+	.job-note {
+		display: grid;
+		grid-template-columns: 2.4rem minmax(0, 1fr);
+		gap: 0.9rem;
+		align-items: center;
+	}
+
+	.job-note span {
+		color: #d98a45;
+	}
+
+	.job-note .icon {
+		width: 2.1rem;
+		height: 2.1rem;
+		stroke-width: 1.8;
+	}
+
+	.job-note p {
+		margin: 0;
+		color: rgba(255, 255, 255, 0.88);
+		font-size: 0.95rem;
+		line-height: 1.35;
+	}
+
+	@media (max-width: 980px) {
+		.job-hero__layout,
+		.job-looking__grid,
+		.job-photo-process__grid,
+		.job-notes__grid {
+			grid-template-columns: 1fr;
+		}
+
+		.job-hero {
+			min-height: auto;
+		}
+
+		.job-hero__layout {
+			padding-top: clamp(3rem, 9vw, 4.5rem);
+		}
+
+		.job-hero__content {
+			max-width: 45rem;
+		}
+
+		.job-fact-card {
+			max-width: 35rem;
+		}
+
+		.job-check-list,
+		.job-process {
+			border-inline-start: 0;
+			padding-inline-start: 0;
+		}
+
+		.job-skill-cards,
+		.job-apply-steps {
+			grid-template-columns: 1fr;
+			gap: 1rem;
+		}
+
+		.job-apply-steps li {
+			padding: 1rem 0 0;
+			border-inline-start: 0;
+			border-top: 1px solid var(--job-line);
+		}
+
+		.job-apply-steps li:first-child {
+			border-top: 0;
+			padding-top: 0;
+		}
+
+		.job-notes h2 {
+			white-space: normal;
+		}
+	}
+
+	@media (max-width: 620px) {
+		:global(.site-header) {
+			background: rgba(8, 7, 6, 0.98);
+		}
+
+		:global(.brand__logo) {
+			width: 2.1rem;
+			height: 2.1rem;
+		}
+
+		.job-hero__shade {
+			background:
+				linear-gradient(90deg, rgba(0, 0, 0, 0.92) 0%, rgba(0, 0, 0, 0.76) 100%),
+				linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.82) 100%);
+		}
+
+		.job-hero__layout {
+			padding-top: 2.35rem;
+			padding-bottom: 2.35rem;
+		}
+
+		.job-hero h1 {
+			max-width: 9ch;
+			font-size: clamp(2.75rem, 15vw, 4.4rem);
+		}
+
+		.job-hero__lede {
+			font-size: 1.05rem;
+		}
+
+		.job-hero__summary {
+			font-size: 0.92rem;
+		}
+
+		.job-hero__actions {
+			display: grid;
+		}
+
+		.job-button {
+			width: 100%;
+			border-radius: 0.45rem;
+		}
+
+		.job-button--primary {
+			flex-wrap: wrap;
+		}
+
+		.job-button__phone {
+			flex-basis: 100%;
+			text-align: center;
+		}
+
+		.job-fact-card {
+			padding: 0.75rem 1rem;
+		}
+
+		.job-fact-card dd {
+			padding-inline-start: 0;
+		}
+
+		.job-apply-strip,
+		.job-looking,
+		.job-skills,
+		.job-photo-process {
+			padding-top: 2rem;
+			padding-bottom: 2.35rem;
+		}
+
+		.job-photo-grid {
+			grid-template-columns: 1fr 1fr;
+		}
+
+		.job-notes__grid {
+			margin: 0 calc(-1 * var(--gutter-left));
+			padding-inline: var(--gutter-left);
+		}
+	}
+</style>

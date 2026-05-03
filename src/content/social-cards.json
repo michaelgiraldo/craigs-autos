@@ -1,5 +1,119 @@
 [
   {
+    "pageKey": "autoUpholsteryTechnicianJob",
+    "template": "job",
+    "locales": {
+      "en": {
+        "eyebrow": "Now Hiring",
+        "headline": "Experienced Auto Upholstery Technician",
+        "summary": "In-person upholstery role at Craig's San Jose shop. Call the hiring line and text photos of prior work.",
+        "alt": "Now Hiring | Experienced Auto Upholstery Technician"
+      },
+      "es": {
+        "eyebrow": "Estamos contratando",
+        "headline": "Tapicero automotriz con experiencia",
+        "summary": "Trabajo presencial de tapicería en San Jose. Llame a contratación y mande fotos de trabajos anteriores.",
+        "alt": "Estamos contratando | Tapicero automotriz con experiencia"
+      },
+      "vi": {
+        "eyebrow": "Đang tuyển",
+        "headline": "Thợ bọc nội thất ô tô có kinh nghiệm",
+        "summary": "Việc làm trực tiếp tại xưởng San Jose. Gọi tuyển dụng và nhắn ảnh công việc trước đây.",
+        "alt": "Đang tuyển | Thợ bọc nội thất ô tô có kinh nghiệm"
+      },
+      "zh-hans": {
+        "eyebrow": "正在招聘",
+        "headline": "有经验的汽车内饰技师",
+        "summary": "San Jose 店内现场内饰职位。请拨打招聘电话并短信发送以往作品照片。",
+        "alt": "正在招聘 | 有经验的汽车内饰技师"
+      },
+      "tl": {
+        "eyebrow": "Hiring ngayon",
+        "headline": "May karanasang auto upholstery tech",
+        "summary": "Personal na trabaho sa San Jose shop. Tumawag sa hiring line at mag-text ng photos ng dating trabaho.",
+        "alt": "Hiring ngayon | May karanasang auto upholstery tech"
+      },
+      "id": {
+        "eyebrow": "Sedang merekrut",
+        "headline": "Teknisi upholstery mobil berpengalaman",
+        "summary": "Kerja langsung di bengkel San Jose. Telepon hiring line dan kirim foto pekerjaan sebelumnya.",
+        "alt": "Sedang merekrut | Teknisi upholstery mobil berpengalaman"
+      },
+      "fa": {
+        "eyebrow": "در حال استخدام",
+        "headline": "تکنسین روکش داخلی خودرو با تجربه",
+        "summary": "کار حضوری در کارگاه San Jose. با خط استخدام تماس بگیرید و عکس کارهای قبلی را پیامک کنید.",
+        "alt": "در حال استخدام | تکنسین روکش داخلی خودرو با تجربه"
+      },
+      "te": {
+        "eyebrow": "ఇప్పుడు నియామకం",
+        "headline": "అనుభవం ఉన్న ఆటో అప్హోల్స్టరీ టెక్నీషియన్",
+        "summary": "San Jose షాప్‌లో ప్రత్యక్ష పని. హైరింగ్ లైన్‌కు కాల్ చేసి పాత పనుల ఫోటోలు పంపండి.",
+        "alt": "ఇప్పుడు నియామకం | అనుభవం ఉన్న ఆటో అప్హోల్స్టరీ టెక్నీషియన్"
+      },
+      "fr": {
+        "eyebrow": "Nous recrutons",
+        "headline": "Technicien garnissage automobile expérimenté",
+        "summary": "Poste en personne à San Jose. Appelez la ligne recrutement et envoyez des photos de vos travaux.",
+        "alt": "Nous recrutons | Technicien garnissage automobile expérimenté"
+      },
+      "ko": {
+        "eyebrow": "채용 중",
+        "headline": "경력 자동차 내장 기술자",
+        "summary": "San Jose 매장 현장 근무. 채용 번호로 전화하고 이전 작업 사진을 문자로 보내세요.",
+        "alt": "채용 중 | 경력 자동차 내장 기술자"
+      },
+      "hi": {
+        "eyebrow": "Hiring",
+        "headline": "अनुभवी ऑटो अपहोल्स्ट्री तकनीशियन",
+        "summary": "San Jose shop में onsite role. Hiring line पर कॉल करें और पुराने काम की photos text करें।",
+        "alt": "Hiring | अनुभवी ऑटो अपहोल्स्ट्री तकनीशियन"
+      },
+      "pa": {
+        "eyebrow": "Hiring",
+        "headline": "ਤਜਰਬੇਕਾਰ ਆਟੋ ਅਪਹੋਲਸਟਰੀ ਟੈਕਨੀਸ਼ਨ",
+        "summary": "San Jose shop ਵਿੱਚ onsite role. Hiring line ਨੂੰ ਕਾਲ ਕਰੋ ਅਤੇ ਪੁਰਾਣੇ ਕੰਮ ਦੀਆਂ photos text ਕਰੋ।",
+        "alt": "Hiring | ਤਜਰਬੇਕਾਰ ਆਟੋ ਅਪਹੋਲਸਟਰੀ ਟੈਕਨੀਸ਼ਨ"
+      },
+      "pt-br": {
+        "eyebrow": "Contratando",
+        "headline": "Técnico de estofamento automotivo experiente",
+        "summary": "Vaga presencial na oficina de San Jose. Ligue para contratação e envie fotos de trabalhos anteriores.",
+        "alt": "Contratando | Técnico de estofamento automotivo experiente"
+      },
+      "zh-hant": {
+        "eyebrow": "正在招聘",
+        "headline": "有經驗的汽車內飾技師",
+        "summary": "San Jose 店內現場內飾職位。請撥打招聘電話並簡訊傳送以往作品照片。",
+        "alt": "正在招聘 | 有經驗的汽車內飾技師"
+      },
+      "ja": {
+        "eyebrow": "採用中",
+        "headline": "経験者向け自動車内装技術者",
+        "summary": "San Jose店舗での対面勤務。採用ラインに電話し、過去の作業写真をSMSで送ってください。",
+        "alt": "採用中 | 経験者向け自動車内装技術者"
+      },
+      "ar": {
+        "eyebrow": "نوظف الآن",
+        "headline": "فني تنجيد سيارات ذو خبرة",
+        "summary": "عمل حضوري في ورشة San Jose. اتصل بخط التوظيف وأرسل صور أعمال سابقة.",
+        "alt": "نوظف الآن | فني تنجيد سيارات ذو خبرة"
+      },
+      "ru": {
+        "eyebrow": "Идет найм",
+        "headline": "Опытный техник по автообивке",
+        "summary": "Очная работа в мастерской San Jose. Позвоните на линию найма и отправьте фото прошлых работ.",
+        "alt": "Идет найм | Опытный техник по автообивке"
+      },
+      "ta": {
+        "eyebrow": "Hiring",
+        "headline": "அனுபவமுள்ள கார் உள்வடிவ தொழில்நுட்பர்",
+        "summary": "San Jose shop-ல் நேரடி வேலை. Hiring line-க்கு அழைத்து பழைய photos text செய்யவும்.",
+        "alt": "Hiring | அனுபவமுள்ள கார் உள்வடிவ தொழில்நுட்பர்"
+      }
+    }
+  },
+  {
     "pageKey": "autoUpholstery",
     "template": "service",
     "locales": {

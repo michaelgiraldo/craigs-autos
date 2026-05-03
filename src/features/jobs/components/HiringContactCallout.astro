@@ -1,0 +1,191 @@
+---
+import LocalizedLink from '../../../components/LocalizedLink.astro';
+import type { LocaleKey } from '../../../types/site';
+
+interface Props {
+	locale: LocaleKey;
+}
+
+type HiringContactCalloutCopy = {
+	ariaLabel: string;
+	eyebrow: string;
+	body: string;
+	link: string;
+};
+
+const COPY: Record<LocaleKey, HiringContactCalloutCopy> = {
+	en: {
+		ariaLabel: 'Hiring information',
+		eyebrow: 'Hiring note',
+		body: "Looking for work? Craig's is hiring an experienced auto upholstery technician in San Jose. Applicants should use the hiring page and dedicated hiring line instead of the customer quote channels.",
+		link: 'Experienced Auto Upholstery Technician job in San Jose',
+	},
+	es: {
+		ariaLabel: 'Información de contratación',
+		eyebrow: 'Nota de contratación',
+		body: "¿Buscas trabajo? Craig's está contratando a un tapicero automotriz con experiencia en San José. Los candidatos deben usar la página de empleo y la línea de contratación dedicada en lugar de los canales para cotizaciones de clientes.",
+		link: 'Trabajo de tapicero automotriz con experiencia en San José',
+	},
+	vi: {
+		ariaLabel: 'Thông tin tuyển dụng',
+		eyebrow: 'Ghi chú tuyển dụng',
+		body: "Bạn đang tìm việc? Craig's đang tuyển thợ bọc nội thất ô tô có kinh nghiệm tại San Jose. Ứng viên nên dùng trang tuyển dụng và số điện thoại tuyển dụng riêng thay vì các kênh báo giá cho khách hàng.",
+		link: 'Việc thợ bọc nội thất ô tô có kinh nghiệm tại San Jose',
+	},
+	'zh-hans': {
+		ariaLabel: '招聘信息',
+		eyebrow: '招聘提示',
+		body: "在找工作？Craig's 正在圣何塞招聘有经验的汽车内饰技师。申请人请使用招聘页面和专用招聘电话，不要使用客户报价渠道。",
+		link: '圣何塞有经验汽车内饰技师职位',
+	},
+	tl: {
+		ariaLabel: 'Impormasyon sa hiring',
+		eyebrow: 'Hiring note',
+		body: "Naghahanap ng trabaho? Ang Craig's ay naghahanap ng experienced auto upholstery technician sa San Jose. Dapat gamitin ng applicants ang hiring page at dedicated hiring line sa halip na customer quote channels.",
+		link: 'Experienced auto upholstery technician job sa San Jose',
+	},
+	id: {
+		ariaLabel: 'Informasi lowongan',
+		eyebrow: 'Catatan lowongan',
+		body: "Sedang mencari kerja? Craig's sedang merekrut teknisi upholstery mobil berpengalaman di San Jose. Pelamar sebaiknya memakai halaman lowongan dan jalur hiring khusus, bukan kanal permintaan estimasi pelanggan.",
+		link: 'Lowongan teknisi upholstery mobil berpengalaman di San Jose',
+	},
+	fa: {
+		ariaLabel: 'اطلاعات استخدام',
+		eyebrow: 'یادداشت استخدام',
+		body: "دنبال کار هستید؟ Craig's در سن‌خوزه به دنبال تکنسین باتجربه روکش خودرو است. متقاضیان باید از صفحه استخدام و خط اختصاصی استخدام استفاده کنند، نه کانال‌های درخواست قیمت مشتریان.",
+		link: 'استخدام تکنسین باتجربه روکش خودرو در سن‌خوزه',
+	},
+	te: {
+		ariaLabel: 'ఉద్యోగ సమాచారం',
+		eyebrow: 'హైరింగ్ గమనిక',
+		body: "పని కోసం చూస్తున్నారా? Craig's San Joseలో అనుభవం ఉన్న ఆటో అప్హోల్స్టరీ టెక్నీషియన్‌ను నియమిస్తోంది. దరఖాస్తుదారులు కస్టమర్ quote ఛానెల్స్ బదులుగా hiring page మరియు ప్రత్యేక hiring line ఉపయోగించాలి.",
+		link: 'San Joseలో అనుభవం ఉన్న ఆటో అప్హోల్స్టరీ టెక్నీషియన్ ఉద్యోగం',
+	},
+	fr: {
+		ariaLabel: 'Information recrutement',
+		eyebrow: 'Note recrutement',
+		body: "Vous cherchez du travail ? Craig's recrute un technicien en garnissage automobile expérimenté à San Jose. Les candidats doivent utiliser la page emploi et la ligne dédiée au recrutement, pas les canaux de devis clients.",
+		link: 'Poste de technicien en garnissage automobile expérimenté à San Jose',
+	},
+	ko: {
+		ariaLabel: '채용 정보',
+		eyebrow: '채용 안내',
+		body: "일자리를 찾고 계신가요? Craig's는 San Jose에서 경력 있는 자동차 내장 기술자를 채용하고 있습니다. 지원자는 고객 견적 채널 대신 채용 페이지와 전용 채용 라인을 이용해 주세요.",
+		link: 'San Jose 경력 자동차 내장 기술자 채용',
+	},
+	hi: {
+		ariaLabel: 'भर्ती जानकारी',
+		eyebrow: 'भर्ती नोट',
+		body: "काम ढूंढ रहे हैं? Craig's San Jose में experienced auto upholstery technician hiring कर रहा है। Applicants को customer quote channels के बजाय hiring page और dedicated hiring line इस्तेमाल करनी चाहिए।",
+		link: 'San Jose में experienced auto upholstery technician job',
+	},
+	pa: {
+		ariaLabel: 'ਭਰਤੀ ਜਾਣਕਾਰੀ',
+		eyebrow: 'ਭਰਤੀ ਨੋਟ',
+		body: "ਕੰਮ ਲੱਭ ਰਹੇ ਹੋ? Craig's San Jose ਵਿੱਚ experienced auto upholstery technician hiring ਕਰ ਰਿਹਾ ਹੈ। Applicants ਨੂੰ customer quote channels ਦੀ ਥਾਂ hiring page ਅਤੇ dedicated hiring line ਵਰਤਣੀ ਚਾਹੀਦੀ ਹੈ।",
+		link: 'San Jose ਵਿੱਚ experienced auto upholstery technician job',
+	},
+	'pt-br': {
+		ariaLabel: 'Informações de contratação',
+		eyebrow: 'Nota de contratação',
+		body: "Procurando trabalho? A Craig's está contratando um técnico experiente em estofamento automotivo em San Jose. Candidatos devem usar a página da vaga e a linha dedicada de contratação, não os canais de orçamento de clientes.",
+		link: 'Vaga de técnico experiente em estofamento automotivo em San Jose',
+	},
+	'zh-hant': {
+		ariaLabel: '招聘資訊',
+		eyebrow: '招聘提示',
+		body: "正在找工作嗎？Craig's 正在聖荷西招聘有經驗的汽車內飾技師。申請人請使用招聘頁面和專用招聘電話，不要使用客戶報價管道。",
+		link: '聖荷西有經驗汽車內飾技師職位',
+	},
+	ja: {
+		ariaLabel: '採用情報',
+		eyebrow: '採用のお知らせ',
+		body: "仕事をお探しですか？Craig's は San Jose で経験のある自動車内装技術者を募集しています。応募者は、お客様向け見積もり窓口ではなく、採用ページと専用採用ラインをご利用ください。",
+		link: 'San Jose の経験者向け自動車内装技術者の求人',
+	},
+	ar: {
+		ariaLabel: 'معلومات التوظيف',
+		eyebrow: 'ملاحظة توظيف',
+		body: "هل تبحث عن عمل؟ تقوم Craig's بتوظيف فني تنجيد سيارات خبير في سان خوسيه. يجب على المتقدمين استخدام صفحة التوظيف وخط التوظيف المخصص بدلا من قنوات طلب عروض الأسعار للعملاء.",
+		link: 'وظيفة فني تنجيد سيارات خبير في سان خوسيه',
+	},
+	ru: {
+		ariaLabel: 'Информация о найме',
+		eyebrow: 'Примечание о найме',
+		body: "Ищете работу? Craig's нанимает опытного техника по автообивке в Сан-Хосе. Кандидатам следует использовать страницу вакансии и отдельную линию найма, а не каналы для клиентских запросов цены.",
+		link: 'Вакансия опытного техника по автообивке в Сан-Хосе',
+	},
+	ta: {
+		ariaLabel: 'வேலைவாய்ப்பு தகவல்',
+		eyebrow: 'வேலைவாய்ப்பு குறிப்பு',
+		body: "வேலை தேடுகிறீர்களா? Craig's San Jose-இல் அனுபவமுள்ள auto upholstery technician-ஐ நியமிக்கிறது. விண்ணப்பதாரர்கள் customer quote channels-க்கு பதிலாக hiring page மற்றும் dedicated hiring line-ஐ பயன்படுத்த வேண்டும்.",
+		link: 'San Jose-இல் அனுபவமுள்ள auto upholstery technician வேலை',
+	},
+};
+
+const { locale } = Astro.props as Props;
+const copy = COPY[locale] ?? COPY.en;
+---
+
+<aside class="hiring-contact-callout" aria-label={copy.ariaLabel}>
+	<p class="hiring-contact-callout__eyebrow">{copy.eyebrow}</p>
+	<p class="hiring-contact-callout__body">
+		{copy.body}
+		<LocalizedLink
+			pageKey="autoUpholsteryTechnicianJob"
+			locale={locale}
+			class="hiring-contact-callout__link"
+		>
+			{copy.link}
+		</LocalizedLink>
+	</p>
+</aside>
+
+<style>
+	.hiring-contact-callout {
+		margin: clamp(2rem, 4vw, 3.5rem) 0 0;
+		padding: 1.1rem 1.2rem;
+		border: 1px solid rgba(17, 24, 39, 0.12);
+		border-left: 4px solid #b84a21;
+		border-radius: 8px;
+		background: #fff8f4;
+		box-shadow: var(--shadow-sm);
+	}
+
+	.hiring-contact-callout__eyebrow {
+		margin: 0;
+		color: #8a3418;
+		font-size: 0.76rem;
+		font-weight: 800;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+	}
+
+	.hiring-contact-callout__body {
+		margin: 0.45rem 0 0;
+		max-width: 72ch;
+		color: var(--color-muted);
+	}
+
+	.hiring-contact-callout__link {
+		display: inline;
+		margin-inline-start: 0.35rem;
+		font-weight: 800;
+		color: #8a3418;
+		text-decoration: underline;
+		text-decoration-thickness: 0.08em;
+		text-underline-offset: 0.18em;
+	}
+
+	.hiring-contact-callout__link:hover,
+	.hiring-contact-callout__link:focus {
+		color: #5f210f;
+	}
+
+	@media (max-width: 640px) {
+		.hiring-contact-callout {
+			padding: 1rem;
+		}
+	}
+</style>

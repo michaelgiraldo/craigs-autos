@@ -1,4 +1,5 @@
 ---
+import HiringContactCallout from '../../jobs/components/HiringContactCallout.astro';
 import QuotePageCta from '../../quote/components/QuotePageCta.astro';
 import type { LocaleKey, PageEntry } from '../../../types/site';
 import { resolvePageCtaConfig } from '../page-types';
@@ -11,8 +12,10 @@ interface Props {
 
 const { entry, locale } = Astro.props as Props;
 const ctaConfig = resolvePageCtaConfig(entry);
+const showHiringCallout = entry.data.pageType === 'contact';
 ---
 
 <StructuredPageRenderer entry={entry} locale={locale}>
 	{ctaConfig.quotePrompt === 'inline' ? <QuotePageCta slot="afterPageCardDeck" locale={locale} /> : null}
+	{showHiringCallout ? <HiringContactCallout slot="afterContent" locale={locale} /> : null}
 </StructuredPageRenderer>

@@ -5,6 +5,7 @@ interface Props {
 	canonicalPath?: string;
 	emailHref: string;
 	navItems?: NavItem[];
+	showContactActions?: boolean;
 	siteEmail?: string;
 	ui?: UiCopy;
 }
@@ -13,6 +14,7 @@ const {
 	canonicalPath = '',
 	emailHref,
 	navItems = [],
+	showContactActions = true,
 	siteEmail = '',
 	ui = {} as UiCopy,
 } = Astro.props as Props;
@@ -48,16 +50,18 @@ const {
 						</a>
 					</li>
 				))}
-				<li>
-					<a
-						class="site-menu__link"
-						href={emailHref}
-						aria-label={`${ui.emailCta ?? 'Email'} ${siteEmail}`}
-						data-site-menu-link
-					>
-						<span dir="ltr">{siteEmail}</span>
-					</a>
-				</li>
+				{showContactActions ? (
+					<li>
+						<a
+							class="site-menu__link"
+							href={emailHref}
+							aria-label={`${ui.emailCta ?? 'Email'} ${siteEmail}`}
+							data-site-menu-link
+						>
+							<span dir="ltr">{siteEmail}</span>
+						</a>
+					</li>
+				) : null}
 			</ul>
 		</nav>
 	</div>

@@ -1,0 +1,45 @@
+---
+import { getEntry } from 'astro:content';
+import StructuredDataScript from '../../../components/StructuredDataScript.astro';
+import JobPage from '../../jobs/components/JobPage.astro';
+import { buildJobPostingStructuredData } from '../../jobs/structured-data';
+import { SITE } from '../../../lib/site-data.js';
+import type { LocaleKey, PageEntry } from '../../../types/site';
+import { resolveReferenceId } from '../page-types';
+
+interface Props {
+	entry: PageEntry;
+	locale: LocaleKey;
+}
+
+const { entry, locale } = Astro.props as Props;
+
+if (!entry.data.job) {
+	throw new Error('Job pages require a job reference.');
+}
+
+const job = await getEntry('jobs', resolveReferenceId(entry.data.job));
+
+if (!job) {
+	throw new Error(`Job not found: ${resolveReferenceId(entry.data.job)}`);
+}
+
+const siteUrl = Astro.site ?? new URL(SITE.url);
+const canonicalUrl = Astro.url.toString();
+const logoUrl = new URL('/brand/logo-512.png', siteUrl).toString();
+const structuredData = buildJobPostingStructuredData({
+	job: job.data,
+	locale,
+	title: entry.data.title,
+	canonicalUrl,
+	logoUrl,
+});
+---
+
+<StructuredDataScript data={structuredData} />
+<JobPage
+	job={job}
+	locale={locale}
+	pageTitle={entry.data.title}
+	pageDescription={entry.data.description}
+/>
