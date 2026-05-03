@@ -1,4 +1,4 @@
-import { defineFunction } from '@aws-amplify/backend';
+import { defineFunction, secret } from '@aws-amplify/backend';
 import { MANAGED_CONVERSION_PROVIDER_ENV_DEFAULTS } from '../_lead-platform/services/conversion-feedback/provider-config-manifest.ts';
 
 export const managedConversionFeedbackWorker = defineFunction({
@@ -11,5 +11,6 @@ export const managedConversionFeedbackWorker = defineFunction({
     MANAGED_CONVERSION_FEEDBACK_LEASE_SECONDS: '300',
     MANAGED_CONVERSION_FEEDBACK_MAX_ATTEMPTS: '3',
     ...MANAGED_CONVERSION_PROVIDER_ENV_DEFAULTS,
+    YELP_API_KEY: secret('YELP_API_KEY'),
   },
 });
