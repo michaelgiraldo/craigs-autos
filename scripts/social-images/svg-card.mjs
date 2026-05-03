@@ -16,14 +16,12 @@ export function buildSvg({ card, logoLargeDataUri }) {
   const heading = getHeadlineSizing(headline, card.template);
   const eyebrowStyle = getEyebrowSizing(eyebrow);
   const summaryStyle = getSummarySizing(summary);
+  const headlineMaxLines = card.template === 'job' ? 3 : 2;
+  const summaryMaxLines = card.template === 'job' || card.template === 'project' ? 3 : 2;
 
   const eyebrowLines = wrapText(eyebrow, eyebrowStyle.maxUnits, 2);
-  const headlineLines = wrapText(headline, heading.maxUnits, 2);
-  const summaryLines = wrapText(
-    summary,
-    summaryStyle.maxUnits,
-    card.template === 'project' ? 3 : 2,
-  );
+  const headlineLines = wrapText(headline, heading.maxUnits, headlineMaxLines);
+  const summaryLines = wrapText(summary, summaryStyle.maxUnits, summaryMaxLines);
 
   const eyebrowLineHeight = Math.round(eyebrowStyle.fontSize * 1.2);
   const headlineLineHeight = Math.round(heading.fontSize * 1.08);

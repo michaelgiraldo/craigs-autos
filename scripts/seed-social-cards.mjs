@@ -19,6 +19,7 @@ const OUTPUT_PATH = path.join(ROOT, 'src/content/social-cards.json');
 
 const TEMPLATE_BY_PAGE_KEY = {
   home: 'home',
+  autoUpholsteryTechnicianJob: 'job',
   autoUpholstery: 'service',
   boatUpholstery: 'service',
   carSeats: 'service',
