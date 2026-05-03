@@ -5,7 +5,6 @@ export type BusinessProfile = {
   readonly timezone: string;
   readonly domains: {
     readonly canonicalUrl: string;
-    readonly chatUrl: string;
   };
   readonly phone: {
     readonly e164: string;

@@ -118,11 +118,18 @@ Local ChatKit dev API:
   - https://platform.openai.com/agent-builder
 - Production domains must be allowlisted:
   - https://platform.openai.com/settings/organization/security/domain-allowlist
-  - at minimum: `chat.craigs.autos` (and `craigs.autos` if embedded there too)
+  - `craigs.autos`
 
 ### AWS Amplify (Gen2)
 
 - Builds run via `amplify.yml`.
+- Canonical hosting is apex-only:
+  - `craigs.autos` serves the site.
+  - `www.craigs.autos` must 301 redirect to `craigs.autos`.
+  - Wildcard subdomain hosting is intentionally disabled; retired hosts such as
+    `chat.craigs.autos` must not serve the production app.
+  - Desired domain state lives in `config/amplify-domain.json`.
+  - Verify with `npm run check:canonical-domain -- --http` after DNS/Amplify changes.
 - The build step runs `npx ampx pipeline-deploy` to:
   - deploy/update the Gen2 backend for the branch
   - generate `public/amplify_outputs.json` with branch-specific endpoints

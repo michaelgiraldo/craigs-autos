@@ -12,7 +12,6 @@ export const CRAIGS_BUSINESS_PROFILE = Object.freeze({
   timezone: 'America/Los_Angeles',
   domains: Object.freeze({
     canonicalUrl: 'https://craigs.autos',
-    chatUrl: 'https://chat.craigs.autos',
   }),
   phone: Object.freeze({
     e164: '+14083793820',

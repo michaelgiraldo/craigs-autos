@@ -18,11 +18,23 @@ npm run check:amplify-redirects
 
 - Old domain: `https://craigsautoandhomeupholstery.com`
 - New domain: `https://craigs.autos`
+- Canonical host: `craigs.autos`
+- Redirect-only host: `www.craigs.autos`
+- Wildcard subdomain hosting is intentionally disabled. Retired hosts should not
+  serve the production app.
+
+Desired Amplify/Route 53 domain state lives in `config/amplify-domain.json`.
+Verify it after domain changes with:
+
+```bash
+npm run check:canonical-domain -- --http
+```
 
 ## Active 301 redirects (Amplify)
 
-| Old path | Redirect target |
+| Source | Redirect target |
 | --- | --- |
+| `https://www.craigs.autos` | `https://craigs.autos` |
 | `/` | `https://craigs.autos/en/` |
 | `/index.html` | `https://craigs.autos/en/` |
 | `/contact` | `https://craigs.autos/en/contact/` |

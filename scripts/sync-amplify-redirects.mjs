@@ -81,8 +81,10 @@ function validateConfig({ appId, region, rules }) {
   for (const [index, rule] of rules.entries()) {
     const label = `rules[${index}]`;
 
-    if (!rule.source.startsWith('/')) {
-      errors.push(`${label}.source must start with "/".`);
+    if (!isValidSource(rule.source)) {
+      errors.push(
+        `${label}.source must be a path starting with "/" or a host-only absolute URL such as "https://www.craigs.autos".`,
+      );
     }
     if (!rule.target) {
       errors.push(`${label}.target is required.`);
@@ -99,6 +101,25 @@ function validateConfig({ appId, region, rules }) {
 
   if (errors.length > 0) {
     throw new Error(errors.join('\n'));
+  }
+}
+
+function isValidSource(source) {
+  if (source.startsWith('/')) {
+    return true;
+  }
+
+  try {
+    const parsed = new URL(source);
+    return (
+      (parsed.protocol === 'https:' || parsed.protocol === 'http:') &&
+      parsed.hostname.length > 0 &&
+      (parsed.pathname === '' || parsed.pathname === '/') &&
+      parsed.search === '' &&
+      parsed.hash === ''
+    );
+  } catch {
+    return false;
   }
 }
 

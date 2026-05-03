@@ -54,7 +54,7 @@ Check:
 
 Open the site and fetch:
 
-- `https://chat.craigs.autos/amplify_outputs.json`
+- `https://craigs.autos/amplify_outputs.json`
 
 Confirm it contains:
 
@@ -162,7 +162,7 @@ Checks:
    - Confirm `https://cdn.platform.openai.com/deployments/chatkit/chatkit.js` loads (200).
 
 3) Domain allowlist:
-   - Ensure `chat.craigs.autos` is on the allowlist:
+   - Ensure `craigs.autos` is on the allowlist:
      https://platform.openai.com/settings/organization/security/domain-allowlist
 
 4) Session endpoint reachable:

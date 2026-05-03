@@ -166,7 +166,7 @@ Note:
 
 Symptom:
 
-- Chat works on localhost but not on `https://chat.craigs.autos`.
+- Chat works on localhost but not on `https://craigs.autos`.
 
 Cause:
 
@@ -174,7 +174,7 @@ Cause:
 
 Fix:
 
-- Add `chat.craigs.autos` (and `craigs.autos` if needed) in:
+- Add `craigs.autos` in:
   https://platform.openai.com/settings/organization/security/domain-allowlist
 
 ### 4) Over-aggressive guardrails block normal lead messages

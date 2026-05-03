@@ -82,7 +82,7 @@ as your system-of-record key for everything downstream (email, dedupe, debug).
 ## System architecture (high-level)
 
 ```
-Browser (chat.craigs.autos)
+Browser (craigs.autos)
   - ChatKit runtime renders UI
   - Requests a client_secret from our backend
   - Calls our chat lead handoff endpoint with threadId (cthr_...)

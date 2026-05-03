@@ -486,7 +486,7 @@ Routes exposed:
 - `GET /admin/leads`
 - `POST /admin/leads/qualification`
 
-CORS is restricted to `https://chat.craigs.autos`, `https://craigs.autos`, and localhost dev origins in `amplify/backend/public-api.ts:24`. That helps browser access, but CORS is not authentication. Public endpoints still need their own abuse controls.
+CORS is restricted to `https://craigs.autos` and localhost dev origins in `amplify/backend/public-api.ts:24`. That helps browser access, but CORS is not authentication. Public endpoints still need their own abuse controls.
 
 ### Endpoint Abuse Risks
 

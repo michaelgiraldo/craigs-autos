@@ -50,6 +50,7 @@
     "smoke:journey": "node --experimental-strip-types scripts/smoke-journey.ts",
     "sync:amplify-redirects": "node scripts/sync-amplify-redirects.mjs",
     "check:amplify-redirects": "node scripts/sync-amplify-redirects.mjs --check",
+    "check:canonical-domain": "node scripts/check-canonical-domain.mjs",
     "indexnow:submit": "node scripts/indexnow-submit.mjs",
     "preview": "astro preview",
     "astro": "astro"

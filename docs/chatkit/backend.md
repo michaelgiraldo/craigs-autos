@@ -212,7 +212,6 @@ CORS is configured on the public HTTP API in `amplify/backend/public-api.ts`.
 
 Allowed origins currently include:
 
-- `https://chat.craigs.autos`
 - `https://craigs.autos`
 - `http://localhost:4321`
 - `http://127.0.0.1:4321`

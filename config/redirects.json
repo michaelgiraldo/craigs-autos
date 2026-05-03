@@ -3,6 +3,11 @@
   "region": "us-west-1",
   "rules": [
     {
+      "source": "https://www.craigs.autos",
+      "target": "https://craigs.autos",
+      "status": "301"
+    },
+    {
       "source": "/",
       "target": "https://craigs.autos/en/",
       "status": "301"

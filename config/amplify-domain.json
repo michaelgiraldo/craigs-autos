@@ -1,0 +1,11 @@
+{
+  "appId": "d3du4u03f75wsu",
+  "region": "us-west-1",
+  "domainName": "craigs.autos",
+  "hostedZoneId": "Z0662995DUHWM14WMAA8",
+  "branchName": "main",
+  "canonicalHost": "craigs.autos",
+  "redirectHosts": ["www.craigs.autos"],
+  "retiredHosts": ["chat.craigs.autos"],
+  "forbiddenSubdomainPrefixes": ["*"]
+}
