@@ -52,7 +52,14 @@ function readConfig(configPath) {
 
 function validateLocalConfig(rawConfig) {
   const errors = [];
-  for (const key of ['appId', 'region', 'domainName', 'hostedZoneId', 'branchName', 'canonicalHost']) {
+  for (const key of [
+    'appId',
+    'region',
+    'domainName',
+    'hostedZoneId',
+    'branchName',
+    'canonicalHost',
+  ]) {
     if (!rawConfig[key] || typeof rawConfig[key] !== 'string') {
       errors.push(`${key} must be a non-empty string.`);
     }
@@ -126,7 +133,9 @@ function checkAmplifySubdomains(config, domainAssociation) {
 
   for (const forbidden of config.forbiddenSubdomainPrefixes) {
     if (actual.has(forbidden)) {
-      failures.push(`Amplify domain association still includes forbidden subdomain prefix "${forbidden}".`);
+      failures.push(
+        `Amplify domain association still includes forbidden subdomain prefix "${forbidden}".`,
+      );
     }
   }
   for (const [prefix, branchName] of expected.entries()) {
@@ -137,7 +146,9 @@ function checkAmplifySubdomains(config, domainAssociation) {
   }
   for (const prefix of actual.keys()) {
     if (!expected.has(prefix)) {
-      failures.push(`Amplify domain association has unexpected subdomain prefix "${prefix || '(apex)'}".`);
+      failures.push(
+        `Amplify domain association has unexpected subdomain prefix "${prefix || '(apex)'}".`,
+      );
     }
   }
   return failures;
@@ -192,7 +203,7 @@ async function checkPublicHttp(config) {
 }
 
 function hostToPrefix(config, host) {
-  return host.slice(0, -1 * (`.${config.domainName}`).length);
+  return host.slice(0, -1 * `.${config.domainName}`.length);
 }
 
 function fetchHead(url) {
